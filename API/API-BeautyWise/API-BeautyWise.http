@@ -1,0 +1,6 @@
+@API_BeautyWise_HostAddress = http://localhost:5232
+
+GET {{API_BeautyWise_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

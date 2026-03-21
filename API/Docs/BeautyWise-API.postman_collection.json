@@ -1,0 +1,1638 @@
+{
+  "info": {
+    "name": "BeautyWise API",
+    "_postman_id": "beautywise-api-collection-v1",
+    "description": "BeautyWise SaaS - Güzellik Merkezi Yönetim API\n\n## Kullanım Sırası\n1. **Environment Seç** → Sol üstten `BeautyWise - Local` seç\n2. **Tenant Kayıt** → `POST /api/tenantonboarding/register-tenant`\n3. **Login** → `POST /api/auth/login` _(jwt_token otomatik kaydedilir)_\n4. **Planları Listele** → `GET /api/subscription/plans`\n5. **Trial Başlat** → `POST /api/subscription/start-trial`\n6. **Abonelik Satın Al** → `POST /api/subscription/purchase`\n7. **Personel Davet Et** → `POST /api/tenantonboarding/invite-token`\n8. **Personel Kayıt** → `POST /api/auth/register`\n9. **Hizmet Ekle** → `POST /api/treatment`\n10. **Müşteri Ekle** → `POST /api/customer`\n11. **Randevu Oluştur** → `POST /api/appointment`\n12. **Para Birimlerini Listele** → `GET /api/currency`\n13. **Ödeme Kaydet** → `POST /api/appointmentpayment`\n14. **Gider Kategorisi Oluştur** → `POST /api/expense/category`\n15. **Gider Ekle** → `POST /api/expense`\n16. **Finansal Dashboard** → `GET /api/financialreport/dashboard`\n\n## Environment Variables\n| Değişken | Açıklama |\n|---|---|\n| `baseUrl` | API base URL |\n| `jwt_token` | Login sonrası **otomatik** dolar |\n| `invite_token` | Davet token oluşturunca **otomatik** dolar |\n| `merchant_oid` | Purchase sonrası **otomatik** dolar |\n| `owner_email` | Test e-posta adresi |\n| `owner_password` | Test şifresi |\n| `customer_id` | Müşteri oluşturunca **otomatik** dolar |\n| `treatment_id` | Hizmet oluşturunca **otomatik** dolar |\n| `appointment_id` | Randevu oluşturunca **otomatik** dolar |\n| `staff_id` | Login sonrası **otomatik** dolar |\n| `unavailability_id` | Kapalı aralık oluşturunca **otomatik** dolar |\n| `payment_id` | Ödeme kaydı oluşturunca **otomatik** dolar |\n| `expense_category_id` | Gider kategorisi oluşturunca **otomatik** dolar |\n| `expense_id` | Gider kaydı oluşturunca **otomatik** dolar |",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1 - Tenant Onboarding",
+      "description": "Güzellik merkezi ve ilk Owner kullanıcı oluşturma işlemleri.",
+      "item": [
+        {
+          "name": "Güzellik Merkezi Kayıt (PUBLIC)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data) {",
+                  "        pm.environment.set('tenant_id', body.data.tenantId);",
+                  "        console.log('✅ Kayıt başarılı!');",
+                  "        console.log('TenantId:', body.data.tenantId, '| UserId:', body.data.userId);",
+                  "    }",
+                  "} else {",
+                  "    console.error('❌ Hata:', pm.response.json().message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyName\": \"Güzel Eller Güzellik Merkezi\",\n  \"phone\": \"05321234567\",\n  \"address\": \"Bağcılar Mah. Gül Sk. No:5, İstanbul\",\n  \"taxNumber\": \"1234567890\",\n  \"taxOffice\": \"Bağcılar\",\n  \"email\": \"{{owner_email}}\",\n  \"password\": \"{{owner_password}}\",\n  \"confirmPassword\": \"{{owner_password}}\",\n  \"name\": \"Mehmet\",\n  \"surname\": \"Kara\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tenantonboarding/register-tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tenantonboarding", "register-tenant"]
+            },
+            "description": "Güzellik merkezi (Tenant) ve Owner kullanıcıyı tek seferde oluşturur.\n\n**PUBLIC** - JWT gerekmez.\n\n**Başarı Yanıtı:**\n```json\n{ \"data\": { \"tenantId\": 1, \"userId\": 1 } }\n```"
+          }
+        },
+        {
+          "name": "Personel Davet Token Oluştur (Owner/Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data) {",
+                  "        pm.environment.set('invite_token', body.data);",
+                  "        console.log('✅ Davet token oluşturuldu!');",
+                  "        console.log('Token:', body.data);",
+                  "        console.log('Bu token 24 saat geçerli ve tek kullanımlık.');",
+                  "    }",
+                  "} else {",
+                  "    console.error('❌ Hata:', pm.response.json().message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "\"personel@guzeleller.com\"",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/tenantonboarding/invite-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "tenantonboarding", "invite-token"]
+            },
+            "description": "Personel davet kodu oluşturur. 24 saat geçerli, tek kullanımlık.\n\n**Gerekli Rol:** Owner veya Admin\n\n**Body:** Davet edilecek e-posta (string) — opsiyonel, `null` gönderilebilir.\n\n**Başarı Yanıtı:**\n```json\n{ \"data\": \"abc123-davet-kodu\" }\n```"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2 - Auth (Kimlik Doğrulama)",
+      "description": "Giriş ve personel kayıt işlemleri.",
+      "item": [
+        {
+          "name": "Login - Owner (PUBLIC)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.token) {",
+                  "        pm.environment.set('jwt_token', body.data.token);",
+                  "        if (body.data.userId) pm.environment.set('staff_id', body.data.userId);",
+                  "        console.log('✅ Login başarılı! JWT token environment\\'a kaydedildi.');",
+                  "        console.log('Kullanıcı:', body.data.email);",
+                  "        console.log('Rol(ler):', JSON.stringify(body.data.roles));",
+                  "    }",
+                  "} else {",
+                  "    console.error('❌ Login hatası:', pm.response.json().message);",
+                  "    pm.environment.set('jwt_token', '');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailOrUsername\": \"{{owner_email}}\",\n  \"password\": \"{{owner_password}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Owner girişi. Başarılı olursa `jwt_token` environment variable'ına otomatik kaydedilir.\n\n**PUBLIC** - JWT gerekmez.\n\n**Başarı Yanıtı:**\n```json\n{\n  \"data\": {\n    \"token\": \"eyJhbG...\",\n    \"email\": \"owner@guzeleller.com\",\n    \"name\": \"Mehmet\",\n    \"surname\": \"Kara\",\n    \"roles\": [\"Owner\"]\n  }\n}\n```"
+          }
+        },
+        {
+          "name": "Login - Personel (PUBLIC)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.token) {",
+                  "        pm.environment.set('jwt_token', body.data.token);",
+                  "        console.log('✅ Personel login başarılı! JWT kaydedildi.');",
+                  "        console.log('Rol(ler):', JSON.stringify(body.data.roles));",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"emailOrUsername\": \"personel@guzeleller.com\",\n  \"password\": \"Test@1234\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Personel girişi. Token otomatik kaydedilir.\n\n**ÖNEMLİ:** Bu request sonrası jwt_token personel token'ına geçer. Owner endpoint'lerini test etmek için tekrar 'Login - Owner' requestini çalıştır."
+          }
+        },
+        {
+          "name": "Personel Kayıt - Davet Token ile (PUBLIC)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"inviteToken\": \"{{invite_token}}\",\n  \"email\": \"personel@guzeleller.com\",\n  \"password\": \"Test@1234\",\n  \"confirmPassword\": \"Test@1234\",\n  \"name\": \"Ayşe\",\n  \"surname\": \"Yılmaz\",\n  \"birthDate\": \"1995-06-15T00:00:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Davet token'ı ile personel kaydı.\n\n**PUBLIC** - JWT gerekmez.\n\n`invite_token` → 'Personel Davet Token Oluştur' requestinden otomatik dolar.\n\n**Başarı Yanıtı:**\n```json\n{ \"data\": 5 }  // Yeni userId\n```"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3 - Abonelik (Subscription)",
+      "description": "Abonelik planları, satın alma, trial ve iptal işlemleri.",
+      "item": [
+        {
+          "name": "Planları Listele (PUBLIC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "plans"]
+            },
+            "description": "Tüm aktif abonelik paketlerini listeler.\n\n**PUBLIC** - JWT gerekmez."
+          }
+        },
+        {
+          "name": "Mevcut Abonelik Bilgisi (Owner)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/current",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "current"]
+            },
+            "description": "Tenant'ın aktif abonelik detaylarını döner.\n\n**Gerekli Rol:** Owner"
+          }
+        },
+        {
+          "name": "Abonelik Durumu - Aktif mi? (Owner)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "status"]
+            },
+            "description": "Abonelik aktif mi? Trial döneminde mi? Hızlı kontrol.\n\n**Gerekli Rol:** Owner\n\n**Başarı Yanıtı:**\n```json\n{ \"data\": { \"isActive\": true, \"isInTrialPeriod\": false } }\n```"
+          }
+        },
+        {
+          "name": "Trial Başlat - 7 Gün Ücretsiz (Owner)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "1",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/start-trial",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "start-trial"]
+            },
+            "description": "7 günlük ücretsiz deneme başlatır.\n\n**Gerekli Rol:** Owner\n\n**Body:** `planId` (integer)\n\n**Not:** Her tenant yalnızca 1 kez kullanabilir."
+          }
+        },
+        {
+          "name": "Abonelik Satın Al - PayTR IFRAME Al (Owner)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data) {",
+                  "        pm.environment.set('merchant_oid', body.data.merchantOid);",
+                  "        console.log('✅ PayTR token alındı!');",
+                  "        console.log('MerchantOid:', body.data.merchantOid);",
+                  "        console.log('IframeUrl:', body.data.iframeUrl);",
+                  "        console.log('Fiyat:', body.data.finalPrice, 'TL');",
+                  "        console.log('');",
+                  "        console.log('👉 IframeUrl\\'i tarayıcıda aç veya frontend\\'e ver.');",
+                  "    }",
+                  "} else {",
+                  "    const err = pm.response.json();",
+                  "    console.error('❌ Hata:', err.errorCode, '-', err.message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subscriptionPlanId\": 1,\n  \"isYearly\": false,\n  \"couponCode\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/purchase",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "purchase"]
+            },
+            "description": "PayTR IFRAME token alır. `merchant_oid` environment'a otomatik kaydedilir.\n\n**Gerekli Rol:** Owner\n\n**Başarı Yanıtı:**\n```json\n{\n  \"data\": {\n    \"subscriptionId\": 3,\n    \"originalPrice\": 299.90,\n    \"finalPrice\": 299.90,\n    \"iframeToken\": \"abc123\",\n    \"iframeUrl\": \"https://www.paytr.com/odeme/guvenli/abc123\",\n    \"merchantOid\": \"BW31748000000\"\n  }\n}\n```\n\n**Test Kartı (PayTR Test Modu):**\n```\nKart No : 4355 0843 5508 4358\nSon Kul.: 12/26\nCVV    : 000\n```"
+          }
+        },
+        {
+          "name": "Abonelik İptal Et (Owner)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Hizmeti kullanmayı bıraktım.\",\n  \"requestRefund\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "cancel"]
+            },
+            "description": "Aboneliği iptal eder. `requestRefund: false` → sadece iptal, iade yok."
+          }
+        },
+        {
+          "name": "Abonelik İptal + İade Talep Et (Owner)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Üründen memnun kalmadım.\",\n  \"requestRefund\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/cancel",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "cancel"]
+            },
+            "description": "İptal + PayTR üzerinden iade talebi. `requestRefund: true` olduğunda PayTR iade API'si çağrılır."
+          }
+        },
+        {
+          "name": "Ödeme Geçmişi (Owner)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/subscription/payment-history",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "subscription", "payment-history"]
+            },
+            "description": "Tenant'ın tüm ödeme geçmişini listeler.\n\n**Gerekli Rol:** Owner"
+          }
+        },
+        {
+          "name": "Ödeme Durum Sorgula - PayTR (Owner)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentcallback/status/{{merchant_oid}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "paymentcallback", "status", "{{merchant_oid}}"]
+            },
+            "description": "PayTR'dan canlı ödeme durum sorgusu.\n\n`merchant_oid` → 'Abonelik Satın Al' requestinden otomatik dolar."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4 - PayTR Callback (Simülasyon)",
+      "description": "PayTR'ın ödeme sonrası gönderdiği bildirimleri simüle eder.\n\n⚠️ `hash` değeri gerçek ortamda PayTR tarafından hesaplanır. Manuel test için PayTR panelindeki 'Test Bildirimi Gönder' özelliğini kullan.",
+      "item": [
+        {
+          "name": "Callback - BAŞARILI Ödeme Simülasyonu",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "merchant_oid",      "value": "{{merchant_oid}}",   "description": "Purchase'dan dönen sipariş no" },
+                { "key": "status",             "value": "success" },
+                { "key": "total_amount",       "value": "29990",             "description": "299.90 TL = 29990 kuruş" },
+                { "key": "hash",               "value": "PAYTR_HASH_BURAYA", "description": "PayTR'ın gönderdiği HMAC-SHA256 hash" },
+                { "key": "failed_reason_code", "value": "" },
+                { "key": "failed_reason_msg",  "value": "" },
+                { "key": "test_mode",          "value": "1" },
+                { "key": "payment_type",       "value": "card" },
+                { "key": "installment_count",  "value": "0" },
+                { "key": "currency",           "value": "TL" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentcallback/paytr",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "paymentcallback", "paytr"]
+            },
+            "description": "Başarılı ödeme callback simülasyonu.\n\n**JWT gerekmez** - PayTR'ın sunucusu çağırır.\n\n**Beklenen Yanıt:** `OK` (düz metin, 200)\n\n**Hash Notu:** Gerçek hash için PayTR panelinizden test bildirimi gönderin ya da bu formülü kullan:\n```\nHMAC-SHA256(merchantOid + merchantSalt + status + totalAmount, merchantKey)\n```"
+          }
+        },
+        {
+          "name": "Callback - BAŞARISIZ Ödeme Simülasyonu",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "merchant_oid",      "value": "{{merchant_oid}}" },
+                { "key": "status",            "value": "failed" },
+                { "key": "total_amount",      "value": "29990" },
+                { "key": "hash",              "value": "PAYTR_HASH_BURAYA" },
+                { "key": "failed_reason_code","value": "51" },
+                { "key": "failed_reason_msg", "value": "Yetersiz bakiye" },
+                { "key": "test_mode",         "value": "1" },
+                { "key": "payment_type",      "value": "card" },
+                { "key": "installment_count", "value": "0" },
+                { "key": "currency",          "value": "TL" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentcallback/paytr",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "paymentcallback", "paytr"]
+            },
+            "description": "Başarısız ödeme simülasyonu. Abonelik `Failed` durumuna düşer."
+          }
+        },
+        {
+          "name": "Ödeme Durum Sorgula - Direkt (PUBLIC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/paymentcallback/status/{{merchant_oid}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "paymentcallback", "status", "{{merchant_oid}}"]
+            },
+            "description": "JWT olmadan PayTR durum sorgusu. merchant_oid bilmek yeterli."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5 - Kupon (Coupon)",
+      "item": [
+        {
+          "name": "Kupon Doğrula (PUBLIC)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/coupon/validate/KUPON10",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "coupon", "validate", "KUPON10"]
+            },
+            "description": "Kupon kodunu doğrular ve indirim bilgisini döner.\n\n**PUBLIC** - JWT gerekmez."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6 - Hizmetler / İşlemler (Treatment)",
+      "description": "Güzellik merkezi hizmet tanımları. Randevularda bu hizmetler seçilir.\nHer hizmetin süresi randevu çakışma kontrolünde kullanılır.\n\n**CRUD:** Owner / Admin\n**Listeleme:** Owner + Staff",
+      "item": [
+        {
+          "name": "Hizmetleri Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treatment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treatment"]
+            },
+            "description": "Tenant'a ait tüm hizmetleri listeler.\n\n**Gerekli Rol:** Owner, Staff, Admin"
+          }
+        },
+        {
+          "name": "Hizmet Detayı",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treatment/{{treatment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treatment", "{{treatment_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Hizmet Ekle (Owner/Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.id) {",
+                  "        pm.environment.set('treatment_id', body.data.id);",
+                  "        console.log('✅ Hizmet oluşturuldu! ID:', body.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Saç Boyama\",\n  \"description\": \"Komple saç boyama işlemi\",\n  \"durationMinutes\": 90,\n  \"price\": 350.00,\n  \"color\": \"#E91E63\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treatment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treatment"]
+            },
+            "description": "Yeni hizmet ekler. `treatment_id` otomatik kaydedilir.\n\n**Gerekli Rol:** Owner, Admin\n\n**Alanlar:**\n- `name`: Hizmet adı *(zorunlu)*\n- `durationMinutes`: Süre dakika cinsinden *(zorunlu, çakışma kontrolünde kullanılır)*\n- `price`: Fiyat *(opsiyonel)*\n- `color`: Takvim rengi hex kodu *(opsiyonel)*\n\n**Örnek hizmetler:**\n```\nSaç Boyama     → 90 dk\nManikür        → 45 dk\nKaş Alımı      → 20 dk\nSaç Kesimi     → 30 dk\nCilt Bakımı    → 60 dk\n```"
+          }
+        },
+        {
+          "name": "Hizmet Güncelle (Owner/Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Saç Boyama (Güncellendi)\",\n  \"description\": \"Komple saç boyama + bakım\",\n  \"durationMinutes\": 120,\n  \"price\": 400.00,\n  \"color\": \"#9C27B0\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/treatment/{{treatment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treatment", "{{treatment_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Hizmet Sil (Owner/Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/treatment/{{treatment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "treatment", "{{treatment_id}}"]
+            },
+            "description": "Hizmeti siler. Gelecekteki aktif randevusu varsa hata döner."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7 - Müşteriler (Customer)",
+      "description": "Güzellik merkezi müşteri yönetimi.\n\n**Erişim:** Owner, Staff, Admin\n**Silme:** Sadece Owner / Admin",
+      "item": [
+        {
+          "name": "Müşteri Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer"]
+            },
+            "description": "Tüm müşterileri listeler. Her müşterinin toplam randevu sayısı ve son randevu tarihi dahildir."
+          }
+        },
+        {
+          "name": "Müşteri Ara (ad/soyad/telefon)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customer?search=Ayşe",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer"],
+              "query": [{ "key": "search", "value": "Ayşe" }]
+            },
+            "description": "Ad, soyad veya telefon numarasına göre müşteri arar."
+          }
+        },
+        {
+          "name": "Müşteri Detayı (son 5 randevu)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customer/{{customer_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer", "{{customer_id}}"]
+            },
+            "description": "Müşteri detayını ve son 5 randevusunu döner."
+          }
+        },
+        {
+          "name": "Müşteri Ekle",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.id) {",
+                  "        pm.environment.set('customer_id', body.data.id);",
+                  "        console.log('✅ Müşteri oluşturuldu! ID:', body.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fatma\",\n  \"surname\": \"Demir\",\n  \"phone\": \"05351234567\",\n  \"email\": \"fatma@example.com\",\n  \"birthDate\": \"1990-03-15T00:00:00\",\n  \"notes\": \"Hassas cilt, doğal ürün tercih ediyor.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customer",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer"]
+            },
+            "description": "Yeni müşteri ekler. `customer_id` otomatik kaydedilir.\n\nAynı telefon numarasıyla ikinci kayıt yapılamaz."
+          }
+        },
+        {
+          "name": "Müşteri Güncelle",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Fatma\",\n  \"surname\": \"Demir\",\n  \"phone\": \"05351234567\",\n  \"email\": \"fatma.yeni@example.com\",\n  \"birthDate\": \"1990-03-15T00:00:00\",\n  \"notes\": \"Hassas cilt. Keratin işlemlerine uygun.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customer/{{customer_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer", "{{customer_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Müşteri Sil (Owner/Admin)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customer/{{customer_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "customer", "{{customer_id}}"]
+            },
+            "description": "Müşteriyi siler. Gelecekteki randevusu varsa hata döner."
+          }
+        }
+      ]
+    },
+    {
+      "name": "8 - Randevular (Appointment)",
+      "description": "Randevu yönetimi. Personel, müşteri için randevu oluşturur.\n\n**Çakışma Kontrolü:** Aynı personele çakışan zaman atanamaz.\n**Tekrarlayan Seans:** IsRecurring=true ile otomatik seri oluşturulur.\n\n**Durum Değerleri:** Scheduled | Confirmed | Completed | Cancelled | NoShow",
+      "item": [
+        {
+          "name": "Randevu Listele (Tümü)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment"]
+            }
+          }
+        },
+        {
+          "name": "Randevu Listele (Tarih Aralığı)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment?startDate=2026-01-01&endDate=2026-01-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment"],
+              "query": [
+                { "key": "startDate", "value": "2026-01-01" },
+                { "key": "endDate",   "value": "2026-01-31" }
+              ]
+            },
+            "description": "Belirli tarih aralığındaki randevuları listeler."
+          }
+        },
+        {
+          "name": "Randevu Listele (Personele Göre)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment?staffId={{staff_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment"],
+              "query": [{ "key": "staffId", "value": "{{staff_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "Bugünkü Randevular",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment/today",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment", "today"]
+            },
+            "description": "Bugüne ait tüm randevuları getirir. `?staffId=X` ile personele göre filtrelenebilir."
+          }
+        },
+        {
+          "name": "Randevu Detayı",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment/{{appointment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment", "{{appointment_id}}"]
+            },
+            "description": "Randevu detayını getirir. Tekrarlayan seans ise tüm seri randevuları `seriesAppointments` alanında döner."
+          }
+        },
+        {
+          "name": "Randevu Oluştur (Tek Seans)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.length > 0) {",
+                  "        pm.environment.set('appointment_id', body.data[0].id);",
+                  "        console.log('✅ Randevu oluşturuldu! ID:', body.data[0].id);",
+                  "        console.log('Seans:', body.data[0].startTime, '-', body.data[0].endTime);",
+                  "        console.log('Müşteri:', body.data[0].customerFullName);",
+                  "        console.log('Personel:', body.data[0].staffFullName);",
+                  "        console.log('Hizmet:', body.data[0].treatmentName, '(' + body.data[0].durationMinutes + ' dk)');",
+                  "    }",
+                  "} else {",
+                  "    const err = pm.response.json();",
+                  "    console.error('❌ Hata:', err.errorCode, '-', err.message);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": {{customer_id}},\n  \"staffId\": {{staff_id}},\n  \"treatmentId\": {{treatment_id}},\n  \"startTime\": \"2026-03-15T10:00:00\",\n  \"notes\": \"İlk seans\",\n  \"isRecurring\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment"]
+            },
+            "description": "Tek seferlik randevu oluşturur.\n\n`appointment_id` otomatik kaydedilir.\n\n**EndTime** otomatik hesaplanır: `startTime + treatment.durationMinutes`\n\n**Çakışma varsa** 400 döner ve çakışan randevu detayı belirtilir."
+          }
+        },
+        {
+          "name": "Randevu Oluştur (Tekrarlayan Seans)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.length > 0) {",
+                  "        pm.environment.set('appointment_id', body.data[0].id);",
+                  "        console.log('✅', body.data.length, 'seans oluşturuldu!');",
+                  "        body.data.forEach(a => {",
+                  "            console.log('  Seans', a.sessionNumber + '/' + a.totalSessions + ':', a.startTime, '-', a.endTime);",
+                  "        });",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"customerId\": {{customer_id}},\n  \"staffId\": {{staff_id}},\n  \"treatmentId\": {{treatment_id}},\n  \"startTime\": \"2026-03-15T10:00:00\",\n  \"notes\": \"Keratin serisi - 1. seans\",\n  \"isRecurring\": true,\n  \"recurrenceIntervalDays\": 7,\n  \"totalSessions\": 5\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment"]
+            },
+            "description": "Tekrarlayan seans randevusu oluşturur.\n\n**Örnek:** 5 seans, her 7 günde bir (haftalık)\n\nÇakışma olmayan tüm seanslar oluşturulur, çakışanlar atlanır.\nYanıt: oluşturulan tüm seans listesi.\n\n```\nrecurrenceIntervalDays:\n  7  → Haftalık\n  14 → 2 Haftada bir\n  30 → Aylık\n```"
+          }
+        },
+        {
+          "name": "Randevu Güncelle",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staffId\": {{staff_id}},\n  \"treatmentId\": {{treatment_id}},\n  \"startTime\": \"2026-03-15T11:00:00\",\n  \"notes\": \"Saat değiştirildi\",\n  \"status\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment/{{appointment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment", "{{appointment_id}}"]
+            },
+            "description": "Randevuyu günceller. Yeni zamanda çakışma kontrolü yapılır.\n\n**Status değerleri:** 1=Scheduled, 2=Confirmed, 3=Completed, 4=Cancelled, 5=NoShow"
+          }
+        },
+        {
+          "name": "Randevu Durumu Güncelle - Tamamlandı",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 3,\n  \"notes\": \"Müşteri memnun ayrıldı.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment/{{appointment_id}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment", "{{appointment_id}}", "status"]
+            },
+            "description": "Sadece durumu günceller.\n\n`status` değerleri:\n- `1` → Scheduled (Planlandı)\n- `2` → Confirmed (Onaylandı)\n- `3` → Completed (Tamamlandı)\n- `4` → Cancelled (İptal)\n- `5` → NoShow (Müşteri Gelmedi)"
+          }
+        },
+        {
+          "name": "Randevu Durumu Güncelle - Gelmedi",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": 5,\n  \"notes\": \"Müşteri aramadı, gelmedi.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment/{{appointment_id}}/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment", "{{appointment_id}}", "status"]
+            }
+          }
+        },
+        {
+          "name": "Randevu İptal Et",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment/{{appointment_id}}?notes=Müşteri iptal etti",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment", "{{appointment_id}}"],
+              "query": [{ "key": "notes", "value": "Müşteri iptal etti" }]
+            },
+            "description": "Randevuyu iptal eder. Kalıcı silme yapmaz, status=Cancelled olur."
+          }
+        },
+        {
+          "name": "Personel Müsait Saatlerini Sorgula",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"staffId\": {{staff_id}},\n  \"treatmentId\": {{treatment_id}},\n  \"date\": \"2026-03-15T00:00:00\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointment/check-availability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointment", "check-availability"]
+            },
+            "description": "Belirli bir gün için personelin müsait zaman dilimlerini listeler.\n\nHizmet süresi kadar boş aralıklar `availableSlots` olarak, dolu aralıklar `blockedSlots` olarak döner.\n\n**Çalışma saati:** 08:00 – 20:00"
+          }
+        }
+      ]
+    },
+    {
+      "name": "9 - Personel Programı (Staff Schedule)",
+      "description": "Personel müsaitlik dışı yönetimi.\nPersonel kendi kapalı aralıklarını (izin, mola, toplantı) ekler.\nOwner/Admin tüm personellerin programını yönetebilir.\n\n**Sebep örnekleri:** İzin | Öğle Molası | Toplantı | Hasta | Diğer",
+      "item": [
+        {
+          "name": "Personelin Kapalı Aralıklarını Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/unavailability/{{staff_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "unavailability", "{{staff_id}}"]
+            },
+            "description": "Personelin tüm kapalı aralıklarını listeler.\n\n`?startDate=2026-01-01&endDate=2026-01-31` ile tarih filtresi eklenebilir."
+          }
+        },
+        {
+          "name": "Personelin Kapalı Aralıklarını Listele (Tarih Filtreli)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/unavailability/{{staff_id}}?startDate=2026-03-01&endDate=2026-03-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "unavailability", "{{staff_id}}"],
+              "query": [
+                { "key": "startDate", "value": "2026-03-01" },
+                { "key": "endDate",   "value": "2026-03-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Kapalı Aralık Ekle (Kendi için)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.id) {",
+                  "        pm.environment.set('unavailability_id', body.data.id);",
+                  "        console.log('✅ Kapalı aralık eklendi! ID:', body.data.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2026-03-20T12:00:00\",\n  \"endTime\": \"2026-03-20T13:00:00\",\n  \"reason\": \"Öğle Molası\",\n  \"notes\": null\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/unavailability",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "unavailability"]
+            },
+            "description": "Giriş yapan personel kendi kapalı aralığını ekler.\n`unavailability_id` otomatik kaydedilir.\n\n**ÖNEMLİ:** Bu aralıkta mevcut randevu varsa hata döner."
+          }
+        },
+        {
+          "name": "Kapalı Aralık Ekle (Owner → Başka Personel için)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2026-03-25T09:00:00\",\n  \"endTime\": \"2026-03-25T18:00:00\",\n  \"reason\": \"İzin\",\n  \"notes\": \"Yıllık izin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/unavailability?staffId={{staff_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "unavailability"],
+              "query": [{ "key": "staffId", "value": "{{staff_id}}" }]
+            },
+            "description": "Owner/Admin başka bir personel adına kapalı aralık ekler.\n`?staffId=X` query parametresi ile hedef personel belirtilir."
+          }
+        },
+        {
+          "name": "Kapalı Aralık Güncelle",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"startTime\": \"2026-03-20T12:30:00\",\n  \"endTime\": \"2026-03-20T13:30:00\",\n  \"reason\": \"Öğle Molası\",\n  \"notes\": \"Uzatıldı\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/unavailability/{{unavailability_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "unavailability", "{{unavailability_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Kapalı Aralık Sil",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/unavailability/{{unavailability_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "unavailability", "{{unavailability_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Personelin Günlük Programı (Bugün)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/daily/{{staff_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "daily", "{{staff_id}}"]
+            },
+            "description": "Personelin bugünkü programını döner: tüm randevular + kapalı aralıklar birlikte."
+          }
+        },
+        {
+          "name": "Personelin Günlük Programı (Belirli Tarih)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/staffschedule/daily/{{staff_id}}?date=2026-03-15",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "staffschedule", "daily", "{{staff_id}}"],
+              "query": [{ "key": "date", "value": "2026-03-15" }]
+            },
+            "description": "Belirli bir gün için personel programını döner:\n- `appointments`: O günkü randevular (müşteri, hizmet, saat)\n- `unavailablePeriods`: O günkü kapalı aralıklar (izin, mola vb.)"
+          }
+        }
+      ]
+    },
+    {
+      "name": "10 - Para Birimleri (Currency)",
+      "description": "Sistemde tanımlı para birimleri. Seed ile TRY, USD, EUR, GBP otomatik gelir.\nÖdeme ve gider eklerken CurrencyId buradan seçilir.",
+      "item": [
+        {
+          "name": "Para Birimlerini Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/currency",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "currency"]
+            },
+            "description": "Aktif para birimlerini listeler.\n- Id=1 → TRY ₺ (varsayılan)\n- Id=2 → USD $\n- Id=3 → EUR €\n- Id=4 → GBP £"
+          }
+        }
+      ]
+    },
+    {
+      "name": "11 - Ödemeler (AppointmentPayment)",
+      "description": "Randevu sonrası müşteriden alınan ödeme kayıtları.\n- Nakit, Kredi Kartı, Havale, Çek vb.\n- Çoklu döviz desteği (kur manuel girilir).\n- Owner/Admin tüm ödemeleri görür; Staff sadece kendi randevularına ait ödemeleri görür.",
+      "item": [
+        {
+          "name": "Tüm Ödemeleri Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment"]
+            },
+            "description": "Filtresiz liste. Owner/Admin: tüm ödemeler. Staff: sadece kendi randevuları."
+          }
+        },
+        {
+          "name": "Tarih Aralığına Göre Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment?startDate=2026-03-01&endDate=2026-03-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment"],
+              "query": [
+                { "key": "startDate", "value": "2026-03-01" },
+                { "key": "endDate",   "value": "2026-03-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Randevuya Ait Ödemeleri Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment/appointment/{{appointment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment", "appointment", "{{appointment_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Ödeme Detayı",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment/{{payment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment", "{{payment_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Ödeme Kaydet (Nakit - TRY)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.id) {",
+                  "        pm.environment.set('payment_id', body.data.id);",
+                  "        console.log('✅ Ödeme kaydedildi. payment_id:', body.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": {{appointment_id}},\n  \"amount\": 250.00,\n  \"currencyId\": 1,\n  \"exchangeRateToTry\": 1.0,\n  \"paymentMethod\": 1,\n  \"notes\": \"Nakit ödeme alındı\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment"]
+            },
+            "description": "Ödeme yöntemleri:\n- 1 = Nakit\n- 2 = Kredi / Banka Kartı\n- 3 = Havale / EFT\n- 4 = Çek\n- 5 = Diğer\n\nTRY dışı ödeme için:\n- currencyId: 2 (USD), 3 (EUR), 4 (GBP)\n- exchangeRateToTry: o günkü kur (ör. 32.5)"
+          }
+        },
+        {
+          "name": "Ödeme Kaydet (Dövizli - USD)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.id) {",
+                  "        pm.environment.set('payment_id', body.data.id);",
+                  "        console.log('✅ USD ödeme kaydedildi. payment_id:', body.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appointmentId\": {{appointment_id}},\n  \"amount\": 50.00,\n  \"currencyId\": 2,\n  \"exchangeRateToTry\": 32.50,\n  \"paymentMethod\": 2,\n  \"notes\": \"USD kredi kartı ile ödeme\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment"]
+            },
+            "description": "50 USD × 32.50 kur = 1625 TRY olarak AmountInTry hesaplanır."
+          }
+        },
+        {
+          "name": "Ödeme Güncelle",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 300.00,\n  \"currencyId\": 1,\n  \"exchangeRateToTry\": 1.0,\n  \"paymentMethod\": 1,\n  \"notes\": \"Güncellendi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment/{{payment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment", "{{payment_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Ödeme Sil",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/appointmentpayment/{{payment_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "appointmentpayment", "{{payment_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12 - Giderler (Expense)",
+      "description": "İşletme gider takibi. Sadece Owner ve Admin erişebilir.\nÖnce kategori oluşturun (Kira, Malzeme, Elektrik...) sonra gider ekleyin.",
+      "item": [
+        {
+          "name": "── KATEGORİLER ──",
+          "request": { "method": "GET", "header": [], "url": { "raw": "about:blank", "raw": "about:blank" } },
+          "description": "Ayırıcı"
+        },
+        {
+          "name": "Kategorileri Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/expense/category",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense", "category"]
+            }
+          }
+        },
+        {
+          "name": "Kategori Oluştur",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.id) {",
+                  "        pm.environment.set('expense_category_id', body.data.id);",
+                  "        console.log('✅ Kategori oluşturuldu. expense_category_id:', body.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Malzeme\",\n  \"color\": \"#FF8C00\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/expense/category",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense", "category"]
+            },
+            "description": "Örnekler: Kira, Elektrik, Su, Malzeme, Personel Maaşı, Reklam, Bakım..."
+          }
+        },
+        {
+          "name": "Kategori Güncelle",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Malzeme & Sarf\",\n  \"color\": \"#FFA500\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/expense/category/{{expense_category_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense", "category", "{{expense_category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Kategori Sil",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/expense/category/{{expense_category_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense", "category", "{{expense_category_id}}"]
+            }
+          }
+        },
+        {
+          "name": "── GİDERLER ──",
+          "request": { "method": "GET", "header": [], "url": { "raw": "about:blank", "raw": "about:blank" } },
+          "description": "Ayırıcı"
+        },
+        {
+          "name": "Giderleri Listele",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/expense",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense"]
+            }
+          }
+        },
+        {
+          "name": "Giderleri Filtrele (Tarih + Kategori)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/expense?startDate=2026-03-01&endDate=2026-03-31&categoryId={{expense_category_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense"],
+              "query": [
+                { "key": "startDate",  "value": "2026-03-01" },
+                { "key": "endDate",    "value": "2026-03-31" },
+                { "key": "categoryId", "value": "{{expense_category_id}}" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Gider Detayı",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/expense/{{expense_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense", "{{expense_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Gider Ekle (TRY)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const body = pm.response.json();",
+                  "    if (body.data && body.data.id) {",
+                  "        pm.environment.set('expense_id', body.data.id);",
+                  "        console.log('✅ Gider kaydedildi. expense_id:', body.data.id);",
+                  "    }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expenseCategoryId\": {{expense_category_id}},\n  \"amount\": 5000.00,\n  \"currencyId\": 1,\n  \"exchangeRateToTry\": 1.0,\n  \"description\": \"Mart ayı kira ödemesi\",\n  \"expenseDate\": \"2026-03-01\",\n  \"receiptNumber\": \"KR-2026-03-001\",\n  \"notes\": \"Banka transferi ile ödendi\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/expense",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense"]
+            }
+          }
+        },
+        {
+          "name": "Gider Güncelle",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"expenseCategoryId\": {{expense_category_id}},\n  \"amount\": 5250.00,\n  \"currencyId\": 1,\n  \"exchangeRateToTry\": 1.0,\n  \"description\": \"Mart ayı kira (güncellendi)\",\n  \"expenseDate\": \"2026-03-01\",\n  \"receiptNumber\": \"KR-2026-03-001\",\n  \"notes\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/expense/{{expense_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense", "{{expense_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Gider Sil",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/expense/{{expense_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "expense", "{{expense_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "13 - Finansal Raporlar",
+      "description": "Gelir / gider / net kâr analizleri.\n- **Owner/Admin**: Tüm veriler (gelir + gider + net kâr + personel kırılımı)\n- **Staff**: Sadece kendi randevularına ait gelir; gider verilerine erişemez.\n\nTarih filtresi verilmezse cari ay başından bugüne kadar olan veri döner.",
+      "item": [
+        {
+          "name": "Finansal Dashboard (Bu Ay)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/financialreport/dashboard",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "financialreport", "dashboard"]
+            },
+            "description": "Net kâr = Toplam gelir - Toplam gider\n\nDönen veriler:\n- `totalRevenueTRY` / `totalExpenseTRY` / `netIncomeTRY`\n- `totalAppointments` / `paidAppointments` / `unpaidAppointments`\n- `topTreatments`, `topStaff`, `paymentMethods`\n- `dailyRevenue`, `dailyExpense` (grafik için)"
+          }
+        },
+        {
+          "name": "Finansal Dashboard (Tarih Aralığı)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/financialreport/dashboard?startDate=2026-01-01&endDate=2026-03-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "financialreport", "dashboard"],
+              "query": [
+                { "key": "startDate", "value": "2026-01-01" },
+                { "key": "endDate",   "value": "2026-03-31" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Gelir Özeti (Bu Ay)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/financialreport/revenue",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "financialreport", "revenue"]
+            },
+            "description": "Kırılımlar:\n- `byPaymentMethod`: Nakit, Kart, Havale...\n- `byCurrency`: TRY, USD, EUR...\n- `byTreatment`: Hizmet bazlı\n- `byStaff`: Personel bazlı (Owner/Admin)\n- `dailyBreakdown`: Günlük grafik verisi"
+          }
+        },
+        {
+          "name": "Gelir Özeti (Personel Filtreli)",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/financialreport/revenue?staffId={{staff_id}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "financialreport", "revenue"],
+              "query": [{ "key": "staffId", "value": "{{staff_id}}" }]
+            },
+            "description": "Belirli bir personelin yarattığı geliri gösterir. Sadece Owner/Admin filtre gönderebilir."
+          }
+        },
+        {
+          "name": "Gider Özeti (Bu Ay) — Owner/Admin",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/financialreport/expense",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "financialreport", "expense"]
+            },
+            "description": "⚠️ Sadece Owner ve Admin erişebilir. Staff bu endpoint'e istek atarsa 403 döner.\n\nKırılımlar:\n- `byCategory`: Kategori bazlı gider\n- `dailyBreakdown`: Günlük grafik verisi"
+          }
+        },
+        {
+          "name": "Gider Özeti (Tarih Aralığı) — Owner/Admin",
+          "request": {
+            "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{jwt_token}}", "type": "string" }] },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/financialreport/expense?startDate=2026-01-01&endDate=2026-03-31",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "financialreport", "expense"],
+              "query": [
+                { "key": "startDate", "value": "2026-01-01" },
+                { "key": "endDate",   "value": "2026-03-31" }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Yavaş response uyarısı (>3 saniye)",
+          "if (pm.response.responseTime > 3000) {",
+          "    console.warn('⚠️ Yavaş yanıt:', pm.response.responseTime + 'ms -', pm.request.url.toString());",
+          "}"
+        ]
+      }
+    }
+  ]
+}
