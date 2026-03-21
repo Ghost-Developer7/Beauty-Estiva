@@ -1,0 +1,316 @@
+@import "tailwindcss";
+
+/* Estiva design tokens Global variables used across the entire platform */
+
+:root {
+  /* Beauty palette (Flat UI inspired) */
+  --color-light-greenish-blue: #55efc4;
+  --color-faded-poster: #81ecec;
+  --color-green-darner-tail: #74b9ff;
+  --color-shy-moment: #a29bfe;
+  --color-city-lights: #dfe6e9;
+  --color-mint-leaf: #00b894;
+  --color-robins-egg-blue: #00cec9;
+  --color-electron-blue: #0984e3;
+  --color-exodus-fruit: #6c5ce7;
+  --color-soothing-breeze: #b2bec3;
+  --color-sour-lemon: #ffeaa7;
+  --color-first-date: #fab1a0;
+  --color-pink-glamour: #ff7675;
+  --color-pico-8-pink: #fd79a8;
+  --color-american-river: #636e72;
+  --color-bright-yarrow: #fdcb6e;
+  --color-orangeville: #e17055;
+  --color-chi-gong: #d63031;
+  --color-prunus-avium: #e84393;
+  --color-dracula-orchid: #2d3436;
+
+  /* Brand colors */
+  --color-mint: var(--color-light-greenish-blue);
+  --color-navy: var(--color-dracula-orchid);
+  --color-purple: var(--color-exodus-fruit);
+  --color-pink: var(--color-pico-8-pink);
+  --color-raspberry: var(--color-prunus-avium);
+
+  /* Base colors */
+  --color-background: #fffdf8;
+  --color-foreground: #1f1f1f;
+  --color-muted: #717a88;
+  --color-border: #f1e5df;
+
+  /* Typography */
+  --font-sans: Arial, Helvetica, sans-serif;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+}
+
+/* System-based dark mode support */
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+    --color-border: #262626;
+  }
+}
+
+/* Global reset */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+/* Base body styles */
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.theme-dark {
+  background-color: #05010d;
+  color: #f6f2ff;
+}
+
+body.theme-light {
+  background-color: #f8f5ff;
+  color: #1f1233;
+}
+
+/* Dashboard theme bridge (App Router group: (dashboard)) */
+
+.estiva-dashboard {
+  background-color: #08040f;
+  color: #ffffff;
+}
+
+.estiva-dashboard-panel {
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.04), transparent 65%),
+    linear-gradient(180deg, #090414, #05020b);
+}
+
+.estiva-dashboard-sidebar {
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 60%),
+    linear-gradient(195deg, #140622, #040309);
+}
+
+body.theme-dark .estiva-dashboard {
+  background-color: #08040f;
+  color: #ffffff;
+}
+
+body.theme-light .estiva-dashboard {
+  background-color: #f8f5ff;
+  color: #1f1233;
+}
+
+body.theme-dark .estiva-dashboard-panel {
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.04), transparent 65%),
+    linear-gradient(180deg, #090414, #05020b);
+}
+
+body.theme-light .estiva-dashboard-panel {
+  background: radial-gradient(circle at top, rgba(84, 89, 172, 0.1), transparent 60%),
+    linear-gradient(180deg, #f8f5ff, #efe9ff);
+}
+
+body.theme-dark .estiva-dashboard-sidebar {
+  background: radial-gradient(circle at top, rgba(255, 255, 255, 0.08), transparent 60%),
+    linear-gradient(195deg, #140622, #040309);
+}
+
+body.theme-light .estiva-dashboard-sidebar {
+  background: linear-gradient(195deg, #ffffff, #f1ecff);
+  border-right: 1px solid #e3d8ff;
+}
+
+/* Light theme overrides for existing dashboard utility usage */
+
+body.theme-light .estiva-dashboard .text-white {
+  color: rgb(31 18 51 / 1);
+}
+
+body.theme-light .estiva-dashboard .text-white\/90 {
+  color: rgb(31 18 51 / 0.9);
+}
+
+body.theme-light .estiva-dashboard .text-white\/80 {
+  color: rgb(31 18 51 / 0.8);
+}
+
+body.theme-light .estiva-dashboard .text-white\/70 {
+  color: rgb(31 18 51 / 0.7);
+}
+
+body.theme-light .estiva-dashboard .text-white\/60 {
+  color: rgb(31 18 51 / 0.6);
+}
+
+body.theme-light .estiva-dashboard .text-white\/50 {
+  color: rgb(31 18 51 / 0.5);
+}
+
+body.theme-light .estiva-dashboard .text-white\/40 {
+  color: rgb(31 18 51 / 0.4);
+}
+
+body.theme-light .estiva-dashboard .text-white\/30 {
+  color: rgb(31 18 51 / 0.3);
+}
+
+body.theme-light .estiva-dashboard .text-white\/20 {
+  color: rgb(31 18 51 / 0.2);
+}
+
+body.theme-light .estiva-dashboard .hover\:text-white:hover {
+  color: rgb(31 18 51 / 1);
+}
+
+body.theme-light .estiva-dashboard .placeholder\:text-white\/40::placeholder {
+  color: rgb(31 18 51 / 0.4);
+}
+
+/* A few screens use a non-tailwind placeholder utility name */
+body.theme-dark .estiva-dashboard .placeholder-white\/30::placeholder {
+  color: rgb(255 255 255 / 0.3);
+}
+
+body.theme-light .estiva-dashboard .placeholder-white\/30::placeholder {
+  color: rgb(31 18 51 / 0.35);
+}
+
+body.theme-light .estiva-dashboard .border-white {
+  border-color: #b59cf2;
+}
+
+body.theme-light .estiva-dashboard .border-white\/5 {
+  border-color: #efe9ff;
+}
+
+body.theme-light .estiva-dashboard .border-white\/10 {
+  border-color: #e3d8ff;
+}
+
+body.theme-light .estiva-dashboard .border-white\/15 {
+  border-color: #dacfff;
+}
+
+body.theme-light .estiva-dashboard .border-white\/20 {
+  border-color: #d0c0f5;
+}
+
+body.theme-light .estiva-dashboard .border-white\/40 {
+  border-color: #b59cf2;
+}
+
+body.theme-light .estiva-dashboard .bg-white\/5 {
+  background-color: rgb(255 255 255 / 0.72);
+}
+
+body.theme-light .estiva-dashboard .bg-white\/10 {
+  background-color: rgb(255 255 255 / 0.82);
+}
+
+body.theme-light .estiva-dashboard .bg-white\/15 {
+  background-color: rgb(255 255 255 / 0.9);
+}
+
+body.theme-light .estiva-dashboard .bg-white\/20 {
+  background-color: rgb(255 255 255 / 0.96);
+}
+
+body.theme-light .estiva-dashboard .hover\:bg-white\/5:hover {
+  background-color: rgb(59 34 104 / 0.06);
+}
+
+body.theme-light .estiva-dashboard .hover\:bg-white\/10:hover {
+  background-color: rgb(59 34 104 / 0.1);
+}
+
+body.theme-light .estiva-dashboard .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #efe9ff;
+}
+
+/* Some screens use dark "frame" colors; soften them in light mode */
+body.theme-light .estiva-dashboard .bg-\[\#0b0614\] {
+  background-color: rgb(255 255 255 / 0.92);
+}
+
+body.theme-light .estiva-dashboard .bg-\[\#040309\] {
+  background-color: rgb(255 255 255 / 0.92);
+}
+
+/* Keep white text on accent backgrounds */
+body.theme-light .estiva-dashboard [class*="bg-[#"].text-white {
+  color: #ffffff;
+}
+
+body.theme-light .estiva-dashboard .bg-green-500.text-white,
+body.theme-light .estiva-dashboard .bg-green-600.text-white,
+body.theme-light .estiva-dashboard .bg-blue-600.text-white,
+body.theme-light .estiva-dashboard .bg-red-500.text-white,
+body.theme-light .estiva-dashboard .bg-yellow-500.text-white {
+  color: #ffffff;
+}
+
+/* Layout utility */
+
+.container {
+  max-width: 1280px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+/* Base form styles */
+
+input,
+select,
+textarea {
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--color-purple);
+}
+
+/* Primary button */
+
+.btn-primary {
+  background-image: linear-gradient(120deg, var(--color-purple), var(--color-mint));
+  background-size: 200% auto;
+  border: none;
+  border-radius: 999px;
+  color: white;
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  box-shadow: 0 25px 40px rgba(84, 89, 172, 0.35);
+  transition: background-position 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.btn-primary:hover {
+  background-position: right center;
+  box-shadow: 0 30px 45px rgba(109, 195, 187, 0.35);
+  transform: translateY(-2px);
+}
+
+.btn-primary:focus-visible {
+  outline: 3px solid rgba(109, 195, 187, 0.6);
+  outline-offset: 3px;
+}
