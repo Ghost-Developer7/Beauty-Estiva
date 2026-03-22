@@ -6,12 +6,16 @@ type ButtonProps = {
   type?: "button" | "submit";
   children: React.ReactNode;
   className?: string;
+  disabled?: boolean;
+  onClick?: () => void;
 };
 
 export default function Button({
   type = "button",
   children,
   className = "",
+  disabled,
+  onClick,
 }: ButtonProps) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -23,7 +27,9 @@ export default function Button({
   return (
     <button
       type={type}
-      className={`w-full rounded-2xl px-4 py-3 text-base font-semibold transition shadow-sm ${baseClasses} ${className}`}
+      disabled={disabled}
+      onClick={onClick}
+      className={`w-full rounded-2xl px-4 py-3 text-base font-semibold transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${baseClasses} ${className}`}
     >
       {children}
     </button>

@@ -1,186 +1,198 @@
 "use client";
 
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-
-type FieldConfig = {
-  name: string;
-  type?: string;
-  fullWidth?: boolean;
-  labels: { en: string; tr: string };
-  placeholders: { en: string; tr: string };
-};
-
-const companyFields: FieldConfig[] = [
-  {
-    name: "businessName",
-    labels: { en: "Brand / trade name", tr: "Marka / ticari ad" },
-    placeholders: { en: "Glow Atelier", tr: "Glow Atelier" },
-  },
-  {
-    name: "legalName",
-    labels: { en: "Legal entity", tr: "Tuzel unvan" },
-    placeholders: { en: "Glow Atelier AS", tr: "Glow Atelier AS" },
-  },
-  {
-    name: "branchCount",
-    type: "number",
-    labels: { en: "Branch count", tr: "Sube sayisi" },
-    placeholders: { en: "3", tr: "3" },
-  },
-  {
-    name: "city",
-    labels: { en: "Headquarters city", tr: "Merkez sehir" },
-    placeholders: { en: "Istanbul", tr: "Istanbul" },
-  },
-  {
-    name: "taxNumber",
-    labels: { en: "Tax / VAT number", tr: "Vergi / VKN" },
-    placeholders: { en: "1234567890", tr: "1234567890" },
-  },
-  {
-    name: "website",
-    labels: { en: "Website", tr: "Web sitesi" },
-    placeholders: { en: "estiva.studio", tr: "estiva.studio" },
-  },
-];
-
-const servicePackages = {
-  en: [
-    "Laser & skincare",
-    "Body shaping",
-    "Hair services",
-    "Medical aesthetics",
-    "Makeup & brow bar",
-    "Spa & wellness",
-  ],
-  tr: [
-    "Lazer & cilt bakimi",
-    "Vucut sekillendirme",
-    "Sac hizmetleri",
-    "Medikal estetik",
-    "Makyaj & kas bar",
-    "Spa & wellness",
-  ],
-};
+import { tenantService } from "@/services/tenantService";
+import toast from "react-hot-toast";
 
 const copy = {
   en: {
-    companyBadge: "Company membership",
-    companyTitle: "Tell us about your beauty collective",
-    servicesPrompt: "What services does the company offer?",
-    notesLabel: "Anything else we should know?",
-    notesPlaceholder:
-      "Branches opening soon, franchising status, existing software, etc.",
-    submit: "Request a tailored demo",
-    disclaimer:
-      "Once approved, you'll be able to add staff users from your dashboard.",
+    companyBadge: "Business registration",
+    companyTitle: "Register your beauty center",
+    companyName: "Company Name",
+    companyNamePh: "Glow Atelier",
+    phone: "Phone",
+    phonePh: "+90 5XX XXX XX XX",
+    address: "Address",
+    addressPh: "Istanbul, Turkey",
+    taxNumber: "Tax Number",
+    taxNumberPh: "1234567890",
+    taxOffice: "Tax Office",
+    taxOfficePh: "Kadikoy VD",
+    ownerTitle: "Owner Account",
+    ownerName: "Name",
+    ownerNamePh: "Mehmet",
+    ownerSurname: "Surname",
+    ownerSurnamePh: "Kara",
+    ownerEmail: "Email",
+    ownerEmailPh: "owner@example.com",
+    ownerPassword: "Password",
+    ownerPasswordPh: "Min 8 chars, uppercase, number, symbol",
+    ownerConfirmPassword: "Confirm Password",
+    ownerConfirmPasswordPh: "Repeat password",
+    submit: "Create Account",
+    submitting: "Creating...",
+    disclaimer: "After registration you can invite staff members from your dashboard.",
+    successMessage: "Registration successful! Please login.",
   },
   tr: {
-    companyBadge: "Sirket uyeligi",
-    companyTitle: "Guzellik kolektifini kisaca anlat",
-    servicesPrompt: "Sirket hangi hizmetleri sunuyor?",
-    notesLabel: "Baska notun var mi?",
-    notesPlaceholder: "Yeni subeler, franchise, mevcut yazilim vb.",
-    submit: "Size ozel demo iste",
-    disclaimer: "Onaylaninca panelden calisan ekleyebileceksin.",
+    companyBadge: "İşletme kaydı",
+    companyTitle: "Güzellik merkezinizi kaydedin",
+    companyName: "Şirket Adı",
+    companyNamePh: "Glow Atelier",
+    phone: "Telefon",
+    phonePh: "+90 5XX XXX XX XX",
+    address: "Adres",
+    addressPh: "İstanbul, Türkiye",
+    taxNumber: "Vergi No",
+    taxNumberPh: "1234567890",
+    taxOffice: "Vergi Dairesi",
+    taxOfficePh: "Kadıköy VD",
+    ownerTitle: "İşletme Sahibi Hesabı",
+    ownerName: "Ad",
+    ownerNamePh: "Mehmet",
+    ownerSurname: "Soyad",
+    ownerSurnamePh: "Kara",
+    ownerEmail: "E-posta",
+    ownerEmailPh: "sahip@example.com",
+    ownerPassword: "Şifre",
+    ownerPasswordPh: "Min 8 karakter, büyük harf, rakam, sembol",
+    ownerConfirmPassword: "Şifre Tekrar",
+    ownerConfirmPasswordPh: "Şifreyi tekrarlayın",
+    submit: "Hesap Oluştur",
+    submitting: "Oluşturuluyor...",
+    disclaimer: "Kayıt sonrası panelden personel davet edebilirsiniz.",
+    successMessage: "Kayıt başarılı! Lütfen giriş yapın.",
   },
 };
 
 export default function SignUpForm() {
   const { language } = useLanguage();
   const { theme } = useTheme();
+  const router = useRouter();
   const isDark = theme === "dark";
   const text = copy[language];
 
+  const [form, setForm] = useState({
+    companyName: "", phone: "", address: "", taxNumber: "", taxOffice: "",
+    ownerName: "", ownerSurname: "", ownerEmail: "", ownerPassword: "", ownerConfirmPassword: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
   const baseText = isDark ? "text-white" : "text-[#1d1233]";
-  const mutedText = isDark ? "text-white/60" : "text-[#6a5c8c]";
   const eyebrowText = isDark ? "text-white/40" : "text-[#9a88c2]";
-  const labelText = isDark ? "text-white/80" : "text-[#47376d]";
   const cardBorder = isDark ? "border-white/10" : "border-[#e3d8ff]";
   const cardBg = isDark ? "bg-white/5" : "bg-white";
-  const optionBorder = isDark ? "border-white/10" : "border-[#dacfff]";
-  const optionBg = isDark ? "bg-white/5" : "bg-[#f8f5ff]";
+  const mutedText = isDark ? "text-white/60" : "text-[#6a5c8c]";
+  const inputClass = isDark
+    ? "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none"
+    : "w-full rounded-xl border border-[#d9cef4] bg-white px-3 py-2.5 text-sm text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:outline-none";
+  const labelClass = isDark ? "text-xs font-medium text-white/60" : "text-xs font-medium text-[#47376d]";
 
-  const checkboxClass = isDark
-    ? "mt-1 h-4 w-4 rounded border-white/25 bg-transparent accent-white"
-    : "mt-1 h-4 w-4 rounded border-[#b59cf2] bg-white accent-[#3b2268]";
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (form.ownerPassword !== form.ownerConfirmPassword) {
+      toast.error(language === "tr" ? "Şifreler uyuşmuyor" : "Passwords don't match");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await tenantService.register({
+        companyName: form.companyName,
+        phone: form.phone,
+        address: form.address || "",
+        taxNumber: form.taxNumber || "",
+        taxOffice: form.taxOffice || "",
+        email: form.ownerEmail,
+        password: form.ownerPassword,
+        confirmPassword: form.ownerConfirmPassword,
+        name: form.ownerName,
+        surname: form.ownerSurname,
+      });
+      if (res.data.success) {
+        toast.success(text.successMessage);
+        router.push("/login");
+      } else {
+        toast.error(res.data.error?.message || (language === "tr" ? "Kayıt başarısız" : "Registration failed"));
+      }
+    } catch {
+      toast.error(language === "tr" ? "Kayıt başarısız" : "Registration failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
-  const textareaClass = isDark
-    ? "w-full rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-white/50 shadow-sm transition focus:border-white/40 focus:bg-white/10 focus:ring-2 focus:ring-white/30"
-    : "w-full rounded-2xl border border-[#d9cef4] bg-white px-4 py-3 text-[#1d1233] placeholder:text-[#73619d] shadow-sm transition focus:border-[#a18ddc] focus:bg-white focus:ring-2 focus:ring-[#b79df1]/60";
+  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
 
   return (
-    <form className={`space-y-6 ${baseText}`}>
-      <section
-        className={`space-y-6 rounded-3xl border p-8 shadow-[0_25px_60px_rgba(3,2,9,0.6)] ${cardBorder} ${cardBg}`}
-      >
+    <form className={`space-y-6 ${baseText}`} onSubmit={handleSubmit}>
+      <section className={`space-y-6 rounded-3xl border p-8 shadow-[0_25px_60px_rgba(3,2,9,0.6)] ${cardBorder} ${cardBg}`}>
         <div>
-          <p className={`text-sm uppercase tracking-[0.2em] ${eyebrowText}`}>
-            {text.companyBadge}
-          </p>
+          <p className={`text-sm uppercase tracking-[0.2em] ${eyebrowText}`}>{text.companyBadge}</p>
           <h2 className="text-2xl font-semibold">{text.companyTitle}</h2>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {companyFields.map((field) => (
-            <div
-              key={field.name}
-              className={
-                field.fullWidth ? "md:col-span-2 xl:col-span-3" : undefined
-              }
-            >
-              <Input
-                label={field.labels[language]}
-                name={field.name}
-                type={field.type}
-                placeholder={field.placeholders[language]}
-              />
-            </div>
-          ))}
-        </div>
-
-        <div className="space-y-3">
-          <label className={`block text-sm font-medium ${labelText}`}>
-            {text.servicesPrompt}
-          </label>
-          <div className="grid gap-4 md:grid-cols-2">
-            {servicePackages[language].map((service) => (
-              <label
-                key={service}
-                className={`flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm ${optionBorder} ${optionBg} ${labelText}`}
-              >
-                <input
-                  type="checkbox"
-                  name="services"
-                  value={service}
-                  className={checkboxClass}
-                />
-                <span>{service}</span>
-              </label>
-            ))}
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className={labelClass}>{text.companyName} *</label>
+            <input type="text" required value={form.companyName} onChange={(e) => update("companyName", e.target.value)}
+              placeholder={text.companyNamePh} className={inputClass} disabled={submitting} />
+          </div>
+          <div className="space-y-1">
+            <label className={labelClass}>{text.phone} *</label>
+            <input type="tel" required value={form.phone} onChange={(e) => update("phone", e.target.value)}
+              placeholder={text.phonePh} className={inputClass} disabled={submitting} />
+          </div>
+          <div className="space-y-1">
+            <label className={labelClass}>{text.address}</label>
+            <input type="text" value={form.address} onChange={(e) => update("address", e.target.value)}
+              placeholder={text.addressPh} className={inputClass} disabled={submitting} />
+          </div>
+          <div className="space-y-1">
+            <label className={labelClass}>{text.taxNumber}</label>
+            <input type="text" value={form.taxNumber} onChange={(e) => update("taxNumber", e.target.value)}
+              placeholder={text.taxNumberPh} className={inputClass} disabled={submitting} />
           </div>
         </div>
 
-        <div className="space-y-2">
-          <label className={`block text-sm font-medium ${labelText}`}>
-            {text.notesLabel}
-          </label>
-          <textarea
-            name="notes"
-            rows={4}
-            placeholder={text.notesPlaceholder}
-            className={textareaClass}
-          ></textarea>
+        <hr className={isDark ? "border-white/10" : "border-[#e3d8ff]"} />
+
+        <h3 className="text-lg font-semibold">{text.ownerTitle}</h3>
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-1">
+            <label className={labelClass}>{text.ownerName} *</label>
+            <input type="text" required value={form.ownerName} onChange={(e) => update("ownerName", e.target.value)}
+              placeholder={text.ownerNamePh} className={inputClass} disabled={submitting} />
+          </div>
+          <div className="space-y-1">
+            <label className={labelClass}>{text.ownerSurname} *</label>
+            <input type="text" required value={form.ownerSurname} onChange={(e) => update("ownerSurname", e.target.value)}
+              placeholder={text.ownerSurnamePh} className={inputClass} disabled={submitting} />
+          </div>
+          <div className="space-y-1">
+            <label className={labelClass}>{text.ownerEmail} *</label>
+            <input type="email" required value={form.ownerEmail} onChange={(e) => update("ownerEmail", e.target.value)}
+              placeholder={text.ownerEmailPh} className={inputClass} disabled={submitting} />
+          </div>
+          <div />
+          <div className="space-y-1">
+            <label className={labelClass}>{text.ownerPassword} *</label>
+            <input type="password" required value={form.ownerPassword} onChange={(e) => update("ownerPassword", e.target.value)}
+              placeholder={text.ownerPasswordPh} className={inputClass} disabled={submitting} />
+          </div>
+          <div className="space-y-1">
+            <label className={labelClass}>{text.ownerConfirmPassword} *</label>
+            <input type="password" required value={form.ownerConfirmPassword} onChange={(e) => update("ownerConfirmPassword", e.target.value)}
+              placeholder={text.ownerConfirmPasswordPh} className={inputClass} disabled={submitting} />
+          </div>
         </div>
 
-        <Button
-          type="submit"
-          className="w-full rounded-2xl text-base font-semibold"
-        >
-          {text.submit}
+        <Button type="submit" className="w-full rounded-2xl text-base font-semibold" disabled={submitting}>
+          {submitting ? text.submitting : text.submit}
         </Button>
 
         <p className={`text-center text-sm ${mutedText}`}>{text.disclaimer}</p>

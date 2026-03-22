@@ -1,88 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { appointmentService } from "@/services/appointmentService";
+import { financialReportService } from "@/services/financialReportService";
+import { customerService } from "@/services/customerService";
+import type { AppointmentListItem, FinancialDashboard, CustomerListItem } from "@/types/api";
+import toast from "react-hot-toast";
 
-/**
- * MOCK DATA
- */
-const openTabsData = [
-  {
-    date: "10 Nisan 2025",
-    client: "Şaziye Hanım",
-    services: "Lazer Epilasyon",
-    products: "Glow Serum",
-    total: "₺ 3.250",
-  },
-  {
-    date: "10 Nisan 2025",
-    client: "Ceren Hanım",
-    services: "Cilt Bakımı",
-    products: "-",
-    total: "₺ 1.480",
-  },
-];
-
-const receivablesData = [
-  {
-    client: "Fırat Bey",
-    type: "Kredi Kartı Taksit",
-    plannedDate: "15 Nisan 2025",
-    amount: "₺ 5.000",
-  },
-  {
-    client: "Şükran Hanım",
-    type: "Nakil Bakıye",
-    plannedDate: "20 Nisan 2025",
-    amount: "₺ 1.250",
-  },
-];
-
-const birthdaysData = [
-  {
-    client: "Viktoriya Hanım",
-    phone: "+90 537 681 56 76",
-    birthday: "15 Nisan",
-  },
-  {
-    client: "Sultan Hanım",
-    phone: "+90 505 387 15 63",
-    birthday: "18 Nisan",
-  },
-];
+const STATUS_MAP: Record<number, { en: string; tr: string; color: string }> = {
+  1: { en: "Scheduled", tr: "Planlandı", color: "bg-blue-500/10 text-blue-400" },
+  2: { en: "Confirmed", tr: "Onaylandı", color: "bg-green-500/10 text-green-400" },
+  3: { en: "Completed", tr: "Tamamlandı", color: "bg-emerald-500/10 text-emerald-400" },
+  4: { en: "Cancelled", tr: "İptal", color: "bg-red-500/10 text-red-400" },
+  5: { en: "No Show", tr: "Gelmedi", color: "bg-yellow-500/10 text-yellow-400" },
+};
 
 const copy = {
   en: {
     salonSummary: "Salon summary",
     overview: "Overview",
-    tabs: ["Last open tabs", "Receivable reminders", "Upcoming birthdays"],
-    stats: [
-      { label: "Active rituals", value: "128", trend: "+12% vs last week" },
-      { label: "Occupancy", value: "86%", trend: "High focus" },
-      { label: "Pending confirmations", value: "24", trend: "Resolve today" },
-    ],
-    headers: {
-      openTabs: ["Date", "Client", "Services", "Products", "Total amount"],
-      receivables: ["Client", "Type", "Planned payment date", "Amount"],
-      birthdays: ["Client", "Phone number", "Birthday"],
+    tabs: ["Today's Appointments", "Recent Customers"],
+    stats: {
+      revenue: "Total Revenue",
+      expenses: "Total Expenses",
+      profit: "Net Profit",
+      todayAppointments: "Today's Appointments",
     },
+    headers: {
+      appointments: ["Time", "Client", "Treatment", "Staff", "Status"],
+      customers: ["Name", "Phone", "Email", "Registered"],
+    },
+    loading: "Loading...",
     noData: "No data available.",
+    currency: "TRY",
   },
   tr: {
     salonSummary: "Salon özeti",
     overview: "Özet",
-    tabs: ["Son açık adisyonlar", "Alacak hatırlatmaları", "Yaklaşan doğumgünleri"],
-    stats: [
-      { label: "Aktif ritüeller", value: "128", trend: "Geçen haftaya göre +%12" },
-      { label: "Doluluk", value: "86%", trend: "Yüksek odak" },
-      { label: "Bekleyen onaylar", value: "24", trend: "Bugün çöz" },
-    ],
-    headers: {
-      openTabs: ["Tarih", "Müşteri", "Hizmetler", "Ürünler", "Toplam tutar"],
-      receivables: ["Müşteri", "Tip", "Planlanan ödeme tarihi", "Tutar"],
-      birthdays: ["Müşteri", "Telefon numarası", "Doğumgünü"],
+    tabs: ["Bugünün Randevuları", "Son Müşteriler"],
+    stats: {
+      revenue: "Toplam Gelir",
+      expenses: "Toplam Gider",
+      profit: "Net Kar",
+      todayAppointments: "Bugünün Randevuları",
     },
+    headers: {
+      appointments: ["Saat", "Müşteri", "Hizmet", "Personel", "Durum"],
+      customers: ["Ad Soyad", "Telefon", "E-posta", "Kayıt Tarihi"],
+    },
+    loading: "Yükleniyor...",
     noData: "Veri yok.",
+    currency: "TRY",
   },
 };
 
@@ -90,92 +59,151 @@ export default function OverviewScreen() {
   const { language } = useLanguage();
   const text = copy[language];
   const [activeTab, setActiveTab] = useState(0);
+  const [loading, setLoading] = useState(true);
 
-  // Render content based on active tab
+  const [dashboard, setDashboard] = useState<FinancialDashboard | null>(null);
+  const [todayAppointments, setTodayAppointments] = useState<AppointmentListItem[]>([]);
+  const [recentCustomers, setRecentCustomers] = useState<CustomerListItem[]>([]);
+
+  const fetchData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [dashRes, apptRes, custRes] = await Promise.allSettled([
+        financialReportService.dashboard(),
+        appointmentService.getToday(),
+        customerService.list(),
+      ]);
+
+      if (dashRes.status === "fulfilled" && dashRes.value.data.success && dashRes.value.data.data) {
+        setDashboard(dashRes.value.data.data);
+      }
+      if (apptRes.status === "fulfilled" && apptRes.value.data.success && apptRes.value.data.data) {
+        setTodayAppointments(apptRes.value.data.data);
+      }
+      if (custRes.status === "fulfilled" && custRes.value.data.success && custRes.value.data.data) {
+        setRecentCustomers(custRes.value.data.data.slice(0, 10));
+      }
+    } catch {
+      toast.error(language === "tr" ? "Veriler yüklenemedi" : "Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  }, [language]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  const formatCurrency = (amount: number) =>
+    amount.toLocaleString("tr-TR", { minimumFractionDigits: 2 });
+
+  const formatTime = (dateStr: string) =>
+    new Date(dateStr).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "—";
+    return new Date(dateStr).toLocaleDateString("tr-TR", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const statsCards = [
+    {
+      label: text.stats.revenue,
+      value: dashboard ? `${formatCurrency(dashboard.totalRevenueTRY)} ${text.currency}` : "—",
+      trend: "bg-emerald-500/10 text-emerald-400",
+    },
+    {
+      label: text.stats.expenses,
+      value: dashboard ? `${formatCurrency(dashboard.totalExpenseTRY)} ${text.currency}` : "—",
+      trend: "bg-red-500/10 text-red-400",
+    },
+    {
+      label: text.stats.profit,
+      value: dashboard ? `${formatCurrency(dashboard.netIncomeTRY)} ${text.currency}` : "—",
+      trend: dashboard && dashboard.netIncomeTRY >= 0
+        ? "bg-emerald-500/10 text-emerald-400"
+        : "bg-red-500/10 text-red-400",
+    },
+    {
+      label: text.stats.todayAppointments,
+      value: todayAppointments.length.toString(),
+      trend: "bg-blue-500/10 text-blue-400",
+    },
+  ];
+
   const renderContent = () => {
+    if (loading) {
+      return <div className="p-8 text-center text-white/60">{text.loading}</div>;
+    }
+
     switch (activeTab) {
-      case 0: // Last open tabs
-        return (
+      case 0: // Today's appointments
+        return todayAppointments.length === 0 ? (
+          <div className="p-8 text-center text-white/60">{text.noData}</div>
+        ) : (
           <table className="w-full min-w-[600px] text-left text-sm">
             <thead>
               <tr className="border-b border-white/10 text-xs font-semibold text-white/40">
-                {text.headers.openTabs.map((label) => (
-                  <th key={label} className="px-6 py-4 uppercase tracking-wider">
-                    {label} <span className="ml-1 text-white/20">Y</span>
-                  </th>
+                {text.headers.appointments.map((label) => (
+                  <th key={label} className="px-6 py-4 uppercase tracking-wider">{label}</th>
                 ))}
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {openTabsData.map((row, i) => (
-                <tr key={i} className="transition hover:bg-white/5">
-                  <td className="px-6 py-4 text-white/80">{row.date}</td>
-                  <td className="px-6 py-4 font-medium text-white">
-                    {row.client}
-                  </td>
-                  <td className="px-6 py-4 text-white/60">{row.services}</td>
-                  <td className="px-6 py-4 text-white/60">{row.products}</td>
-                  <td className="px-6 py-4 font-semibold text-white">
-                    {row.total}
-                  </td>
+              {todayAppointments.map((apt) => {
+                const status = STATUS_MAP[apt.status] || STATUS_MAP[1];
+                return (
+                  <tr key={apt.id} className="transition hover:bg-white/5">
+                    <td className="px-6 py-4 text-white/80">
+                      {formatTime(apt.startTime)} - {formatTime(apt.endTime)}
+                    </td>
+                    <td className="px-6 py-4 font-medium text-white">
+                      {apt.customerName} {apt.customerSurname}
+                    </td>
+                    <td className="px-6 py-4 text-white/60">{apt.treatmentName}</td>
+                    <td className="px-6 py-4 text-white/60">
+                      {apt.staffName} {apt.staffSurname}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${status.color}`}>
+                        {language === "tr" ? status.tr : status.en}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        );
+
+      case 1: // Recent customers
+        return recentCustomers.length === 0 ? (
+          <div className="p-8 text-center text-white/60">{text.noData}</div>
+        ) : (
+          <table className="w-full min-w-[600px] text-left text-sm">
+            <thead>
+              <tr className="border-b border-white/10 text-xs font-semibold text-white/40">
+                {text.headers.customers.map((label) => (
+                  <th key={label} className="px-6 py-4 uppercase tracking-wider">{label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {recentCustomers.map((c) => (
+                <tr key={c.id} className="transition hover:bg-white/5">
+                  <td className="px-6 py-4 font-medium text-white">{c.name} {c.surname}</td>
+                  <td className="px-6 py-4 text-white/60">{c.phone || "—"}</td>
+                  <td className="px-6 py-4 text-white/60">{c.email || "—"}</td>
+                  <td className="px-6 py-4 text-white/60">{formatDate(c.cDate)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         );
-      case 1: // Receivable reminders
-        return (
-          <table className="w-full min-w-[600px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-xs font-semibold text-white/40">
-                {text.headers.receivables.map((label) => (
-                  <th key={label} className="px-6 py-4 uppercase tracking-wider">
-                    {label} <span className="ml-1 text-white/20">Y</span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {receivablesData.map((row, i) => (
-                <tr key={i} className="transition hover:bg-white/5">
-                  <td className="px-6 py-4 font-medium text-white">
-                    {row.client}
-                  </td>
-                  <td className="px-6 py-4 text-white/60">{row.type}</td>
-                  <td className="px-6 py-4 text-white/60">{row.plannedDate}</td>
-                  <td className="px-6 py-4 font-semibold text-white">
-                    {row.amount}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        );
-      case 2: // Upcoming birthdays
-        return (
-          <table className="w-full min-w-[600px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-white/10 text-xs font-semibold text-white/40">
-                {text.headers.birthdays.map((label) => (
-                  <th key={label} className="px-6 py-4 uppercase tracking-wider">
-                    {label} <span className="ml-1 text-white/20">Y</span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {birthdaysData.map((row, i) => (
-                <tr key={i} className="transition hover:bg-white/5">
-                  <td className="px-6 py-4 font-medium text-white">
-                    {row.client}
-                  </td>
-                  <td className="px-6 py-4 text-white/60">{row.phone}</td>
-                  <td className="px-6 py-4 text-white">{row.birthday}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        );
+
       default:
         return null;
     }
@@ -192,43 +220,38 @@ export default function OverviewScreen() {
       </div>
 
       {/* Stats Cards */}
-      <section className="grid gap-4 md:grid-cols-3">
-        {text.stats.map((card) => (
+      <section className="grid gap-4 md:grid-cols-4">
+        {statsCards.map((card) => (
           <div
             key={card.label}
             className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_60px_rgba(4,2,12,0.6)]"
           >
-            <p className="text-sm uppercase tracking-[0.4em] text-white/50">
+            <p className="text-sm uppercase tracking-[0.3em] text-white/50">
               {card.label}
             </p>
-            <p className="mt-4 text-4xl font-semibold">{card.value}</p>
-            <p className="mt-2 text-sm text-white/60">{card.trend}</p>
+            <p className="mt-4 text-3xl font-semibold">{card.value}</p>
           </div>
         ))}
       </section>
 
-      {/* Tabs & Content Container */}
+      {/* Tabs & Content */}
       <section className="rounded-3xl border border-white/10 bg-white/5 shadow-[0_25px_60px_rgba(3,2,9,0.65)]">
-        {/* Tab Navigation */}
         <div className="flex flex-wrap items-center gap-4 border-b border-white/10 px-6 py-4">
           {text.tabs.map((tab, index) => (
             <button
               key={tab}
               onClick={() => setActiveTab(index)}
-              className={`rounded-full px-4 py-2 text-sm font-medium transition ${activeTab === index
+              className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                activeTab === index
                   ? "bg-white/20 text-white shadow-lg"
                   : "text-white/60 hover:text-white"
-                }`}
+              }`}
             >
               {tab}
             </button>
           ))}
         </div>
-
-        {/* Content */}
-        <div className="overflow-x-auto">
-          {renderContent()}
-        </div>
+        <div className="overflow-x-auto">{renderContent()}</div>
       </section>
     </div>
   );

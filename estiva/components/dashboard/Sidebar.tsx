@@ -72,8 +72,10 @@ const navItems = {
     { label: "Appointments", href: "/dashboard/appointments", icon: IconClock },
     { label: "Orders", href: "/dashboard/orders", icon: IconList },
     { label: "Customers", href: "/dashboard/customers", icon: IconUsers },
+    { label: "Treatments", href: "/dashboard/treatments", icon: IconTag },
     { label: "Product Sales", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Package Sales", href: "/dashboard/package-sales", icon: IconGrid },
+    { label: "Subscription", href: "/dashboard/subscription", icon: IconWallet },
     {
       label: "SalonPOS",
       href: "/dashboard/pos",
@@ -146,8 +148,10 @@ const navItems = {
     { label: "Randevular", href: "/dashboard/appointments", icon: IconClock },
     { label: "Adisyonlar", href: "/dashboard/orders", icon: IconList },
     { label: "Müşteriler", href: "/dashboard/customers", icon: IconUsers },
+    { label: "Hizmetler", href: "/dashboard/treatments", icon: IconTag },
     { label: "Ürün satışları", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Paket satışları", href: "/dashboard/package-sales", icon: IconGrid },
+    { label: "Abonelik", href: "/dashboard/subscription", icon: IconWallet },
     {
       label: "SalonPOS",
       href: "/dashboard/pos",

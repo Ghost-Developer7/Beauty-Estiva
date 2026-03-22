@@ -1,171 +1,436 @@
 "use client";
 
+import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useState } from "react";
+import { expenseService } from "@/services/expenseService";
+import { currencyService } from "@/services/currencyService";
+import type { ExpenseItem, ExpenseCategoryItem, CurrencyItem } from "@/types/api";
+import Modal from "@/components/ui/Modal";
+import toast from "react-hot-toast";
 
 const copy = {
-    en: {
-        title: "Expenses",
-        datePlaceholder: "This month",
-        placeholder: "Search",
-        newButton: "New",
-        download: "Download",
-        noGraph: "Graph view not available yet.",
-        topTable: {
-            cols: ["Expense category", "Expense description", "Amount", "Expense owner", "Payment method", "Date", "Added By", "Created"],
-            empty: "Total amount: 0 TL"
-        },
-        tabs: ["Expense category", "Graph"],
-        bottomTable: {
-            cols: ["Expense", "Count", "Total amount"]
-        }
-    },
-    tr: {
-        title: "Masraflar",
-        datePlaceholder: "Bu ay",
-        placeholder: "Ara",
-        newButton: "Yeni",
-        download: "İndir",
-        noGraph: "Grafik görünümü henüz mevcut değil.",
-        topTable: {
-            cols: ["Masraf kategorisi", "Masraf açıklaması", "Tutar", "Masraf sahibi", "Ödeme yöntemi", "Tarih", "Ekleyen Kişi", "Oluşturulma"],
-            empty: "Toplam tutar: 0 TL"
-        },
-        tabs: ["Masraf kategorisi", "Grafik"],
-        bottomTable: {
-            cols: ["Masraf", "Adet", "Toplam tutar"]
-        }
-    },
+  en: {
+    title: "Expenses",
+    new: "New",
+    newCategory: "New Category",
+    headers: ["Category", "Description", "Amount", "Date", "Receipt #", "Notes", ""],
+    recordCount: "Total",
+    loading: "Loading...",
+    noData: "No expenses found.",
+    tabs: ["Expense List", "Categories"],
+    modalCreate: "New Expense",
+    modalEdit: "Edit Expense",
+    modalCategory: "New Category",
+    category: "Category",
+    amount: "Amount",
+    currency: "Currency",
+    description: "Description",
+    expenseDate: "Date",
+    receiptNumber: "Receipt #",
+    notes: "Notes",
+    categoryName: "Category Name",
+    categoryDesc: "Description",
+    save: "Save",
+    saving: "Saving...",
+    cancel: "Cancel",
+    deleteConfirm: "Delete this expense?",
+    deleteCatConfirm: "Delete this category?",
+    selectCategory: "Select category...",
+    totalAmount: "Total Amount",
+    startDate: "Start Date",
+    endDate: "End Date",
+    filter: "Filter",
+  },
+  tr: {
+    title: "Masraflar",
+    new: "Yeni",
+    newCategory: "Yeni Kategori",
+    headers: ["Kategori", "Açıklama", "Tutar", "Tarih", "Fiş No", "Notlar", ""],
+    recordCount: "Toplam",
+    loading: "Yükleniyor...",
+    noData: "Masraf bulunamadı.",
+    tabs: ["Masraf Listesi", "Kategoriler"],
+    modalCreate: "Yeni Masraf",
+    modalEdit: "Masraf Düzenle",
+    modalCategory: "Yeni Kategori",
+    category: "Kategori",
+    amount: "Tutar",
+    currency: "Para Birimi",
+    description: "Açıklama",
+    expenseDate: "Tarih",
+    receiptNumber: "Fiş No",
+    notes: "Notlar",
+    categoryName: "Kategori Adı",
+    categoryDesc: "Açıklama",
+    save: "Kaydet",
+    saving: "Kaydediliyor...",
+    cancel: "İptal",
+    deleteConfirm: "Bu masrafı silmek istiyor musunuz?",
+    deleteCatConfirm: "Bu kategoriyi silmek istiyor musunuz?",
+    selectCategory: "Kategori seçin...",
+    totalAmount: "Toplam Tutar",
+    startDate: "Başlangıç",
+    endDate: "Bitiş",
+    filter: "Filtrele",
+  },
 };
 
 export default function ExpensesScreen() {
-    const { language } = useLanguage();
-    const text = copy[language];
-    const [activeTab, setActiveTab] = useState(0);
+  const { language } = useLanguage();
+  const text = copy[language];
+  const [activeTab, setActiveTab] = useState(0);
 
-    return (
-        <div className="space-y-8 text-white h-full flex flex-col">
-            {/* Top Section */}
-            <div className="space-y-4">
-                {/* Header & Toolbar */}
-                <div className="flex flex-wrap items-center justify-between gap-4">
-                    <h1 className="text-2xl font-semibold">{text.title}</h1>
+  const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
+  const [categories, setCategories] = useState<ExpenseCategoryItem[]>([]);
+  const [currencies, setCurrencies] = useState<CurrencyItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-                    <div className="flex items-center gap-2 ml-auto">
-                        <div className="relative min-w-[120px]">
-                            <select className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none">
-                                <option className="bg-[#1a1a1a]">{text.datePlaceholder}</option>
-                            </select>
-                            <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/40">v</div>
-                        </div>
-                        <button className="flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-green-500">
-                            <span className="text-lg leading-none">+</span> {text.newButton}
-                        </button>
-                    </div>
-                </div>
+  // Filters
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [catFilter, setCatFilter] = useState<number | "">("");
 
-                <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center justify-between gap-4">
-                    <input
-                        type="text"
-                        placeholder={text.placeholder}
-                        className="w-full md:w-64 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/20"
-                    />
+  // Expense modal
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
+  const [expenseMode, setExpenseMode] = useState<"create" | "edit">("create");
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [expForm, setExpForm] = useState({
+    categoryId: 0, amount: 0, currencyId: 0, description: "", expenseDate: "", receiptNumber: "", notes: "",
+  });
+  const [saving, setSaving] = useState(false);
 
-                    <div className="flex gap-2">
-                        <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] text-white shadow-lg hover:bg-[#2563eb] text-sm">
-                            ⚙
-                        </button>
-                        <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] text-white shadow-lg hover:bg-[#2563eb] text-xs">
-                            ↻
-                        </button>
-                        <button className="flex items-center gap-2 rounded-lg bg-[#3b82f6] px-6 py-2 text-sm font-medium text-white shadow-lg  hover:bg-[#2563eb]">
-                            📄 {text.download}
-                        </button>
-                    </div>
-                </div>
+  // Category modal
+  const [showCatModal, setShowCatModal] = useState(false);
+  const [catForm, setCatForm] = useState({ name: "", description: "" });
 
-                {/* Top Table */}
-                <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
-                    <div className="overflow-x-auto">
-                        <table className="w-full text-left text-xs">
-                            <thead className="bg-white/5 text-xs font-semibold uppercase text-white/60">
-                                <tr>
-                                    {text.topTable.cols.map((col, i) => (
-                                        <th key={i} className="px-6 py-4 whitespace-nowrap">
-                                            <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                                                {col}
-                                                <span className="opacity-50 text-[10px]">▼</span>
-                                            </div>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-white/5">
-                                <tr className="bg-white/[0.02]">
-                                    <td colSpan={8} className="px-6 py-4 font-bold text-white/60">
-                                        {text.topTable.empty}
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+  const fetchExpenses = useCallback(async () => {
+    try {
+      setLoading(true);
+      const params: { startDate?: string; endDate?: string; categoryId?: number } = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (catFilter !== "") params.categoryId = catFilter as number;
+      const res = await expenseService.list(Object.keys(params).length > 0 ? params : undefined);
+      if (res.data.success && res.data.data) setExpenses(res.data.data);
+    } catch {
+      toast.error(language === "tr" ? "Masraflar yüklenemedi" : "Failed to load expenses");
+    } finally {
+      setLoading(false);
+    }
+  }, [startDate, endDate, catFilter, language]);
 
-            {/* Bottom Section */}
-            <div className="flex-1 space-y-4 pt-4 border-t border-white/10">
-                {/* Tabs */}
-                <div className="flex items-center gap-1 border-b border-white/10">
-                    {text.tabs.map((tab, i) => (
-                        <button
-                            key={i}
-                            onClick={() => setActiveTab(i)}
-                            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${activeTab === i
-                                ? "border-white text-white"
-                                : "border-transparent text-white/40 hover:text-white/70"
-                                }`}
-                        >
-                            {tab}
-                        </button>
-                    ))}
-                </div>
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await expenseService.listCategories();
+      if (res.data.success && res.data.data) setCategories(res.data.data);
+    } catch { /* silent */ }
+  }, []);
 
-                {/* Content per tab */}
-                {activeTab === 0 ? (
-                    <div className="rounded-2xl border border-white/10 bg-white/5 overflow-hidden min-h-[200px]">
-                        <div className="overflow-x-auto">
-                            <div className="flex justify-end p-2 border-b border-white/10">
-                                <button className="flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-1.5 text-xs font-medium text-white shadow-lg hover:bg-[#2563eb]">
-                                    📄 {text.download}
-                                </button>
-                            </div>
-                            <table className="w-full text-left text-xs">
-                                <thead className="bg-white/5 text-xs font-semibold uppercase text-white/60">
-                                    <tr>
-                                        {text.bottomTable.cols.map((col, i) => (
-                                            <th key={i} className="px-6 py-4 whitespace-nowrap">
-                                                {col}
-                                            </th>
-                                        ))}
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {/* Empty state for now since screenshot shows empty */}
-                                    <tr>
-                                        <td colSpan={3} className="px-6 py-8 text-center text-white/30">
-                                            No data available
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                ) : (
-                    <div className="rounded-2xl border border-white/10 bg-white/5 p-8 flex items-center justify-center min-h-[200px] text-white/30 text-sm">
-                        {text.noGraph}
-                    </div>
-                )}
-            </div>
+  const fetchCurrencies = useCallback(async () => {
+    try {
+      const res = await currencyService.list();
+      if (res.data.success && res.data.data) setCurrencies(res.data.data);
+    } catch { /* silent */ }
+  }, []);
+
+  useEffect(() => { fetchExpenses(); }, [fetchExpenses]);
+  useEffect(() => { fetchCategories(); fetchCurrencies(); }, [fetchCategories, fetchCurrencies]);
+
+  const openCreateExpense = () => {
+    setExpForm({
+      categoryId: categories[0]?.id || 0,
+      amount: 0,
+      currencyId: currencies.find((c) => c.isDefault)?.id || currencies[0]?.id || 0,
+      description: "", expenseDate: new Date().toISOString().split("T")[0], receiptNumber: "", notes: "",
+    });
+    setEditingId(null);
+    setExpenseMode("create");
+    setShowExpenseModal(true);
+  };
+
+  const openEditExpense = (item: ExpenseItem) => {
+    setExpForm({
+      categoryId: item.categoryId,
+      amount: item.amount,
+      currencyId: currencies.find((c) => c.code === item.currencyCode)?.id || 0,
+      description: item.description || "",
+      expenseDate: item.expenseDate.split("T")[0],
+      receiptNumber: item.receiptNumber || "",
+      notes: item.notes || "",
+    });
+    setEditingId(item.id);
+    setExpenseMode("edit");
+    setShowExpenseModal(true);
+  };
+
+  const handleExpenseSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    try {
+      const payload = {
+        categoryId: expForm.categoryId,
+        amount: expForm.amount,
+        currencyId: expForm.currencyId,
+        description: expForm.description || undefined,
+        expenseDate: expForm.expenseDate,
+        receiptNumber: expForm.receiptNumber || undefined,
+        notes: expForm.notes || undefined,
+      };
+      if (expenseMode === "edit" && editingId) {
+        await expenseService.update(editingId, payload);
+        toast.success(language === "tr" ? "Masraf güncellendi" : "Expense updated");
+      } else {
+        await expenseService.create(payload);
+        toast.success(language === "tr" ? "Masraf oluşturuldu" : "Expense created");
+      }
+      setShowExpenseModal(false);
+      fetchExpenses();
+    } catch {
+      toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleDeleteExpense = async (id: number) => {
+    if (!confirm(text.deleteConfirm)) return;
+    try {
+      await expenseService.delete(id);
+      toast.success(language === "tr" ? "Masraf silindi" : "Expense deleted");
+      fetchExpenses();
+    } catch {
+      toast.error(language === "tr" ? "Silme başarısız" : "Delete failed");
+    }
+  };
+
+  const handleCategorySubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    try {
+      await expenseService.createCategory({ name: catForm.name, description: catForm.description || undefined });
+      toast.success(language === "tr" ? "Kategori oluşturuldu" : "Category created");
+      setShowCatModal(false);
+      setCatForm({ name: "", description: "" });
+      fetchCategories();
+    } catch {
+      toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
+    }
+  };
+
+  const handleDeleteCategory = async (id: number) => {
+    if (!confirm(text.deleteCatConfirm)) return;
+    try {
+      await expenseService.deleteCategory(id);
+      toast.success(language === "tr" ? "Kategori silindi" : "Category deleted");
+      fetchCategories();
+    } catch {
+      toast.error(language === "tr" ? "Silme başarısız" : "Delete failed");
+    }
+  };
+
+  const totalAmount = expenses.reduce((sum, e) => sum + e.amountInTry, 0);
+  const formatCurrency = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2 });
+  const formatDate = (d: string) => new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+
+  return (
+    <div className="space-y-6 text-white">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">{text.title}</h1>
+        <div className="flex gap-2">
+          <button onClick={() => { setCatForm({ name: "", description: "" }); setShowCatModal(true); }}
+            className="rounded-xl border border-white/10 px-4 py-1.5 text-xs font-medium text-white/70 hover:bg-white/5">
+            + {text.newCategory}
+          </button>
+          <button onClick={openCreateExpense}
+            className="flex items-center gap-2 rounded-xl bg-[#00a651] px-4 py-1.5 text-xs font-semibold text-white shadow-lg shadow-green-900/20 hover:bg-[#008f45]">
+            + {text.new}
+          </button>
         </div>
-    );
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
+          className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none" />
+        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
+          className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none" />
+        <select value={catFilter} onChange={(e) => setCatFilter(e.target.value === "" ? "" : Number(e.target.value))}
+          className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none">
+          <option value="" className="bg-[#1a1a2e]">{text.selectCategory}</option>
+          {categories.map((c) => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.name}</option>)}
+        </select>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-white/10">
+        {text.tabs.map((tab, i) => (
+          <button key={i} onClick={() => setActiveTab(i)}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition ${activeTab === i ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/70"}`}>
+            {tab}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 0 ? (
+        /* Expense List */
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+          {loading ? (
+            <div className="p-8 text-center text-white/60">{text.loading}</div>
+          ) : expenses.length === 0 ? (
+            <div className="p-8 text-center text-white/60">{text.noData}</div>
+          ) : (
+            <table className="w-full text-left text-[10px] md:text-sm">
+              <thead>
+                <tr className="border-b border-white/10 bg-white/5 font-semibold text-white/50">
+                  {text.headers.map((h, i) => <th key={i} className="px-4 py-3 whitespace-nowrap">{h}</th>)}
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {expenses.map((exp) => (
+                  <tr key={exp.id} className="transition hover:bg-white/5">
+                    <td className="px-4 py-3 text-white/80">{exp.categoryName}</td>
+                    <td className="px-4 py-3 text-white/60 max-w-[200px] truncate">{exp.description || "—"}</td>
+                    <td className="px-4 py-3 font-medium text-white">{formatCurrency(exp.amount)} {exp.currencySymbol}</td>
+                    <td className="px-4 py-3 text-white/60">{formatDate(exp.expenseDate)}</td>
+                    <td className="px-4 py-3 text-white/60">{exp.receiptNumber || "—"}</td>
+                    <td className="px-4 py-3 text-white/60 max-w-[150px] truncate">{exp.notes || "—"}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex gap-2">
+                        <button onClick={() => openEditExpense(exp)}
+                          className="flex h-7 w-7 items-center justify-center rounded bg-[#f59e0b] text-white shadow hover:bg-[#d97706]">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button onClick={() => handleDeleteExpense(exp.id)}
+                          className="flex h-7 w-7 items-center justify-center rounded bg-[#ef4444] text-white shadow hover:bg-[#dc2626]">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+          <div className="border-t border-white/10 bg-white/5 p-3 flex justify-between text-[10px] font-medium text-white/60">
+            <span>{text.recordCount}: {expenses.length}</span>
+            <span>{text.totalAmount}: {formatCurrency(totalAmount)} TRY</span>
+          </div>
+        </div>
+      ) : (
+        /* Categories */
+        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+          {categories.length === 0 ? (
+            <div className="p-8 text-center text-white/60">{text.noData}</div>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-white/10 bg-white/5 font-semibold text-white/50">
+                  <th className="px-4 py-3">{text.categoryName}</th>
+                  <th className="px-4 py-3">{text.categoryDesc}</th>
+                  <th className="px-4 py-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/5">
+                {categories.map((cat) => (
+                  <tr key={cat.id} className="transition hover:bg-white/5">
+                    <td className="px-4 py-3 font-medium text-white">{cat.name}</td>
+                    <td className="px-4 py-3 text-white/60">{cat.description || "—"}</td>
+                    <td className="px-4 py-3">
+                      <button onClick={() => handleDeleteCategory(cat.id)}
+                        className="flex h-7 w-7 items-center justify-center rounded bg-[#ef4444] text-white shadow hover:bg-[#dc2626]">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      )}
+
+      {/* Expense Modal */}
+      <Modal open={showExpenseModal} onClose={() => setShowExpenseModal(false)}
+        title={expenseMode === "create" ? text.modalCreate : text.modalEdit}>
+        <form onSubmit={handleExpenseSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/60">{text.category} *</label>
+              <select value={expForm.categoryId} onChange={(e) => setExpForm({ ...expForm, categoryId: Number(e.target.value) })} required
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none">
+                <option value={0} className="bg-[#1a1a2e]">{text.selectCategory}</option>
+                {categories.map((c) => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.name}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/60">{text.expenseDate} *</label>
+              <input type="date" value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })} required
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/60">{text.amount} *</label>
+              <input type="number" min={0} step={0.01} value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: Number(e.target.value) })} required
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/60">{text.currency}</label>
+              <select value={expForm.currencyId} onChange={(e) => setExpForm({ ...expForm, currencyId: Number(e.target.value) })}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none">
+                {currencies.map((c) => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.code} ({c.symbol})</option>)}
+              </select>
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-white/60">{text.description}</label>
+            <input type="text" value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/60">{text.receiptNumber}</label>
+              <input type="text" value={expForm.receiptNumber} onChange={(e) => setExpForm({ ...expForm, receiptNumber: e.target.value })}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+            </div>
+            <div className="space-y-1">
+              <label className="text-xs font-medium text-white/60">{text.notes}</label>
+              <input type="text" value={expForm.notes} onChange={(e) => setExpForm({ ...expForm, notes: e.target.value })}
+                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+            </div>
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="submit" disabled={saving}
+              className="flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#008f45] disabled:opacity-50">
+              {saving ? text.saving : text.save}
+            </button>
+            <button type="button" onClick={() => setShowExpenseModal(false)}
+              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5">
+              {text.cancel}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Category Modal */}
+      <Modal open={showCatModal} onClose={() => setShowCatModal(false)} title={text.modalCategory} maxWidth="max-w-sm">
+        <form onSubmit={handleCategorySubmit} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-white/60">{text.categoryName} *</label>
+            <input type="text" value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} required
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-medium text-white/60">{text.categoryDesc}</label>
+            <input type="text" value={catForm.description} onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="submit" className="flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#008f45]">{text.save}</button>
+            <button type="button" onClick={() => setShowCatModal(false)} className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5">{text.cancel}</button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
 }
