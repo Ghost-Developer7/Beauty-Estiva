@@ -1,0 +1,231 @@
+"use client";
+
+import { useState, FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
+import { authService } from "@/services/authService";
+import LanguageToggle from "@/components/ui/LanguageToggle";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import toast from "react-hot-toast";
+
+const copy = {
+  en: {
+    badge: "Staff registration",
+    title: "Join your salon",
+    subtitle: "Enter the invite code shared by your salon owner to create your account.",
+    inviteToken: "Invite Code",
+    inviteTokenPh: "Enter invite code",
+    name: "Name",
+    namePh: "Your name",
+    surname: "Surname",
+    surnamePh: "Your surname",
+    email: "Email",
+    emailPh: "you@example.com",
+    password: "Password",
+    passwordPh: "Min 8 chars, uppercase, number, symbol",
+    confirmPassword: "Confirm Password",
+    confirmPasswordPh: "Repeat password",
+    birthDate: "Birth Date",
+    submit: "Create Account",
+    submitting: "Creating...",
+    haveAccount: "Already have an account?",
+    login: "Sign in",
+    ownerSignup: "Register as salon owner",
+    success: "Registration successful! You can now sign in.",
+    passwordMismatch: "Passwords don't match",
+  },
+  tr: {
+    badge: "Personel kaydı",
+    title: "Salonuna katıl",
+    subtitle: "Salon sahibinizin paylaştığı davet kodunu girerek hesabınızı oluşturun.",
+    inviteToken: "Davet Kodu",
+    inviteTokenPh: "Davet kodunu girin",
+    name: "Ad",
+    namePh: "Adınız",
+    surname: "Soyad",
+    surnamePh: "Soyadınız",
+    email: "E-posta",
+    emailPh: "siz@example.com",
+    password: "Şifre",
+    passwordPh: "Min 8 karakter, büyük harf, rakam, sembol",
+    confirmPassword: "Şifre Tekrar",
+    confirmPasswordPh: "Şifreyi tekrarlayın",
+    birthDate: "Doğum Tarihi",
+    submit: "Hesap Oluştur",
+    submitting: "Oluşturuluyor...",
+    haveAccount: "Zaten hesabınız var mı?",
+    login: "Giriş yap",
+    ownerSignup: "Salon sahibi olarak kayıt ol",
+    success: "Kayıt başarılı! Artık giriş yapabilirsiniz.",
+    passwordMismatch: "Şifreler uyuşmuyor",
+  },
+};
+
+export default function StaffRegisterPage() {
+  const { language } = useLanguage();
+  const { theme } = useTheme();
+  const router = useRouter();
+  const isDark = theme === "dark";
+  const text = copy[language];
+
+  const [form, setForm] = useState({
+    inviteToken: "",
+    name: "",
+    surname: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    birthDate: "",
+  });
+  const [submitting, setSubmitting] = useState(false);
+
+  const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#f7f4ff]";
+  const baseText = isDark ? "text-white" : "text-[#1f1233]";
+  const subtleText = isDark ? "text-white/60" : "text-[#6a5c8c]";
+  const cardBorder = isDark ? "border-white/10" : "border-[#e3d8ff]";
+  const cardBg = isDark ? "bg-white/5" : "bg-white";
+  const inputClass = isDark
+    ? "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
+    : "w-full rounded-xl border border-[#d9cef4] bg-white px-4 py-3 text-sm text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:outline-none focus:ring-2 focus:ring-[#b79df1]/40";
+  const labelClass = isDark ? "text-xs font-medium text-white/60" : "text-xs font-medium text-[#47376d]";
+
+  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (form.password !== form.confirmPassword) {
+      toast.error(text.passwordMismatch);
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await authService.registerStaff({
+        inviteToken: form.inviteToken,
+        email: form.email,
+        password: form.password,
+        confirmPassword: form.confirmPassword,
+        name: form.name,
+        surname: form.surname,
+        birthDate: form.birthDate || undefined,
+      });
+      if (res.data.success) {
+        toast.success(text.success);
+        router.push("/login");
+      } else {
+        toast.error(res.data.error?.message || (language === "tr" ? "Kayıt başarısız" : "Registration failed"));
+      }
+    } catch {
+      toast.error(language === "tr" ? "Kayıt başarısız" : "Registration failed");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  return (
+    <div className={`relative min-h-screen ${baseBg} ${baseText}`}>
+      {isDark && (
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-[#0b0614] via-[#130628] to-[#200c3c] opacity-95" />
+        </div>
+      )}
+
+      <div className="relative flex min-h-screen flex-col items-center justify-center px-4 py-12">
+        {/* Top controls */}
+        <div className="absolute top-6 right-6 flex items-center gap-3">
+          <LanguageToggle />
+          <ThemeToggle />
+        </div>
+
+        <div className={`w-full max-w-lg rounded-3xl ${cardBorder} ${cardBg} p-10 shadow-2xl`}>
+          {/* Header */}
+          <div className="mb-8 text-center">
+            <p className={`text-xs font-semibold uppercase tracking-[0.4em] ${subtleText}`}>
+              {text.badge}
+            </p>
+            <h1 className="mt-2 text-2xl font-semibold">{text.title}</h1>
+            <p className={`mt-2 text-sm ${subtleText}`}>{text.subtitle}</p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Invite Token — highlighted */}
+            <div className={`space-y-1 rounded-xl border p-4 ${isDark ? "border-emerald-500/30 bg-emerald-500/5" : "border-emerald-300 bg-emerald-50"}`}>
+              <label className="text-xs font-semibold text-emerald-500">{text.inviteToken} *</label>
+              <input
+                type="text"
+                required
+                value={form.inviteToken}
+                onChange={(e) => update("inviteToken", e.target.value.toUpperCase())}
+                placeholder={text.inviteTokenPh}
+                disabled={submitting}
+                className={`${inputClass} font-mono text-lg tracking-widest text-center`}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className={labelClass}>{text.name} *</label>
+                <input type="text" required value={form.name} onChange={(e) => update("name", e.target.value)}
+                  placeholder={text.namePh} disabled={submitting} className={inputClass} />
+              </div>
+              <div className="space-y-1">
+                <label className={labelClass}>{text.surname} *</label>
+                <input type="text" required value={form.surname} onChange={(e) => update("surname", e.target.value)}
+                  placeholder={text.surnamePh} disabled={submitting} className={inputClass} />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className={labelClass}>{text.email} *</label>
+              <input type="email" required value={form.email} onChange={(e) => update("email", e.target.value)}
+                placeholder={text.emailPh} disabled={submitting} className={inputClass} />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className={labelClass}>{text.password} *</label>
+                <input type="password" required value={form.password} onChange={(e) => update("password", e.target.value)}
+                  placeholder={text.passwordPh} disabled={submitting} className={inputClass} />
+              </div>
+              <div className="space-y-1">
+                <label className={labelClass}>{text.confirmPassword} *</label>
+                <input type="password" required value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)}
+                  placeholder={text.confirmPasswordPh} disabled={submitting} className={inputClass} />
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <label className={labelClass}>{text.birthDate}</label>
+              <input type="date" value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)}
+                disabled={submitting} className={inputClass} />
+            </div>
+
+            <button type="submit" disabled={submitting}
+              className={`w-full rounded-2xl py-3 text-base font-semibold transition shadow-sm disabled:opacity-50 ${
+                isDark
+                  ? "border border-white/30 bg-white/10 text-white hover:bg-white/20"
+                  : "border border-[#c9b4ff] bg-[#3b2268] text-white hover:bg-[#2b174e]"
+              }`}>
+              {submitting ? text.submitting : text.submit}
+            </button>
+          </form>
+
+          <div className={`mt-6 space-y-2 text-center text-xs ${subtleText}`}>
+            <p>
+              {text.haveAccount}{" "}
+              <Link href="/login" className="font-semibold text-[var(--color-pico-8-pink)] hover:underline">
+                {text.login}
+              </Link>
+            </p>
+            <p>
+              <Link href="/signup" className="font-semibold text-[var(--color-pico-8-pink)] hover:underline">
+                {text.ownerSignup}
+              </Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
