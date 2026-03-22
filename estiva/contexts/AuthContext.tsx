@@ -91,7 +91,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { token, name, surname, email, roles } = body.data;
 
       // Store token in cookie (expires with JWT — 30 days)
-      Cookies.set(TOKEN_KEY, token, { expires: 30, sameSite: "lax" });
+      Cookies.set(TOKEN_KEY, token, {
+        expires: 30,
+        sameSite: "strict",
+        secure: window.location.protocol === "https:",
+      });
 
       const authUser: AuthUser = {
         id: decodeJwt(token)?.sub ?? "",

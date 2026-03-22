@@ -4,6 +4,7 @@ using API_BeautyWise.Helpers.Interface;
 using API_BeautyWise.Models;
 using API_BeautyWise.Services;
 using API_BeautyWise.Services.Interface;
+using AspNetCoreRateLimit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
@@ -11,7 +12,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Data;
+using System.Net;
 using System.Text;
+using System.Text.Json;
 
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
@@ -34,6 +37,53 @@ builder.Services.AddCors(options =>
             .AllowCredentials();
     });
 });
+
+// ================================================================
+//  Rate Limiting (brute-force korumasi)
+// ================================================================
+builder.Services.AddMemoryCache();
+builder.Services.Configure<IpRateLimitOptions>(options =>
+{
+    options.EnableEndpointRateLimiting = true;
+    options.StackBlockedRequests = false;
+    options.HttpStatusCode = 429;
+    options.RealIpHeader = "X-Forwarded-For";
+    options.GeneralRules = new List<RateLimitRule>
+    {
+        // Genel: dakikada 60 istek
+        new RateLimitRule
+        {
+            Endpoint = "*",
+            Period = "1m",
+            Limit = 60,
+        },
+        // Login: dakikada 10 deneme (brute-force korumasi)
+        new RateLimitRule
+        {
+            Endpoint = "post:/api/auth/login",
+            Period = "1m",
+            Limit = 10,
+        },
+        // Register: dakikada 5 deneme
+        new RateLimitRule
+        {
+            Endpoint = "post:/api/auth/register",
+            Period = "1m",
+            Limit = 5,
+        },
+        new RateLimitRule
+        {
+            Endpoint = "post:/api/tenantonboarding/register",
+            Period = "1m",
+            Limit = 5,
+        },
+    };
+});
+builder.Services.AddSingleton<IIpPolicyStore, MemoryCacheIpPolicyStore>();
+builder.Services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
+builder.Services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
+builder.Services.AddSingleton<IProcessingStrategy, AsyncKeyLockProcessingStrategy>();
+builder.Services.AddInMemoryRateLimiting();
 
 // ================================================================
 //  Veritabani
@@ -81,12 +131,15 @@ builder.Services.AddAuthentication(x =>
     x.RequireHttpsMetadata = false;
     x.TokenValidationParameters = new TokenValidationParameters
     {
-        ValidateIssuer           = false,
-        ValidateAudience         = false,
+        ValidateIssuer           = true,
+        ValidIssuer              = builder.Configuration["AppSettings:Issuer"] ?? "BeautyWiseAPI",
+        ValidateAudience         = true,
+        ValidAudience            = builder.Configuration["AppSettings:Audience"] ?? "BeautyWiseApp",
         ValidateIssuerSigningKey = true,
         IssuerSigningKey         = new SymmetricSecurityKey(
             Encoding.ASCII.GetBytes(builder.Configuration["AppSettings:Secret"] ?? "")),
         ValidateLifetime         = true,
+        ClockSkew                = TimeSpan.FromMinutes(1),
     };
 });
 
@@ -200,13 +253,44 @@ using (var scope = app.Services.CreateScope())
 // ================================================================
 //  Middleware Pipeline
 // ================================================================
-app.UseSwagger();
-app.UseSwaggerUI(c =>
+
+// Global exception handler — stack trace'leri disariya sizdirmaz
+app.UseExceptionHandler(errorApp =>
 {
-    c.SwaggerEndpoint("/swagger/v1/swagger.json", "BeautyWise API V1");
-    c.RoutePrefix = "swagger";
+    errorApp.Run(async context =>
+    {
+        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+        context.Response.ContentType = "application/json";
+
+        var response = ApiResponse<object>.Fail("Sunucu hatası oluştu. Lütfen daha sonra tekrar deneyin.");
+        await context.Response.WriteAsync(JsonSerializer.Serialize(response));
+    });
 });
 
+// Swagger — sadece Development ortaminda
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "BeautyWise API V1");
+        c.RoutePrefix = "swagger";
+    });
+}
+
+// Security headers
+app.Use(async (context, next) =>
+{
+    context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
+    context.Response.Headers.Append("X-Frame-Options", "DENY");
+    context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
+    context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
+    context.Response.Headers.Append("Cache-Control", "no-store, no-cache, must-revalidate");
+    context.Response.Headers.Append("Pragma", "no-cache");
+    await next();
+});
+
+app.UseIpRateLimiting();
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseRouting();

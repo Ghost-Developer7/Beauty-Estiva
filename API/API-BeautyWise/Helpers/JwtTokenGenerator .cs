@@ -42,9 +42,14 @@ namespace API_BeautyWise.Helpers
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
+            var issuer = _configuration["AppSettings:Issuer"] ?? "BeautyWiseAPI";
+            var audience = _configuration["AppSettings:Audience"] ?? "BeautyWiseApp";
+
             var token = new JwtSecurityToken(
+                issuer: issuer,
+                audience: audience,
                 claims: claims,
-                expires: DateTime.Now.AddDays(30),
+                expires: DateTime.UtcNow.AddDays(30),
                 signingCredentials: creds
             );
 
