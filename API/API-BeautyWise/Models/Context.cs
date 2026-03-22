@@ -37,6 +37,10 @@ namespace API_BeautyWise.Models
         public DbSet<ExpenseCategory>    ExpenseCategories   { get; set; }
         public DbSet<Expense>            Expenses            { get; set; }
 
+        // Komisyon Modülü
+        public DbSet<StaffTreatmentCommission> StaffTreatmentCommissions { get; set; }
+        public DbSet<StaffCommissionRecord>    StaffCommissionRecords    { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -44,6 +48,8 @@ namespace API_BeautyWise.Models
             builder.Entity<AppUser>(entity =>
             {
                 entity.ToTable("Users");
+                entity.Property(u => u.DefaultCommissionRate).HasColumnType("decimal(5,2)");
+
                 entity.HasOne(u => u.Tenant)
                       .WithMany(t => t.Users)
                       .HasForeignKey(u => u.TenantId)
@@ -339,13 +345,15 @@ namespace API_BeautyWise.Models
                 entity.Property(c => c.Code).IsRequired().HasMaxLength(10);
                 entity.Property(c => c.Symbol).IsRequired().HasMaxLength(5);
                 entity.Property(c => c.Name).IsRequired().HasMaxLength(100);
+                entity.Property(c => c.ExchangeRateToTry).HasColumnType("decimal(18,6)");
+                entity.Property(c => c.TcmbCurrencyCode).HasMaxLength(10);
 
                 // Seed: TRY, USD, EUR, GBP
                 entity.HasData(
-                    new Currency { Id = 1, Code = "TRY", Symbol = "₺", Name = "Türk Lirası",       IsDefault = true,  IsActive = true, DisplayOrder = 1 },
-                    new Currency { Id = 2, Code = "USD", Symbol = "$", Name = "ABD Doları",          IsDefault = false, IsActive = true, DisplayOrder = 2 },
-                    new Currency { Id = 3, Code = "EUR", Symbol = "€", Name = "Euro",                IsDefault = false, IsActive = true, DisplayOrder = 3 },
-                    new Currency { Id = 4, Code = "GBP", Symbol = "£", Name = "İngiliz Sterlini",    IsDefault = false, IsActive = true, DisplayOrder = 4 }
+                    new Currency { Id = 1, Code = "TRY", Symbol = "₺", Name = "Türk Lirası",    IsDefault = true,  IsActive = true, DisplayOrder = 1, TcmbCurrencyCode = null },
+                    new Currency { Id = 2, Code = "USD", Symbol = "$", Name = "ABD Doları",       IsDefault = false, IsActive = true, DisplayOrder = 2, TcmbCurrencyCode = "USD" },
+                    new Currency { Id = 3, Code = "EUR", Symbol = "€", Name = "Euro",             IsDefault = false, IsActive = true, DisplayOrder = 3, TcmbCurrencyCode = "EUR" },
+                    new Currency { Id = 4, Code = "GBP", Symbol = "£", Name = "İngiliz Sterlini", IsDefault = false, IsActive = true, DisplayOrder = 4, TcmbCurrencyCode = "GBP" }
                 );
             });
 
@@ -405,6 +413,61 @@ namespace API_BeautyWise.Models
                 entity.HasOne(e => e.Currency)
                       .WithMany(c => c.Expenses)
                       .HasForeignKey(e => e.CurrencyId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ============================================================
+            //  Komisyon Modülü
+            // ============================================================
+
+            builder.Entity<StaffTreatmentCommission>(entity =>
+            {
+                entity.ToTable("StaffTreatmentCommissions");
+                entity.Property(c => c.CommissionRate).HasColumnType("decimal(5,2)");
+
+                entity.HasIndex(c => new { c.TenantId, c.StaffId, c.TreatmentId })
+                      .IsUnique()
+                      .HasFilter("[IsActive] = 1");
+
+                entity.HasOne(c => c.Tenant)
+                      .WithMany()
+                      .HasForeignKey(c => c.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(c => c.Staff)
+                      .WithMany()
+                      .HasForeignKey(c => c.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(c => c.Treatment)
+                      .WithMany()
+                      .HasForeignKey(c => c.TreatmentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<StaffCommissionRecord>(entity =>
+            {
+                entity.ToTable("StaffCommissionRecords");
+                entity.Property(r => r.CommissionRate).HasColumnType("decimal(5,2)");
+                entity.Property(r => r.PaymentAmountInTry).HasColumnType("decimal(18,2)");
+                entity.Property(r => r.CommissionAmountInTry).HasColumnType("decimal(18,2)");
+                entity.Property(r => r.SalonShareInTry).HasColumnType("decimal(18,2)");
+
+                entity.HasIndex(r => new { r.TenantId, r.StaffId });
+
+                entity.HasOne(r => r.Tenant)
+                      .WithMany()
+                      .HasForeignKey(r => r.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.Staff)
+                      .WithMany()
+                      .HasForeignKey(r => r.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(r => r.AppointmentPayment)
+                      .WithMany()
+                      .HasForeignKey(r => r.AppointmentPaymentId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

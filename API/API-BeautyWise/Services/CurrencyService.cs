@@ -23,7 +23,9 @@ namespace API_BeautyWise.Services
                     Symbol       = c.Symbol,
                     Name         = c.Name,
                     IsDefault    = c.IsDefault,
-                    DisplayOrder = c.DisplayOrder
+                    DisplayOrder = c.DisplayOrder,
+                    ExchangeRateToTry = c.ExchangeRateToTry,
+                    RateLastUpdated   = c.RateLastUpdated
                 })
                 .ToListAsync();
         }

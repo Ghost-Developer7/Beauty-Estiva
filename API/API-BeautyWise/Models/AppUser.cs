@@ -9,6 +9,10 @@ namespace API_BeautyWise.Models
         public string Surname { get; set; } = "";
         public DateTime? BirthDate { get; set; }
 
+        // --- KOMİSYON ---
+        // Personelin genel komisyon oranı (0-100 arası yüzde). Varsayılan 0 = komisyon yok.
+        public decimal DefaultCommissionRate { get; set; } = 0m;
+
         // --- SAAS BAĞLANTISI (ZORUNLU) ---
         // Kullanıcı hangi işletmeye ait?
         public int TenantId { get; set; }

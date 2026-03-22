@@ -152,6 +152,12 @@ builder.Services.AddHttpClient("PayTR", client =>
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
+builder.Services.AddHttpClient("TCMB", client =>
+{
+    client.DefaultRequestHeaders.Add("Accept", "application/xml");
+    client.Timeout = TimeSpan.FromSeconds(15);
+});
+
 // ================================================================
 //  Dapper (loglama icin ham SQL)
 // ================================================================
@@ -187,6 +193,12 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 
 // Bildirim Modülü
 builder.Services.AddScoped<INotificationService, NotificationService>();
+
+// Kur Modülü
+builder.Services.AddScoped<ITcmbExchangeRateService, TcmbExchangeRateService>();
+
+// Komisyon Modülü
+builder.Services.AddScoped<IStaffCommissionService, StaffCommissionService>();
 
 // ================================================================
 //  Controllers & Swagger

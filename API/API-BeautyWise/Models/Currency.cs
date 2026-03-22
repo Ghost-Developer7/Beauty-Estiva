@@ -14,6 +14,11 @@ namespace API_BeautyWise.Models
         public bool   IsActive     { get; set; } = true;
         public int    DisplayOrder { get; set; } = 0;
 
+        // TCMB kur bilgisi (cache)
+        public decimal?  ExchangeRateToTry { get; set; }       // TCMB'den çekilen kur (TRY için null)
+        public DateTime? RateLastUpdated   { get; set; }       // Son kur güncelleme zamanı
+        public string?   TcmbCurrencyCode  { get; set; }       // TCMB XML'deki kod (USD, EUR, GBP)
+
         // Navigation
         public ICollection<AppointmentPayment> AppointmentPayments { get; set; } = new List<AppointmentPayment>();
         public ICollection<Expense>            Expenses            { get; set; } = new List<Expense>();

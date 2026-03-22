@@ -41,6 +41,7 @@ namespace API_BeautyWise.Services
                     Roles = roles.ToList(),
                     IsActive = user.IsActive ?? false,
                     IsApproved = user.IsApproved,
+                    DefaultCommissionRate = user.DefaultCommissionRate,
                     CDate = user.CDate
                 });
             }

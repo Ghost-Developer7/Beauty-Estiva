@@ -8,5 +8,7 @@ namespace API_BeautyWise.DTO
         public string Name         { get; set; } = null!;   // Türk Lirası
         public bool   IsDefault    { get; set; }
         public int    DisplayOrder { get; set; }
+        public decimal?  ExchangeRateToTry { get; set; }
+        public DateTime? RateLastUpdated   { get; set; }
     }
 }

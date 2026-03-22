@@ -266,6 +266,8 @@ export interface CurrencyItem {
   symbol: string;
   name: string;
   isDefault: boolean;
+  exchangeRateToTry?: number;
+  rateLastUpdated?: string;
 }
 
 // ─── Expense ───
@@ -395,4 +397,73 @@ export interface SubscriptionPurchaseResult {
   merchantOid: string;
   originalPrice: number;
   finalPrice: number;
+}
+
+// ─── Exchange Rate (TCMB) ───
+export interface ExchangeRate {
+  currencyCode: string;
+  currencyName: string;
+  forexBuying: number;
+  forexSelling: number;
+  rateDate: string;
+}
+
+// ─── Staff Commission ───
+export interface StaffCommissionRate {
+  staffId: number;
+  staffFullName: string;
+  defaultCommissionRate: number;
+  treatmentCommissions: TreatmentCommission[];
+}
+
+export interface TreatmentCommission {
+  treatmentId: number;
+  treatmentName: string;
+  commissionRate: number;
+}
+
+export interface SetStaffCommissionRequest {
+  defaultCommissionRate: number;
+  treatmentRates?: { treatmentId: number; commissionRate: number }[];
+}
+
+export interface StaffCommissionRecord {
+  id: number;
+  staffId: number;
+  staffFullName: string;
+  treatmentName: string;
+  customerFullName: string;
+  appointmentDate: string;
+  paymentAmountInTry: number;
+  commissionRate: number;
+  commissionAmountInTry: number;
+  salonShareInTry: number;
+  isPaid: boolean;
+  paidAt: string | null;
+}
+
+export interface StaffCommissionSummary {
+  staffId: number;
+  staffFullName: string;
+  totalPaymentsInTry: number;
+  totalCommissionInTry: number;
+  totalSalonShareInTry: number;
+  paidCommissionInTry: number;
+  unpaidCommissionInTry: number;
+  recordCount: number;
+}
+
+// ─── Staff (with commission) ───
+export interface StaffMember {
+  id: number;
+  name: string;
+  surname: string;
+  email: string;
+  phone: string | null;
+  birthDate: string | null;
+  roles: string[];
+  isActive: boolean;
+  isApproved: boolean;
+  defaultCommissionRate: number;
+  cDate: string;
 }

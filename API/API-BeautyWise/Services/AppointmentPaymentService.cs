@@ -9,8 +9,13 @@ namespace API_BeautyWise.Services
     public class AppointmentPaymentService : IAppointmentPaymentService
     {
         private readonly Context _ctx;
+        private readonly IStaffCommissionService _commissionService;
 
-        public AppointmentPaymentService(Context ctx) => _ctx = ctx;
+        public AppointmentPaymentService(Context ctx, IStaffCommissionService commissionService)
+        {
+            _ctx = ctx;
+            _commissionService = commissionService;
+        }
 
         // ─── Helpers ──────────────────────────────────────────────────────────────
 
@@ -131,6 +136,11 @@ namespace API_BeautyWise.Services
 
             _ctx.AppointmentPayments.Add(payment);
             await _ctx.SaveChangesAsync();
+
+            // Komisyon kaydı oluştur
+            await _commissionService.CalculateAndRecordCommissionAsync(
+                tenantId, payment, appointment.StaffId, appointment.TreatmentId, createdByUserId);
+
             return payment.Id;
         }
 
@@ -163,6 +173,16 @@ namespace API_BeautyWise.Services
 
             payment.IsActive = false;
             payment.UDate    = DateTime.Now;
+
+            // İlişkili komisyon kaydını da deaktive et
+            var commissionRecord = await _ctx.StaffCommissionRecords
+                .FirstOrDefaultAsync(r => r.AppointmentPaymentId == id && r.IsActive == true);
+            if (commissionRecord != null)
+            {
+                commissionRecord.IsActive = false;
+                commissionRecord.UDate = DateTime.Now;
+            }
+
             await _ctx.SaveChangesAsync();
         }
     }
