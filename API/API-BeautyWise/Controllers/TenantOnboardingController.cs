@@ -37,12 +37,9 @@ namespace API_BeautyWise.Controllers
                     result,
                     "Kayit basarili. Lutfen giris yaparak sistemi kullanmaya baslayin."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts        = ex.Message.Split('|');
-                var errorCode    = parts.Length > 1 ? parts[0] : "ERROR";
-                var errorMessage = parts.Length > 1 ? parts[1] : ex.Message;
-                return BadRequest(ApiResponse<object>.Fail(errorMessage, errorCode));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -72,11 +69,9 @@ namespace API_BeautyWise.Controllers
                     token,
                     "Davet kodu olusturuldu. 24 saat icerisinde tek kullanimlik kullanilabilir."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts        = ex.Message.Split('|');
-                var errorMessage = parts.Length > 1 ? parts[1] : ex.Message;
-                return BadRequest(ApiResponse<object>.Fail(errorMessage));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }

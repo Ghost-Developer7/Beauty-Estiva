@@ -1,36 +1,44 @@
+using System.ComponentModel.DataAnnotations;
 using API_BeautyWise.Enums;
 
 namespace API_BeautyWise.DTO
 {
-    /// <summary>
-    /// Randevu oluşturma isteği.
-    /// Tekrarlayan seans için IsRecurring=true, RecurrenceIntervalDays ve TotalSessions doldurulur.
-    /// </summary>
     public class AppointmentCreateDto
     {
+        [Range(1, int.MaxValue, ErrorMessage = "Müşteri seçimi gereklidir.")]
         public int CustomerId { get; set; }
+
         public int StaffId { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Hizmet seçimi gereklidir.")]
         public int TreatmentId { get; set; }
+
         public DateTime StartTime { get; set; }
+
+        [StringLength(1000)]
         public string? Notes { get; set; }
 
-        // Tekrarlayan seans
         public bool IsRecurring { get; set; } = false;
 
-        /// <summary>Her kaç günde bir tekrar. Örn: 7=haftalık, 14=2 haftada bir, 30=aylık</summary>
+        [Range(1, 365, ErrorMessage = "Tekrar aralığı 1-365 gün arasında olmalıdır.")]
         public int? RecurrenceIntervalDays { get; set; }
 
-        /// <summary>Toplam seans sayısı. Örn: 5 seans</summary>
+        [Range(1, 52, ErrorMessage = "Seans sayısı 1-52 arasında olmalıdır.")]
         public int? TotalSessions { get; set; }
     }
 
-    /// <summary>Randevu güncelleme isteği</summary>
     public class AppointmentUpdateDto
     {
         public int StaffId { get; set; }
+
+        [Range(1, int.MaxValue, ErrorMessage = "Hizmet seçimi gereklidir.")]
         public int TreatmentId { get; set; }
+
         public DateTime StartTime { get; set; }
+
+        [StringLength(1000)]
         public string? Notes { get; set; }
+
         public AppointmentStatus Status { get; set; }
     }
 

@@ -33,9 +33,9 @@ namespace API_BeautyWise.Controllers
                 var settings = await _notificationService.GetTenantSettingsAsync(GetTenantId());
                 return Ok(ApiResponse<TenantSettingsDto>.Ok(settings));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -48,9 +48,9 @@ namespace API_BeautyWise.Controllers
                 await _notificationService.UpdateTenantSettingsAsync(GetTenantId(), GetUserId(), dto);
                 return Ok(ApiResponse<object>.Ok(null, "Ayarlar güncellendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -65,9 +65,9 @@ namespace API_BeautyWise.Controllers
                 var rules = await _notificationService.GetNotificationRulesAsync(GetTenantId());
                 return Ok(ApiResponse<List<NotificationRuleDto>>.Ok(rules));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -80,9 +80,9 @@ namespace API_BeautyWise.Controllers
                 await _notificationService.UpdateNotificationRuleAsync(GetTenantId(), GetUserId(), dto);
                 return Ok(ApiResponse<object>.Ok(null, "Bildirim kanalı güncellendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -97,9 +97,9 @@ namespace API_BeautyWise.Controllers
                 var integration = await _notificationService.GetWhatsappIntegrationAsync(GetTenantId());
                 return Ok(ApiResponse<WhatsappIntegrationDto?>.Ok(integration));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -112,9 +112,9 @@ namespace API_BeautyWise.Controllers
                 await _notificationService.SaveWhatsappIntegrationAsync(GetTenantId(), dto);
                 return Ok(ApiResponse<object>.Ok(null, "WhatsApp entegrasyonu kaydedildi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -132,9 +132,9 @@ namespace API_BeautyWise.Controllers
                 else
                     return BadRequest(ApiResponse<SendReminderResultDto>.Fail(result.Message ?? "Gönderilemedi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }

@@ -32,9 +32,9 @@ namespace API_BeautyWise.Controllers.Admin
                 var plans = await _subscriptionService.GetAvailablePlansAsync();
                 return Ok(ApiResponse<object>.Ok(plans));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -52,9 +52,9 @@ namespace API_BeautyWise.Controllers.Admin
 
                 return Ok(ApiResponse<object>.Ok(plan));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -74,9 +74,9 @@ namespace API_BeautyWise.Controllers.Admin
 
                 return Ok(ApiResponse<object>.Ok(plan, "Plan başarıyla oluşturuldu."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -105,9 +105,9 @@ namespace API_BeautyWise.Controllers.Admin
 
                 return Ok(ApiResponse<object>.Ok(plan, "Plan başarıyla güncellendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -130,9 +130,9 @@ namespace API_BeautyWise.Controllers.Admin
 
                 return Ok(ApiResponse<object>.Ok(true, "Plan başarıyla silindi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }

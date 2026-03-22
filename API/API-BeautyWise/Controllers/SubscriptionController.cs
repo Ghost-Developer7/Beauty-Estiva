@@ -53,9 +53,9 @@ namespace API_BeautyWise.Controllers
                 var plans = await _subscriptionService.GetAvailablePlansAsync();
                 return Ok(ApiResponse<object>.Ok(plans));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -81,9 +81,9 @@ namespace API_BeautyWise.Controllers
 
                 return Ok(ApiResponse<CurrentSubscriptionDto>.Ok(subscription));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -111,9 +111,9 @@ namespace API_BeautyWise.Controllers
                     IsInTrialPeriod= isInTrial
                 }));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -143,12 +143,9 @@ namespace API_BeautyWise.Controllers
                     result,
                     "PayTR odeme formu hazir. IframeUrl kullanarak odeme iframe'ini gosterin."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts       = ex.Message.Split('|');
-                var errorCode   = parts.Length > 1 ? parts[0] : "ERROR";
-                var errorMessage= parts.Length > 1 ? parts[1] : ex.Message;
-                return BadRequest(ApiResponse<object>.Fail(errorMessage, errorCode));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -173,11 +170,9 @@ namespace API_BeautyWise.Controllers
                     new { SubscriptionId = subscription.Id, EndDate = subscription.EndDate },
                     "7 gunluk deneme sureniz baslatildi!"));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts        = ex.Message.Split('|');
-                var errorMessage = parts.Length > 1 ? parts[1] : ex.Message;
-                return BadRequest(ApiResponse<object>.Fail(errorMessage));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -209,11 +204,9 @@ namespace API_BeautyWise.Controllers
 
                 return BadRequest(ApiResponse<object>.Fail("Abonelik iptal edilemedi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts        = ex.Message.Split('|');
-                var errorMessage = parts.Length > 1 ? parts[1] : ex.Message;
-                return BadRequest(ApiResponse<object>.Fail(errorMessage));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -235,9 +228,9 @@ namespace API_BeautyWise.Controllers
                 var history = await _subscriptionService.GetPaymentHistoryAsync(tenantId);
                 return Ok(ApiResponse<List<PaymentHistoryDto>>.Ok(history));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -266,9 +259,9 @@ namespace API_BeautyWise.Controllers
                 // PayTR'dan canli durum sor (IPaymentService'e erisim icin controller'a inject edilebilir)
                 return Ok(ApiResponse<object>.Ok(new { MerchantOid = merchantOid, Message = "Durum sorgusu icin GET /api/paymentcallback/status/{merchantOid} endpoint'ini kullanin." }));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }

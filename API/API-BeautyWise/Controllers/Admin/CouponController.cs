@@ -30,9 +30,9 @@ namespace API_BeautyWise.Controllers.Admin
                 var coupons = await _couponService.GetAllCouponsAsync();
                 return Ok(ApiResponse<object>.Ok(coupons));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -56,9 +56,9 @@ namespace API_BeautyWise.Controllers.Admin
                     UsageCount = usageCount
                 }));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -73,11 +73,9 @@ namespace API_BeautyWise.Controllers.Admin
                 var coupon = await _couponService.CreateCouponAsync(dto);
                 return Ok(ApiResponse<object>.Ok(coupon, "Kupon başarıyla oluşturuldu."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                var errorMessage = parts.Length > 1 ? parts[1] : ex.Message;
-                return BadRequest(ApiResponse<object>.Fail(errorMessage));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -92,11 +90,9 @@ namespace API_BeautyWise.Controllers.Admin
                 var coupon = await _couponService.UpdateCouponAsync(id, dto);
                 return Ok(ApiResponse<object>.Ok(coupon, "Kupon başarıyla güncellendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                var errorMessage = parts.Length > 1 ? parts[1] : ex.Message;
-                return BadRequest(ApiResponse<object>.Fail(errorMessage));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -114,9 +110,9 @@ namespace API_BeautyWise.Controllers.Admin
 
                 return Ok(ApiResponse<object>.Ok(true, "Kupon başarıyla silindi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -135,9 +131,9 @@ namespace API_BeautyWise.Controllers.Admin
 
                 return Ok(ApiResponse<object>.Ok(result));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }

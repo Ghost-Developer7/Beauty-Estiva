@@ -57,9 +57,9 @@ namespace API_BeautyWise.Controllers
                 var result = await _scheduleService.GetUnavailabilitiesAsync(tenantId, staffId, startDate, endDate);
                 return Ok(ApiResponse<List<StaffUnavailabilityListDto>>.Ok(result));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -83,9 +83,9 @@ namespace API_BeautyWise.Controllers
 
                 return Ok(ApiResponse<StaffUnavailabilityListDto>.Ok(result));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -116,11 +116,9 @@ namespace API_BeautyWise.Controllers
                 var id = await _scheduleService.CreateUnavailabilityAsync(tenantId, targetStaffId, dto);
                 return Ok(ApiResponse<object>.Ok(new { Id = id }, "Kapalı aralık eklendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                return BadRequest(ApiResponse<object>.Fail(parts.Length > 1 ? parts[1] : ex.Message,
-                                                            parts.Length > 1 ? parts[0] : null));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -145,11 +143,9 @@ namespace API_BeautyWise.Controllers
                 await _scheduleService.UpdateUnavailabilityAsync(id, tenantId, existing.StaffId, dto);
                 return Ok(ApiResponse<object>.Ok(true, "Kapalı aralık güncellendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                return BadRequest(ApiResponse<object>.Fail(parts.Length > 1 ? parts[1] : ex.Message,
-                                                            parts.Length > 1 ? parts[0] : null));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -173,11 +169,9 @@ namespace API_BeautyWise.Controllers
                 await _scheduleService.DeleteUnavailabilityAsync(id, tenantId, existing.StaffId);
                 return Ok(ApiResponse<object>.Ok(true, "Kapalı aralık silindi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                return BadRequest(ApiResponse<object>.Fail(parts.Length > 1 ? parts[1] : ex.Message,
-                                                            parts.Length > 1 ? parts[0] : null));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -200,11 +194,9 @@ namespace API_BeautyWise.Controllers
                 var result     = await _scheduleService.GetDailyScheduleAsync(tenantId, staffId, targetDate);
                 return Ok(ApiResponse<StaffDailyScheduleDto>.Ok(result));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                return BadRequest(ApiResponse<object>.Fail(parts.Length > 1 ? parts[1] : ex.Message,
-                                                            parts.Length > 1 ? parts[0] : null));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }

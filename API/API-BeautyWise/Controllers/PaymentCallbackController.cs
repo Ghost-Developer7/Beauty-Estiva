@@ -95,7 +95,7 @@ namespace API_BeautyWise.Controllers
                 // PayTR "OK" yaniti bekler - bu olmadan islemi tekrar dener
                 return Content("OK", "text/plain");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 _logger.LogError(ex, "PayTR callback isleme hatasi.");
                 return Content("PAYTR notification FAILED: system error", "text/plain");
@@ -118,7 +118,7 @@ namespace API_BeautyWise.Controllers
                 var result = await _paymentService.QueryPaymentStatusAsync(merchantOid);
                 return Ok(ApiResponse<PaymentStatusResultDto>.Ok(result));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 _logger.LogError(ex, "Odeme durum sorgu hatasi. MerchantOid: {Oid}", merchantOid);
                 return StatusCode(500, ApiResponse<object>.Fail("Durum sorgulanirken hata olustu."));

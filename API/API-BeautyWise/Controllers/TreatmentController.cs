@@ -41,9 +41,9 @@ namespace API_BeautyWise.Controllers
                 var result = await _treatmentService.GetAllAsync(tenantId);
                 return Ok(ApiResponse<List<TreatmentListDto>>.Ok(result));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -64,9 +64,9 @@ namespace API_BeautyWise.Controllers
 
                 return Ok(ApiResponse<TreatmentListDto>.Ok(result));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return StatusCode(500, ApiResponse<object>.Fail(ex.Message));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -86,11 +86,9 @@ namespace API_BeautyWise.Controllers
                 var id = await _treatmentService.CreateAsync(tenantId, dto);
                 return Ok(ApiResponse<object>.Ok(new { Id = id }, "Hizmet başarıyla eklendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                return BadRequest(ApiResponse<object>.Fail(parts.Length > 1 ? parts[1] : ex.Message,
-                                                            parts.Length > 1 ? parts[0] : null));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -110,11 +108,9 @@ namespace API_BeautyWise.Controllers
                 await _treatmentService.UpdateAsync(id, tenantId, dto);
                 return Ok(ApiResponse<object>.Ok(true, "Hizmet güncellendi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                return BadRequest(ApiResponse<object>.Fail(parts.Length > 1 ? parts[1] : ex.Message,
-                                                            parts.Length > 1 ? parts[0] : null));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -134,11 +130,9 @@ namespace API_BeautyWise.Controllers
                 await _treatmentService.DeleteAsync(id, tenantId);
                 return Ok(ApiResponse<object>.Ok(true, "Hizmet silindi."));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                var parts = ex.Message.Split('|');
-                return BadRequest(ApiResponse<object>.Fail(parts.Length > 1 ? parts[1] : ex.Message,
-                                                            parts.Length > 1 ? parts[0] : null));
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }

@@ -33,9 +33,9 @@ namespace API_BeautyWise.Controllers
                 var staff = await _staffService.GetStaffListAsync(GetTenantId());
                 return Ok(ApiResponse<List<StaffListDto>>.Ok(staff));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
 
@@ -54,9 +54,9 @@ namespace API_BeautyWise.Controllers
 
                 return Ok(ApiResponse<StaffListDto>.Ok(staff));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                return BadRequest(ApiResponse<object>.Fail(ex.Message));
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
     }
