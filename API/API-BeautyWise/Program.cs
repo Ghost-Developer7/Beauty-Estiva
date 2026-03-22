@@ -129,6 +129,12 @@ builder.Services.AddScoped<IAppointmentPaymentService, AppointmentPaymentService
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IFinancialReportService, FinancialReportService>();
 
+// Personel Modülü
+builder.Services.AddScoped<IStaffService, StaffService>();
+
+// Bildirim Modülü
+builder.Services.AddScoped<INotificationService, NotificationService>();
+
 // ================================================================
 //  Controllers & Swagger
 // ================================================================
