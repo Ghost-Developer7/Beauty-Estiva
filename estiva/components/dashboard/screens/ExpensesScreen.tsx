@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { expenseService } from "@/services/expenseService";
 import { currencyService } from "@/services/currencyService";
+import { expenseSchema, getValidationMessage } from "@/lib/validations";
 import type { ExpenseItem, ExpenseCategoryItem, CurrencyItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
@@ -98,6 +99,7 @@ export default function ExpensesScreen() {
     categoryId: 0, amount: 0, currencyId: 0, description: "", expenseDate: "", receiptNumber: "", notes: "",
   });
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Category modal
   const [showCatModal, setShowCatModal] = useState(false);
@@ -165,6 +167,16 @@ export default function ExpensesScreen() {
 
   const handleExpenseSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    const result = expenseSchema.safeParse(expForm);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) errs[issue.path[0] as string] = getValidationMessage(issue.message, language);
+      });
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
     setSaving(true);
     try {
       const payload = {
@@ -356,23 +368,26 @@ export default function ExpensesScreen() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.category} *</label>
-              <select value={expForm.categoryId} onChange={(e) => setExpForm({ ...expForm, categoryId: Number(e.target.value) })} required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none">
+              <select value={expForm.categoryId} onChange={(e) => setExpForm({ ...expForm, categoryId: Number(e.target.value) })}
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.categoryId ? "border-red-500" : "border-white/10 focus:border-white/30"}`}>
                 <option value={0} className="bg-[#1a1a2e]">{text.selectCategory}</option>
                 {categories.map((c) => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.name}</option>)}
               </select>
+              {fieldErrors.categoryId && <p className="text-xs text-red-500">{fieldErrors.categoryId}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.expenseDate} *</label>
-              <input type="date" value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })} required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+              <input type="date" value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })}
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.expenseDate ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
+              {fieldErrors.expenseDate && <p className="text-xs text-red-500">{fieldErrors.expenseDate}</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.amount} *</label>
-              <input type="number" min={0} step={0.01} value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: Number(e.target.value) })} required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+              <input type="number" min={0} step={0.01} value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: Number(e.target.value) })}
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.amount ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
+              {fieldErrors.amount && <p className="text-xs text-red-500">{fieldErrors.amount}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.currency}</label>

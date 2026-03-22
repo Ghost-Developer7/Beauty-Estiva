@@ -6,6 +6,7 @@ import { appointmentService } from "@/services/appointmentService";
 import { customerService } from "@/services/customerService";
 import { treatmentService } from "@/services/treatmentService";
 import { notificationService } from "@/services/notificationService";
+import { appointmentSchema, getValidationMessage } from "@/lib/validations";
 import type {
   AppointmentListItem,
   CustomerListItem,
@@ -122,6 +123,7 @@ export default function AppointmentsScreen() {
   const [showCreate, setShowCreate] = useState(false);
   const [form, setForm] = useState<CreateForm>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Status update modal
   const [showStatusModal, setShowStatusModal] = useState(false);
@@ -181,7 +183,16 @@ export default function AppointmentsScreen() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.customerId || !form.treatmentId || !form.startTime) return;
+    const result = appointmentSchema.safeParse(form);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) errs[issue.path[0] as string] = getValidationMessage(issue.message, language);
+      });
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
 
     setSaving(true);
     try {
@@ -376,8 +387,7 @@ export default function AppointmentsScreen() {
               <select
                 value={form.customerId}
                 onChange={(e) => setForm({ ...form, customerId: Number(e.target.value) })}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.customerId ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               >
                 <option value={0} className="bg-[#1a1a2e]">{text.selectCustomer}</option>
                 {customers.map((c) => (
@@ -386,14 +396,14 @@ export default function AppointmentsScreen() {
                   </option>
                 ))}
               </select>
+              {fieldErrors.customerId && <p className="text-xs text-red-500">{fieldErrors.customerId}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.treatment} *</label>
               <select
                 value={form.treatmentId}
                 onChange={(e) => setForm({ ...form, treatmentId: Number(e.target.value) })}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.treatmentId ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               >
                 <option value={0} className="bg-[#1a1a2e]">{text.selectTreatment}</option>
                 {treatments.map((t) => (
@@ -402,6 +412,7 @@ export default function AppointmentsScreen() {
                   </option>
                 ))}
               </select>
+              {fieldErrors.treatmentId && <p className="text-xs text-red-500">{fieldErrors.treatmentId}</p>}
             </div>
           </div>
 
@@ -421,9 +432,9 @@ export default function AppointmentsScreen() {
                 type="datetime-local"
                 value={form.startTime}
                 onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.startTime ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               />
+              {fieldErrors.startTime && <p className="text-xs text-red-500">{fieldErrors.startTime}</p>}
             </div>
           </div>
 

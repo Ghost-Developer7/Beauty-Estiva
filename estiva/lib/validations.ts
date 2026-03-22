@@ -47,37 +47,44 @@ export type CustomerFormData = z.infer<typeof customerSchema>;
 
 // ── Appointment ──
 export const appointmentSchema = z.object({
-  customerId: z.string().min(1, "required"),
-  treatmentId: z.string().min(1, "required"),
-  staffId: z.string().min(1, "required"),
-  date: z.string().min(1, "required"),
-  time: z.string().min(1, "required"),
+  customerId: z.number().min(1, "required"),
+  treatmentId: z.number().min(1, "required"),
+  staffId: z.number().optional(),
+  startTime: z.string().min(1, "required"),
   notes: z.string().optional(),
+  isRecurring: z.boolean().optional(),
+  recurrenceIntervalDays: z.number().optional(),
+  totalSessions: z.number().optional(),
 });
 export type AppointmentFormData = z.infer<typeof appointmentSchema>;
 
 // ── Treatment ──
 export const treatmentSchema = z.object({
   name: z.string().min(1, "required"),
-  duration: z.coerce.number().min(1, "required"),
-  price: z.coerce.number().min(0, "required"),
+  description: z.string().optional(),
+  durationMinutes: z.number().min(1, "minDuration"),
+  price: z.number().min(0, "required"),
   color: z.string().optional(),
 });
 export type TreatmentFormData = z.infer<typeof treatmentSchema>;
 
 // ── Expense ──
 export const expenseSchema = z.object({
-  description: z.string().min(1, "required"),
-  amount: z.coerce.number().min(0.01, "required"),
-  categoryId: z.string().min(1, "required"),
-  date: z.string().min(1, "required"),
+  categoryId: z.number().min(1, "required"),
+  amount: z.number().min(0.01, "minAmount"),
+  currencyId: z.number().optional(),
+  description: z.string().optional(),
+  expenseDate: z.string().min(1, "required"),
+  receiptNumber: z.string().optional(),
+  notes: z.string().optional(),
 });
 export type ExpenseFormData = z.infer<typeof expenseSchema>;
 
 // ── Payment (Order) ──
 export const paymentSchema = z.object({
-  appointmentId: z.string().min(1, "required"),
-  amount: z.coerce.number().min(0.01, "required"),
+  appointmentId: z.number().min(1, "required"),
+  amount: z.number().min(0.01, "minAmount"),
+  currencyId: z.number().optional(),
   paymentMethod: z.string().min(1, "required"),
   notes: z.string().optional(),
 });
@@ -94,6 +101,8 @@ export const validationMessages: Record<string, Record<string, string>> = {
     passwordNumber: "Password must contain a number",
     passwordSymbol: "Password must contain a special character",
     passwordMismatch: "Passwords don't match",
+    minDuration: "Duration must be at least 1 minute",
+    minAmount: "Amount must be greater than 0",
   },
   tr: {
     required: "Bu alan zorunludur",
@@ -104,6 +113,8 @@ export const validationMessages: Record<string, Record<string, string>> = {
     passwordNumber: "Şifre en az bir rakam içermelidir",
     passwordSymbol: "Şifre en az bir özel karakter içermelidir",
     passwordMismatch: "Şifreler uyuşmuyor",
+    minDuration: "Süre en az 1 dakika olmalıdır",
+    minAmount: "Tutar 0'dan büyük olmalıdır",
   },
 };
 

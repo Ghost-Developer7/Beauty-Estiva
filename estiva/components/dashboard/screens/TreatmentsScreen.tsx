@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { treatmentService } from "@/services/treatmentService";
+import { treatmentSchema, getValidationMessage } from "@/lib/validations";
 import type { TreatmentListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
@@ -82,6 +83,7 @@ export default function TreatmentsScreen() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const fetchTreatments = useCallback(async () => {
     try {
@@ -123,7 +125,16 @@ export default function TreatmentsScreen() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.durationMinutes || form.price < 0) return;
+    const result = treatmentSchema.safeParse(form);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) errs[issue.path[0] as string] = getValidationMessage(issue.message, language);
+      });
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
 
     setSaving(true);
     try {
@@ -248,9 +259,9 @@ export default function TreatmentsScreen() {
               type="text"
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
-              required
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+              className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.name ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
             />
+            {fieldErrors.name && <p className="text-xs text-red-500">{fieldErrors.name}</p>}
           </div>
           <div className="space-y-1">
             <label className="text-xs font-medium text-white/60">{text.description}</label>
@@ -270,9 +281,9 @@ export default function TreatmentsScreen() {
                 step={5}
                 value={form.durationMinutes}
                 onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.durationMinutes ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               />
+              {fieldErrors.durationMinutes && <p className="text-xs text-red-500">{fieldErrors.durationMinutes}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.price} *</label>
@@ -282,9 +293,9 @@ export default function TreatmentsScreen() {
                 step={0.01}
                 value={form.price}
                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.price ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               />
+              {fieldErrors.price && <p className="text-xs text-red-500">{fieldErrors.price}</p>}
             </div>
           </div>
           <div className="space-y-1">

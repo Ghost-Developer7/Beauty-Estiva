@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { paymentService } from "@/services/paymentService";
 import { appointmentService } from "@/services/appointmentService";
 import { currencyService } from "@/services/currencyService";
+import { paymentSchema, getValidationMessage } from "@/lib/validations";
 import type { AppointmentPaymentItem, AppointmentListItem, CurrencyItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
@@ -78,6 +79,7 @@ export default function OrdersScreen() {
     appointmentId: 0, amount: 0, currencyId: 0, paymentMethod: "Cash", notes: "",
   });
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const fetchPayments = useCallback(async () => {
     setLoading(true);
@@ -121,7 +123,16 @@ export default function OrdersScreen() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.appointmentId || form.amount <= 0) return;
+    const result = paymentSchema.safeParse(form);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) errs[issue.path[0] as string] = getValidationMessage(issue.message, language);
+      });
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
     setSaving(true);
     try {
       await paymentService.create({
@@ -222,8 +233,8 @@ export default function OrdersScreen() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
             <label className="text-xs font-medium text-white/60">{text.appointment} *</label>
-            <select value={form.appointmentId} onChange={(e) => setForm({ ...form, appointmentId: Number(e.target.value) })} required
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none">
+            <select value={form.appointmentId} onChange={(e) => setForm({ ...form, appointmentId: Number(e.target.value) })}
+              className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.appointmentId ? "border-red-500" : "border-white/10 focus:border-white/30"}`}>
               <option value={0} className="bg-[#1a1a2e]">{text.selectAppointment}</option>
               {appointments.map((a) => (
                 <option key={a.id} value={a.id} className="bg-[#1a1a2e]">
@@ -231,12 +242,14 @@ export default function OrdersScreen() {
                 </option>
               ))}
             </select>
+            {fieldErrors.appointmentId && <p className="text-xs text-red-500">{fieldErrors.appointmentId}</p>}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.amount} *</label>
-              <input type="number" min={0} step={0.01} value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })} required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+              <input type="number" min={0} step={0.01} value={form.amount} onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.amount ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
+              {fieldErrors.amount && <p className="text-xs text-red-500">{fieldErrors.amount}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.currency}</label>
