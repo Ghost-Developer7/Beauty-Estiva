@@ -1,11 +1,13 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { loginSchema, LoginFormData, getValidationMessage } from "@/lib/validations";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -36,48 +38,42 @@ export default function LoginForm() {
   const text = copy[language];
   const formTextClass = theme === "dark" ? "text-white" : "text-[#1d1233]";
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (!email || !password) return;
-
-    setIsSubmitting(true);
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login({ emailOrUsername: email, password });
+      await login({ emailOrUsername: data.email, password: data.password });
     } catch (err: unknown) {
       const message =
         (err instanceof Error ? err.message : null) ?? text.errorGeneric;
       toast.error(message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
   return (
-    <form className={`space-y-6 ${formTextClass}`} onSubmit={handleSubmit}>
+    <form className={`space-y-6 ${formTextClass}`} onSubmit={handleSubmit(onSubmit)}>
       <Input
         label={text.emailLabel}
-        name="email"
         type="email"
         placeholder={text.emailPlaceholder}
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
         disabled={isSubmitting}
+        error={errors.email ? getValidationMessage(errors.email.message!, language) : undefined}
+        {...register("email")}
       />
 
       <Input
         label={text.passwordLabel}
-        name="password"
         type="password"
         placeholder={text.passwordPlaceholder}
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        required
         disabled={isSubmitting}
+        error={errors.password ? getValidationMessage(errors.password.message!, language) : undefined}
+        {...register("password")}
       />
 
       <Button

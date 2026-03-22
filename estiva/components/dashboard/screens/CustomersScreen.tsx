@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { customerService } from "@/services/customerService";
+import { customerSchema, getValidationMessage } from "@/lib/validations";
 import type { CustomerListItem, CustomerDetail } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
@@ -97,6 +98,7 @@ export default function CustomersScreen() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<FormData>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -160,7 +162,16 @@ export default function CustomersScreen() {
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.surname) return;
+    const result = customerSchema.safeParse(form);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        if (issue.path[0]) errs[issue.path[0] as string] = getValidationMessage(issue.message, language);
+      });
+      setFieldErrors(errs);
+      return;
+    }
+    setFieldErrors({});
 
     setSaving(true);
     try {
@@ -325,9 +336,9 @@ export default function CustomersScreen() {
                 type="text"
                 value={form.name}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.name ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               />
+              {fieldErrors.name && <p className="text-xs text-red-500">{fieldErrors.name}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.surname} *</label>
@@ -335,20 +346,21 @@ export default function CustomersScreen() {
                 type="text"
                 value={form.surname}
                 onChange={(e) => setForm({ ...form, surname: e.target.value })}
-                required
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.surname ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               />
+              {fieldErrors.surname && <p className="text-xs text-red-500">{fieldErrors.surname}</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{text.phone}</label>
+              <label className="text-xs font-medium text-white/60">{text.phone} *</label>
               <input
                 type="tel"
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.phone ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               />
+              {fieldErrors.phone && <p className="text-xs text-red-500">{fieldErrors.phone}</p>}
             </div>
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.email}</label>
@@ -356,8 +368,9 @@ export default function CustomersScreen() {
                 type="email"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.email ? "border-red-500" : "border-white/10 focus:border-white/30"}`}
               />
+              {fieldErrors.email && <p className="text-xs text-red-500">{fieldErrors.email}</p>}
             </div>
           </div>
           <div className="space-y-1">

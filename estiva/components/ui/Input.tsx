@@ -1,30 +1,36 @@
+import { forwardRef } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 
 type InputProps = {
   label: string;
   type?: string;
-  name: string;
+  name?: string;
   placeholder?: string;
   className?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
   required?: boolean;
   disabled?: boolean;
   error?: string;
 };
 
-export default function Input({
-  label,
-  type = "text",
-  name,
-  placeholder,
-  className = "",
-  value,
-  onChange,
-  required,
-  disabled,
-  error,
-}: InputProps) {
+const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
+  {
+    label,
+    type = "text",
+    name,
+    placeholder,
+    className = "",
+    value,
+    onChange,
+    onBlur,
+    required,
+    disabled,
+    error,
+  },
+  ref,
+) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const labelColor = isDark ? "text-white/80" : "text-[#47376d]";
@@ -39,11 +45,13 @@ export default function Input({
         {label}
       </label>
       <input
+        ref={ref}
         type={type}
         name={name}
         placeholder={placeholder}
         value={value}
         onChange={onChange}
+        onBlur={onBlur}
         required={required}
         disabled={disabled}
         className={`w-full rounded-2xl px-4 py-3 shadow-sm transition focus:ring-2 disabled:opacity-50 ${baseInput} ${errorClass} ${className}`}
@@ -53,4 +61,6 @@ export default function Input({
       )}
     </div>
   );
-}
+});
+
+export default Input;

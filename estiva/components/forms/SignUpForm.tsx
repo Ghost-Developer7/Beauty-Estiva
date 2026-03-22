@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
-import Input from "@/components/ui/Input";
 import Button from "@/components/ui/Button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { tenantService } from "@/services/tenantService";
+import { signUpSchema, SignUpFormData, getValidationMessage } from "@/lib/validations";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -77,11 +78,13 @@ export default function SignUpForm() {
   const isDark = theme === "dark";
   const text = copy[language];
 
-  const [form, setForm] = useState({
-    companyName: "", phone: "", address: "", taxNumber: "", taxOffice: "",
-    ownerName: "", ownerSurname: "", ownerEmail: "", ownerPassword: "", ownerConfirmPassword: "",
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignUpFormData>({
+    resolver: zodResolver(signUpSchema),
   });
-  const [submitting, setSubmitting] = useState(false);
 
   const baseText = isDark ? "text-white" : "text-[#1d1233]";
   const eyebrowText = isDark ? "text-white/40" : "text-[#9a88c2]";
@@ -92,26 +95,27 @@ export default function SignUpForm() {
     ? "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none"
     : "w-full rounded-xl border border-[#d9cef4] bg-white px-3 py-2.5 text-sm text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:outline-none";
   const labelClass = isDark ? "text-xs font-medium text-white/60" : "text-xs font-medium text-[#47376d]";
+  const errorInputClass = "border-red-500 focus:border-red-500";
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-    if (form.ownerPassword !== form.ownerConfirmPassword) {
-      toast.error(language === "tr" ? "Şifreler uyuşmuyor" : "Passwords don't match");
-      return;
-    }
-    setSubmitting(true);
+  const err = (field: keyof SignUpFormData) =>
+    errors[field] ? getValidationMessage(errors[field]!.message!, language) : undefined;
+
+  const fieldClass = (field: keyof SignUpFormData) =>
+    `${inputClass} ${errors[field] ? errorInputClass : ""}`;
+
+  const onSubmit = async (data: SignUpFormData) => {
     try {
       const res = await tenantService.register({
-        companyName: form.companyName,
-        phone: form.phone,
-        address: form.address || "",
-        taxNumber: form.taxNumber || "",
-        taxOffice: form.taxOffice || "",
-        email: form.ownerEmail,
-        password: form.ownerPassword,
-        confirmPassword: form.ownerConfirmPassword,
-        name: form.ownerName,
-        surname: form.ownerSurname,
+        companyName: data.companyName,
+        phone: data.phone,
+        address: data.address || "",
+        taxNumber: data.taxNumber || "",
+        taxOffice: data.taxOffice || "",
+        email: data.ownerEmail,
+        password: data.ownerPassword,
+        confirmPassword: data.ownerConfirmPassword,
+        name: data.ownerName,
+        surname: data.ownerSurname,
       });
       if (res.data.success) {
         toast.success(text.successMessage);
@@ -121,15 +125,11 @@ export default function SignUpForm() {
       }
     } catch {
       toast.error(language === "tr" ? "Kayıt başarısız" : "Registration failed");
-    } finally {
-      setSubmitting(false);
     }
   };
 
-  const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));
-
   return (
-    <form className={`space-y-6 ${baseText}`} onSubmit={handleSubmit}>
+    <form className={`space-y-6 ${baseText}`} onSubmit={handleSubmit(onSubmit)}>
       <section className={`space-y-6 rounded-3xl border p-8 shadow-[0_25px_60px_rgba(3,2,9,0.6)] ${cardBorder} ${cardBg}`}>
         <div>
           <p className={`text-sm uppercase tracking-[0.2em] ${eyebrowText}`}>{text.companyBadge}</p>
@@ -139,23 +139,25 @@ export default function SignUpForm() {
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <label className={labelClass}>{text.companyName} *</label>
-            <input type="text" required value={form.companyName} onChange={(e) => update("companyName", e.target.value)}
-              placeholder={text.companyNamePh} className={inputClass} disabled={submitting} />
+            <input type="text" placeholder={text.companyNamePh} className={fieldClass("companyName")}
+              disabled={isSubmitting} {...register("companyName")} />
+            {err("companyName") && <p className="text-xs text-red-500">{err("companyName")}</p>}
           </div>
           <div className="space-y-1">
             <label className={labelClass}>{text.phone} *</label>
-            <input type="tel" required value={form.phone} onChange={(e) => update("phone", e.target.value)}
-              placeholder={text.phonePh} className={inputClass} disabled={submitting} />
+            <input type="tel" placeholder={text.phonePh} className={fieldClass("phone")}
+              disabled={isSubmitting} {...register("phone")} />
+            {err("phone") && <p className="text-xs text-red-500">{err("phone")}</p>}
           </div>
           <div className="space-y-1">
             <label className={labelClass}>{text.address}</label>
-            <input type="text" value={form.address} onChange={(e) => update("address", e.target.value)}
-              placeholder={text.addressPh} className={inputClass} disabled={submitting} />
+            <input type="text" placeholder={text.addressPh} className={fieldClass("address")}
+              disabled={isSubmitting} {...register("address")} />
           </div>
           <div className="space-y-1">
             <label className={labelClass}>{text.taxNumber}</label>
-            <input type="text" value={form.taxNumber} onChange={(e) => update("taxNumber", e.target.value)}
-              placeholder={text.taxNumberPh} className={inputClass} disabled={submitting} />
+            <input type="text" placeholder={text.taxNumberPh} className={fieldClass("taxNumber")}
+              disabled={isSubmitting} {...register("taxNumber")} />
           </div>
         </div>
 
@@ -165,34 +167,39 @@ export default function SignUpForm() {
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-1">
             <label className={labelClass}>{text.ownerName} *</label>
-            <input type="text" required value={form.ownerName} onChange={(e) => update("ownerName", e.target.value)}
-              placeholder={text.ownerNamePh} className={inputClass} disabled={submitting} />
+            <input type="text" placeholder={text.ownerNamePh} className={fieldClass("ownerName")}
+              disabled={isSubmitting} {...register("ownerName")} />
+            {err("ownerName") && <p className="text-xs text-red-500">{err("ownerName")}</p>}
           </div>
           <div className="space-y-1">
             <label className={labelClass}>{text.ownerSurname} *</label>
-            <input type="text" required value={form.ownerSurname} onChange={(e) => update("ownerSurname", e.target.value)}
-              placeholder={text.ownerSurnamePh} className={inputClass} disabled={submitting} />
+            <input type="text" placeholder={text.ownerSurnamePh} className={fieldClass("ownerSurname")}
+              disabled={isSubmitting} {...register("ownerSurname")} />
+            {err("ownerSurname") && <p className="text-xs text-red-500">{err("ownerSurname")}</p>}
           </div>
           <div className="space-y-1">
             <label className={labelClass}>{text.ownerEmail} *</label>
-            <input type="email" required value={form.ownerEmail} onChange={(e) => update("ownerEmail", e.target.value)}
-              placeholder={text.ownerEmailPh} className={inputClass} disabled={submitting} />
+            <input type="email" placeholder={text.ownerEmailPh} className={fieldClass("ownerEmail")}
+              disabled={isSubmitting} {...register("ownerEmail")} />
+            {err("ownerEmail") && <p className="text-xs text-red-500">{err("ownerEmail")}</p>}
           </div>
           <div />
           <div className="space-y-1">
             <label className={labelClass}>{text.ownerPassword} *</label>
-            <input type="password" required value={form.ownerPassword} onChange={(e) => update("ownerPassword", e.target.value)}
-              placeholder={text.ownerPasswordPh} className={inputClass} disabled={submitting} />
+            <input type="password" placeholder={text.ownerPasswordPh} className={fieldClass("ownerPassword")}
+              disabled={isSubmitting} {...register("ownerPassword")} />
+            {err("ownerPassword") && <p className="text-xs text-red-500">{err("ownerPassword")}</p>}
           </div>
           <div className="space-y-1">
             <label className={labelClass}>{text.ownerConfirmPassword} *</label>
-            <input type="password" required value={form.ownerConfirmPassword} onChange={(e) => update("ownerConfirmPassword", e.target.value)}
-              placeholder={text.ownerConfirmPasswordPh} className={inputClass} disabled={submitting} />
+            <input type="password" placeholder={text.ownerConfirmPasswordPh} className={fieldClass("ownerConfirmPassword")}
+              disabled={isSubmitting} {...register("ownerConfirmPassword")} />
+            {err("ownerConfirmPassword") && <p className="text-xs text-red-500">{err("ownerConfirmPassword")}</p>}
           </div>
         </div>
 
-        <Button type="submit" className="w-full rounded-2xl text-base font-semibold" disabled={submitting}>
-          {submitting ? text.submitting : text.submit}
+        <Button type="submit" className="w-full rounded-2xl text-base font-semibold" disabled={isSubmitting}>
+          {isSubmitting ? text.submitting : text.submit}
         </Button>
 
         <p className={`text-center text-sm ${mutedText}`}>{text.disclaimer}</p>
