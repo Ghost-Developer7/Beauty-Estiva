@@ -29,8 +29,9 @@ builder.Services.AddCors(options =>
         policy.WithOrigins(
                 "http://localhost:3000",
                 "http://localhost:5173",
-                "https://localhost:5001"
-                // Production domain'leri buraya ekleyin: "https://yourdomain.com"
+                "https://localhost:5001",
+                "https://beauty-estiva.vercel.app",
+                "https://test.mehmetkara.xyz"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
@@ -307,7 +308,20 @@ app.Use(async (context, next) =>
 
 app.UseIpRateLimiting();
 app.UseStaticFiles();
-app.UseHttpsRedirection();
+
+// Cloudflare SSL terminate eder, arkada HTTP kalir
+// Development'ta HTTPS redirect aktif, Production'da Cloudflare halleder
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+// Cloudflare'den gelen gercek IP'yi al
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+        | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto
+});
 app.UseRouting();
 app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
