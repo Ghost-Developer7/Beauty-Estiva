@@ -13,9 +13,11 @@ export const tenantService = {
     );
   },
 
-  generateInviteToken() {
-    return api.post<ApiResponse<{ token: string }>>(
+  generateInviteToken(email?: string) {
+    return api.post<ApiResponse<{ token: string; registerUrl: string; emailSent: boolean }>>(
       "/tenantonboarding/invite-token",
+      email ?? null,
+      { headers: { "Content-Type": "application/json" } },
     );
   },
 };

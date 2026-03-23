@@ -29,7 +29,8 @@ import {
   IconDownload,
   IconArrowDownLeft,
   IconArrowUpRight,
-  IconEstivaLogo
+  IconEstivaLogo,
+  IconUserPlus
 } from "@/components/dashboard/icons";
 
 const ChevronDown = () => (
@@ -73,6 +74,16 @@ const navItems = {
     { label: "Orders", href: "/dashboard/orders", icon: IconList },
     { label: "Customers", href: "/dashboard/customers", icon: IconUsers },
     { label: "Treatments", href: "/dashboard/treatments", icon: IconTag },
+    {
+      label: "Staff",
+      href: "/dashboard/staff",
+      icon: IconUserPlus,
+      expandable: true,
+      children: [
+        { label: "Staff List", href: "/dashboard/staff", icon: IconUsers },
+        { label: "Invite Staff", href: "/dashboard/staff/invite", icon: IconEnvelope },
+      ]
+    },
     { label: "Product Sales", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Package Sales", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Subscription", href: "/dashboard/subscription", icon: IconWallet },
@@ -149,6 +160,16 @@ const navItems = {
     { label: "Adisyonlar", href: "/dashboard/orders", icon: IconList },
     { label: "Müşteriler", href: "/dashboard/customers", icon: IconUsers },
     { label: "Hizmetler", href: "/dashboard/treatments", icon: IconTag },
+    {
+      label: "Personel",
+      href: "/dashboard/staff",
+      icon: IconUserPlus,
+      expandable: true,
+      children: [
+        { label: "Personel Listesi", href: "/dashboard/staff", icon: IconUsers },
+        { label: "Personel Davet Et", href: "/dashboard/staff/invite", icon: IconEnvelope },
+      ]
+    },
     { label: "Ürün satışları", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Paket satışları", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Abonelik", href: "/dashboard/subscription", icon: IconWallet },
@@ -224,6 +245,7 @@ export default function Sidebar() {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(true);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
+    "/dashboard/staff": false,
     "/dashboard/pos": false,
     "/dashboard/reports": false,
     "/dashboard/messaging": false,

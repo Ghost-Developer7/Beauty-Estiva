@@ -12,10 +12,17 @@ namespace API_BeautyWise.Controllers
     public class TenantOnboardingController : ControllerBase
     {
         private readonly ITenantOnboardingService _tenantOnboardingService;
+        private readonly IEmailService _emailService;
+        private readonly IConfiguration _configuration;
 
-        public TenantOnboardingController(ITenantOnboardingService tenantOnboardingService)
+        public TenantOnboardingController(
+            ITenantOnboardingService tenantOnboardingService,
+            IEmailService emailService,
+            IConfiguration configuration)
         {
             _tenantOnboardingService = tenantOnboardingService;
+            _emailService = emailService;
+            _configuration = configuration;
         }
 
         /// <summary>
@@ -54,7 +61,7 @@ namespace API_BeautyWise.Controllers
         /// </summary>
         [HttpPost("invite-token")]
         [Authorize(Roles = "Owner,Admin")]
-        public async Task<ActionResult<ApiResponse<string>>> CreateInviteToken(
+        public async Task<ActionResult<ApiResponse<InviteTokenResultDto>>> CreateInviteToken(
             [FromBody] string? emailToInvite)
         {
             try
@@ -65,9 +72,36 @@ namespace API_BeautyWise.Controllers
 
                 var token = await _tenantOnboardingService.CreateInviteTokenAsync(tenantId, emailToInvite);
 
-                return Ok(ApiResponse<string>.Ok(
-                    token,
-                    "Davet kodu olusturuldu. 24 saat icerisinde tek kullanimlik kullanilabilir."));
+                var frontendUrl = _configuration["FrontendUrl"] ?? "http://localhost:3000";
+                var registerUrl = $"{frontendUrl}/register?invite={Uri.EscapeDataString(token)}";
+                if (!string.IsNullOrWhiteSpace(emailToInvite))
+                    registerUrl += $"&email={Uri.EscapeDataString(emailToInvite)}";
+
+                bool emailSent = false;
+                if (!string.IsNullOrWhiteSpace(emailToInvite))
+                {
+                    try
+                    {
+                        var tenant = await _tenantOnboardingService.GetTenantNameAsync(tenantId);
+                        await _emailService.SendInviteEmailAsync(emailToInvite, token, tenant, frontendUrl);
+                        emailSent = true;
+                    }
+                    catch
+                    {
+                        // Email gönderilemese bile token oluşturuldu, devam et
+                    }
+                }
+
+                return Ok(ApiResponse<InviteTokenResultDto>.Ok(
+                    new InviteTokenResultDto
+                    {
+                        Token = token,
+                        RegisterUrl = registerUrl,
+                        EmailSent = emailSent
+                    },
+                    emailSent
+                        ? "Davet kodu oluşturuldu ve e-posta gönderildi."
+                        : "Davet kodu oluşturuldu. 24 saat içerisinde tek kullanımlık kullanılabilir."));
             }
             catch (Exception)
             {

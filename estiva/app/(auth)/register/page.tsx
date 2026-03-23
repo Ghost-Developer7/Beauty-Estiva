@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, FormEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, FormEvent, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
@@ -63,12 +63,16 @@ const copy = {
   },
 };
 
-export default function StaffRegisterPage() {
+function StaffRegisterContent() {
   const { language } = useLanguage();
   const { theme } = useTheme();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const isDark = theme === "dark";
   const text = copy[language];
+
+  const inviteFromUrl = searchParams.get("invite") || "";
+  const emailFromUrl = searchParams.get("email") || "";
 
   const [form, setForm] = useState({
     inviteToken: "",
@@ -80,6 +84,16 @@ export default function StaffRegisterPage() {
     birthDate: "",
   });
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (inviteFromUrl || emailFromUrl) {
+      setForm((f) => ({
+        ...f,
+        ...(inviteFromUrl ? { inviteToken: inviteFromUrl } : {}),
+        ...(emailFromUrl ? { email: emailFromUrl } : {}),
+      }));
+    }
+  }, [inviteFromUrl, emailFromUrl]);
 
   const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#f7f4ff]";
   const baseText = isDark ? "text-white" : "text-[#1f1233]";
@@ -158,8 +172,9 @@ export default function StaffRegisterPage() {
                 value={form.inviteToken}
                 onChange={(e) => update("inviteToken", e.target.value.toUpperCase())}
                 placeholder={text.inviteTokenPh}
-                disabled={submitting}
-                className={`${inputClass} font-mono text-lg tracking-widest text-center`}
+                disabled={submitting || !!inviteFromUrl}
+                readOnly={!!inviteFromUrl}
+                className={`${inputClass} font-mono text-lg tracking-widest text-center ${inviteFromUrl ? "opacity-70 cursor-not-allowed" : ""}`}
               />
             </div>
 
@@ -179,7 +194,8 @@ export default function StaffRegisterPage() {
             <div className="space-y-1">
               <label className={labelClass}>{text.email} *</label>
               <input type="email" required value={form.email} onChange={(e) => update("email", e.target.value)}
-                placeholder={text.emailPh} disabled={submitting} className={inputClass} />
+                placeholder={text.emailPh} disabled={submitting || !!emailFromUrl} readOnly={!!emailFromUrl}
+                className={`${inputClass} ${emailFromUrl ? "opacity-70 cursor-not-allowed" : ""}`} />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -227,5 +243,13 @@ export default function StaffRegisterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function StaffRegisterPage() {
+  return (
+    <Suspense>
+      <StaffRegisterContent />
+    </Suspense>
   );
 }

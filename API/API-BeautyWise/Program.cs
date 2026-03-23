@@ -194,6 +194,9 @@ builder.Services.AddScoped<IStaffService, StaffService>();
 // Bildirim Modülü
 builder.Services.AddScoped<INotificationService, NotificationService>();
 
+// Email Modülü
+builder.Services.AddScoped<IEmailService, EmailService>();
+
 // Kur Modülü
 builder.Services.AddScoped<ITcmbExchangeRateService, TcmbExchangeRateService>();
 

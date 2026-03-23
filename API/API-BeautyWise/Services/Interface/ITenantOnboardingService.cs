@@ -6,6 +6,6 @@ namespace API_BeautyWise.Services.Interface
     {
         Task<TenantOnboardingResultDto> RegisterTenantAsync(TenantOnboardingDto dto);
         Task<string> CreateInviteTokenAsync(int tenantId, string? emailToInvite = null);
-
+        Task<string> GetTenantNameAsync(int tenantId);
     }
 }

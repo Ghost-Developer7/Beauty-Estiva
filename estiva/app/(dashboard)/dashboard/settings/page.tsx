@@ -4,7 +4,6 @@ import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { notificationService } from "@/services/notificationService";
-import { tenantService } from "@/services/tenantService";
 import type {
   TenantSettings,
   NotificationRule,
@@ -16,7 +15,7 @@ const copy = {
   en: {
     title: "Settings",
     // Tabs
-    tabs: ["Business Info", "Notifications", "WhatsApp", "Staff Invite"],
+    tabs: ["Business Info", "Notifications", "WhatsApp"],
     // Business Info
     companyName: "Company Name",
     phone: "Phone",
@@ -35,20 +34,11 @@ const copy = {
     apiToken: "API Token",
     instanceId: "Instance ID",
     whatsappSaved: "WhatsApp settings saved.",
-    // Staff Invite
-    inviteTitle: "Invite Staff",
-    inviteDesc: "Generate a one-time invite token. Share it with your staff member so they can register.",
-    generateToken: "Generate Invite Token",
-    generating: "Generating...",
-    tokenGenerated: "Token generated! Share this with your staff:",
-    tokenExpiry: "This token expires in 24 hours and can only be used once.",
-    copyToken: "Copy",
-    copied: "Copied!",
     loading: "Loading...",
   },
   tr: {
     title: "Ayarlar",
-    tabs: ["İşletme Bilgileri", "Bildirimler", "WhatsApp", "Personel Davet"],
+    tabs: ["İşletme Bilgileri", "Bildirimler", "WhatsApp"],
     companyName: "Şirket Adı",
     phone: "Telefon",
     address: "Adres",
@@ -64,14 +54,6 @@ const copy = {
     apiToken: "API Token",
     instanceId: "Instance ID",
     whatsappSaved: "WhatsApp ayarları kaydedildi.",
-    inviteTitle: "Personel Davet Et",
-    inviteDesc: "Tek kullanımlık davet kodu oluşturun. Personelinizle paylaşın, kayıt olabilsinler.",
-    generateToken: "Davet Kodu Oluştur",
-    generating: "Oluşturuluyor...",
-    tokenGenerated: "Kod oluşturuldu! Personelinizle paylaşın:",
-    tokenExpiry: "Bu kod 24 saat geçerlidir ve yalnızca bir kez kullanılabilir.",
-    copyToken: "Kopyala",
-    copied: "Kopyalandı!",
     loading: "Yükleniyor...",
   },
 };
@@ -108,9 +90,6 @@ export default function SettingsPage() {
   });
   const [savingWhatsapp, setSavingWhatsapp] = useState(false);
 
-  // Staff invite
-  const [inviteToken, setInviteToken] = useState("");
-  const [generatingToken, setGeneratingToken] = useState(false);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -185,24 +164,6 @@ export default function SettingsPage() {
     } finally { setSavingWhatsapp(false); }
   };
 
-  // Generate invite token
-  const handleGenerateToken = async () => {
-    setGeneratingToken(true);
-    try {
-      const res = await tenantService.generateInviteToken();
-      if (res.data.success && res.data.data) {
-        setInviteToken(res.data.data.token);
-        toast.success(language === "tr" ? "Davet kodu oluşturuldu" : "Invite token generated");
-      }
-    } catch {
-      toast.error(language === "tr" ? "Oluşturma başarısız" : "Generation failed");
-    } finally { setGeneratingToken(false); }
-  };
-
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(inviteToken);
-    toast.success(text.copied);
-  };
 
   if (loading) {
     return <div className="p-8 text-center text-white/60">{text.loading}</div>;
@@ -318,38 +279,6 @@ export default function SettingsPage() {
         </form>
       )}
 
-      {/* Tab 3: Staff Invite */}
-      {activeTab === 3 && isOwner && (
-        <div className="max-w-2xl space-y-4">
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
-            <div>
-              <h3 className="text-lg font-semibold">{text.inviteTitle}</h3>
-              <p className="mt-1 text-sm text-white/50">{text.inviteDesc}</p>
-            </div>
-
-            <button onClick={handleGenerateToken} disabled={generatingToken}
-              className="rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50">
-              {generatingToken ? text.generating : text.generateToken}
-            </button>
-
-            {inviteToken && (
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
-                <p className="text-sm font-medium text-emerald-400">{text.tokenGenerated}</p>
-                <div className="flex items-center gap-3">
-                  <code className="flex-1 rounded-lg bg-black/30 px-4 py-3 text-lg font-mono font-bold text-white tracking-widest">
-                    {inviteToken}
-                  </code>
-                  <button onClick={copyToClipboard}
-                    className="rounded-lg bg-white/10 px-4 py-3 text-sm font-medium text-white hover:bg-white/20">
-                    {text.copyToken}
-                  </button>
-                </div>
-                <p className="text-xs text-white/40">{text.tokenExpiry}</p>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

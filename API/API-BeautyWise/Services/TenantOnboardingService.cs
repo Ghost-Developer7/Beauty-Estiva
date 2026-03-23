@@ -148,5 +148,13 @@ namespace API_BeautyWise.Services
         }
 
 
+        public async Task<string> GetTenantNameAsync(int tenantId)
+        {
+            var tenant = await _context.Tenants
+                .Where(t => t.Id == tenantId)
+                .Select(t => t.CompanyName)
+                .FirstOrDefaultAsync();
+            return tenant ?? "Beauty Estiva";
+        }
     }
 }

@@ -51,4 +51,11 @@ namespace API_BeautyWise.DTO
         public int TenantId { get; init; }
         public int UserId { get; init; }
     }
+
+    public class InviteTokenResultDto
+    {
+        public string Token { get; set; } = "";
+        public string RegisterUrl { get; set; } = "";
+        public bool EmailSent { get; set; }
+    }
 }
