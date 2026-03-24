@@ -201,14 +201,9 @@ export default function CustomersScreen() {
 
   /* ═══ STATS ═══ */
 
-  const now = new Date();
-  const thisMonthCount = customers.filter(c => {
-    if (!c.cDate) return false;
-    const d = new Date(c.cDate);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).length;
   const withEmailCount = customers.filter(c => c.email).length;
-  const withNotesCount = customers.filter(c => c.notes).length;
+  const totalAppointmentsCount = customers.reduce((sum, c) => sum + (c.totalAppointments || 0), 0);
+  const withAppointmentsCount = customers.filter(c => c.totalAppointments > 0).length;
 
   /* ═══ ACTIONS ═══ */
 
@@ -328,11 +323,10 @@ export default function CustomersScreen() {
       </div>
 
       {/* ─── STATS ─── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <StatCard label={t.totalCustomers} value={customers.length} color="#f472b6" />
-        <StatCard label={t.thisMonth} value={thisMonthCount} color="#60a5fa" />
         <StatCard label={t.withEmail} value={withEmailCount} color="#a78bfa" />
-        <StatCard label={t.withNotes} value={withNotesCount} color="#fbbf24" />
+        <StatCard label={language === "tr" ? "Randevusu Var" : "With Appointments"} value={withAppointmentsCount} color="#60a5fa" />
       </div>
 
       {/* ─── SEARCH ─── */}
@@ -363,11 +357,10 @@ export default function CustomersScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className="hidden md:grid grid-cols-[1fr_1fr_0.6fr_0.8fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden md:grid grid-cols-[1fr_1fr_0.6fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
               <span>{t.customer}</span>
               <span>{t.contact}</span>
-              <span>{t.registeredDate}</span>
-              <span>{t.notesCol}</span>
+              <span>{language === "tr" ? "Randevu" : "Appointments"}</span>
               <span />
             </div>
 
@@ -377,7 +370,7 @@ export default function CustomersScreen() {
                 <div
                   key={c.id}
                   onClick={() => openDetail(c.id)}
-                  className="group grid grid-cols-1 md:grid-cols-[1fr_1fr_0.6fr_0.8fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                  className="group grid grid-cols-1 md:grid-cols-[1fr_1fr_0.6fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
                 >
                   {/* Customer */}
                   <div className="flex items-center gap-3">
@@ -396,11 +389,8 @@ export default function CustomersScreen() {
                     <p className="text-[11px] text-white/30 truncate">{c.email || "—"}</p>
                   </div>
 
-                  {/* Registered */}
-                  <p className="hidden md:block text-xs text-white/40">{formatDate(c.cDate)}</p>
-
-                  {/* Notes */}
-                  <p className="hidden md:block text-xs text-white/30 truncate">{c.notes || "—"}</p>
+                  {/* Appointments count */}
+                  <p className="hidden md:block text-xs text-white/40">{c.totalAppointments}</p>
 
                   {/* Actions */}
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
@@ -537,7 +527,7 @@ export default function CustomersScreen() {
                 </div>
                 <div>
                   <p className="text-lg font-bold text-white">{c.name} {c.surname}</p>
-                  <p className="text-xs text-white/40">{t.registered}: {formatDate(c.cDate)}</p>
+                  <p className="text-xs text-white/40">{c.cDate ? `${t.registered}: ${formatDate(c.cDate)}` : ""}</p>
                 </div>
               </div>
 
@@ -566,20 +556,20 @@ export default function CustomersScreen() {
               {/* Last appointments */}
               <div className="space-y-2">
                 <p className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.lastAppointments}</p>
-                {c.lastAppointments && c.lastAppointments.length > 0 ? (
+                {c.recentAppointments && c.recentAppointments.length > 0 ? (
                   <div className="space-y-1.5 max-h-48 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-2">
-                    {c.lastAppointments.map((apt) => {
-                      const statusColor = STATUS_COLORS[apt.statusText] || "text-white/40";
+                    {c.recentAppointments.map((apt) => {
+                      const statusColor = STATUS_COLORS[apt.status] || "text-white/40";
                       return (
                         <div key={apt.id} className="flex items-center gap-3 rounded-lg px-3 py-2 transition hover:bg-white/[0.04]">
                           <div className="h-8 w-1 shrink-0 rounded-full bg-purple-500/50" />
                           <div className="min-w-0 flex-1">
                             <p className="text-xs font-medium text-white truncate">{apt.treatmentName}</p>
                             <p className="text-[10px] text-white/30">
-                              {apt.staffName} {apt.staffSurname} • {formatDateTime(apt.startTime)}
+                              {apt.staffName} • {formatDateTime(apt.startTime)}
                             </p>
                           </div>
-                          <span className={`text-[10px] font-semibold ${statusColor}`}>{apt.statusText}</span>
+                          <span className={`text-[10px] font-semibold ${statusColor}`}>{apt.status}</span>
                         </div>
                       );
                     })}

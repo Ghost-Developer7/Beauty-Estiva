@@ -21,12 +21,17 @@ import toast from "react-hot-toast";
    CONSTANTS & TYPES
    ═══════════════════════════════════════════ */
 
-const STATUS_MAP: Record<number, { en: string; tr: string; color: string; bg: string; dot: string }> = {
-  1: { en: "Scheduled", tr: "Planlandı", color: "text-blue-400", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20", dot: "bg-blue-400" },
-  2: { en: "Confirmed", tr: "Onaylandı", color: "text-emerald-400", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", dot: "bg-emerald-400" },
-  3: { en: "Completed", tr: "Tamamlandı", color: "text-green-400", bg: "bg-green-500/10 text-green-400 border-green-500/20", dot: "bg-green-400" },
-  4: { en: "Cancelled", tr: "İptal", color: "text-red-400", bg: "bg-red-500/10 text-red-400 border-red-500/20", dot: "bg-red-400" },
-  5: { en: "No Show", tr: "Gelmedi", color: "text-amber-400", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20", dot: "bg-amber-400" },
+const STATUS_MAP: Record<string, { en: string; tr: string; color: string; bg: string; dot: string; value: number }> = {
+  Scheduled: { en: "Scheduled", tr: "Planlandı", color: "text-blue-400", bg: "bg-blue-500/10 text-blue-400 border-blue-500/20", dot: "bg-blue-400", value: 1 },
+  Confirmed: { en: "Confirmed", tr: "Onaylandı", color: "text-emerald-400", bg: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", dot: "bg-emerald-400", value: 2 },
+  Completed: { en: "Completed", tr: "Tamamlandı", color: "text-green-400", bg: "bg-green-500/10 text-green-400 border-green-500/20", dot: "bg-green-400", value: 3 },
+  Cancelled: { en: "Cancelled", tr: "İptal", color: "text-red-400", bg: "bg-red-500/10 text-red-400 border-red-500/20", dot: "bg-red-400", value: 4 },
+  NoShow: { en: "No Show", tr: "Gelmedi", color: "text-amber-400", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20", dot: "bg-amber-400", value: 5 },
+};
+
+// Map integer values back to status keys for sending updates to the API
+const STATUS_VALUE_TO_KEY: Record<number, string> = {
+  1: "Scheduled", 2: "Confirmed", 3: "Completed", 4: "Cancelled", 5: "NoShow",
 };
 
 const STAFF_COLORS = [
@@ -220,8 +225,8 @@ function StatCard({ label, value, color }: { label: string; value: number; color
   );
 }
 
-function StatusBadge({ status, language, onClick }: { status: number; language: "en" | "tr"; onClick?: () => void }) {
-  const s = STATUS_MAP[status] || STATUS_MAP[1];
+function StatusBadge({ status, language, onClick }: { status: string; language: "en" | "tr"; onClick?: () => void }) {
+  const s = STATUS_MAP[status] || STATUS_MAP["Scheduled"];
   return (
     <button
       onClick={onClick}
@@ -270,7 +275,7 @@ export default function AppointmentsScreen() {
   const [dateFilter, setDateFilter] = useState(() => new Date().toISOString().split("T")[0]);
   const [staffFilter, setStaffFilter] = useState<number | "">("");
   const [treatmentFilter, setTreatmentFilter] = useState<number | "">("");
-  const [statusFilter, setStatusFilter] = useState<number | "">("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
 
   /* ─── Create Modal ─── */
@@ -287,8 +292,8 @@ export default function AppointmentsScreen() {
 
   /* ─── Status Modal ─── */
   const [showStatusModal, setShowStatusModal] = useState(false);
-  const [statusTarget, setStatusTarget] = useState<{ id: number; current: number } | null>(null);
-  const [newStatus, setNewStatus] = useState(1);
+  const [statusTarget, setStatusTarget] = useState<{ id: number; current: string } | null>(null);
+  const [newStatus, setNewStatus] = useState("Scheduled");
 
   /* ═══ DATA FETCHING ═══ */
 
@@ -344,25 +349,21 @@ export default function AppointmentsScreen() {
   /* ═══ FILTERED DATA ═══ */
 
   const filtered = appointments.filter((a) => {
-    if (statusFilter !== "" && a.status !== statusFilter) return false;
-    if (treatmentFilter !== "" && a.treatmentName !== treatments.find(tr => tr.id === treatmentFilter)?.name) return false;
+    if (statusFilter && a.status !== statusFilter) return false;
+    if (treatmentFilter !== "" && a.treatmentId !== treatmentFilter) return false;
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      const name = `${a.customerName} ${a.customerSurname}`.toLowerCase();
-      if (!name.includes(q)) return false;
+      if (!a.customerFullName.toLowerCase().includes(q)) return false;
     }
     return true;
   });
 
   const stats = {
-    scheduled: appointments.filter(a => a.status === 1).length,
-    confirmed: appointments.filter(a => a.status === 2).length,
-    completed: appointments.filter(a => a.status === 3).length,
-    cancelled: appointments.filter(a => a.status === 4).length,
+    scheduled: appointments.filter(a => a.status === "Scheduled").length,
+    confirmed: appointments.filter(a => a.status === "Confirmed").length,
+    completed: appointments.filter(a => a.status === "Completed").length,
+    cancelled: appointments.filter(a => a.status === "Cancelled").length,
   };
-
-  /* ═══ TREATMENT MAP ═══ */
-  const treatmentMap = new Map(treatments.map(tr => [tr.name, tr]));
 
   /* ═══ ACTIONS ═══ */
 
@@ -390,7 +391,7 @@ export default function AppointmentsScreen() {
           phone: form.newCustomerPhone.trim() || undefined,
         });
         if (res.data.success && res.data.data) {
-          customerId = res.data.data;
+          customerId = res.data.data.id;
           // Refresh customer list
           const custRes = await customerService.list();
           if (custRes.data.success && custRes.data.data) setCustomers(custRes.data.data);
@@ -451,7 +452,7 @@ export default function AppointmentsScreen() {
     }
   };
 
-  const openStatusUpdate = (id: number, currentStatus: number) => {
+  const openStatusUpdate = (id: number, currentStatus: string) => {
     setStatusTarget({ id, current: currentStatus });
     setNewStatus(currentStatus);
     setShowStatusModal(true);
@@ -460,7 +461,8 @@ export default function AppointmentsScreen() {
   const handleStatusUpdate = async () => {
     if (!statusTarget) return;
     try {
-      await appointmentService.updateStatus(statusTarget.id, { status: newStatus });
+      const statusValue = STATUS_MAP[newStatus]?.value ?? 1;
+      await appointmentService.updateStatus(statusTarget.id, { status: statusValue });
       toast.success(language === "tr" ? "Durum güncellendi" : "Status updated");
       setShowStatusModal(false);
       fetchAppointments();
@@ -545,9 +547,7 @@ export default function AppointmentsScreen() {
     .filter(s => s.isActive)
     .map(s => ({
       ...s,
-      appointments: filtered.filter(a =>
-        `${a.staffName} ${a.staffSurname}` === `${s.name} ${s.surname}`
-      ),
+      appointments: filtered.filter(a => a.staffId === s.id),
       color: getStaffColor(s.id),
     }));
 
@@ -648,7 +648,7 @@ export default function AppointmentsScreen() {
 
         <select
           value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value === "" ? "" : Number(e.target.value))}
+          onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none"
         >
           <option value="" className="bg-[#1a1a2e]">{t.allStatuses}</option>
@@ -694,7 +694,6 @@ export default function AppointmentsScreen() {
           ) : (
             <div className="divide-y divide-white/[0.04]">
               {filtered.map((apt) => {
-                const treatment = treatmentMap.get(apt.treatmentName);
                 return (
                   <div
                     key={apt.id}
@@ -710,14 +709,14 @@ export default function AppointmentsScreen() {
                     {/* Color bar */}
                     <div
                       className="h-10 w-1 shrink-0 rounded-full"
-                      style={{ backgroundColor: treatment?.color || "#a78bfa" }}
+                      style={{ backgroundColor: apt.treatmentColor || "#a78bfa" }}
                     />
 
                     {/* Main info */}
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">
                         <p className="text-sm font-semibold text-white truncate">
-                          {apt.customerName} {apt.customerSurname}
+                          {apt.customerFullName}
                         </p>
                         {apt.isRecurring && (
                           <span className="rounded-md bg-purple-500/15 px-1.5 py-0.5 text-[9px] font-bold text-purple-400 border border-purple-500/20">
@@ -726,9 +725,9 @@ export default function AppointmentsScreen() {
                         )}
                       </div>
                       <div className="mt-0.5 flex items-center gap-2">
-                        <TreatmentChip name={apt.treatmentName} color={treatment?.color || null} />
+                        <TreatmentChip name={apt.treatmentName} color={apt.treatmentColor} />
                         <span className="text-[11px] text-white/30">•</span>
-                        <span className="text-[11px] text-white/40">{apt.staffName} {apt.staffSurname}</span>
+                        <span className="text-[11px] text-white/40">{apt.staffFullName}</span>
                       </div>
                     </div>
 
@@ -839,8 +838,7 @@ export default function AppointmentsScreen() {
                       {s.appointments.map((apt) => {
                         const top = getTimePosition(apt.startTime);
                         const height = getBlockHeight(apt.startTime, apt.endTime);
-                        const treatment = treatmentMap.get(apt.treatmentName);
-                        const color = treatment?.color || s.color;
+                        const color = apt.treatmentColor || s.color;
 
                         return (
                           <div
@@ -855,7 +853,7 @@ export default function AppointmentsScreen() {
                             }}
                           >
                             <p className="text-[10px] font-bold truncate" style={{ color }}>
-                              {apt.customerName} {apt.customerSurname}
+                              {apt.customerFullName}
                             </p>
                             <p className="text-[9px] text-white/40 truncate">
                               {apt.treatmentName}
@@ -981,7 +979,7 @@ export default function AppointmentsScreen() {
                     <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tr.color || "#a78bfa" }} />
                     <div className="min-w-0 flex-1">
                       <p className="text-xs font-medium text-white truncate">{tr.name}</p>
-                      <p className="text-[10px] text-white/30">{tr.durationMinutes} {t.min} • ₺{tr.price}</p>
+                      <p className="text-[10px] text-white/30">{tr.durationMinutes} {t.min}{tr.price != null ? ` • ₺${tr.price}` : ""}</p>
                     </div>
                     {form.treatmentId === tr.id && (
                       <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
@@ -1110,8 +1108,7 @@ export default function AppointmentsScreen() {
       <Modal open={showDetail} onClose={() => setShowDetail(false)} title={t.detailTitle} maxWidth="max-w-lg">
         {selectedAppointment && (() => {
           const apt = selectedAppointment;
-          const treatment = treatmentMap.get(apt.treatmentName);
-          const status = STATUS_MAP[apt.status] || STATUS_MAP[1];
+          const status = STATUS_MAP[apt.status] || STATUS_MAP["Scheduled"];
           return (
             <div className="space-y-5">
               {/* Status banner */}
@@ -1127,17 +1124,14 @@ export default function AppointmentsScreen() {
 
               {/* Info grid */}
               <div className="grid grid-cols-2 gap-4">
-                <DetailRow icon="user" label={t.customerInfo} value={`${apt.customerName} ${apt.customerSurname}`} />
+                <DetailRow icon="user" label={t.customerInfo} value={apt.customerFullName} />
                 <DetailRow icon="tag" label={t.treatmentInfo}>
                   <TreatmentChip name={apt.treatmentName} color={apt.treatmentColor} />
                 </DetailRow>
-                <DetailRow icon="users" label={t.staffInfo} value={`${apt.staffName} ${apt.staffSurname}`} />
-                <DetailRow icon="clock" label={t.duration} value={`${apt.treatmentDuration} ${t.min}`} />
+                <DetailRow icon="users" label={t.staffInfo} value={apt.staffFullName} />
+                <DetailRow icon="clock" label={t.duration} value={`${apt.durationMinutes} ${t.min}`} />
                 <DetailRow icon="calendar" label={t.dateInfo} value={formatDate(apt.startTime)} />
                 <DetailRow icon="time" label={t.timeInfo} value={`${formatTime(apt.startTime)} - ${formatTime(apt.endTime)}`} />
-                {apt.treatmentPrice > 0 && (
-                  <DetailRow icon="money" label={t.price} value={`₺${apt.treatmentPrice}`} />
-                )}
                 {apt.notes && (
                   <div className="col-span-2">
                     <DetailRow icon="note" label={t.notes} value={apt.notes} />
@@ -1151,7 +1145,7 @@ export default function AppointmentsScreen() {
                   <p className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.seriesTitle}</p>
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-2">
                     {apt.seriesAppointments.map((sa) => {
-                      const ss = STATUS_MAP[sa.status] || STATUS_MAP[1];
+                      const ss = STATUS_MAP[sa.status] || STATUS_MAP["Scheduled"];
                       return (
                         <div key={sa.id} className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs ${sa.id === apt.id ? "bg-white/10" : ""}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${ss.dot}`} />
@@ -1198,28 +1192,25 @@ export default function AppointmentsScreen() {
       <Modal open={showStatusModal} onClose={() => setShowStatusModal(false)} title={t.updateStatus} maxWidth="max-w-sm">
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-2">
-            {Object.entries(STATUS_MAP).map(([key, val]) => {
-              const k = Number(key);
-              return (
+            {Object.entries(STATUS_MAP).map(([key, val]) => (
                 <button
                   key={key}
-                  onClick={() => setNewStatus(k)}
+                  onClick={() => setNewStatus(key)}
                   className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
-                    newStatus === k
+                    newStatus === key
                       ? `${val.bg} ring-1 ring-white/20`
                       : "border-white/[0.06] hover:bg-white/5"
                   }`}
                 >
                   <span className={`h-2.5 w-2.5 rounded-full ${val.dot}`} />
-                  <span className={`text-sm font-medium ${newStatus === k ? "" : "text-white/50"}`}>
+                  <span className={`text-sm font-medium ${newStatus === key ? "" : "text-white/50"}`}>
                     {language === "tr" ? val.tr : val.en}
                   </span>
-                  {newStatus === k && (
+                  {newStatus === key && (
                     <svg className="ml-auto text-white" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12" /></svg>
                   )}
                 </button>
-              );
-            })}
+            ))}
           </div>
           <div className="flex gap-3">
             <button

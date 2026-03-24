@@ -176,10 +176,10 @@ export default function TreatmentsScreen() {
       tr.description?.toLowerCase().includes(search.toLowerCase());
   });
 
-  const avgPrice = treatments.length > 0 ? treatments.reduce((s, tr) => s + tr.price, 0) / treatments.length : 0;
+  const avgPrice = treatments.length > 0 ? treatments.reduce((s, tr) => s + (tr.price ?? 0), 0) / treatments.length : 0;
   const avgDuration = treatments.length > 0 ? treatments.reduce((s, tr) => s + tr.durationMinutes, 0) / treatments.length : 0;
-  const minPrice = treatments.length > 0 ? Math.min(...treatments.map(tr => tr.price)) : 0;
-  const maxPrice = treatments.length > 0 ? Math.max(...treatments.map(tr => tr.price)) : 0;
+  const minPrice = treatments.length > 0 ? Math.min(...treatments.map(tr => tr.price ?? 0)) : 0;
+  const maxPrice = treatments.length > 0 ? Math.max(...treatments.map(tr => tr.price ?? 0)) : 0;
 
   /* ═══ ACTIONS ═══ */
 
@@ -196,7 +196,7 @@ export default function TreatmentsScreen() {
       name: item.name,
       description: item.description || "",
       durationMinutes: item.durationMinutes,
-      price: item.price,
+      price: item.price ?? 0,
       color: item.color || COLORS[0],
     });
     setEditingId(item.id);
@@ -357,7 +357,7 @@ export default function TreatmentsScreen() {
                     </div>
 
                     {/* Price */}
-                    <p className="hidden md:block text-sm font-bold text-white">₺{fmt(item.price)}</p>
+                    <p className="hidden md:block text-sm font-bold text-white">₺{fmt(item.price ?? 0)}</p>
 
                     {/* Actions */}
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
@@ -548,7 +548,7 @@ export default function TreatmentsScreen() {
                 </div>
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
                   <p className="text-[10px] text-white/30">{t.priceCol}</p>
-                  <p className="mt-1 text-lg font-bold text-emerald-400">₺{fmt(item.price)}</p>
+                  <p className="mt-1 text-lg font-bold text-emerald-400">₺{fmt(item.price ?? 0)}</p>
                 </div>
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
                   <p className="text-[10px] text-white/30">{t.color}</p>

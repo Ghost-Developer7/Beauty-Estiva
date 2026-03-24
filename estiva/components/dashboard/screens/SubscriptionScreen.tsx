@@ -24,9 +24,11 @@ const copy = {
     maxStaff: "Staff Members",
     maxBranch: "Branches",
     sms: "SMS Integration",
-    ai: "AI Features",
+    whatsapp: "WhatsApp Integration",
+    socialMedia: "Social Media Integration",
     yes: "Included",
     no: "Not included",
+    free_tag: "Free",
     select: "Choose Plan",
     currentBadge: "Current Plan",
     upgrade: "Upgrade",
@@ -81,9 +83,11 @@ const copy = {
     maxStaff: "Personel Sayısı",
     maxBranch: "Şube Sayısı",
     sms: "SMS Entegrasyonu",
-    ai: "AI Özellikleri",
+    whatsapp: "WhatsApp Mesaj Entegrasyonu",
+    socialMedia: "Sosyal Medya Entegrasyonu",
     yes: "Dahil",
     no: "Dahil değil",
+    free_tag: "Hediye",
     select: "Planı Seç",
     currentBadge: "Mevcut Plan",
     upgrade: "Yükselt",
@@ -414,8 +418,9 @@ export default function SubscriptionScreen() {
               <div className="mt-6 flex-1 space-y-3">
                 <FeatureRow label={t.maxStaff} value={plan.maxStaffCount === 0 ? t.unlimited : String(plan.maxStaffCount)} enabled />
                 <FeatureRow label={t.maxBranch} value={plan.maxBranchCount === 0 ? t.unlimited : String(plan.maxBranchCount)} enabled />
-                <FeatureRow label={t.sms} value={plan.hasSmsIntegration ? t.yes : t.no} enabled={plan.hasSmsIntegration} />
-                <FeatureRow label={t.ai} value={plan.hasAiFeatures ? t.yes : t.no} enabled={plan.hasAiFeatures} />
+                <FeatureRow label={t.sms} value={plan.hasSmsIntegration ? (idx === 0 ? t.free_tag : t.yes) : t.no} enabled={plan.hasSmsIntegration} />
+                <FeatureRow label={t.whatsapp} value={plan.hasWhatsappIntegration ? t.yes : t.no} enabled={plan.hasWhatsappIntegration} />
+                <FeatureRow label={t.socialMedia} value={plan.hasSocialMediaIntegration ? t.yes : t.no} enabled={plan.hasSocialMediaIntegration} />
               </div>
 
               {/* CTA */}

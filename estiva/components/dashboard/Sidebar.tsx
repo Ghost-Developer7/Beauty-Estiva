@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import type { ComponentType } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   IconCalendar,
   IconHome,
@@ -30,7 +31,8 @@ import {
   IconArrowDownLeft,
   IconArrowUpRight,
   IconEstivaLogo,
-  IconUserPlus
+  IconUserPlus,
+  IconSettings,
 } from "@/components/dashboard/icons";
 
 const ChevronDown = () => (
@@ -69,7 +71,6 @@ type NavItem = {
 const navItems = {
   en: [
     { label: "Overview", href: "/dashboard", icon: IconHome },
-    { label: "Calendar", href: "/dashboard/appointments?view=timeline", icon: IconCalendar },
     { label: "Appointments", href: "/dashboard/appointments", icon: IconClock },
     { label: "Orders", href: "/dashboard/orders", icon: IconList },
     { label: "Customers", href: "/dashboard/customers", icon: IconUsers },
@@ -87,15 +88,16 @@ const navItems = {
     { label: "Product Sales", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Package Sales", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Subscription", href: "/dashboard/subscription", icon: IconWallet },
-    {
-      label: "SalonPOS",
-      href: "/dashboard/pos",
-      icon: IconPOS,
-      expandable: true,
-      children: [
-        { label: "POS Application", href: "/dashboard/pos/application", icon: IconList },
-      ]
-    },
+    // SalonPOS - hidden (not in use)
+    // {
+    //   label: "SalonPOS",
+    //   href: "/dashboard/pos",
+    //   icon: IconPOS,
+    //   expandable: true,
+    //   children: [
+    //     { label: "POS Application", href: "/dashboard/pos/application", icon: IconList },
+    //   ]
+    // },
     {
       label: "Reports",
       href: "/dashboard/reports",
@@ -107,35 +109,36 @@ const navItems = {
         { label: "Sales Reports", href: "/dashboard/reports/sales", icon: IconBanknote },
       ]
     },
-    {
-      label: "Messaging",
-      href: "/dashboard/messaging",
-      icon: IconMessage,
-      expandable: true,
-      beta: true,
-      children: [
-        {
-          label: "Whatsapp",
-          href: "/dashboard/messaging/whatsapp",
-          icon: IconWhatsapp,
-          expandable: true,
-          beta: true,
-          children: [
-            { label: "Business Registration", href: "/dashboard/messaging/whatsapp/register", icon: IconMessage }
-          ]
-        },
-        {
-          label: "Instagram",
-          href: "/dashboard/messaging/instagram",
-          icon: IconInstagram,
-          expandable: true,
-          beta: true,
-          children: [
-            { label: "Business Registration", href: "/dashboard/messaging/instagram/register", icon: IconMessage }
-          ]
-        }
-      ]
-    },
+    // Messaging - hidden (not in use)
+    // {
+    //   label: "Messaging",
+    //   href: "/dashboard/messaging",
+    //   icon: IconMessage,
+    //   expandable: true,
+    //   beta: true,
+    //   children: [
+    //     {
+    //       label: "Whatsapp",
+    //       href: "/dashboard/messaging/whatsapp",
+    //       icon: IconWhatsapp,
+    //       expandable: true,
+    //       beta: true,
+    //       children: [
+    //         { label: "Business Registration", href: "/dashboard/messaging/whatsapp/register", icon: IconMessage }
+    //       ]
+    //     },
+    //     {
+    //       label: "Instagram",
+    //       href: "/dashboard/messaging/instagram",
+    //       icon: IconInstagram,
+    //       expandable: true,
+    //       beta: true,
+    //       children: [
+    //         { label: "Business Registration", href: "/dashboard/messaging/instagram/register", icon: IconMessage }
+    //       ]
+    //     }
+    //   ]
+    // },
     {
       label: "Other",
       href: "/dashboard/other",
@@ -155,7 +158,6 @@ const navItems = {
   ],
   tr: [
     { label: "Özet", href: "/dashboard", icon: IconHome },
-    { label: "Randevu takvimi", href: "/dashboard/appointments?view=timeline", icon: IconCalendar },
     { label: "Randevular", href: "/dashboard/appointments", icon: IconClock },
     { label: "Adisyonlar", href: "/dashboard/orders", icon: IconList },
     { label: "Müşteriler", href: "/dashboard/customers", icon: IconUsers },
@@ -173,15 +175,16 @@ const navItems = {
     { label: "Ürün satışları", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Paket satışları", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Abonelik", href: "/dashboard/subscription", icon: IconWallet },
-    {
-      label: "SalonPOS",
-      href: "/dashboard/pos",
-      icon: IconPOS,
-      expandable: true,
-      children: [
-        { label: "POS başvurusu", href: "/dashboard/pos/application", icon: IconList },
-      ]
-    },
+    // SalonPOS - hidden (not in use)
+    // {
+    //   label: "SalonPOS",
+    //   href: "/dashboard/pos",
+    //   icon: IconPOS,
+    //   expandable: true,
+    //   children: [
+    //     { label: "POS başvurusu", href: "/dashboard/pos/application", icon: IconList },
+    //   ]
+    // },
     {
       label: "Raporlar",
       href: "/dashboard/reports",
@@ -193,35 +196,36 @@ const navItems = {
         { label: "Satış raporları", href: "/dashboard/reports/sales", icon: IconBanknote },
       ]
     },
-    {
-      label: "Mesajlaşma",
-      href: "/dashboard/messaging",
-      icon: IconMessage,
-      expandable: true,
-      beta: true,
-      children: [
-        {
-          label: "Whatsapp",
-          href: "/dashboard/messaging/whatsapp",
-          icon: IconWhatsapp,
-          expandable: true,
-          beta: true,
-          children: [
-            { label: "İşletme Kaydı", href: "/dashboard/messaging/whatsapp/register", icon: IconMessage }
-          ]
-        },
-        {
-          label: "Instagram",
-          href: "/dashboard/messaging/instagram",
-          icon: IconInstagram,
-          expandable: true,
-          beta: true,
-          children: [
-            { label: "İşletme Kaydı", href: "/dashboard/messaging/instagram/register", icon: IconMessage }
-          ]
-        }
-      ]
-    },
+    // Mesajlaşma - hidden (not in use)
+    // {
+    //   label: "Mesajlaşma",
+    //   href: "/dashboard/messaging",
+    //   icon: IconMessage,
+    //   expandable: true,
+    //   beta: true,
+    //   children: [
+    //     {
+    //       label: "Whatsapp",
+    //       href: "/dashboard/messaging/whatsapp",
+    //       icon: IconWhatsapp,
+    //       expandable: true,
+    //       beta: true,
+    //       children: [
+    //         { label: "İşletme Kaydı", href: "/dashboard/messaging/whatsapp/register", icon: IconMessage }
+    //       ]
+    //     },
+    //     {
+    //       label: "Instagram",
+    //       href: "/dashboard/messaging/instagram",
+    //       icon: IconInstagram,
+    //       expandable: true,
+    //       beta: true,
+    //       children: [
+    //         { label: "İşletme Kaydı", href: "/dashboard/messaging/instagram/register", icon: IconMessage }
+    //       ]
+    //     }
+    //   ]
+    // },
     {
       label: "Diğer",
       href: "/dashboard/other",
@@ -241,6 +245,16 @@ const navItems = {
   ],
 };
 
+// SuperAdmin-only nav items
+const superAdminItems = {
+  en: [
+    { label: "Package Management", href: "/dashboard/subscription-management", icon: IconSettings },
+  ],
+  tr: [
+    { label: "Paket Yönetimi", href: "/dashboard/subscription-management", icon: IconSettings },
+  ],
+};
+
 export default function Sidebar() {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(true);
@@ -253,7 +267,14 @@ export default function Sidebar() {
   });
 
   const { language } = useLanguage();
-  const items = navItems[language];
+  const { user } = useAuth();
+  const isSuperAdmin = user?.roles?.includes("SuperAdmin") ?? false;
+
+  // Combine regular items with SuperAdmin items if applicable
+  const items: NavItem[] = [
+    ...navItems[language],
+    ...(isSuperAdmin ? superAdminItems[language] : []),
+  ];
 
   const toggleMenu = (href: string) => {
     setOpenMenus(prev => ({ ...prev, [href]: !prev[href] }));

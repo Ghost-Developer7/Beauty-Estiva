@@ -14,15 +14,18 @@ namespace API_BeautyWise.Controllers
         private readonly ITenantOnboardingService _tenantOnboardingService;
         private readonly IEmailService _emailService;
         private readonly IConfiguration _configuration;
+        private readonly ISubscriptionService _subscriptionService;
 
         public TenantOnboardingController(
             ITenantOnboardingService tenantOnboardingService,
             IEmailService emailService,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            ISubscriptionService subscriptionService)
         {
             _tenantOnboardingService = tenantOnboardingService;
             _emailService = emailService;
             _configuration = configuration;
+            _subscriptionService = subscriptionService;
         }
 
         /// <summary>
@@ -69,6 +72,15 @@ namespace API_BeautyWise.Controllers
                 var tenantIdClaim = User.FindFirstValue("tenantId");
                 if (string.IsNullOrEmpty(tenantIdClaim) || !int.TryParse(tenantIdClaim, out var tenantId))
                     return Unauthorized(ApiResponse<object>.Fail("Gecersiz token: tenantId bulunamadi."));
+
+                // Personel limit kontrolü
+                var (canAdd, currentCount, maxCount, limitError) = await _subscriptionService.CanAddStaffAsync(tenantId);
+                if (!canAdd)
+                {
+                    return BadRequest(ApiResponse<object>.Fail(
+                        limitError ?? "Paket limitinize ulaştınız.",
+                        "STAFF_LIMIT_REACHED"));
+                }
 
                 var token = await _tenantOnboardingService.CreateInviteTokenAsync(tenantId, emailToInvite);
 

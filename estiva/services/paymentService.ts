@@ -27,7 +27,7 @@ export const paymentService = {
   },
 
   create(data: AppointmentPaymentCreate) {
-    return api.post<ApiResponse<number>>("/appointmentpayment", data);
+    return api.post<ApiResponse<{ id: number }>>("/appointmentpayment", data);
   },
 
   update(id: number, data: AppointmentPaymentUpdate) {

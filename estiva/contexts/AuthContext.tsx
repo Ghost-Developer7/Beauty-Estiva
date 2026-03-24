@@ -22,6 +22,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (data: LoginRequest) => Promise<void>;
   logout: () => void;
+  updateUser: (updates: Partial<AuthUser>) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
@@ -114,6 +115,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [router],
   );
 
+  const updateUser = useCallback((updates: Partial<AuthUser>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const updated = { ...prev, ...updates };
+      localStorage.setItem("estiva-user", JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
   const logout = useCallback(() => {
     Cookies.remove(TOKEN_KEY);
     localStorage.removeItem("estiva-user");
@@ -129,8 +139,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isAuthenticated: !!user,
       login,
       logout,
+      updateUser,
     }),
-    [user, isLoading, login, logout],
+    [user, isLoading, login, logout, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -58,8 +58,8 @@ export default function CalendarScreen() {
   const staffList = Array.from(
     new Map(
       appointments.map((a) => [
-        `${a.staffName} ${a.staffSurname}`,
-        { name: `${a.staffName} ${a.staffSurname}` },
+        a.staffFullName,
+        { name: a.staffFullName, id: a.staffId },
       ]),
     ).values(),
   );
@@ -105,8 +105,7 @@ export default function CalendarScreen() {
   // Map appointments to time slots per staff
   const getAppointmentAt = (staffName: string, slotTime: string) => {
     return appointments.find((a) => {
-      const aStaff = `${a.staffName} ${a.staffSurname}`;
-      if (aStaff !== staffName) return false;
+      if (a.staffFullName !== staffName) return false;
       const startHour = new Date(a.startTime).getHours();
       const startMin = new Date(a.startTime).getMinutes();
       const slot = `${startHour.toString().padStart(2, "0")}:${startMin < 30 ? "00" : "30"}`;
@@ -124,7 +123,7 @@ export default function CalendarScreen() {
   // Track which slots are covered by a multi-slot appointment
   const coveredSlots = new Set<string>();
   appointments.forEach((apt) => {
-    const staffName = `${apt.staffName} ${apt.staffSurname}`;
+    const staffName = apt.staffFullName;
     const start = new Date(apt.startTime);
     const span = getAppointmentSpan(apt);
     for (let i = 1; i < span; i++) {
@@ -248,7 +247,7 @@ export default function CalendarScreen() {
                           style={{ backgroundColor: color + "30", borderLeft: `3px solid ${color}` }}
                         >
                           <p className="font-semibold truncate">
-                            {apt.customerName} {apt.customerSurname}
+                            {apt.customerFullName}
                           </p>
                           <p className="text-white/60 truncate">{apt.treatmentName}</p>
                           <p className="text-white/40">

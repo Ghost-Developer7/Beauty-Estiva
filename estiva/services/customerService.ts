@@ -19,7 +19,7 @@ export const customerService = {
   },
 
   create(data: CustomerCreate) {
-    return api.post<ApiResponse<number>>("/customer", data);
+    return api.post<ApiResponse<{ id: number }>>("/customer", data);
   },
 
   update(id: number, data: CustomerUpdate) {

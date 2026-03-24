@@ -474,5 +474,128 @@ namespace API_BeautyWise.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        // ================================================================
+        //  PAKET LİMİT KONTROLLERİ
+        // ================================================================
+
+        /// <summary>
+        /// Tenant için geçerli planı döner.
+        /// Deneme süresindeyse Gold paket limitleri uygulanır (MaxStaff=20, MaxBranch=3).
+        /// </summary>
+        public async Task<SubscriptionPlan?> GetEffectivePlanAsync(int tenantId)
+        {
+            var subscription = await _context.TenantSubscriptions
+                .Include(s => s.SubscriptionPlan)
+                .Where(s => s.TenantId == tenantId && s.IsActive == true)
+                .FirstOrDefaultAsync();
+
+            if (subscription == null) return null;
+
+            // Deneme süresindeyse Gold paket limitleri uygula
+            if (subscription.IsTrialPeriod)
+            {
+                // Gold paketini bul, yoksa varsayılan Gold limitleri oluştur
+                var goldPlan = await _context.SubscriptionPlans
+                    .FirstOrDefaultAsync(p => p.Name.Contains("Gold") && p.IsActive == true);
+
+                if (goldPlan != null) return goldPlan;
+
+                // Gold plan bulunamazsa varsayılan Gold limitleri
+                return new SubscriptionPlan
+                {
+                    Name = "Gold (Deneme)",
+                    MaxStaffCount = 20,
+                    MaxBranchCount = 3,
+                    HasSmsIntegration = true,
+                    HasWhatsappIntegration = true,
+                    HasSocialMediaIntegration = false,
+                    HasAiFeatures = false
+                };
+            }
+
+            return subscription.SubscriptionPlan;
+        }
+
+        /// <summary>
+        /// Tenant'ın personel ekleme limitine ulaşıp ulaşmadığını kontrol eder.
+        /// </summary>
+        public async Task<(bool canAdd, int currentCount, int maxCount, string? errorMessage)> CanAddStaffAsync(int tenantId)
+        {
+            var plan = await GetEffectivePlanAsync(tenantId);
+            if (plan == null)
+                return (false, 0, 0, "Aktif aboneliğiniz bulunmuyor. Lütfen bir plan satın alın.");
+
+            // -1 veya 0 = sınırsız
+            if (plan.MaxStaffCount <= 0)
+                return (true, 0, -1, null);
+
+            var currentStaffCount = await _context.Users
+                .Where(u => u.TenantId == tenantId && u.IsActive == true)
+                .CountAsync();
+
+            if (currentStaffCount >= plan.MaxStaffCount)
+            {
+                return (false, currentStaffCount, plan.MaxStaffCount,
+                    $"Paket limitinize ulaştınız ({currentStaffCount}/{plan.MaxStaffCount} personel). Daha fazla personel eklemek için paketinizi yükseltmeniz gerekmektedir.");
+            }
+
+            return (true, currentStaffCount, plan.MaxStaffCount, null);
+        }
+
+        // ================================================================
+        //  ADMIN: PAKET YÖNETİMİ
+        // ================================================================
+
+        /// <summary>
+        /// Tüm planları listeler (aktif/pasif dahil). SuperAdmin için.
+        /// </summary>
+        public async Task<List<SubscriptionPlan>> GetAllPlansAsync()
+        {
+            return await _context.SubscriptionPlans
+                .OrderBy(p => p.MonthlyPrice)
+                .ToListAsync();
+        }
+
+        /// <summary>
+        /// Planı günceller. SuperAdmin için.
+        /// </summary>
+        public async Task<SubscriptionPlan?> UpdatePlanAsync(int planId, SubscriptionPlan updatedPlan)
+        {
+            var plan = await _context.SubscriptionPlans.FindAsync(planId);
+            if (plan == null) return null;
+
+            plan.Name = updatedPlan.Name;
+            plan.Description = updatedPlan.Description;
+            plan.MonthlyPrice = updatedPlan.MonthlyPrice;
+            plan.YearlyPrice = updatedPlan.YearlyPrice;
+            plan.MaxStaffCount = updatedPlan.MaxStaffCount;
+            plan.MaxBranchCount = updatedPlan.MaxBranchCount;
+            plan.HasSmsIntegration = updatedPlan.HasSmsIntegration;
+            plan.HasWhatsappIntegration = updatedPlan.HasWhatsappIntegration;
+            plan.HasSocialMediaIntegration = updatedPlan.HasSocialMediaIntegration;
+            plan.HasAiFeatures = updatedPlan.HasAiFeatures;
+            plan.Features = updatedPlan.Features;
+            plan.ValidityMonths = updatedPlan.ValidityMonths;
+            plan.UDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return plan;
+        }
+
+        /// <summary>
+        /// Plan aktif/pasif durumunu değiştirir. SuperAdmin için.
+        /// </summary>
+        public async Task<bool> TogglePlanStatusAsync(int planId)
+        {
+            var plan = await _context.SubscriptionPlans.FindAsync(planId);
+            if (plan == null) return false;
+
+            plan.IsActive = !(plan.IsActive ?? true);
+            plan.UDate = DateTime.Now;
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
     }
 }

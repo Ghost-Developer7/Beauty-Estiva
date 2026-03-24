@@ -258,6 +258,38 @@ namespace API_BeautyWise.Controllers
         }
 
         /// <summary>
+        /// Personel ekleme limitini kontrol eder.
+        /// [Owner, Admin] JWT gerekli
+        /// GET /api/subscription/staff-limit
+        /// </summary>
+        [HttpGet("staff-limit")]
+        [Authorize(Roles = "Owner,Admin")]
+        public async Task<IActionResult> CheckStaffLimit()
+        {
+            try
+            {
+                var tenantId = GetTenantId();
+                if (tenantId == 0)
+                    return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
+
+                var (canAdd, currentCount, maxCount, errorMessage) =
+                    await _subscriptionService.CanAddStaffAsync(tenantId);
+
+                return Ok(ApiResponse<object>.Ok(new
+                {
+                    CanAdd = canAdd,
+                    CurrentCount = currentCount,
+                    MaxCount = maxCount,
+                    ErrorMessage = errorMessage
+                }));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /// <summary>
         /// Belirli bir odemenin PayTR durum sorgusunu yapar.
         /// [Owner] JWT gerekli
         /// GET /api/subscription/payment-status/{merchantOid}

@@ -54,6 +54,32 @@ export interface AuthUser {
   surname: string;
   email: string;
   roles: string[];
+  profilePicturePath?: string | null;
+}
+
+// ─── Profile ───
+export interface ProfileData {
+  id: number;
+  name: string;
+  surname: string;
+  email: string;
+  phone: string | null;
+  birthDate: string | null;
+  profilePicturePath: string | null;
+  roles: string[];
+}
+
+export interface UpdateProfileRequest {
+  name: string;
+  surname: string;
+  phone?: string | null;
+  birthDate?: string | null;
+}
+
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }
 
 // ─── Tenant Onboarding ───
@@ -91,16 +117,33 @@ export interface CustomerListItem {
   id: number;
   name: string;
   surname: string;
+  fullName: string;
   phone: string;
-  email: string;
-  birthDate: string | null;
-  notes: string | null;
-  isActive: boolean;
-  cDate: string;
+  email: string | null;
+  totalAppointments: number;
+  lastAppointmentDate: string | null;
 }
 
-export interface CustomerDetail extends CustomerListItem {
-  lastAppointments: AppointmentListItem[];
+export interface CustomerAppointmentSummary {
+  id: number;
+  startTime: string;
+  treatmentName: string;
+  staffName: string;
+  status: string;
+}
+
+export interface CustomerDetail {
+  id: number;
+  name: string;
+  surname: string;
+  fullName: string;
+  phone: string;
+  email: string | null;
+  birthDate: string | null;
+  notes: string | null;
+  cDate: string | null;
+  totalAppointments: number;
+  recentAppointments: CustomerAppointmentSummary[];
 }
 
 // ─── Treatment ───
@@ -119,9 +162,8 @@ export interface TreatmentListItem {
   name: string;
   description: string | null;
   durationMinutes: number;
-  price: number;
+  price: number | null;
   color: string | null;
-  isActive: boolean;
 }
 
 // ─── Appointment ───
@@ -144,11 +186,11 @@ export interface AppointmentCreate {
 }
 
 export interface AppointmentUpdate {
-  staffId?: number;
-  treatmentId?: number;
-  startTime?: string;
+  staffId: number;
+  treatmentId: number;
+  startTime: string;
   notes?: string;
-  status?: number;
+  status: number;
 }
 
 export interface AppointmentStatusUpdate {
@@ -158,28 +200,27 @@ export interface AppointmentStatusUpdate {
 
 export interface AppointmentListItem {
   id: number;
-  customerName: string;
-  customerSurname: string;
-  staffName: string;
-  staffSurname: string;
+  customerId: number;
+  customerFullName: string;
+  customerPhone: string;
+  staffId: number;
+  staffFullName: string;
+  treatmentId: number;
   treatmentName: string;
+  treatmentColor: string | null;
+  durationMinutes: number;
   startTime: string;
   endTime: string;
-  status: number;
-  statusText: string;
+  status: string;
   notes: string | null;
   isRecurring: boolean;
-  sessionNumber: number | null;
+  sessionNumber: number;
   totalSessions: number | null;
+  parentAppointmentId: number | null;
 }
 
 export interface AppointmentDetail extends AppointmentListItem {
-  customerId: number;
-  staffId: number;
-  treatmentId: number;
-  treatmentDuration: number;
-  treatmentPrice: number;
-  treatmentColor: string | null;
+  recurrenceIntervalDays: number | null;
   seriesAppointments: AppointmentListItem[];
 }
 
@@ -189,10 +230,18 @@ export interface StaffAvailabilityRequest {
   date: string;
 }
 
+export interface TimeSlot {
+  startTime: string;
+  endTime: string;
+  blockReason: string | null;
+}
+
 export interface StaffAvailabilityResult {
   staffId: number;
+  staffFullName: string;
   date: string;
-  availableSlots: { startTime: string; endTime: string }[];
+  availableSlots: TimeSlot[];
+  blockedSlots: TimeSlot[];
 }
 
 // ─── Staff Schedule ───
@@ -373,13 +422,18 @@ export interface ExpenseSummary {
 export interface SubscriptionPlan {
   id: number;
   name: string;
+  description: string | null;
   monthlyPrice: number;
   yearlyPrice: number;
   maxStaffCount: number;
   maxBranchCount: number;
   hasSmsIntegration: boolean;
+  hasWhatsappIntegration: boolean;
+  hasSocialMediaIntegration: boolean;
   hasAiFeatures: boolean;
-  description: string | null;
+  features: string | null;
+  validityMonths: number;
+  isActive: boolean | null;
 }
 
 export interface CurrentSubscription {
@@ -462,6 +516,92 @@ export interface StaffCommissionSummary {
   recordCount: number;
 }
 
+// ─── Package Sale ───
+export type PackageSaleStatus = "Active" | "Completed" | "Expired" | "Cancelled";
+
+export interface PackageSaleCreate {
+  customerId: number;
+  treatmentId: number;
+  totalSessions: number;
+  totalPrice: number;
+  paidAmount: number;
+  paymentMethod: string;
+  startDate?: string;
+  endDate?: string;
+  notes?: string;
+}
+
+export interface PackageSaleUpdate {
+  totalSessions: number;
+  totalPrice: number;
+  endDate?: string;
+  status?: number;
+  notes?: string;
+}
+
+export interface PackageSaleUsageCreate {
+  usageDate?: string;
+  staffId?: number;
+  notes?: string;
+}
+
+export interface PackageSalePaymentCreate {
+  amount: number;
+  paymentMethod: string;
+  paidAt?: string;
+  notes?: string;
+}
+
+export interface PackageSaleUsageItem {
+  id: number;
+  usageDate: string;
+  staffId: number | null;
+  staffFullName: string | null;
+  notes: string | null;
+}
+
+export interface PackageSalePaymentItem {
+  id: number;
+  amount: number;
+  paymentMethodValue: number;
+  paymentMethodDisplay: string;
+  paidAt: string;
+  notes: string | null;
+}
+
+export interface PackageSaleListItem {
+  id: number;
+  customerId: number;
+  customerFullName: string;
+  treatmentId: number;
+  treatmentName: string;
+  staffId: number;
+  staffFullName: string;
+  totalSessions: number;
+  usedSessions: number;
+  remainingSessions: number;
+  totalPrice: number;
+  paidAmount: number;
+  remainingPayment: number;
+  paymentMethodValue: number;
+  paymentMethodDisplay: string;
+  startDate: string;
+  endDate: string;
+  statusValue: number;
+  statusDisplay: string;
+  notes: string | null;
+  createdAt: string;
+  usages: PackageSaleUsageItem[];
+  payments: PackageSalePaymentItem[];
+}
+
+export interface PackageSaleStats {
+  totalSales: number;
+  totalRevenue: number;
+  activePackages: number;
+  completedPackages: number;
+}
+
 // ─── Product ───
 export interface ProductCreate {
   name: string;
@@ -527,5 +667,5 @@ export interface StaffMember {
   isActive: boolean;
   isApproved: boolean;
   defaultCommissionRate: number;
-  cDate: string;
+  cDate: string | null;
 }

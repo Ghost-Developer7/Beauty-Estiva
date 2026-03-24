@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { tenantService } from "@/services/tenantService";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 /* ═══════════════════════════════════════════
    CONSTANTS
@@ -40,6 +41,10 @@ const copy = {
     howStep2: "Staff member opens the registration link",
     howStep3: "They create their account with the invite code",
     howStep4: "You can see them in the staff list once approved",
+    // Limit
+    limitReached: "Staff Limit Reached",
+    limitDesc: "You have reached the maximum number of staff members for your current plan. Upgrade your plan to add more.",
+    upgradePlan: "Upgrade Plan",
   },
   tr: {
     title: "Personel Davet Et",
@@ -68,6 +73,10 @@ const copy = {
     howStep2: "Personel kayıt bağlantısını açar",
     howStep3: "Davet kodu ile hesabını oluşturur",
     howStep4: "Onaylandıktan sonra personel listesinde görünür",
+    // Limit
+    limitReached: "Personel Limitine Ulaşıldı",
+    limitDesc: "Mevcut paketinizin personel limitine ulaştınız. Daha fazla personel eklemek için paketinizi yükseltmeniz gerekmektedir.",
+    upgradePlan: "Paketi Yükselt",
   },
 };
 
@@ -88,19 +97,36 @@ export default function StaffInvitePage() {
   const [email, setEmail] = useState("");
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState<InviteResult | null>(null);
+  const [limitReached, setLimitReached] = useState(false);
+  const [limitMessage, setLimitMessage] = useState("");
 
   const handleGenerate = async () => {
     setGenerating(true);
+    setLimitReached(false);
     try {
       const res = await tenantService.generateInviteToken(email || undefined);
       if (res.data.success && res.data.data) {
         setResult(res.data.data);
         toast.success(email ? t.successWithEmail : t.successNoEmail);
       } else {
-        toast.error(res.data.error?.message || (language === "tr" ? "Oluşturma başarısız" : "Generation failed"));
+        // Check for staff limit error
+        if (res.data.error?.errorCode === "STAFF_LIMIT_REACHED") {
+          setLimitReached(true);
+          setLimitMessage(res.data.error.message || t.limitDesc);
+        } else {
+          toast.error(res.data.error?.message || (language === "tr" ? "Oluşturma başarısız" : "Generation failed"));
+        }
       }
-    } catch {
-      toast.error(language === "tr" ? "Oluşturma başarısız" : "Generation failed");
+    } catch (err: any) {
+      // Handle 400 error with STAFF_LIMIT_REACHED
+      const errorCode = err?.response?.data?.error?.errorCode;
+      const errorMessage = err?.response?.data?.error?.message;
+      if (errorCode === "STAFF_LIMIT_REACHED") {
+        setLimitReached(true);
+        setLimitMessage(errorMessage || t.limitDesc);
+      } else {
+        toast.error(errorMessage || (language === "tr" ? "Oluşturma başarısız" : "Generation failed"));
+      }
     } finally {
       setGenerating(false);
     }
@@ -126,6 +152,31 @@ export default function StaffInvitePage() {
         <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
         <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
       </div>
+
+      {/* ─── LIMIT REACHED BANNER ─── */}
+      {limitReached && (
+        <div className="rounded-2xl border border-amber-500/20 bg-amber-500/[0.05] p-5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-start sm:gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-amber-500/20">
+              <svg className="text-amber-400" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                <line x1="12" y1="9" x2="12" y2="13" />
+                <line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <p className="text-sm font-semibold text-amber-400">{t.limitReached}</p>
+              <p className="mt-1 text-xs text-white/50">{limitMessage || t.limitDesc}</p>
+            </div>
+            <Link
+              href="/dashboard/subscription"
+              className="shrink-0 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-5 py-2.5 text-xs font-bold text-white shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+            >
+              {t.upgradePlan}
+            </Link>
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
 

@@ -190,6 +190,9 @@ builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFinancialReportService, FinancialReportService>();
 
+// Paket Satış Modülü
+builder.Services.AddScoped<IPackageSaleService, PackageSaleService>();
+
 // Personel Modülü
 builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IRoleManagementService, RoleManagementService>();
@@ -205,6 +208,9 @@ builder.Services.AddScoped<ITcmbExchangeRateService, TcmbExchangeRateService>();
 
 // Komisyon Modülü
 builder.Services.AddScoped<IStaffCommissionService, StaffCommissionService>();
+
+// Profil Modülü
+builder.Services.AddScoped<IProfileService, ProfileService>();
 
 // ================================================================
 //  Controllers & Swagger

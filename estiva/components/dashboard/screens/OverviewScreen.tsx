@@ -8,12 +8,12 @@ import { customerService } from "@/services/customerService";
 import type { AppointmentListItem, FinancialDashboard, CustomerListItem } from "@/types/api";
 import toast from "react-hot-toast";
 
-const STATUS_MAP: Record<number, { en: string; tr: string; color: string }> = {
-  1: { en: "Scheduled", tr: "Planlandı", color: "bg-blue-500/10 text-blue-400" },
-  2: { en: "Confirmed", tr: "Onaylandı", color: "bg-green-500/10 text-green-400" },
-  3: { en: "Completed", tr: "Tamamlandı", color: "bg-emerald-500/10 text-emerald-400" },
-  4: { en: "Cancelled", tr: "İptal", color: "bg-red-500/10 text-red-400" },
-  5: { en: "No Show", tr: "Gelmedi", color: "bg-yellow-500/10 text-yellow-400" },
+const STATUS_MAP: Record<string, { en: string; tr: string; color: string }> = {
+  Scheduled: { en: "Scheduled", tr: "Planlandı", color: "bg-blue-500/10 text-blue-400" },
+  Confirmed: { en: "Confirmed", tr: "Onaylandı", color: "bg-green-500/10 text-green-400" },
+  Completed: { en: "Completed", tr: "Tamamlandı", color: "bg-emerald-500/10 text-emerald-400" },
+  Cancelled: { en: "Cancelled", tr: "İptal", color: "bg-red-500/10 text-red-400" },
+  NoShow: { en: "No Show", tr: "Gelmedi", color: "bg-yellow-500/10 text-yellow-400" },
 };
 
 const copy = {
@@ -154,18 +154,18 @@ export default function OverviewScreen() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {todayAppointments.map((apt) => {
-                const status = STATUS_MAP[apt.status] || STATUS_MAP[1];
+                const status = STATUS_MAP[apt.status] || STATUS_MAP["Scheduled"];
                 return (
                   <tr key={apt.id} className="transition hover:bg-white/5">
                     <td className="px-6 py-4 text-white/80">
                       {formatTime(apt.startTime)} - {formatTime(apt.endTime)}
                     </td>
                     <td className="px-6 py-4 font-medium text-white">
-                      {apt.customerName} {apt.customerSurname}
+                      {apt.customerFullName}
                     </td>
                     <td className="px-6 py-4 text-white/60">{apt.treatmentName}</td>
                     <td className="px-6 py-4 text-white/60">
-                      {apt.staffName} {apt.staffSurname}
+                      {apt.staffFullName}
                     </td>
                     <td className="px-6 py-4">
                       <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${status.color}`}>
@@ -197,7 +197,7 @@ export default function OverviewScreen() {
                   <td className="px-6 py-4 font-medium text-white">{c.name} {c.surname}</td>
                   <td className="px-6 py-4 text-white/60">{c.phone || "—"}</td>
                   <td className="px-6 py-4 text-white/60">{c.email || "—"}</td>
-                  <td className="px-6 py-4 text-white/60">{formatDate(c.cDate)}</td>
+                  <td className="px-6 py-4 text-white/60">{c.lastAppointmentDate ? formatDate(c.lastAppointmentDate) : "—"}</td>
                 </tr>
               ))}
             </tbody>

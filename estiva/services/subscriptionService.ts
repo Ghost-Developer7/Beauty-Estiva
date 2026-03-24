@@ -47,4 +47,31 @@ export const subscriptionService = {
   paymentHistory() {
     return api.get<ApiResponse<unknown[]>>("/subscription/payment-history");
   },
+
+  checkStaffLimit() {
+    return api.get<ApiResponse<{
+      canAdd: boolean;
+      currentCount: number;
+      maxCount: number;
+      errorMessage: string | null;
+    }>>("/subscription/staff-limit");
+  },
+
+  // ── Admin endpoints (SuperAdmin only) ──
+
+  adminListPlans() {
+    return api.get<ApiResponse<SubscriptionPlan[]>>("/admin/subscription-plans");
+  },
+
+  adminGetPlan(id: number) {
+    return api.get<ApiResponse<SubscriptionPlan>>(`/admin/subscription-plans/${id}`);
+  },
+
+  adminUpdatePlan(id: number, data: Partial<SubscriptionPlan>) {
+    return api.put<ApiResponse<SubscriptionPlan>>(`/admin/subscription-plans/${id}`, data);
+  },
+
+  adminTogglePlan(id: number) {
+    return api.patch<ApiResponse<boolean>>(`/admin/subscription-plans/${id}/toggle`);
+  },
 };

@@ -35,5 +35,25 @@ namespace API_BeautyWise.Services.Interface
         // Grace Period
         Task<bool> StartGracePeriodAsync(int subscriptionId);
         Task<bool> EndGracePeriodAsync(int subscriptionId, bool success);
+
+        // Paket Limit Kontrolleri
+        /// <summary>
+        /// Tenant için geçerli planı döner. Deneme süresindeyse Gold limitleri uygulanır.
+        /// </summary>
+        Task<SubscriptionPlan?> GetEffectivePlanAsync(int tenantId);
+
+        /// <summary>
+        /// Tenant'ın personel ekleme limitine ulaşıp ulaşmadığını kontrol eder.
+        /// </summary>
+        Task<(bool canAdd, int currentCount, int maxCount, string? errorMessage)> CanAddStaffAsync(int tenantId);
+
+        // Admin: Tüm planları listele (aktif/pasif dahil)
+        Task<List<SubscriptionPlan>> GetAllPlansAsync();
+
+        // Admin: Plan güncelle
+        Task<SubscriptionPlan?> UpdatePlanAsync(int planId, SubscriptionPlan updatedPlan);
+
+        // Admin: Plan aktif/pasif toggle
+        Task<bool> TogglePlanStatusAsync(int planId);
     }
 }

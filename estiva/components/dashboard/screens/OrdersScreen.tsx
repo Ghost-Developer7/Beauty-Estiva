@@ -354,7 +354,7 @@ export default function OrdersScreen() {
     if (!appointmentSearch) return true;
     const q = appointmentSearch.toLowerCase();
     return (
-      `${a.customerName} ${a.customerSurname}`.toLowerCase().includes(q) ||
+      a.customerFullName.toLowerCase().includes(q) ||
       a.treatmentName.toLowerCase().includes(q) ||
       `#${a.id}`.includes(q)
     );
@@ -362,7 +362,7 @@ export default function OrdersScreen() {
 
   const selectAppointment = (a: AppointmentListItem) => {
     setForm({ ...form, appointmentId: a.id });
-    setAppointmentSearch(`#${a.id} — ${a.customerName} ${a.customerSurname} — ${a.treatmentName}`);
+    setAppointmentSearch(`#${a.id} — ${a.customerFullName} — ${a.treatmentName}`);
     setShowAppointmentDropdown(false);
   };
 
@@ -468,7 +468,7 @@ export default function OrdersScreen() {
       try {
         const res = await customerService.create({ name: apptForm.newName.trim(), surname: apptForm.newSurname.trim(), phone: apptForm.newPhone.trim() || undefined });
         if (res.data.success && res.data.data) {
-          customerId = res.data.data;
+          customerId = res.data.data.id;
           const custRes = await customerService.list();
           if (custRes.data.success && custRes.data.data) setCustomers(custRes.data.data);
         } else {
@@ -728,7 +728,7 @@ export default function OrdersScreen() {
                           #{a.id}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm text-white truncate">{a.customerName} {a.customerSurname}</p>
+                          <p className="text-sm text-white truncate">{a.customerFullName}</p>
                           <p className="text-[10px] text-white/30">{a.treatmentName} • {formatDateTime(a.startTime)}</p>
                         </div>
                         {form.appointmentId === a.id && (

@@ -31,11 +31,11 @@ export const appointmentService = {
   },
 
   create(data: AppointmentCreate) {
-    return api.post<ApiResponse<number>>("/appointment", data);
+    return api.post<ApiResponse<AppointmentListItem[]>>("/appointment", data);
   },
 
   update(id: number, data: AppointmentUpdate) {
-    return api.put<ApiResponse<null>>(`/appointment/${id}`, data);
+    return api.put<ApiResponse<AppointmentListItem>>(`/appointment/${id}`, data);
   },
 
   updateStatus(id: number, data: AppointmentStatusUpdate) {

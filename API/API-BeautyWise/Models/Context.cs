@@ -41,6 +41,11 @@ namespace API_BeautyWise.Models
         public DbSet<Product>     Products     { get; set; }
         public DbSet<ProductSale> ProductSales { get; set; }
 
+        // Paket Satış Modülü
+        public DbSet<PackageSale>        PackageSales        { get; set; }
+        public DbSet<PackageSaleUsage>   PackageSaleUsages   { get; set; }
+        public DbSet<PackageSalePayment> PackageSalePayments { get; set; }
+
         // Komisyon Modülü
         public DbSet<StaffTreatmentCommission> StaffTreatmentCommissions { get; set; }
         public DbSet<StaffCommissionRecord>    StaffCommissionRecords    { get; set; }
@@ -475,6 +480,86 @@ namespace API_BeautyWise.Models
                 entity.HasOne(r => r.AppointmentPayment)
                       .WithMany()
                       .HasForeignKey(r => r.AppointmentPaymentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ============================================================
+            //  Paket Satış Modülü
+            // ============================================================
+
+            builder.Entity<PackageSale>(entity =>
+            {
+                entity.ToTable("PackageSales_Packages");
+                entity.Property(s => s.TotalPrice).HasColumnType("decimal(18,2)");
+                entity.Property(s => s.PaidAmount).HasColumnType("decimal(18,2)");
+                entity.Property(s => s.Status).HasConversion<int>();
+                entity.Property(s => s.PaymentMethod).HasConversion<int>();
+
+                entity.HasOne(s => s.Tenant)
+                      .WithMany()
+                      .HasForeignKey(s => s.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Customer)
+                      .WithMany()
+                      .HasForeignKey(s => s.CustomerId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Treatment)
+                      .WithMany()
+                      .HasForeignKey(s => s.TreatmentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Staff)
+                      .WithMany()
+                      .HasForeignKey(s => s.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany(s => s.Usages)
+                      .WithOne(u => u.PackageSale)
+                      .HasForeignKey(u => u.PackageSaleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasMany(s => s.Payments)
+                      .WithOne(p => p.PackageSale)
+                      .HasForeignKey(p => p.PackageSaleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<PackageSaleUsage>(entity =>
+            {
+                entity.ToTable("PackageSales_Usages");
+
+                entity.HasOne(u => u.PackageSale)
+                      .WithMany(s => s.Usages)
+                      .HasForeignKey(u => u.PackageSaleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(u => u.Tenant)
+                      .WithMany()
+                      .HasForeignKey(u => u.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(u => u.Staff)
+                      .WithMany()
+                      .HasForeignKey(u => u.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<PackageSalePayment>(entity =>
+            {
+                entity.ToTable("PackageSales_Payments");
+                entity.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.PaymentMethod).HasConversion<int>();
+
+                entity.HasOne(p => p.PackageSale)
+                      .WithMany(s => s.Payments)
+                      .HasForeignKey(p => p.PackageSaleId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.Tenant)
+                      .WithMany()
+                      .HasForeignKey(p => p.TenantId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
 

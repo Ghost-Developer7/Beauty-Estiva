@@ -16,7 +16,7 @@ export const treatmentService = {
   },
 
   create(data: TreatmentCreate) {
-    return api.post<ApiResponse<number>>("/treatment", data);
+    return api.post<ApiResponse<{ id: number }>>("/treatment", data);
   },
 
   update(id: number, data: TreatmentUpdate) {
