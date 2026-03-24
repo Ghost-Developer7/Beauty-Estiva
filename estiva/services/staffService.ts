@@ -11,6 +11,7 @@ export interface StaffMember {
   roles: string[];
   isActive: boolean;
   isApproved: boolean;
+  defaultCommissionRate: number;
   cDate: string | null;
 }
 
