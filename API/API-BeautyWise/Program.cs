@@ -192,6 +192,7 @@ builder.Services.AddScoped<IFinancialReportService, FinancialReportService>();
 
 // Personel Modülü
 builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<IRoleManagementService, RoleManagementService>();
 
 // Bildirim Modülü
 builder.Services.AddScoped<INotificationService, NotificationService>();

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { staffService, type StaffMember } from "@/services/staffService";
 import toast from "react-hot-toast";
 
@@ -60,6 +61,12 @@ const copy = {
     contact: "Contact",
     rolesCol: "Roles",
     statusCol: "Status",
+    changeRole: "Change Role",
+    roleChangeSuccess: "Role updated successfully",
+    roleChangeConfirm: "Are you sure you want to change this role?",
+    selectRole: "Select new role",
+    save: "Save",
+    cannotChangeOwnRole: "You cannot change your own role",
   },
   tr: {
     title: "Personel",
@@ -89,6 +96,12 @@ const copy = {
     contact: "İletişim",
     rolesCol: "Roller",
     statusCol: "Durum",
+    changeRole: "Rol Değiştir",
+    roleChangeSuccess: "Rol başarıyla güncellendi",
+    roleChangeConfirm: "Bu rolü değiştirmek istediğinizden emin misiniz?",
+    selectRole: "Yeni rol seçin",
+    save: "Kaydet",
+    cannotChangeOwnRole: "Kendi rolünüzü değiştiremezsiniz",
   },
 };
 
@@ -132,6 +145,7 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 
 export default function StaffPage() {
   const { language } = useLanguage();
+  const { user } = useAuth();
   const t = copy[language];
 
   const [staff, setStaff] = useState<StaffMember[]>([]);
@@ -139,6 +153,48 @@ export default function StaffPage() {
   const [search, setSearch] = useState("");
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [showDetail, setShowDetail] = useState(false);
+  const [roleChanging, setRoleChanging] = useState(false);
+  const [selectedNewRole, setSelectedNewRole] = useState("");
+
+  // Rol yönetimi yetkileri
+  const currentUserRoles = user?.roles ?? [];
+  const isSuperAdmin = currentUserRoles.includes("SuperAdmin");
+  const isOwner = currentUserRoles.includes("Owner");
+  const canManageRoles = isSuperAdmin || isOwner;
+
+  const getAssignableRoles = () => {
+    if (isSuperAdmin) return ["SuperAdmin", "Owner", "Admin", "Staff"];
+    if (isOwner) return ["Owner", "Admin", "Staff"];
+    return [];
+  };
+
+  const handleRoleChange = async (staffId: number) => {
+    if (!selectedNewRole) return;
+
+    // Kendi rolünü değiştirme kontrolü
+    if (user?.id && parseInt(user.id) === staffId) {
+      toast.error(t.cannotChangeOwnRole);
+      return;
+    }
+
+    if (!confirm(t.roleChangeConfirm)) return;
+
+    setRoleChanging(true);
+    try {
+      const res = await staffService.changeRole(staffId, selectedNewRole);
+      if (res.data.success) {
+        toast.success(t.roleChangeSuccess);
+        setSelectedNewRole("");
+        fetchStaff();
+        setShowDetail(false);
+      }
+    } catch (err: any) {
+      const msg = err?.response?.data?.error?.message || (language === "tr" ? "Rol değiştirilemedi" : "Failed to change role");
+      toast.error(msg);
+    } finally {
+      setRoleChanging(false);
+    }
+  };
 
   const fetchStaff = useCallback(async () => {
     setLoading(true);
@@ -366,6 +422,40 @@ export default function StaffPage() {
                       <p className="text-sm font-bold text-emerald-400">%{s.defaultCommissionRate ?? 0}</p>
                     </div>
                   </div>
+
+                  {/* ── Rol Değiştirme ── */}
+                  {canManageRoles && user?.id && parseInt(user.id) !== s.id && (
+                    <div className="mt-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 space-y-3">
+                      <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">{t.changeRole}</p>
+                      <div className="flex items-center gap-2">
+                        <select
+                          value={selectedNewRole}
+                          onChange={(e) => setSelectedNewRole(e.target.value)}
+                          className="flex-1 rounded-lg border border-white/[0.1] bg-white/[0.05] px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 transition"
+                        >
+                          <option value="" className="bg-[#1a1a2e] text-white/50">{t.selectRole}</option>
+                          {getAssignableRoles()
+                            .filter((r) => !(s.roles.length === 1 && s.roles[0] === r))
+                            .map((r) => (
+                              <option key={r} value={r} className="bg-[#1a1a2e] text-white">
+                                {getRoleDisplay(r, language)}
+                              </option>
+                            ))}
+                        </select>
+                        <button
+                          onClick={() => handleRoleChange(s.id)}
+                          disabled={!selectedNewRole || roleChanging}
+                          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          {roleChanging ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                          ) : (
+                            t.save
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })()}

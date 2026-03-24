@@ -45,6 +45,9 @@ namespace API_BeautyWise.Models
         public DbSet<StaffTreatmentCommission> StaffTreatmentCommissions { get; set; }
         public DbSet<StaffCommissionRecord>    StaffCommissionRecords    { get; set; }
 
+        // Rol Yönetimi Audit Log
+        public DbSet<RoleChangeAuditLog> RoleChangeAuditLogs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -478,6 +481,40 @@ namespace API_BeautyWise.Models
             // ============================================================
             //  Ürün Satış Modülü
             // ============================================================
+
+            // ============================================================
+            //  Rol Yönetimi Audit Log
+            // ============================================================
+            builder.Entity<RoleChangeAuditLog>(entity =>
+            {
+                entity.ToTable("RoleChangeAuditLogs");
+                entity.Property(l => l.ActionType).IsRequired().HasMaxLength(50);
+                entity.Property(l => l.OldRole).HasMaxLength(50);
+                entity.Property(l => l.NewRole).HasMaxLength(50);
+                entity.Property(l => l.Reason).HasMaxLength(500);
+                entity.Property(l => l.TargetUserName).HasMaxLength(200);
+                entity.Property(l => l.PerformedByUserName).HasMaxLength(200);
+                entity.Property(l => l.TenantName).HasMaxLength(250);
+
+                entity.HasOne(l => l.Tenant)
+                      .WithMany()
+                      .HasForeignKey(l => l.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(l => l.TargetUser)
+                      .WithMany()
+                      .HasForeignKey(l => l.TargetUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(l => l.PerformedByUser)
+                      .WithMany()
+                      .HasForeignKey(l => l.PerformedByUserId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasIndex(l => new { l.TenantId, l.CreatedAt });
+                entity.HasIndex(l => l.TargetUserId);
+                entity.HasIndex(l => l.PerformedByUserId);
+            });
 
             builder.Entity<Product>(entity =>
             {

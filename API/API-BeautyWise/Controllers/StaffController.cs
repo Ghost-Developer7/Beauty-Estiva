@@ -13,13 +13,16 @@ namespace API_BeautyWise.Controllers
     public class StaffController : ControllerBase
     {
         private readonly IStaffService _staffService;
+        private readonly IRoleManagementService _roleManagementService;
 
-        public StaffController(IStaffService staffService)
+        public StaffController(IStaffService staffService, IRoleManagementService roleManagementService)
         {
             _staffService = staffService;
+            _roleManagementService = roleManagementService;
         }
 
         private int GetTenantId() => int.Parse(User.FindFirstValue("tenantId")!);
+        private int GetUserId() => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
         /// <summary>
         /// List all staff members (users) belonging to the current tenant
@@ -53,6 +56,46 @@ namespace API_BeautyWise.Controllers
                     return NotFound(ApiResponse<object>.Fail("Personel bulunamadı.", "NOT_FOUND"));
 
                 return Ok(ApiResponse<StaffListDto>.Ok(staff));
+            }
+            catch (Exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /// <summary>
+        /// Bir personelin rolünü değiştirir (SuperAdmin veya Owner yetkisi gerekir)
+        /// </summary>
+        [HttpPut("{id}/role")]
+        [Authorize(Roles = "SuperAdmin,Owner")]
+        public async Task<IActionResult> ChangeRole(int id, [FromBody] ChangeRoleRequestDto dto)
+        {
+            try
+            {
+                dto.TargetUserId = id;
+                var result = await _roleManagementService.ChangeUserRoleAsync(GetTenantId(), GetUserId(), dto);
+                return Ok(ApiResponse<StaffListDto>.Ok(result));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(
+                    ex.Message == "CANNOT_ASSIGN_THIS_ROLE"
+                        ? "Bu rolü atama yetkiniz yok."
+                        : "Bu işlem için yetkiniz yok.",
+                    ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                var message = ex.Message switch
+                {
+                    "INVALID_ROLE" => "Geçersiz rol.",
+                    "USER_NOT_FOUND" => "Kullanıcı bulunamadı.",
+                    "CANNOT_CHANGE_OWN_ROLE" => "Kendi rolünüzü değiştiremezsiniz.",
+                    "ALREADY_HAS_ROLE" => "Kullanıcı zaten bu role sahip.",
+                    "LAST_OWNER_CANNOT_BE_CHANGED" => "Mağazanın son sahibinin rolü değiştirilemez.",
+                    _ => "Rol değişikliği sırasında bir hata oluştu."
+                };
+                return BadRequest(ApiResponse<object>.Fail(message, ex.Message));
             }
             catch (Exception)
             {

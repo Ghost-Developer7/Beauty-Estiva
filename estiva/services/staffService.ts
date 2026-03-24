@@ -23,4 +23,11 @@ export const staffService = {
   getById(id: number) {
     return api.get<ApiResponse<StaffMember>>(`/staff/${id}`);
   },
+
+  changeRole(staffId: number, newRole: string, reason?: string) {
+    return api.put<ApiResponse<StaffMember>>(`/staff/${staffId}/role`, {
+      newRole,
+      reason,
+    });
+  },
 };
