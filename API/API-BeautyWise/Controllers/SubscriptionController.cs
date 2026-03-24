@@ -12,10 +12,12 @@ namespace API_BeautyWise.Controllers
     public class SubscriptionController : ControllerBase
     {
         private readonly ISubscriptionService _subscriptionService;
+        private readonly ICouponService _couponService;
 
-        public SubscriptionController(ISubscriptionService subscriptionService)
+        public SubscriptionController(ISubscriptionService subscriptionService, ICouponService couponService)
         {
             _subscriptionService = subscriptionService;
+            _couponService = couponService;
         }
 
         // ----------------------------------------------------------------
@@ -126,6 +128,27 @@ namespace API_BeautyWise.Controllers
         /// Frontend IframeUrl ile iframe olusturur:
         ///   iframe src = IframeUrl
         /// </summary>
+        [HttpPost("validate-coupon")]
+        [Authorize(Roles = "Owner")]
+        public async Task<IActionResult> ValidateCoupon([FromBody] CouponValidateRequest request)
+        {
+            try
+            {
+                var tenantId = GetTenantId();
+                if (tenantId == 0)
+                    return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
+
+                var result = await _couponService.ValidateCouponAsync(
+                    request.Code, tenantId, request.OriginalPrice);
+
+                return Ok(ApiResponse<CouponValidationResultDto>.Ok(result));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("Kupon doğrulanamadı."));
+            }
+        }
+
         [HttpPost("purchase")]
         [Authorize(Roles = "Owner")]
         public async Task<IActionResult> Purchase([FromBody] SubscriptionPurchaseDto dto)

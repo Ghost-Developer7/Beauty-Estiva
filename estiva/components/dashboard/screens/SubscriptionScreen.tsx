@@ -32,6 +32,14 @@ const copy = {
     upgrade: "Upgrade",
     couponCode: "Coupon Code",
     couponPlaceholder: "Enter coupon code...",
+    applyCoupon: "Apply",
+    validating: "Checking...",
+    couponValid: "Coupon applied!",
+    couponInvalid: "Invalid coupon",
+    discount: "Discount",
+    finalPrice: "Final Price",
+    free: "FREE",
+    activateNow: "Activate Now (Free)",
     purchase: "Proceed to Payment",
     purchasing: "Processing...",
     startTrial: "Start 3-Day Free Trial",
@@ -81,6 +89,14 @@ const copy = {
     upgrade: "Yükselt",
     couponCode: "Kupon Kodu",
     couponPlaceholder: "Kupon kodu girin...",
+    applyCoupon: "Uygula",
+    validating: "Kontrol ediliyor...",
+    couponValid: "Kupon uygulandı!",
+    couponInvalid: "Geçersiz kupon",
+    discount: "İndirim",
+    finalPrice: "Ödenecek Tutar",
+    free: "ÜCRETSİZ",
+    activateNow: "Şimdi Aktifleştir (Ücretsiz)",
     purchase: "Ödemeye Geç",
     purchasing: "İşleniyor...",
     startTrial: "3 Günlük Ücretsiz Denemeyi Başlat",
@@ -143,6 +159,8 @@ export default function SubscriptionScreen() {
 
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const [couponCode, setCouponCode] = useState("");
+  const [couponResult, setCouponResult] = useState<{ isValid: boolean; discountAmount: number | null; message: string } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
 
@@ -169,7 +187,27 @@ export default function SubscriptionScreen() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleSelectPlan = (planId: number) => { setSelectedPlanId(planId); setCouponCode(""); setShowPurchaseModal(true); };
+  const handleSelectPlan = (planId: number) => { setSelectedPlanId(planId); setCouponCode(""); setCouponResult(null); setShowPurchaseModal(true); };
+
+  const handleValidateCoupon = async () => {
+    if (!couponCode.trim() || !selectedPlanId) return;
+    const plan = plans.find(p => p.id === selectedPlanId);
+    if (!plan) return;
+    const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+    setValidatingCoupon(true);
+    try {
+      const res = await subscriptionService.validateCoupon(couponCode, price);
+      if (res.data.success && res.data.data) {
+        setCouponResult(res.data.data);
+        if (res.data.data.isValid) {
+          toast.success(language === "tr" ? "Kupon geçerli!" : "Coupon valid!");
+        } else {
+          toast.error(res.data.data.message);
+        }
+      }
+    } catch { toast.error(language === "tr" ? "Kupon doğrulanamadı" : "Could not validate coupon"); }
+    finally { setValidatingCoupon(false); }
+  };
 
   const handlePurchase = async () => {
     if (!selectedPlanId) return;
@@ -177,9 +215,17 @@ export default function SubscriptionScreen() {
     try {
       const res = await subscriptionService.purchase({ planId: selectedPlanId, isYearly, couponCode: couponCode || undefined });
       if (res.data.success && res.data.data) {
-        setIframeUrl(res.data.data.iframeUrl);
-        setShowPurchaseModal(false);
-        setShowPaymentModal(true);
+        const data = res.data.data;
+        // Kupon ile bedelsiz — ödeme iframe'i yok, direkt aktif
+        if (!data.iframeUrl || data.finalPrice <= 0) {
+          toast.success(language === "tr" ? "Abonelik başarıyla aktifleştirildi!" : "Subscription activated successfully!");
+          setShowPurchaseModal(false);
+          fetchData();
+        } else {
+          setIframeUrl(data.iframeUrl);
+          setShowPurchaseModal(false);
+          setShowPaymentModal(true);
+        }
       } else {
         toast.error(res.data.error?.message || (language === "tr" ? "İşlem başarısız" : "Operation failed"));
       }
@@ -409,22 +455,90 @@ export default function SubscriptionScreen() {
             );
           })()}
 
+          {/* Coupon */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.couponCode}</label>
-            <input
-              type="text"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-              placeholder={t.couponPlaceholder}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white font-mono tracking-wider placeholder:text-white/30 focus:outline-none focus:border-white/25"
-            />
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={couponCode}
+                onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponResult(null); }}
+                placeholder={t.couponPlaceholder}
+                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white font-mono tracking-wider placeholder:text-white/30 focus:outline-none focus:border-white/25"
+              />
+              <button
+                type="button"
+                onClick={handleValidateCoupon}
+                disabled={!couponCode.trim() || validatingCoupon}
+                className="shrink-0 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-40"
+              >
+                {validatingCoupon ? t.validating : t.applyCoupon}
+              </button>
+            </div>
+
+            {/* Coupon result */}
+            {couponResult && (
+              <div className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium ${
+                couponResult.isValid
+                  ? "border border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                  : "border border-red-500/20 bg-red-500/10 text-red-400"
+              }`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  {couponResult.isValid
+                    ? <polyline points="20 6 9 17 4 12" />
+                    : <><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></>}
+                </svg>
+                {couponResult.message}
+              </div>
+            )}
           </div>
 
+          {/* Price breakdown with coupon */}
+          {couponResult?.isValid && selectedPlanId && (() => {
+            const plan = plans.find(p => p.id === selectedPlanId);
+            if (!plan) return null;
+            const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
+            const discount = couponResult.discountAmount || 0;
+            const final_ = Math.max(0, price - discount);
+            return (
+              <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 space-y-2">
+                <div className="flex justify-between text-xs text-white/40">
+                  <span>{plan.name} ({isYearly ? t.yearly : t.monthly})</span>
+                  <span>₺{fmt(price)}</span>
+                </div>
+                <div className="flex justify-between text-xs text-emerald-400">
+                  <span>{t.discount}</span>
+                  <span>-₺{fmt(discount)}</span>
+                </div>
+                <div className="border-t border-white/[0.08] pt-2 flex justify-between">
+                  <span className="text-sm font-semibold text-white">{t.finalPrice}</span>
+                  <span className={`text-lg font-bold ${final_ <= 0 ? "text-emerald-400" : "text-white"}`}>
+                    {final_ <= 0 ? t.free : `₺${fmt(final_)}`}
+                  </span>
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="flex gap-3 pt-1">
-            <button onClick={handlePurchase} disabled={purchasing}
-              className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition disabled:opacity-50">
-              {purchasing ? t.purchasing : t.purchase}
-            </button>
+            {(() => {
+              const plan = selectedPlanId ? plans.find(p => p.id === selectedPlanId) : null;
+              const price = plan ? (isYearly ? plan.yearlyPrice : plan.monthlyPrice) : 0;
+              const discount = couponResult?.isValid ? (couponResult.discountAmount || 0) : 0;
+              const final_ = Math.max(0, price - discount);
+              const isFree = couponResult?.isValid && final_ <= 0;
+
+              return (
+                <button onClick={handlePurchase} disabled={purchasing}
+                  className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-lg transition disabled:opacity-50 ${
+                    isFree
+                      ? "bg-gradient-to-r from-emerald-600 to-green-600 shadow-emerald-900/30"
+                      : "bg-gradient-to-r from-[#00a651] to-[#00c853] shadow-green-900/30"
+                  }`}>
+                  {purchasing ? t.purchasing : isFree ? t.activateNow : t.purchase}
+                </button>
+              );
+            })()}
             <button onClick={() => setShowPurchaseModal(false)}
               className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
           </div>

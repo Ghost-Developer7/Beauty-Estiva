@@ -22,6 +22,13 @@ export const subscriptionService = {
     );
   },
 
+  validateCoupon(code: string, originalPrice: number) {
+    return api.post<ApiResponse<{ isValid: boolean; message: string; discountAmount: number | null; isPercentage: boolean }>>(
+      "/subscription/validate-coupon",
+      { code, originalPrice },
+    );
+  },
+
   purchase(data: SubscriptionPurchase) {
     return api.post<ApiResponse<SubscriptionPurchaseResult>>(
       "/subscription/purchase",

@@ -177,6 +177,27 @@ namespace API_BeautyWise.Services
                         dto.CouponCode!, tenantId, subscription.Id, originalPrice);
                 }
 
+                // Kupon ile bedelsiz ise PayTR'yi atla, direkt aktifleştir
+                if (finalPrice <= 0)
+                {
+                    subscription.IsActive      = true;
+                    subscription.PaymentStatus = "Paid";
+                    await _context.SaveChangesAsync();
+                    await tx.CommitAsync();
+
+                    return new SubscriptionPurchaseResultDto
+                    {
+                        SubscriptionId = subscription.Id,
+                        OriginalPrice  = originalPrice,
+                        DiscountAmount = discountAmount,
+                        FinalPrice     = 0,
+                        IframeToken    = "",
+                        IframeUrl      = "",
+                        MerchantOid    = "",
+                        IsTrialPeriod  = false
+                    };
+                }
+
                 // PayTR IFRAME token al
                 var paymentResult = await _paymentService.InitializePaymentAsync(
                     tenantId, subscription.Id, finalPrice, userIp);

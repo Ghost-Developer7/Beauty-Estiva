@@ -14,6 +14,13 @@ namespace API_BeautyWise.DTO
         public int? SpecificTenantId { get; set; }
     }
 
+    // Kullanıcı tarafından kupon doğrulama isteği
+    public class CouponValidateRequest
+    {
+        public string Code { get; set; } = "";
+        public decimal OriginalPrice { get; set; }
+    }
+
     // Kupon doğrulama sonucu
     public class CouponValidationResultDto
     {
