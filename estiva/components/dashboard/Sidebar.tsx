@@ -69,7 +69,7 @@ type NavItem = {
 const navItems = {
   en: [
     { label: "Overview", href: "/dashboard", icon: IconHome },
-    { label: "Calendar", href: "/dashboard/calendar", icon: IconCalendar },
+    { label: "Calendar", href: "/dashboard/appointments?view=timeline", icon: IconCalendar },
     { label: "Appointments", href: "/dashboard/appointments", icon: IconClock },
     { label: "Orders", href: "/dashboard/orders", icon: IconList },
     { label: "Customers", href: "/dashboard/customers", icon: IconUsers },
@@ -155,7 +155,7 @@ const navItems = {
   ],
   tr: [
     { label: "Özet", href: "/dashboard", icon: IconHome },
-    { label: "Randevu takvimi", href: "/dashboard/calendar", icon: IconCalendar },
+    { label: "Randevu takvimi", href: "/dashboard/appointments?view=timeline", icon: IconCalendar },
     { label: "Randevular", href: "/dashboard/appointments", icon: IconClock },
     { label: "Adisyonlar", href: "/dashboard/orders", icon: IconList },
     { label: "Müşteriler", href: "/dashboard/customers", icon: IconUsers },

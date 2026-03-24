@@ -1,5 +1,12 @@
-import CalendarScreen from "@/components/dashboard/screens/CalendarScreen";
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 export default function CalendarPage() {
-  return <CalendarScreen />;
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/dashboard/appointments?view=timeline");
+  }, [router]);
+  return null;
 }

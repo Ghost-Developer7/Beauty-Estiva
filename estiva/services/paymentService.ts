@@ -7,7 +7,7 @@ import type {
 } from "@/types/api";
 
 export const paymentService = {
-  list(params?: { startDate?: string; endDate?: string }) {
+  list(params?: { startDate?: string; endDate?: string; staffId?: number; customerId?: number }) {
     return api.get<ApiResponse<AppointmentPaymentItem[]>>(
       "/appointmentpayment",
       { params },

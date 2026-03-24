@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { appointmentService } from "@/services/appointmentService";
 import { customerService } from "@/services/customerService";
@@ -252,6 +253,7 @@ function TreatmentChip({ name, color }: { name: string; color: string | null }) 
 export default function AppointmentsScreen() {
   const { language } = useLanguage();
   const t = copy[language];
+  const searchParams = useSearchParams();
 
   /* ─── Data ─── */
   const [appointments, setAppointments] = useState<AppointmentListItem[]>([]);
@@ -261,7 +263,10 @@ export default function AppointmentsScreen() {
   const [loading, setLoading] = useState(true);
 
   /* ─── Filters ─── */
-  const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [viewMode, setViewMode] = useState<ViewMode>(() => {
+    const param = searchParams.get("view");
+    return param === "timeline" ? "timeline" : "list";
+  });
   const [dateFilter, setDateFilter] = useState(() => new Date().toISOString().split("T")[0]);
   const [staffFilter, setStaffFilter] = useState<number | "">("");
   const [treatmentFilter, setTreatmentFilter] = useState<number | "">("");

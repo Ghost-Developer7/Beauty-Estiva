@@ -234,27 +234,36 @@ export type PaymentMethod =
 export interface AppointmentPaymentCreate {
   appointmentId: number;
   amount: number;
-  currencyId: number;
+  currencyId?: number;
+  exchangeRateToTry?: number;
   paymentMethod: string;
+  paidAt?: string;
   notes?: string;
 }
 
 export interface AppointmentPaymentUpdate {
-  amount?: number;
+  amount: number;
   currencyId?: number;
+  exchangeRateToTry?: number;
   paymentMethod?: string;
+  paidAt?: string;
   notes?: string;
 }
 
 export interface AppointmentPaymentItem {
   id: number;
   appointmentId: number;
+  customerFullName: string;
+  treatmentName: string;
+  staffFullName: string;
+  appointmentStartTime: string;
   amount: number;
   currencyCode: string;
   currencySymbol: string;
   exchangeRateToTry: number;
   amountInTry: number;
-  paymentMethod: string;
+  paymentMethodValue: number;
+  paymentMethodDisplay: string;
   paidAt: string;
   notes: string | null;
 }
