@@ -187,6 +187,7 @@ builder.Services.AddScoped<IStaffScheduleService, StaffScheduleService>();
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IAppointmentPaymentService, AppointmentPaymentService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFinancialReportService, FinancialReportService>();
 
 // Personel Modülü
@@ -327,4 +328,19 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// ── SuperAdmin Seed ──
+using (var scope = app.Services.CreateScope())
+{
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<AppRole>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<AppUser>>();
+
+    if (!await roleManager.RoleExistsAsync("SuperAdmin"))
+        await roleManager.CreateAsync(new AppRole { Name = "SuperAdmin" });
+
+    var devUser = await userManager.FindByEmailAsync("karamhmt.0793@gmail.com");
+    if (devUser != null && !await userManager.IsInRoleAsync(devUser, "SuperAdmin"))
+        await userManager.AddToRoleAsync(devUser, "SuperAdmin");
+}
+
 app.Run();

@@ -7,122 +7,152 @@ import type { SubscriptionPlan, CurrentSubscription } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
 
+/* ═══════════════════════════════════════════
+   CONSTANTS
+   ═══════════════════════════════════════════ */
+
 const copy = {
   en: {
     title: "Subscription",
+    subtitle: "Manage your plan and billing",
     currentPlan: "Current Plan",
     plans: "Available Plans",
     monthly: "Monthly",
     yearly: "Yearly",
-    perMonth: "/month",
-    perYear: "/year",
-    features: "Features",
-    maxStaff: "Max Staff",
-    maxBranch: "Max Branches",
+    perMonth: "/mo",
+    perYear: "/yr",
+    maxStaff: "Staff Members",
+    maxBranch: "Branches",
     sms: "SMS Integration",
     ai: "AI Features",
-    yes: "Yes",
-    no: "No",
-    select: "Select Plan",
-    currentBadge: "Current",
+    yes: "Included",
+    no: "Not included",
+    select: "Choose Plan",
+    currentBadge: "Current Plan",
+    upgrade: "Upgrade",
     couponCode: "Coupon Code",
     couponPlaceholder: "Enter coupon code...",
-    applyCoupon: "Apply",
-    purchase: "Pay Now",
+    purchase: "Proceed to Payment",
     purchasing: "Processing...",
-    startTrial: "Start 7-Day Free Trial",
+    startTrial: "Start 3-Day Free Trial",
     startingTrial: "Starting...",
+    trialDesc: "Try all features free for 3 days. No credit card required.",
     cancel: "Cancel",
     cancelSubscription: "Cancel Subscription",
-    cancelReason: "Cancellation Reason",
-    cancelConfirm: "Cancel Subscription",
-    requestRefund: "Request Refund",
-    paymentModal: "Payment",
-    paymentProcessing: "Complete your payment in the form below.",
+    cancelReason: "Why are you cancelling?",
+    cancelReasonPh: "Tell us why you're leaving...",
+    cancelConfirm: "Confirm Cancellation",
+    cancelWarning: "Your access will continue until the end of the current billing period.",
+    requestRefund: "Request a refund for the remaining period",
+    paymentModal: "Complete Payment",
+    paymentProcessing: "Complete your payment in the secure form below.",
     paymentLoading: "Loading payment form...",
     active: "Active",
     trial: "Trial",
     cancelled: "Cancelled",
     expired: "Expired",
-    expiresOn: "Expires",
+    expiresOn: "Renews on",
     trialEndsOn: "Trial ends",
+    daysLeft: "days left",
     noPlan: "No active subscription",
-    noPlanDesc: "Choose a plan to get started.",
+    noPlanDesc: "Choose a plan to unlock all features for your salon.",
     loading: "Loading...",
-    savedYearly: "Save with yearly!",
+    saveYearly: "Save up to 20%",
     unlimited: "Unlimited",
+    popular: "Popular",
   },
   tr: {
     title: "Abonelik",
+    subtitle: "Plan ve faturalandırmanızı yönetin",
     currentPlan: "Mevcut Plan",
     plans: "Mevcut Planlar",
     monthly: "Aylık",
     yearly: "Yıllık",
     perMonth: "/ay",
     perYear: "/yıl",
-    features: "Özellikler",
-    maxStaff: "Maks Personel",
-    maxBranch: "Maks Şube",
+    maxStaff: "Personel Sayısı",
+    maxBranch: "Şube Sayısı",
     sms: "SMS Entegrasyonu",
     ai: "AI Özellikleri",
-    yes: "Var",
-    no: "Yok",
+    yes: "Dahil",
+    no: "Dahil değil",
     select: "Planı Seç",
-    currentBadge: "Mevcut",
+    currentBadge: "Mevcut Plan",
+    upgrade: "Yükselt",
     couponCode: "Kupon Kodu",
     couponPlaceholder: "Kupon kodu girin...",
-    applyCoupon: "Uygula",
-    purchase: "Ödeme Yap",
+    purchase: "Ödemeye Geç",
     purchasing: "İşleniyor...",
-    startTrial: "7 Günlük Ücretsiz Deneme Başlat",
+    startTrial: "3 Günlük Ücretsiz Denemeyi Başlat",
     startingTrial: "Başlatılıyor...",
-    cancel: "İptal",
+    trialDesc: "Tüm özellikleri 3 gün ücretsiz deneyin. Kredi kartı gerekmez.",
+    cancel: "Vazgeç",
     cancelSubscription: "Aboneliği İptal Et",
-    cancelReason: "İptal Nedeni",
-    cancelConfirm: "Aboneliği İptal Et",
-    requestRefund: "İade Talep Et",
-    paymentModal: "Ödeme",
-    paymentProcessing: "Aşağıdaki formdan ödemenizi tamamlayın.",
+    cancelReason: "Neden iptal ediyorsunuz?",
+    cancelReasonPh: "Ayrılma nedeninizi paylaşın...",
+    cancelConfirm: "İptali Onayla",
+    cancelWarning: "Erişiminiz mevcut faturalandırma döneminin sonuna kadar devam eder.",
+    requestRefund: "Kalan süre için iade talep et",
+    paymentModal: "Ödemeyi Tamamlayın",
+    paymentProcessing: "Aşağıdaki güvenli formdan ödemenizi tamamlayın.",
     paymentLoading: "Ödeme formu yükleniyor...",
     active: "Aktif",
     trial: "Deneme",
     cancelled: "İptal Edildi",
     expired: "Süresi Doldu",
-    expiresOn: "Bitiş Tarihi",
+    expiresOn: "Yenileme Tarihi",
     trialEndsOn: "Deneme Bitiş",
+    daysLeft: "gün kaldı",
     noPlan: "Aktif abonelik yok",
-    noPlanDesc: "Başlamak için bir plan seçin.",
+    noPlanDesc: "Salonunuzun tüm özelliklerini açmak için bir plan seçin.",
     loading: "Yükleniyor...",
-    savedYearly: "Yıllık ile tasarruf edin!",
+    saveYearly: "%20'ye varan tasarruf",
     unlimited: "Sınırsız",
+    popular: "Popüler",
   },
 };
 
+/* ═══════════════════════════════════════════
+   HELPERS
+   ═══════════════════════════════════════════ */
+
+const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const formatDate = (d: string | null) => {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+};
+
+function getDaysLeft(dateStr: string | null): number {
+  if (!dateStr) return 0;
+  const diff = new Date(dateStr).getTime() - Date.now();
+  return Math.max(0, Math.ceil(diff / 86400000));
+}
+
+/* ═══════════════════════════════════════════
+   MAIN COMPONENT
+   ═══════════════════════════════════════════ */
+
 export default function SubscriptionScreen() {
   const { language } = useLanguage();
-  const text = copy[language];
+  const t = copy[language];
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [current, setCurrent] = useState<CurrentSubscription | null>(null);
   const [loading, setLoading] = useState(true);
   const [isYearly, setIsYearly] = useState(false);
 
-  // Purchase flow
   const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
   const [couponCode, setCouponCode] = useState("");
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
 
-  // PayTR iframe
   const [iframeUrl, setIframeUrl] = useState<string | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
-  // Cancel
   const [showCancelModal, setShowCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
   const [requestRefund, setRequestRefund] = useState(false);
 
-  // Trial
   const [startingTrial, setStartingTrial] = useState(false);
 
   const fetchData = useCallback(async () => {
@@ -132,378 +162,344 @@ export default function SubscriptionScreen() {
         subscriptionService.listPlans(),
         subscriptionService.getCurrent(),
       ]);
-      if (plansRes.status === "fulfilled" && plansRes.value.data.success && plansRes.value.data.data) {
-        setPlans(plansRes.value.data.data);
-      }
-      if (currentRes.status === "fulfilled" && currentRes.value.data.success && currentRes.value.data.data) {
-        setCurrent(currentRes.value.data.data);
-      }
-    } catch {
-      // silent
-    } finally {
-      setLoading(false);
-    }
+      if (plansRes.status === "fulfilled" && plansRes.value.data.success && plansRes.value.data.data) setPlans(plansRes.value.data.data);
+      if (currentRes.status === "fulfilled" && currentRes.value.data.success && currentRes.value.data.data) setCurrent(currentRes.value.data.data);
+    } catch { /* silent */ } finally { setLoading(false); }
   }, []);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  const handleSelectPlan = (planId: number) => {
-    setSelectedPlanId(planId);
-    setCouponCode("");
-    setShowPurchaseModal(true);
-  };
+  const handleSelectPlan = (planId: number) => { setSelectedPlanId(planId); setCouponCode(""); setShowPurchaseModal(true); };
 
   const handlePurchase = async () => {
     if (!selectedPlanId) return;
     setPurchasing(true);
     try {
-      const res = await subscriptionService.purchase({
-        planId: selectedPlanId,
-        isYearly,
-        couponCode: couponCode || undefined,
-      });
+      const res = await subscriptionService.purchase({ planId: selectedPlanId, isYearly, couponCode: couponCode || undefined });
       if (res.data.success && res.data.data) {
-        const { iframeUrl: url } = res.data.data;
-        setIframeUrl(url);
+        setIframeUrl(res.data.data.iframeUrl);
         setShowPurchaseModal(false);
         setShowPaymentModal(true);
       } else {
         toast.error(res.data.error?.message || (language === "tr" ? "İşlem başarısız" : "Operation failed"));
       }
-    } catch {
-      toast.error(language === "tr" ? "Ödeme başlatılamadı" : "Could not initialize payment");
-    } finally {
-      setPurchasing(false);
-    }
+    } catch { toast.error(language === "tr" ? "Ödeme başlatılamadı" : "Could not initialize payment"); }
+    finally { setPurchasing(false); }
   };
 
   const handleStartTrial = async () => {
     setStartingTrial(true);
     try {
       const res = await subscriptionService.startTrial();
-      if (res.data.success) {
-        toast.success(language === "tr" ? "Deneme süresi başlatıldı!" : "Trial period started!");
-        fetchData();
-      } else {
-        toast.error(res.data.error?.message || (language === "tr" ? "Deneme başlatılamadı" : "Could not start trial"));
-      }
-    } catch {
-      toast.error(language === "tr" ? "Deneme başlatılamadı" : "Could not start trial");
-    } finally {
-      setStartingTrial(false);
-    }
+      if (res.data.success) { toast.success(language === "tr" ? "Deneme süresi başlatıldı!" : "Trial period started!"); fetchData(); }
+      else { toast.error(res.data.error?.message || (language === "tr" ? "Deneme başlatılamadı" : "Could not start trial")); }
+    } catch { toast.error(language === "tr" ? "Deneme başlatılamadı" : "Could not start trial"); }
+    finally { setStartingTrial(false); }
   };
 
   const handleCancel = async () => {
     try {
-      const res = await subscriptionService.cancel({
-        reason: cancelReason || undefined,
-        requestRefund,
-      });
-      if (res.data.success) {
-        toast.success(language === "tr" ? "Abonelik iptal edildi" : "Subscription cancelled");
-        setShowCancelModal(false);
-        fetchData();
-      } else {
-        toast.error(res.data.error?.message || (language === "tr" ? "İptal başarısız" : "Cancellation failed"));
-      }
-    } catch {
-      toast.error(language === "tr" ? "İptal başarısız" : "Cancellation failed");
-    }
-  };
-
-  const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2 });
-  const formatDate = (d: string | null) => {
-    if (!d) return "—";
-    return new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+      const res = await subscriptionService.cancel({ reason: cancelReason || undefined, requestRefund });
+      if (res.data.success) { toast.success(language === "tr" ? "Abonelik iptal edildi" : "Subscription cancelled"); setShowCancelModal(false); fetchData(); }
+      else { toast.error(res.data.error?.message || (language === "tr" ? "İptal başarısız" : "Cancellation failed")); }
+    } catch { toast.error(language === "tr" ? "İptal başarısız" : "Cancellation failed"); }
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-white/60">{text.loading}</div>;
+    return (
+      <div className="flex items-center justify-center gap-3 p-16 text-white/40">
+        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+        {t.loading}
+      </div>
+    );
   }
+
+  const daysLeft = current ? getDaysLeft(current.isTrialPeriod ? current.trialEndDate : current.endDate) : 0;
 
   return (
     <div className="space-y-8 text-white">
-      {/* Header */}
+
+      {/* ─── HEADER ─── */}
       <div>
-        <p className="text-xs uppercase tracking-[0.4em] text-white/50">Estiva</p>
-        <h1 className="mt-3 text-3xl font-semibold">{text.title}</h1>
+        <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+        <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
       </div>
 
-      {/* Current Plan */}
-      <div className="rounded-3xl border border-white/10 bg-white/5 p-6 shadow-[0_20px_60px_rgba(4,2,12,0.6)]">
-        <h2 className="text-sm uppercase tracking-wider text-white/50 mb-4">{text.currentPlan}</h2>
+      {/* ─── CURRENT PLAN CARD ─── */}
+      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
         {current ? (
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-2xl font-semibold">{current.planName}</p>
-              <div className="mt-2 flex items-center gap-3">
-                <span className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                  current.isCancelled
-                    ? "bg-red-500/10 text-red-400"
-                    : current.isTrialPeriod
-                      ? "bg-blue-500/10 text-blue-400"
-                      : "bg-emerald-500/10 text-emerald-400"
-                }`}>
-                  {current.isCancelled ? text.cancelled : current.isTrialPeriod ? text.trial : text.active}
-                </span>
-                <span className="text-sm text-white/60">
-                  {current.isTrialPeriod
-                    ? `${text.trialEndsOn}: ${formatDate(current.trialEndDate)}`
-                    : `${text.expiresOn}: ${formatDate(current.endDate)}`}
-                </span>
+          <div className="p-6">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.currentPlan}</p>
+                <p className="mt-1 text-2xl font-bold">{current.planName}</p>
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {/* Status badge */}
+                  <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
+                    current.isCancelled
+                      ? "border-red-500/20 bg-red-500/10 text-red-400"
+                      : current.isTrialPeriod
+                        ? "border-blue-500/20 bg-blue-500/10 text-blue-400"
+                        : "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
+                  }`}>
+                    <span className={`h-1.5 w-1.5 rounded-full ${current.isCancelled ? "bg-red-400" : current.isTrialPeriod ? "bg-blue-400" : "bg-emerald-400"}`} />
+                    {current.isCancelled ? t.cancelled : current.isTrialPeriod ? t.trial : t.active}
+                  </span>
+
+                  {/* Days left */}
+                  {!current.isCancelled && (
+                    <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[11px] text-white/50">
+                      {daysLeft} {t.daysLeft}
+                    </span>
+                  )}
+
+                  {/* Date */}
+                  <span className="text-xs text-white/30">
+                    {current.isTrialPeriod ? t.trialEndsOn : t.expiresOn}: {formatDate(current.isTrialPeriod ? current.trialEndDate : current.endDate)}
+                  </span>
+                </div>
+                {current.priceSold > 0 && (
+                  <p className="mt-2 text-sm text-white/40">₺{fmt(current.priceSold)}</p>
+                )}
               </div>
-              {current.priceSold > 0 && (
-                <p className="mt-1 text-sm text-white/50">{fmt(current.priceSold)} TRY</p>
+
+              {!current.isCancelled && (
+                <button
+                  onClick={() => setShowCancelModal(true)}
+                  className="rounded-xl border border-red-500/20 bg-red-500/5 px-4 py-2.5 text-xs font-semibold text-red-400 transition hover:bg-red-500/10"
+                >
+                  {t.cancelSubscription}
+                </button>
               )}
             </div>
+
+            {/* Progress bar for days */}
             {!current.isCancelled && (
-              <button
-                onClick={() => setShowCancelModal(true)}
-                className="rounded-xl border border-red-500/30 px-4 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10"
-              >
-                {text.cancelSubscription}
-              </button>
+              <div className="mt-4">
+                <div className="h-1.5 w-full rounded-full bg-white/[0.06]">
+                  <div
+                    className={`h-full rounded-full transition-all ${current.isTrialPeriod ? "bg-blue-500" : "bg-emerald-500"}`}
+                    style={{ width: `${Math.max(5, Math.min(100, (daysLeft / (current.isTrialPeriod ? 3 : 30)) * 100))}%` }}
+                  />
+                </div>
+              </div>
             )}
           </div>
         ) : (
-          <div>
-            <p className="text-lg text-white/60">{text.noPlan}</p>
-            <p className="text-sm text-white/40">{text.noPlanDesc}</p>
+          /* No subscription */
+          <div className="p-8 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20">
+              <svg className="text-blue-400" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+            </div>
+            <p className="text-lg font-semibold text-white">{t.noPlan}</p>
+            <p className="mt-1 text-sm text-white/40">{t.noPlanDesc}</p>
             <button
               onClick={handleStartTrial}
               disabled={startingTrial}
-              className="mt-4 rounded-xl bg-blue-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 disabled:opacity-50"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/30 transition-all hover:shadow-blue-900/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
             >
-              {startingTrial ? text.startingTrial : text.startTrial}
+              {startingTrial ? (
+                <><div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t.startingTrial}</>
+              ) : (
+                <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg>{t.startTrial}</>
+              )}
             </button>
+            <p className="mt-2 text-xs text-white/25">{t.trialDesc}</p>
           </div>
         )}
       </div>
 
-      {/* Billing toggle */}
+      {/* ─── BILLING TOGGLE ─── */}
       <div className="flex items-center justify-center gap-4">
-        <span className={`text-sm font-medium ${!isYearly ? "text-white" : "text-white/40"}`}>
-          {text.monthly}
-        </span>
+        <span className={`text-sm font-medium transition ${!isYearly ? "text-white" : "text-white/30"}`}>{t.monthly}</span>
         <button
           onClick={() => setIsYearly(!isYearly)}
-          className={`relative h-7 w-14 rounded-full transition ${isYearly ? "bg-emerald-500" : "bg-white/20"}`}
+          className={`relative h-7 w-14 rounded-full transition-all ${isYearly ? "bg-emerald-500" : "bg-white/15"}`}
         >
-          <div
-            className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
-              isYearly ? "left-7" : "left-0.5"
-            }`}
-          />
+          <div className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-all ${isYearly ? "left-7" : "left-0.5"}`} />
         </button>
-        <span className={`text-sm font-medium ${isYearly ? "text-white" : "text-white/40"}`}>
-          {text.yearly}
-          <span className="ml-2 text-xs text-emerald-400">{text.savedYearly}</span>
+        <span className={`text-sm font-medium transition ${isYearly ? "text-white" : "text-white/30"}`}>
+          {t.yearly}
+          {isYearly && <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{t.saveYearly}</span>}
         </span>
       </div>
 
-      {/* Plans Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {plans.map((plan) => {
+      {/* ─── PLANS GRID ─── */}
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+        {plans.map((plan, idx) => {
           const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
           const isCurrent = current?.planName === plan.name && !current?.isCancelled;
+          const isMiddle = plans.length >= 3 && idx === 1;
 
           return (
             <div
               key={plan.id}
-              className={`relative rounded-3xl border p-6 shadow-[0_20px_60px_rgba(4,2,12,0.6)] transition ${
+              className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-200 ${
                 isCurrent
-                  ? "border-emerald-500/40 bg-emerald-500/5"
-                  : "border-white/10 bg-white/5 hover:border-white/20"
+                  ? "border-emerald-500/30 bg-emerald-500/[0.04] shadow-[0_0_30px_rgba(16,185,129,0.08)]"
+                  : isMiddle
+                    ? "border-purple-500/30 bg-purple-500/[0.03] shadow-[0_0_30px_rgba(139,92,246,0.08)]"
+                    : "border-white/[0.08] bg-white/[0.02] hover:border-white/15"
               }`}
             >
+              {/* Badges */}
               {isCurrent && (
-                <span className="absolute top-4 right-4 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                  {text.currentBadge}
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-0.5 text-[10px] font-bold text-white shadow">
+                  {t.currentBadge}
+                </span>
+              )}
+              {isMiddle && !isCurrent && (
+                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-0.5 text-[10px] font-bold text-white shadow">
+                  {t.popular}
                 </span>
               )}
 
-              <h3 className="text-xl font-semibold">{plan.name}</h3>
-              {plan.description && (
-                <p className="mt-1 text-sm text-white/50">{plan.description}</p>
-              )}
+              {/* Plan name */}
+              <h3 className="text-lg font-bold">{plan.name}</h3>
+              {plan.description && <p className="mt-1 text-xs text-white/40">{plan.description}</p>}
 
+              {/* Price */}
               <div className="mt-4">
-                <span className="text-3xl font-bold">{fmt(price)}</span>
-                <span className="text-sm text-white/50"> TRY{isYearly ? text.perYear : text.perMonth}</span>
+                <span className="text-4xl font-extrabold">₺{fmt(price)}</span>
+                <span className="text-sm text-white/40">{isYearly ? t.perYear : t.perMonth}</span>
               </div>
 
-              <div className="mt-6 space-y-3 text-sm">
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-white/60">{text.maxStaff}</span>
-                  <span className="font-medium">{plan.maxStaffCount === 0 ? text.unlimited : plan.maxStaffCount}</span>
-                </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-white/60">{text.maxBranch}</span>
-                  <span className="font-medium">{plan.maxBranchCount === 0 ? text.unlimited : plan.maxBranchCount}</span>
-                </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-white/60">{text.sms}</span>
-                  <span className={`font-medium ${plan.hasSmsIntegration ? "text-emerald-400" : "text-white/30"}`}>
-                    {plan.hasSmsIntegration ? text.yes : text.no}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">{text.ai}</span>
-                  <span className={`font-medium ${plan.hasAiFeatures ? "text-emerald-400" : "text-white/30"}`}>
-                    {plan.hasAiFeatures ? text.yes : text.no}
-                  </span>
-                </div>
+              {/* Features */}
+              <div className="mt-6 flex-1 space-y-3">
+                <FeatureRow label={t.maxStaff} value={plan.maxStaffCount === 0 ? t.unlimited : String(plan.maxStaffCount)} enabled />
+                <FeatureRow label={t.maxBranch} value={plan.maxBranchCount === 0 ? t.unlimited : String(plan.maxBranchCount)} enabled />
+                <FeatureRow label={t.sms} value={plan.hasSmsIntegration ? t.yes : t.no} enabled={plan.hasSmsIntegration} />
+                <FeatureRow label={t.ai} value={plan.hasAiFeatures ? t.yes : t.no} enabled={plan.hasAiFeatures} />
               </div>
 
+              {/* CTA */}
               <button
                 onClick={() => handleSelectPlan(plan.id)}
                 disabled={isCurrent}
-                className={`mt-6 w-full rounded-xl py-2.5 text-sm font-semibold transition ${
+                className={`mt-6 w-full rounded-xl py-3 text-sm font-bold transition-all ${
                   isCurrent
                     ? "border border-emerald-500/30 bg-transparent text-emerald-400 cursor-not-allowed"
-                    : "bg-[#00a651] text-white hover:bg-[#008f45]"
+                    : isMiddle
+                      ? "bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-900/30 hover:shadow-purple-900/50 hover:scale-[1.02] active:scale-[0.98]"
+                      : "bg-gradient-to-r from-[#00a651] to-[#00c853] text-white shadow-lg shadow-green-900/30 hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
                 }`}
               >
-                {isCurrent ? text.currentBadge : text.select}
+                {isCurrent ? t.currentBadge : t.select}
               </button>
             </div>
           );
         })}
       </div>
 
-      {/* Purchase Modal (coupon + confirm) */}
-      <Modal
-        open={showPurchaseModal}
-        onClose={() => setShowPurchaseModal(false)}
-        title={text.purchase}
-        maxWidth="max-w-md"
-      >
-        <div className="space-y-4">
-          {/* Selected plan info */}
+      {/* ═══ PURCHASE MODAL ═══ */}
+      <Modal open={showPurchaseModal} onClose={() => setShowPurchaseModal(false)} title={t.purchase} maxWidth="max-w-md">
+        <div className="space-y-5">
           {selectedPlanId && (() => {
-            const plan = plans.find((p) => p.id === selectedPlanId);
+            const plan = plans.find(p => p.id === selectedPlanId);
             if (!plan) return null;
             const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
             return (
-              <div className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <p className="font-semibold text-white">{plan.name}</p>
-                <p className="text-2xl font-bold text-white mt-1">
-                  {fmt(price)} TRY
-                  <span className="text-sm text-white/50">{isYearly ? text.perYear : text.perMonth}</span>
-                </p>
+              <div className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
+                <div>
+                  <p className="text-sm font-semibold text-white">{plan.name}</p>
+                  <p className="text-xs text-white/40">{isYearly ? t.yearly : t.monthly}</p>
+                </div>
+                <p className="text-2xl font-bold text-white">₺{fmt(price)}</p>
               </div>
             );
           })()}
 
-          {/* Coupon */}
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{text.couponCode}</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                placeholder={text.couponPlaceholder}
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
-              />
-            </div>
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.couponCode}</label>
+            <input
+              type="text"
+              value={couponCode}
+              onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+              placeholder={t.couponPlaceholder}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white font-mono tracking-wider placeholder:text-white/30 focus:outline-none focus:border-white/25"
+            />
           </div>
 
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={handlePurchase}
-              disabled={purchasing}
-              className="flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#008f45] disabled:opacity-50"
-            >
-              {purchasing ? text.purchasing : text.purchase}
+          <div className="flex gap-3 pt-1">
+            <button onClick={handlePurchase} disabled={purchasing}
+              className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition disabled:opacity-50">
+              {purchasing ? t.purchasing : t.purchase}
             </button>
-            <button
-              onClick={() => setShowPurchaseModal(false)}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5"
-            >
-              {text.cancel}
-            </button>
+            <button onClick={() => setShowPurchaseModal(false)}
+              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
           </div>
         </div>
       </Modal>
 
-      {/* PayTR IFRAME Payment Modal */}
-      <Modal
-        open={showPaymentModal}
-        onClose={() => {
-          setShowPaymentModal(false);
-          setIframeUrl(null);
-          fetchData(); // Refresh data after payment modal closes
-        }}
-        title={text.paymentModal}
-        maxWidth="max-w-2xl"
-      >
+      {/* ═══ PAYMENT IFRAME MODAL ═══ */}
+      <Modal open={showPaymentModal} onClose={() => { setShowPaymentModal(false); setIframeUrl(null); fetchData(); }} title={t.paymentModal} maxWidth="max-w-2xl">
         <div className="space-y-4">
-          <p className="text-sm text-white/60">{text.paymentProcessing}</p>
+          <p className="text-sm text-white/50">{t.paymentProcessing}</p>
           {iframeUrl ? (
             <div className="overflow-hidden rounded-xl border border-white/10">
-              <iframe
-                src={iframeUrl}
-                width="100%"
-                height="460"
-                frameBorder="0"
-                className="bg-white"
-                allow="payment"
-              />
+              <iframe src={iframeUrl} width="100%" height="460" frameBorder="0" className="bg-white" allow="payment" />
             </div>
           ) : (
-            <div className="flex h-[460px] items-center justify-center text-white/40">
-              {text.paymentLoading}
+            <div className="flex h-[460px] items-center justify-center gap-3 text-white/40">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+              {t.paymentLoading}
             </div>
           )}
         </div>
       </Modal>
 
-      {/* Cancel Subscription Modal */}
-      <Modal
-        open={showCancelModal}
-        onClose={() => setShowCancelModal(false)}
-        title={text.cancelSubscription}
-        maxWidth="max-w-md"
-      >
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{text.cancelReason}</label>
+      {/* ═══ CANCEL MODAL ═══ */}
+      <Modal open={showCancelModal} onClose={() => setShowCancelModal(false)} title={t.cancelSubscription} maxWidth="max-w-md">
+        <div className="space-y-5">
+          <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 px-4 py-3 text-xs text-amber-400">
+            <svg className="inline mr-1.5 -mt-0.5" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            {t.cancelWarning}
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.cancelReason}</label>
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
               rows={3}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none resize-none"
+              placeholder={t.cancelReasonPh}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
             />
           </div>
-          <label className="flex items-center gap-2 text-sm text-white">
-            <input
-              type="checkbox"
-              checked={requestRefund}
-              onChange={(e) => setRequestRefund(e.target.checked)}
-              className="rounded"
-            />
-            {text.requestRefund}
+
+          <label className="flex items-center gap-3 cursor-pointer">
+            <div className={`flex h-5 w-5 items-center justify-center rounded-md border transition ${requestRefund ? "border-red-500 bg-red-500" : "border-white/20 bg-white/5"}`}>
+              {requestRefund && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
+            </div>
+            <input type="checkbox" checked={requestRefund} onChange={(e) => setRequestRefund(e.target.checked)} className="hidden" />
+            <span className="text-sm text-white/70">{t.requestRefund}</span>
           </label>
-          <div className="flex gap-3 pt-2">
-            <button
-              onClick={handleCancel}
-              className="flex-1 rounded-xl bg-red-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-500"
-            >
-              {text.cancelConfirm}
+
+          <div className="flex gap-3 pt-1">
+            <button onClick={handleCancel}
+              className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-red-500">
+              {t.cancelConfirm}
             </button>
-            <button
-              onClick={() => setShowCancelModal(false)}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5"
-            >
-              {text.cancel}
-            </button>
+            <button onClick={() => setShowCancelModal(false)}
+              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+/* ═══ Feature Row ═══ */
+function FeatureRow({ label, value, enabled }: { label: string; value: string; enabled: boolean }) {
+  return (
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <svg className={enabled ? "text-emerald-400" : "text-white/15"} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+          {enabled ? <polyline points="20 6 9 17 4 12" /> : <line x1="18" y1="6" x2="6" y2="18" />}
+        </svg>
+        <span className="text-xs text-white/50">{label}</span>
+      </div>
+      <span className={`text-xs font-semibold ${enabled ? "text-white" : "text-white/20"}`}>{value}</span>
     </div>
   );
 }

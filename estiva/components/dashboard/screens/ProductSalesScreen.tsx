@@ -1,157 +1,307 @@
 "use client";
 
+import { useState, useEffect, useCallback, useRef, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { productService } from "@/services/productService";
+import { customerService } from "@/services/customerService";
+import { currencyService } from "@/services/currencyService";
+import { staffService, type StaffMember } from "@/services/staffService";
+import type { ProductListItem, ProductSaleListItem, CustomerListItem, CurrencyItem } from "@/types/api";
+import Modal from "@/components/ui/Modal";
+import toast from "react-hot-toast";
 
-const sales = [
-    {
-        date: "24 Dec 2025",
-        client: "Didem Kara",
-        product: "Estiva kit",
-        seller: "Admin",
-        count: 1,
-        total: "TRY 4.800",
-        paid: "TRY 4.800",
-        remaining: "0",
-        creator: "Admin",
-        created: "24 Dec 2025",
-    }
+/* ═══ CONSTANTS ═══ */
+
+const PAYMENT_METHODS: { value: string; en: string; tr: string; icon: string }[] = [
+  { value: "Cash", en: "Cash", tr: "Nakit", icon: "💵" },
+  { value: "CreditCard", en: "Credit Card", tr: "Kredi Kartı", icon: "💳" },
+  { value: "BankTransfer", en: "Bank Transfer", tr: "Havale/EFT", icon: "🏦" },
+  { value: "Check", en: "Check", tr: "Çek", icon: "📄" },
+  { value: "Other", en: "Other", tr: "Diğer", icon: "📋" },
 ];
 
+const METHOD_COLORS: Record<string, string> = { "Nakit": "#22c55e", "Cash": "#22c55e", "Kredi / Banka Kartı": "#6366f1", "Credit Card": "#6366f1", "Havale / EFT": "#3b82f6", "Bank Transfer": "#3b82f6", "Çek": "#f59e0b", "Check": "#f59e0b", "Diğer": "#8b5cf6", "Other": "#8b5cf6" };
+
+type TabMode = "sales" | "products";
+
 const copy = {
-    en: {
-        title: "Product sales",
-        datePlaceholder: "This month",
-        new: "New",
-        filterBtn: "Filter / Sort",
-        exportBtn: "Export",
-        headers: [
-            "Sale date",
-            "Client",
-            "Product",
-            "Seller",
-            "Count",
-            "Total amount",
-            "Paid amount",
-            "Remaining payment",
-            "Creator",
-            "Created at",
-        ],
-        recordCount: "Total record count",
-        actions: {
-            settings: "Settings",
-            refresh: "Refresh",
-            download: "Download",
-        }
-    },
-    tr: {
-        title: "Ürün satışları",
-        datePlaceholder: "Bu ay",
-        new: "Yeni",
-        filterBtn: "Filtrele / Sırala",
-        exportBtn: "İndir",
-        headers: [
-            "Satış tarihi",
-            "Müşteri",
-            "Ürün",
-            "Satıcı",
-            "Adet",
-            "Toplam tutar",
-            "Ödenen tutar",
-            "Kalan ödeme",
-            "Oluşturan",
-            "Oluşturulma",
-        ],
-        recordCount: "Toplam kayıt sayısı",
-        actions: {
-            settings: "Ayarlar",
-            refresh: "Yenile",
-            download: "İndir",
-        }
-    },
+  en: {
+    title: "Product Sales", salesTab: "Sales", productsTab: "Products", newSale: "New Sale", newProduct: "New Product", total: "total", search: "Search...", loading: "Loading...",
+    noSales: "No product sales yet.", noSalesSub: "Record your first product sale.", noProducts: "No products yet.", noProductsSub: "Add products to start selling.",
+    totalRevenue: "Total Revenue", totalSales: "Sales Count", totalProducts: "Products", lowStock: "Low Stock",
+    createSaleTitle: "New Product Sale", product: "Product", selectProduct: "Select product...", customer: "Customer (optional)", searchCustomer: "Search customer...",
+    quantity: "Quantity", paymentMethod: "Payment Method", currency: "Currency", exchangeRate: "Exchange Rate", notes: "Notes", notesPlaceholder: "Optional notes...",
+    recordSale: "Record Sale", recording: "Recording...", cancel: "Cancel", unitPrice: "Unit price", totalAmount: "Total", stock: "Stock", pcs: "pcs",
+    createProductTitle: "New Product", editProductTitle: "Edit Product", productName: "Product Name", productNamePh: "e.g. Keratin Shampoo...",
+    description: "Description", descPh: "Optional description...", barcode: "Barcode", price: "Price", stockQty: "Stock Quantity", save: "Save", saving: "Saving...",
+    saleDetailTitle: "Sale Details", seller: "Seller", saleDate: "Date", delete: "Delete", confirmDelete: "Delete this record?", edit: "Edit",
+    productCol: "Product", customerCol: "Customer", qtyCol: "Qty", amountCol: "Amount", methodCol: "Method", dateCol: "Date", priceCol: "Price", stockCol: "Stock", allStaff: "All Staff",
+  },
+  tr: {
+    title: "Ürün Satışları", salesTab: "Satışlar", productsTab: "Ürünler", newSale: "Yeni Satış", newProduct: "Yeni Ürün", total: "toplam", search: "Ara...", loading: "Yükleniyor...",
+    noSales: "Henüz ürün satışı yok.", noSalesSub: "İlk ürün satışınızı kaydedin.", noProducts: "Henüz ürün yok.", noProductsSub: "Satış yapmak için ürün ekleyin.",
+    totalRevenue: "Toplam Gelir", totalSales: "Satış Sayısı", totalProducts: "Ürün Sayısı", lowStock: "Düşük Stok",
+    createSaleTitle: "Yeni Ürün Satışı", product: "Ürün", selectProduct: "Ürün seçin...", customer: "Müşteri (isteğe bağlı)", searchCustomer: "Müşteri ara...",
+    quantity: "Adet", paymentMethod: "Ödeme Yöntemi", currency: "Para Birimi", exchangeRate: "Döviz Kuru", notes: "Notlar", notesPlaceholder: "İsteğe bağlı notlar...",
+    recordSale: "Satış Kaydet", recording: "Kaydediliyor...", cancel: "Vazgeç", unitPrice: "Birim fiyat", totalAmount: "Toplam", stock: "Stok", pcs: "adet",
+    createProductTitle: "Yeni Ürün", editProductTitle: "Ürün Düzenle", productName: "Ürün Adı", productNamePh: "örn. Keratin Şampuan...",
+    description: "Açıklama", descPh: "İsteğe bağlı açıklama...", barcode: "Barkod", price: "Fiyat", stockQty: "Stok Adedi", save: "Kaydet", saving: "Kaydediliyor...",
+    saleDetailTitle: "Satış Detayı", seller: "Satıcı", saleDate: "Tarih", delete: "Sil", confirmDelete: "Bu kaydı silmek istiyor musunuz?", edit: "Düzenle",
+    productCol: "Ürün", customerCol: "Müşteri", qtyCol: "Adet", amountCol: "Tutar", methodCol: "Yöntem", dateCol: "Tarih", priceCol: "Fiyat", stockCol: "Stok", allStaff: "Tüm Personel",
+  },
 };
 
+/* ═══ HELPERS ═══ */
+const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtInt = (n: number) => n.toLocaleString("tr-TR");
+const formatDate = (d: string) => new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+const formatTime = (d: string) => new Date(d).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+
+function MethodBadge({ display, language }: { display: string; language: "en" | "tr" }) {
+  const color = METHOD_COLORS[display] || "#8b5cf6";
+  const method = PAYMENT_METHODS.find(m => display.includes(m.en) || display.includes(m.tr));
+  const label = method ? (language === "tr" ? method.tr : method.en) : display;
+  return (<span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-medium border" style={{ backgroundColor: `${color}12`, color, borderColor: `${color}30` }}><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />{label}</span>);
+}
+
+function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
+  return (<div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3"><p className="text-[11px] text-white/40">{label}</p><p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>{sub && <p className="text-[10px] text-white/30">{sub}</p>}</div>);
+}
+
+/* ═══ MAIN ═══ */
 export default function ProductSalesScreen() {
-    const { language } = useLanguage();
-    const text = copy[language];
+  const { language } = useLanguage();
+  const t = copy[language];
 
-    return (
-        <div className="space-y-4 text-white">
-            {/* Header */}
-            <div className="flex flex-wrap items-center justify-between gap-4">
-                <h1 className="text-2xl font-semibold">{text.title}</h1>
+  const [sales, setSales] = useState<ProductSaleListItem[]>([]);
+  const [products, setProducts] = useState<ProductListItem[]>([]);
+  const [customers, setCustomers] = useState<CustomerListItem[]>([]);
+  const [currencies, setCurrencies] = useState<CurrencyItem[]>([]);
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tab, setTab] = useState<TabMode>("sales");
+  const [search, setSearch] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [staffFilter, setStaffFilter] = useState<number | "">("");
 
-                <div className="flex items-center gap-3">
-                    <div className="relative min-w-[120px]">
-                        <select className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white focus:outline-none">
-                            <option className="bg-[#1a1a1a]">{text.datePlaceholder}</option>
-                        </select>
-                        <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/40">v</div>
-                    </div>
-                    <button className="flex items-center gap-2 rounded-xl bg-[#00a651] px-4 py-1.5 text-xs font-semibold text-white shadow-lg shadow-green-900/20 hover:bg-[#008f45]">
-                        + {text.new}
-                    </button>
-                </div>
-            </div>
+  const [showSaleForm, setShowSaleForm] = useState(false);
+  const [saleForm, setSaleForm] = useState({ productId: 0, customerId: null as number | null, quantity: 1, currencyId: 0, exchangeRateToTry: 1, paymentMethod: "Cash", notes: "" });
+  const [saleSaving, setSaleSaving] = useState(false);
+  const [customerSearch, setCustomerSearch] = useState("");
+  const [showCustomerDd, setShowCustomerDd] = useState(false);
+  const customerDdRef = useRef<HTMLDivElement>(null);
 
-            {/* Toolbar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-white/5 p-2">
-                <button className="flex items-center gap-2 rounded-lg bg-[#4b5563] px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-[#374151]">
-                    <span className="text-[10px]">Y</span> {text.filterBtn}
-                </button>
+  const [showProductForm, setShowProductForm] = useState(false);
+  const [productFormMode, setProductFormMode] = useState<"create" | "edit">("create");
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [productForm, setProductForm] = useState({ name: "", description: "", barcode: "", price: 0, stockQuantity: 0 });
+  const [productSaving, setProductSaving] = useState(false);
 
-                <div className="flex gap-2">
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4b5563] text-white hover:bg-[#374151]">
-                        <span className="text-xs">⚙️</span>
-                    </button>
-                    <button className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#4b5563] text-white hover:bg-[#374151]">
-                        <span className="text-xs">↻</span>
-                    </button>
-                    <button className="flex items-center gap-2 rounded-lg bg-[#4b5563] px-4 py-2 text-xs font-medium text-white hover:bg-[#374151]">
-                        {text.exportBtn} v
-                    </button>
-                </div>
-            </div>
+  const [selectedSale, setSelectedSale] = useState<ProductSaleListItem | null>(null);
+  const [showSaleDetail, setShowSaleDetail] = useState(false);
 
-            {/* Table */}
-            <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-[0_15px_40px_rgba(3,2,9,0.5)]">
-                <table className="w-full text-left text-[10px] md:text-sm">
-                    <thead>
-                        <tr className="border-b border-white/10 bg-white/5 font-semibold text-white/50">
-                            {text.headers.map((label) => (
-                                <th key={label} className="px-4 py-3 whitespace-nowrap">
-                                    {label}
-                                </th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                        {sales.length > 0 ? sales.map((sale, i) => (
-                            <tr key={i} className="transition hover:bg-white/5">
-                                <td className="px-4 py-3 text-white/60">{sale.date}</td>
-                                <td className="px-4 py-3 font-medium text-white">{sale.client}</td>
-                                <td className="px-4 py-3 text-white/60">{sale.product}</td>
-                                <td className="px-4 py-3 text-white/60">{sale.seller}</td>
-                                <td className="px-4 py-3 text-white/60">{sale.count}</td>
-                                <td className="px-4 py-3 font-semibold text-white">{sale.total}</td>
-                                <td className="px-4 py-3 text-white/60">{sale.paid}</td>
-                                <td className="px-4 py-3 text-white/60">{sale.remaining}</td>
-                                <td className="px-4 py-3 text-white/60">{sale.creator}</td>
-                                <td className="px-4 py-3 text-white/60">{sale.created}</td>
-                            </tr>
-                        )) : (
-                            <tr>
-                                <td colSpan={10} className="px-4 py-8 text-center text-white/40">
-                                    {text.recordCount}: 0
-                                </td>
-                            </tr>
-                        )}
-                    </tbody>
-                </table>
-                {/* Footer */}
-                <div className="border-t border-white/10 bg-white/5 p-3 text-[10px] font-medium text-white/60">
-                    {text.recordCount}: {sales.length}
-                </div>
-            </div>
+  const fetchSales = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params: Record<string, string | number> = {};
+      if (startDate) params.startDate = startDate;
+      if (endDate) params.endDate = endDate;
+      if (staffFilter) params.staffId = staffFilter;
+      const res = await productService.listSales(Object.keys(params).length > 0 ? params as { startDate?: string; endDate?: string; staffId?: number } : undefined);
+      if (res.data.success && res.data.data) setSales(res.data.data);
+    } catch { /* */ } finally { setLoading(false); }
+  }, [startDate, endDate, staffFilter]);
+
+  const fetchProducts = useCallback(async () => {
+    try { const res = await productService.list(); if (res.data.success && res.data.data) setProducts(res.data.data); } catch { /* */ }
+  }, []);
+
+  const fetchRef = useCallback(async () => {
+    try {
+      const [a, b, c] = await Promise.all([customerService.list(), currencyService.list(), staffService.list()]);
+      if (a.data.success && a.data.data) setCustomers(a.data.data);
+      if (b.data.success && b.data.data) setCurrencies(b.data.data);
+      if (c.data.success && c.data.data) setStaffList(c.data.data);
+    } catch { /* */ }
+  }, []);
+
+  useEffect(() => { fetchSales(); }, [fetchSales]);
+  useEffect(() => { fetchProducts(); fetchRef(); }, [fetchProducts, fetchRef]);
+  useEffect(() => { const h = (e: MouseEvent) => { if (customerDdRef.current && !customerDdRef.current.contains(e.target as Node)) setShowCustomerDd(false); }; document.addEventListener("mousedown", h); return () => document.removeEventListener("mousedown", h); }, []);
+
+  const filteredSales = sales.filter(s => { if (!search) return true; const q = search.toLowerCase(); return s.productName.toLowerCase().includes(q) || s.customerFullName?.toLowerCase().includes(q) || s.staffFullName.toLowerCase().includes(q); });
+  const filteredProducts = products.filter(p => { if (!search) return true; return p.name.toLowerCase().includes(search.toLowerCase()) || p.barcode?.includes(search); });
+  const totalRevenue = filteredSales.reduce((s, x) => s + x.amountInTry, 0);
+  const lowStockCount = products.filter(p => p.stockQuantity <= 5).length;
+
+  const openSaleForm = () => { const dc = currencies.find(c => c.isDefault) || currencies[0]; setSaleForm({ productId: 0, customerId: null, quantity: 1, currencyId: dc?.id || 0, exchangeRateToTry: dc?.exchangeRateToTry || 1, paymentMethod: "Cash", notes: "" }); setCustomerSearch(""); setShowSaleForm(true); };
+  const handleSaleSubmit = async (e: FormEvent) => { e.preventDefault(); if (!saleForm.productId) { toast.error(language === "tr" ? "Ürün seçimi zorunludur" : "Product is required"); return; } setSaleSaving(true); try { await productService.createSale({ productId: saleForm.productId, customerId: saleForm.customerId || undefined, quantity: saleForm.quantity, currencyId: saleForm.currencyId || undefined, exchangeRateToTry: saleForm.exchangeRateToTry, paymentMethod: saleForm.paymentMethod, notes: saleForm.notes || undefined }); toast.success(language === "tr" ? "Satış kaydedildi" : "Sale recorded"); setShowSaleForm(false); fetchSales(); fetchProducts(); } catch { toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed"); } finally { setSaleSaving(false); } };
+  const openProductCreate = () => { setProductForm({ name: "", description: "", barcode: "", price: 0, stockQuantity: 0 }); setEditingProductId(null); setProductFormMode("create"); setShowProductForm(true); };
+  const openProductEdit = (p: ProductListItem) => { setProductForm({ name: p.name, description: p.description || "", barcode: p.barcode || "", price: p.price, stockQuantity: p.stockQuantity }); setEditingProductId(p.id); setProductFormMode("edit"); setShowProductForm(true); };
+  const handleProductSubmit = async (e: FormEvent) => { e.preventDefault(); if (!productForm.name.trim()) { toast.error(language === "tr" ? "Ürün adı zorunludur" : "Product name is required"); return; } setProductSaving(true); try { const p = { name: productForm.name, description: productForm.description || undefined, barcode: productForm.barcode || undefined, price: productForm.price, stockQuantity: productForm.stockQuantity }; if (productFormMode === "edit" && editingProductId) { await productService.update(editingProductId, p); toast.success(language === "tr" ? "Ürün güncellendi" : "Product updated"); } else { await productService.create(p); toast.success(language === "tr" ? "Ürün oluşturuldu" : "Product created"); } setShowProductForm(false); fetchProducts(); } catch { toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed"); } finally { setProductSaving(false); } };
+  const handleDeleteProduct = async (id: number) => { if (!confirm(t.confirmDelete)) return; try { await productService.delete(id); toast.success(language === "tr" ? "Ürün silindi" : "Product deleted"); fetchProducts(); } catch { toast.error(language === "tr" ? "Silme başarısız" : "Delete failed"); } };
+  const handleDeleteSale = async (id: number) => { if (!confirm(t.confirmDelete)) return; try { await productService.deleteSale(id); toast.success(language === "tr" ? "Satış silindi" : "Sale deleted"); setShowSaleDetail(false); fetchSales(); fetchProducts(); } catch { toast.error(language === "tr" ? "Silme başarısız" : "Delete failed"); } };
+  const handleCurrencyChange = (id: number) => { const c = currencies.find(x => x.id === id); setSaleForm({ ...saleForm, currencyId: id, exchangeRateToTry: c?.exchangeRateToTry || 1 }); };
+
+  const selectedProduct = products.find(p => p.id === saleForm.productId);
+  const filteredCust = customers.filter(c => { if (!customerSearch) return true; const q = customerSearch.toLowerCase(); return `${c.name} ${c.surname}`.toLowerCase().includes(q) || c.phone?.includes(q); });
+
+  return (
+    <div className="space-y-5 text-white">
+      {/* HEADER */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div><h1 className="text-2xl font-bold tracking-tight">{t.title}</h1><p className="mt-0.5 text-sm text-white/40">{tab === "sales" ? filteredSales.length : filteredProducts.length} {t.total}</p></div>
+        <div className="flex gap-2">
+          {tab === "products" && <button onClick={openProductCreate} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-[0.98]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newProduct}</button>}
+          <button onClick={openSaleForm} className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newSale}</button>
         </div>
-    );
+      </div>
+
+      {/* STATS */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" />
+        <StatCard label={t.totalSales} value={fmtInt(sales.length)} color="#6366f1" />
+        <StatCard label={t.totalProducts} value={fmtInt(products.length)} color="#60a5fa" />
+        <StatCard label={t.lowStock} value={fmtInt(lowStockCount)} sub="≤ 5" color={lowStockCount > 0 ? "#f59e0b" : "#22c55e"} />
+      </div>
+
+      {/* TABS + FILTERS */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">
+          {(["sales", "products"] as TabMode[]).map(m => (<button key={m} onClick={() => { setTab(m); setSearch(""); }} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === m ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"}`}>{m === "sales" ? t.salesTab : t.productsTab}</button>))}
+        </div>
+        {tab === "sales" && (<>
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none" />
+          <span className="text-white/20">—</span>
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none" />
+          <select value={staffFilter} onChange={e => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none"><option value="" className="bg-[#1a1a2e]">{t.allStaff}</option>{staffList.filter(s => s.isActive).map(s => <option key={s.id} value={s.id} className="bg-[#1a1a2e]">{s.name} {s.surname}</option>)}</select>
+        </>)}
+        <div className="relative ml-auto"><svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg><input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.search} className="rounded-xl border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:outline-none w-48" /></div>
+      </div>
+
+      {/* SALES TAB */}
+      {tab === "sales" && (
+        <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          {loading ? (<div className="flex items-center justify-center gap-3 p-12 text-white/40"><div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />{t.loading}</div>
+          ) : filteredSales.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg><p className="text-sm font-medium text-white/40">{t.noSales}</p><p className="text-xs text-white/25">{t.noSalesSub}</p></div>
+          ) : (<>
+            <div className="hidden md:grid grid-cols-[1fr_0.8fr_0.4fr_0.6fr_0.6fr_0.5fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30"><span>{t.productCol}</span><span>{t.customerCol}</span><span>{t.qtyCol}</span><span>{t.amountCol}</span><span>{t.methodCol}</span><span>{t.dateCol}</span><span /></div>
+            <div className="divide-y divide-white/[0.04]">
+              {filteredSales.map(s => (
+                <div key={s.id} onClick={() => { setSelectedSale(s); setShowSaleDetail(true); }} className="group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.4fr_0.6fr_0.6fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer">
+                  <div className="min-w-0"><p className="text-sm font-semibold text-white truncate">{s.productName}</p><p className="text-[10px] text-white/30">{s.staffFullName}</p></div>
+                  <p className="hidden md:block text-xs text-white/50 truncate">{s.customerFullName || "—"}</p>
+                  <p className="hidden md:block text-xs text-white/50">{s.quantity}x</p>
+                  <div><p className="text-sm font-bold text-white">{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className="text-[10px] text-white/30">₺{fmt(s.amountInTry)}</p>}</div>
+                  <MethodBadge display={s.paymentMethodDisplay} language={language} />
+                  <p className="hidden md:block text-xs text-white/40">{formatDate(s.saleDate)}</p>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}><button onClick={() => handleDeleteSale(s.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 transition hover:bg-red-500/20 hover:text-red-400"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button></div>
+                </div>
+              ))}
+            </div>
+            <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-5 py-3"><span className="text-xs text-white/40">{filteredSales.length} {t.total}</span><span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span></div>
+          </>)}
+        </div>
+      )}
+
+      {/* PRODUCTS TAB */}
+      {tab === "products" && (
+        <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+          {products.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg><p className="text-sm font-medium text-white/40">{t.noProducts}</p><p className="text-xs text-white/25">{t.noProductsSub}</p></div>
+          ) : (<>
+            <div className="hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30"><span>{t.productCol}</span><span>{t.priceCol}</span><span>{t.stockCol}</span><span /></div>
+            <div className="divide-y divide-white/[0.04]">
+              {filteredProducts.map(p => (
+                <div key={p.id} className="group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04]">
+                  <div className="min-w-0"><p className="text-sm font-semibold text-white truncate">{p.name}</p>{p.description && <p className="text-[11px] text-white/30 truncate">{p.description}</p>}{p.barcode && <p className="text-[10px] text-white/20 font-mono">{p.barcode}</p>}</div>
+                  <p className="text-sm font-bold text-white">₺{fmt(p.price)}</p>
+                  <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold w-fit ${p.stockQuantity <= 5 ? "bg-amber-500/15 text-amber-400" : "bg-emerald-500/15 text-emerald-400"}`}>{p.stockQuantity} {t.pcs}</span>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => openProductEdit(p)} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 transition hover:bg-white/10 hover:text-white"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg></button>
+                    <button onClick={() => handleDeleteProduct(p.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 transition hover:bg-red-500/20 hover:text-red-400"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="border-t border-white/[0.06] bg-white/[0.03] px-5 py-3 text-xs text-white/40">{filteredProducts.length} {t.total}</div>
+          </>)}
+        </div>
+      )}
+
+      {/* SALE CREATE MODAL */}
+      <Modal open={showSaleForm} onClose={() => setShowSaleForm(false)} title={t.createSaleTitle} maxWidth="max-w-xl">
+        <form onSubmit={handleSaleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.product}</label>
+            <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
+              {products.map(p => (<button key={p.id} type="button" onClick={() => setSaleForm({ ...saleForm, productId: p.id })} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition ${saleForm.productId === p.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}><div><p className="text-xs font-medium text-white">{p.name}</p><p className="text-[10px] text-white/30">₺{fmt(p.price)} • {p.stockQuantity} {t.pcs}</p></div>{saleForm.productId === p.id && <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}</button>))}
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.customer}</label>
+              <div className="relative" ref={customerDdRef}>
+                <input type="text" value={customerSearch} onChange={e => { setCustomerSearch(e.target.value); setShowCustomerDd(true); }} onFocus={() => setShowCustomerDd(true)} placeholder={t.searchCustomer} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
+                {showCustomerDd && (<div className="absolute left-0 right-0 z-20 mt-1 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
+                  <button type="button" onClick={() => { setSaleForm({ ...saleForm, customerId: null }); setCustomerSearch(""); setShowCustomerDd(false); }} className="flex w-full px-3 py-2 text-xs text-white/40 hover:bg-white/5">— {language === "tr" ? "Müşteri yok" : "No customer"}</button>
+                  {filteredCust.map(c => (<button key={c.id} type="button" onClick={() => { setSaleForm({ ...saleForm, customerId: c.id }); setCustomerSearch(`${c.name} ${c.surname}`); setShowCustomerDd(false); }} className="flex w-full px-3 py-2 text-xs text-white text-left hover:bg-white/5">{c.name} {c.surname}</button>))}
+                </div>)}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.quantity}</label>
+              <input type="number" min={1} value={saleForm.quantity} onChange={e => setSaleForm({ ...saleForm, quantity: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25" />
+              {selectedProduct && <p className="text-[10px] text-white/30">{t.totalAmount}: ₺{fmt(selectedProduct.price * saleForm.quantity)}</p>}
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.currency}</label><select value={saleForm.currencyId} onChange={e => handleCurrencyChange(Number(e.target.value))} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none">{currencies.map(c => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.symbol} {c.code}</option>)}</select></div>
+            <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.exchangeRate}</label><input type="number" min={0} step={0.0001} value={saleForm.exchangeRateToTry} onChange={e => setSaleForm({ ...saleForm, exchangeRateToTry: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none" /></div>
+            <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentMethod}</label><select value={saleForm.paymentMethod} onChange={e => setSaleForm({ ...saleForm, paymentMethod: e.target.value })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none">{PAYMENT_METHODS.map(m => <option key={m.value} value={m.value} className="bg-[#1a1a2e]">{language === "tr" ? m.tr : m.en}</option>)}</select></div>
+          </div>
+          <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.notes}</label><input type="text" value={saleForm.notes} onChange={e => setSaleForm({ ...saleForm, notes: e.target.value })} placeholder={t.notesPlaceholder} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" /></div>
+          <div className="flex gap-3 pt-1">
+            <button type="submit" disabled={saleSaving} className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition disabled:opacity-50">{saleSaving ? t.recording : t.recordSale}</button>
+            <button type="button" onClick={() => setShowSaleForm(false)} className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* PRODUCT CREATE/EDIT MODAL */}
+      <Modal open={showProductForm} onClose={() => setShowProductForm(false)} title={productFormMode === "create" ? t.createProductTitle : t.editProductTitle} maxWidth="max-w-md">
+        <form onSubmit={handleProductSubmit} className="space-y-5">
+          <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.productName}</label><input type="text" value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} placeholder={t.productNamePh} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" /></div>
+          <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.description}</label><input type="text" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} placeholder={t.descPh} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" /></div>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.barcode}</label><input type="text" value={productForm.barcode} onChange={e => setProductForm({ ...productForm, barcode: e.target.value })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none font-mono" /></div>
+            <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.price}</label><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">₺</span><input type="number" min={0} step={0.01} value={productForm.price || ""} onChange={e => setProductForm({ ...productForm, price: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-8 pr-3 text-sm text-white focus:outline-none" /></div></div>
+            <div className="space-y-2"><label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.stockQty}</label><input type="number" min={0} value={productForm.stockQuantity} onChange={e => setProductForm({ ...productForm, stockQuantity: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none" /></div>
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button type="submit" disabled={productSaving} className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition disabled:opacity-50">{productSaving ? t.saving : t.save}</button>
+            <button type="button" onClick={() => setShowProductForm(false)} className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* SALE DETAIL MODAL */}
+      <Modal open={showSaleDetail} onClose={() => setShowSaleDetail(false)} title={t.saleDetailTitle} maxWidth="max-w-md">
+        {selectedSale && (() => { const s = selectedSale; return (
+          <div className="space-y-5">
+            <div className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-5"><p className="text-3xl font-bold text-white">{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className="text-sm text-white/40">₺{fmt(s.amountInTry)}</p>}<MethodBadge display={s.paymentMethodDisplay} language={language} /></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1"><p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.productCol}</p><p className="text-sm text-white">{s.productName}</p></div>
+              <div className="space-y-1"><p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.qtyCol}</p><p className="text-sm text-white">{s.quantity}x @ ₺{fmt(s.unitPrice)}</p></div>
+              <div className="space-y-1"><p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.customerCol}</p><p className="text-sm text-white">{s.customerFullName || "—"}</p></div>
+              <div className="space-y-1"><p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.seller}</p><p className="text-sm text-white">{s.staffFullName}</p></div>
+              <div className="space-y-1"><p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.saleDate}</p><p className="text-sm text-white">{formatDate(s.saleDate)} {formatTime(s.saleDate)}</p></div>
+              {s.notes && <div className="col-span-2 space-y-1"><p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.notes}</p><p className="text-sm text-white/70">{s.notes}</p></div>}
+            </div>
+            <button onClick={() => handleDeleteSale(s.id)} className="w-full rounded-xl bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-400 border border-red-500/20 transition hover:bg-red-500/20">{t.delete}</button>
+          </div>
+        ); })()}
+      </Modal>
+    </div>
+  );
 }

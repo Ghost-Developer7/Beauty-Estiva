@@ -1,3 +1,4 @@
+using API_BeautyWise.Filters;
 using API_BeautyWise.DTO;
 using API_BeautyWise.Models;
 using API_BeautyWise.Services.Interface;
@@ -13,6 +14,7 @@ namespace API_BeautyWise.Controllers
     [Authorize(Roles = "Owner,Admin")]
     [ApiController]
     [Route("api/[controller]")]
+    [SubscriptionRequired]
     public class ExpenseController : ControllerBase
     {
         private readonly IExpenseService    _service;

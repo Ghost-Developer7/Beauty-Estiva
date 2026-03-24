@@ -1,3 +1,4 @@
+using API_BeautyWise.Filters;
 using API_BeautyWise.DTO;
 using API_BeautyWise.Models;
 using API_BeautyWise.Services.Interface;
@@ -10,6 +11,7 @@ namespace API_BeautyWise.Controllers
     [ApiController]
     [Route("api/[controller]")]
     [Authorize]
+    [SubscriptionRequired]
     public class CommissionController : ControllerBase
     {
         private readonly IStaffCommissionService _commissionService;

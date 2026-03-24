@@ -1,3 +1,4 @@
+using API_BeautyWise.Filters;
 using API_BeautyWise.Models;
 using API_BeautyWise.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -9,6 +10,7 @@ namespace API_BeautyWise.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
+    [SubscriptionRequired]
     public class FinancialReportController : ControllerBase
     {
         private readonly IFinancialReportService _service;

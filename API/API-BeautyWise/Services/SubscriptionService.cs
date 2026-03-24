@@ -227,7 +227,7 @@ namespace API_BeautyWise.Services
             return true;
         }
 
-        // Deneme Suresi (7 gun ucretsiz)
+        // Deneme Suresi (3 gun ucretsiz)
         public async Task<TenantSubscription> CreateTrialSubscriptionAsync(int tenantId, int planId)
         {
             using var tx = await _context.Database.BeginTransactionAsync();
@@ -250,7 +250,7 @@ namespace API_BeautyWise.Services
                 if (hasUsedTrial)
                     throw new Exception("TRIAL_ALREADY_USED|Deneme suresi daha once kullanilmis.");
 
-                var trialEndDate = DateTime.Now.AddDays(7);
+                var trialEndDate = DateTime.Now.AddDays(3);
 
                 var subscription = new TenantSubscription
                 {

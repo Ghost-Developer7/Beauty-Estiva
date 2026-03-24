@@ -1,5 +1,6 @@
 import Sidebar from "@/components/dashboard/Sidebar";
 import Topbar from "@/components/dashboard/Topbar";
+import SubscriptionGuard from "@/components/dashboard/SubscriptionGuard";
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,9 @@ export default function DashboardLayout({
       <Sidebar />
       <div className="estiva-dashboard-panel flex flex-1 flex-col">
         <Topbar />
-        <div className="flex-1 overflow-y-auto px-6 py-10">{children}</div>
+        <div className="flex-1 overflow-y-auto px-6 py-10">
+          <SubscriptionGuard>{children}</SubscriptionGuard>
+        </div>
       </div>
     </div>
   );

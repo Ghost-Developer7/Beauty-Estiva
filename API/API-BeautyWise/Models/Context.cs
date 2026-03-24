@@ -37,6 +37,10 @@ namespace API_BeautyWise.Models
         public DbSet<ExpenseCategory>    ExpenseCategories   { get; set; }
         public DbSet<Expense>            Expenses            { get; set; }
 
+        // Ürün Satış Modülü
+        public DbSet<Product>     Products     { get; set; }
+        public DbSet<ProductSale> ProductSales { get; set; }
+
         // Komisyon Modülü
         public DbSet<StaffTreatmentCommission> StaffTreatmentCommissions { get; set; }
         public DbSet<StaffCommissionRecord>    StaffCommissionRecords    { get; set; }
@@ -468,6 +472,58 @@ namespace API_BeautyWise.Models
                 entity.HasOne(r => r.AppointmentPayment)
                       .WithMany()
                       .HasForeignKey(r => r.AppointmentPaymentId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ============================================================
+            //  Ürün Satış Modülü
+            // ============================================================
+
+            builder.Entity<Product>(entity =>
+            {
+                entity.ToTable("Products");
+                entity.Property(p => p.Name).IsRequired().HasMaxLength(200);
+                entity.Property(p => p.Description).HasMaxLength(1000);
+                entity.Property(p => p.Barcode).HasMaxLength(50);
+                entity.Property(p => p.Price).HasColumnType("decimal(18,2)");
+
+                entity.HasOne(p => p.Tenant)
+                      .WithMany()
+                      .HasForeignKey(p => p.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<ProductSale>(entity =>
+            {
+                entity.ToTable("ProductSales");
+                entity.Property(s => s.UnitPrice).HasColumnType("decimal(18,2)");
+                entity.Property(s => s.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(s => s.ExchangeRateToTry).HasColumnType("decimal(18,6)");
+                entity.Property(s => s.AmountInTry).HasColumnType("decimal(18,2)");
+
+                entity.HasOne(s => s.Tenant)
+                      .WithMany()
+                      .HasForeignKey(s => s.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Product)
+                      .WithMany(p => p.ProductSales)
+                      .HasForeignKey(s => s.ProductId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Customer)
+                      .WithMany()
+                      .HasForeignKey(s => s.CustomerId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasOne(s => s.Staff)
+                      .WithMany()
+                      .HasForeignKey(s => s.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Currency)
+                      .WithMany()
+                      .HasForeignKey(s => s.CurrencyId)
                       .OnDelete(DeleteBehavior.Restrict);
             });
         }

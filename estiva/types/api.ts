@@ -462,6 +462,59 @@ export interface StaffCommissionSummary {
   recordCount: number;
 }
 
+// ─── Product ───
+export interface ProductCreate {
+  name: string;
+  description?: string;
+  barcode?: string;
+  price: number;
+  stockQuantity?: number;
+}
+
+export interface ProductUpdate extends ProductCreate {}
+
+export interface ProductListItem {
+  id: number;
+  name: string;
+  description: string | null;
+  barcode: string | null;
+  price: number;
+  stockQuantity: number;
+}
+
+// ─── Product Sale ───
+export interface ProductSaleCreate {
+  productId: number;
+  customerId?: number;
+  quantity?: number;
+  currencyId?: number;
+  exchangeRateToTry?: number;
+  paymentMethod: string;
+  saleDate?: string;
+  notes?: string;
+}
+
+export interface ProductSaleListItem {
+  id: number;
+  productId: number;
+  productName: string;
+  customerId: number | null;
+  customerFullName: string | null;
+  staffId: number;
+  staffFullName: string;
+  quantity: number;
+  unitPrice: number;
+  totalAmount: number;
+  currencyCode: string;
+  currencySymbol: string;
+  exchangeRateToTry: number;
+  amountInTry: number;
+  paymentMethodValue: number;
+  paymentMethodDisplay: string;
+  saleDate: string;
+  notes: string | null;
+}
+
 // ─── Staff (with commission) ───
 export interface StaffMember {
   id: number;

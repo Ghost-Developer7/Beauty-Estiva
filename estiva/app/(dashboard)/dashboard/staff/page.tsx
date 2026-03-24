@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
    ═══════════════════════════════════════════ */
 
 const ROLE_LABELS: Record<string, { en: string; tr: string; color: string; bg: string }> = {
+  SuperAdmin: { en: "SuperAdmin", tr: "Süper Yönetici", color: "#ef4444", bg: "bg-red-500/15 text-red-400 border-red-500/20" },
   Owner:  { en: "Owner",  tr: "Sahip",    color: "#f59e0b", bg: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
   Admin:  { en: "Admin",  tr: "Yönetici", color: "#8b5cf6", bg: "bg-violet-500/15 text-violet-400 border-violet-500/20" },
   Staff:  { en: "Staff",  tr: "Personel", color: "#3b82f6", bg: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
