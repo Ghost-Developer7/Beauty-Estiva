@@ -291,7 +291,7 @@ export default function Sidebar() {
         </div>
       </div>
 
-      <nav className="mt-4 flex-1 space-y-1 px-3 overflow-y-auto custom-scrollbar">
+      <nav className="mt-4 flex-1 space-y-0.5 px-3 overflow-y-auto custom-scrollbar">
         {items.map((item, index) => renderNavItem(item, index, pathname, expanded, openMenus, toggleMenu))}
       </nav>
 
@@ -319,54 +319,89 @@ const renderNavItem = (
   const hasChildren = children.length > 0;
   const Icon = item.icon;
 
-  return (
-    <div key={index}>
-      <div
-        onClick={() => item.expandable ? toggleMenu(item.href) : null}
-        className={`group flex items-center justify-between rounded-2xl px-3 py-3 text-sm font-medium transition cursor-pointer ${isActive && !hasChildren
-          ? "bg-white/15 text-white"
-          : "text-white/60 hover:bg-white/5 hover:text-white"
-          }`}
-        style={{ paddingLeft: `${12 + level * 12}px` }}
-      >
-        <Link href={item.expandable ? "#" : item.href} className="flex flex-1 items-center gap-3" onClick={(e) => item.expandable && e.preventDefault()}>
-          {expanded ? (
-            <div className="flex items-center gap-3">
-              <span>{item.label}</span>
-              {item.beta && <span className="rounded border border-[#6d28d9] bg-[#6d28d9]/20 px-1.5 py-0.5 text-[10px] font-bold text-[#a78bfa] uppercase tracking-wider">BETA</span>}
-            </div>
-          ) : (
-            <span className={`flex h-9 w-9 items-center justify-center rounded-xl bg-white/5 text-white/80 group-hover:bg-white/10 ${isActive ? 'bg-white/20' : ''}`}>
-              <Icon />
+  const rowClasses = `group relative flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-sm font-medium cursor-pointer select-none
+    transition-all duration-200 ease-out
+    ${isActive && !hasChildren
+      ? "bg-white/15 text-white shadow-[0_0_12px_rgba(255,255,255,0.06)]"
+      : "text-white/60 hover:bg-white/[0.07] hover:text-white active:scale-[0.98]"
+    }`;
+
+  const iconBox = (
+    <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-all duration-200 ${
+      isActive && !hasChildren
+        ? "bg-white/20 text-white"
+        : "bg-white/5 text-white/70 group-hover:bg-white/10 group-hover:text-white"
+    }`}>
+      <Icon />
+    </span>
+  );
+
+  const content = (
+    <>
+      {expanded ? (
+        <div className="flex items-center gap-3 min-w-0">
+          {iconBox}
+          <span className="truncate">{item.label}</span>
+          {item.beta && (
+            <span className="rounded border border-[#6d28d9] bg-[#6d28d9]/20 px-1.5 py-0.5 text-[10px] font-bold text-[#a78bfa] uppercase tracking-wider shrink-0">
+              BETA
             </span>
           )}
-        </Link>
+        </div>
+      ) : (
+        iconBox
+      )}
 
-        {expanded && (
-          <div className="flex items-center gap-2 text-white/40">
-            {item.label !== "Estiva" && <Icon />}
-            {item.expandable && (
-              <span className="ml-1">
-                {isOpen ? <ChevronUp /> : <ChevronDown />}
-              </span>
+      {expanded && item.expandable && (
+        <span className={`shrink-0 text-white/40 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>
+          <ChevronDown />
+        </span>
+      )}
+    </>
+  );
+
+  return (
+    <div key={index}>
+      {item.expandable ? (
+        <button
+          type="button"
+          onClick={() => toggleMenu(item.href)}
+          className={rowClasses}
+          style={{ paddingLeft: `${12 + level * 12}px` }}
+        >
+          {content}
+        </button>
+      ) : (
+        <Link
+          href={item.href}
+          className={rowClasses}
+          style={{ paddingLeft: `${12 + level * 12}px` }}
+        >
+          {content}
+        </Link>
+      )}
+
+      {expanded && hasChildren && (
+        <div
+          className="overflow-hidden transition-all duration-200 ease-out"
+          style={{
+            maxHeight: isOpen ? `${children.length * 52}px` : "0px",
+            opacity: isOpen ? 1 : 0,
+          }}
+        >
+          <div className="mt-0.5 space-y-0.5 ml-4 border-l border-white/[0.06] pl-1">
+            {children.map((child, cIndex) =>
+              renderNavItem(
+                child,
+                cIndex,
+                pathname,
+                expanded,
+                openMenus,
+                toggleMenu,
+                level + 1,
+              ),
             )}
           </div>
-        )}
-      </div>
-
-      {expanded && isOpen && hasChildren && (
-        <div className="mt-1 space-y-1">
-          {children.map((child, cIndex) =>
-            renderNavItem(
-              child,
-              cIndex,
-              pathname,
-              expanded,
-              openMenus,
-              toggleMenu,
-              level + 1,
-            ),
-          )}
         </div>
       )}
     </div>

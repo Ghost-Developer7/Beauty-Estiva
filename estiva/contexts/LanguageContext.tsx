@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useMemo, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, useMemo, useCallback, ReactNode } from "react";
 
 type Language = "en" | "tr";
 
@@ -10,29 +10,52 @@ type LanguageContextValue = {
   setLanguage: (lang: Language) => void;
 };
 
+const STORAGE_KEY = "estiva-language";
+
+function getStoredLanguage(): Language {
+  if (typeof window === "undefined") return "tr";
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "en" || stored === "tr") return stored;
+  return "tr";
+}
+
 const LanguageContext = createContext<LanguageContextValue | undefined>(
   undefined,
 );
 
 type ProviderProps = {
-  initialLanguage?: Language;
   children: ReactNode;
 };
 
-export function LanguageProvider({
-  initialLanguage = "en",
-  children,
-}: ProviderProps) {
-  const [language, setLanguage] = useState<Language>(initialLanguage);
+export function LanguageProvider({ children }: ProviderProps) {
+  const [language, setLanguageState] = useState<Language>("tr");
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setLanguageState(getStoredLanguage());
+    setMounted(true);
+  }, []);
+
+  const setLanguage = useCallback((lang: Language) => {
+    setLanguageState(lang);
+    localStorage.setItem(STORAGE_KEY, lang);
+  }, []);
+
+  const toggleLanguage = useCallback(() => {
+    setLanguageState((prev) => {
+      const next = prev === "en" ? "tr" : "en";
+      localStorage.setItem(STORAGE_KEY, next);
+      return next;
+    });
+  }, []);
 
   const value = useMemo(
     () => ({
-      language,
-      toggleLanguage: () =>
-        setLanguage((prev) => (prev === "en" ? "tr" : "en")),
+      language: mounted ? language : "tr",
+      toggleLanguage,
       setLanguage,
     }),
-    [language],
+    [language, mounted, toggleLanguage, setLanguage],
   );
 
   return (

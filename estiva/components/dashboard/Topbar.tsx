@@ -1,6 +1,6 @@
 "use client";
 
-import { IconCalendar, IconSettings, IconChevronDown } from "@/components/dashboard/icons";
+import { IconChevronDown } from "@/components/dashboard/icons";
 import { useState, useRef, useEffect } from "react";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ThemeToggle from "@/components/ui/ThemeToggle";
@@ -9,12 +9,10 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const copy = {
   en: {
-    today: "Today",
     search: "Search clients, rituals, or invoices...",
     logout: "Sign out",
   },
   tr: {
-    today: "Bugün",
     search: "Müşteri, ritüel veya fatura ara...",
     logout: "Çıkış yap",
   },
@@ -49,10 +47,6 @@ export default function Topbar() {
   return (
     <header className="flex flex-col gap-4 border-b border-white/10 bg-white/5 px-6 py-4 text-white backdrop-blur">
       <div className="flex flex-wrap items-center gap-4">
-        <button className="flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm text-white/80">
-          <IconCalendar />
-          {text.today}
-        </button>
         <div className="flex flex-1 items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80">
           <input
             type="text"
@@ -65,10 +59,6 @@ export default function Topbar() {
         <div className="flex items-center gap-3 text-white/70">
           <LanguageToggle />
           <ThemeToggle />
-
-          <button className="rounded-full border border-white/15 p-2 hover:text-white">
-            <IconSettings />
-          </button>
 
           {/* User profile dropdown */}
           <div className="relative" ref={menuRef}>

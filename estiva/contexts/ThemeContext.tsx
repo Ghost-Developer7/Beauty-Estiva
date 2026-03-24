@@ -5,6 +5,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useCallback,
   useState,
   ReactNode,
 } from "react";
@@ -17,37 +18,59 @@ type ThemeContextValue = {
   setTheme: (theme: Theme) => void;
 };
 
+const STORAGE_KEY = "estiva-theme";
+
+function getStoredTheme(): Theme {
+  if (typeof window === "undefined") return "dark";
+  const stored = localStorage.getItem(STORAGE_KEY);
+  if (stored === "light" || stored === "dark") return stored;
+  return "dark";
+}
+
+function applyThemeClass(theme: Theme) {
+  document.body.classList.remove("theme-dark", "theme-light");
+  document.body.classList.add(theme === "dark" ? "theme-dark" : "theme-light");
+}
+
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 type ThemeProviderProps = {
   children: ReactNode;
 };
 
-const getInitialTheme = (): Theme => {
-  if (typeof window === "undefined") {
-    return "dark";
-  }
-  const stored = window.localStorage.getItem("estiva-theme");
-  return stored === "light" || stored === "dark" ? stored : "dark";
-};
-
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+  const [theme, setThemeState] = useState<Theme>("dark");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    window.localStorage.setItem("estiva-theme", theme);
-    document.body.classList.remove("theme-dark", "theme-light");
-    document.body.classList.add(theme === "dark" ? "theme-dark" : "theme-light");
-  }, [theme]);
+    const stored = getStoredTheme();
+    setThemeState(stored);
+    applyThemeClass(stored);
+    setMounted(true);
+  }, []);
+
+  const setTheme = useCallback((t: Theme) => {
+    setThemeState(t);
+    localStorage.setItem(STORAGE_KEY, t);
+    applyThemeClass(t);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setThemeState((prev) => {
+      const next = prev === "dark" ? "light" : "dark";
+      localStorage.setItem(STORAGE_KEY, next);
+      applyThemeClass(next);
+      return next;
+    });
+  }, []);
 
   const value = useMemo(
     () => ({
-      theme,
-      toggleTheme: () => setTheme((prev) => (prev === "dark" ? "light" : "dark")),
+      theme: mounted ? theme : "dark",
+      toggleTheme,
       setTheme,
     }),
-    [theme],
+    [theme, mounted, toggleTheme, setTheme],
   );
 
   return (
