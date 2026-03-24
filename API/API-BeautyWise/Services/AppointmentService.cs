@@ -40,6 +40,41 @@ namespace API_BeautyWise.Services
                 .ToListAsync();
         }
 
+        public async Task<PaginatedResponse<AppointmentListDto>> GetAllPaginatedAsync(
+            int tenantId, int pageNumber, int pageSize,
+            DateTime? startDate = null, DateTime? endDate = null,
+            int? staffId = null, int? customerId = null)
+        {
+            var query = _context.Appointments
+                .Where(a => a.TenantId == tenantId && a.IsActive == true);
+
+            if (startDate.HasValue)
+                query = query.Where(a => a.StartTime >= startDate.Value);
+            if (endDate.HasValue)
+                query = query.Where(a => a.StartTime <= endDate.Value);
+            if (staffId.HasValue)
+                query = query.Where(a => a.StaffId == staffId.Value);
+            if (customerId.HasValue)
+                query = query.Where(a => a.CustomerId == customerId.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(a => a.StartTime)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(a => MapToListDto(a))
+                .ToListAsync();
+
+            return new PaginatedResponse<AppointmentListDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<AppointmentDetailDto?> GetByIdAsync(int id, int tenantId)
         {
             var a = await _context.Appointments

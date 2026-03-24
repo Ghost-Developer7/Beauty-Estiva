@@ -15,6 +15,14 @@ namespace API_BeautyWise.Services.Interface
             int?       staffId     = null,
             int?       customerId  = null);
 
+        /// <summary>Filtrelenmiş sayfalanmış ödeme listesi.</summary>
+        Task<PaginatedResponse<AppointmentPaymentListDto>> GetAllPaginatedAsync(
+            int tenantId, int pageNumber, int pageSize,
+            DateTime?  startDate   = null,
+            DateTime?  endDate     = null,
+            int?       staffId     = null,
+            int?       customerId  = null);
+
         Task<AppointmentPaymentListDto?> GetByIdAsync(int id, int tenantId);
 
         Task<int>  CreateAsync(int tenantId, int createdByUserId, AppointmentPaymentCreateDto dto);

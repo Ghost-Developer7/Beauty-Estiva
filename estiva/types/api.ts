@@ -11,6 +11,17 @@ export interface ApiResponse<T> {
   message: string | null;
 }
 
+// ─── Paginated Response ───
+export interface PaginatedResponse<T> {
+  items: T[];
+  totalCount: number;
+  pageNumber: number;
+  pageSize: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+}
+
 // ─── Auth ───
 export interface LoginRequest {
   emailOrUsername: string;
@@ -109,6 +120,11 @@ export interface CustomerCreate {
   email?: string;
   birthDate?: string;
   notes?: string;
+  allergies?: string;
+  preferences?: string;
+  referralSource?: string;
+  preferredStaffId?: number;
+  tags?: string[];
 }
 
 export interface CustomerUpdate extends CustomerCreate {}
@@ -122,6 +138,12 @@ export interface CustomerListItem {
   email: string | null;
   totalAppointments: number;
   lastAppointmentDate: string | null;
+  loyaltyPoints: number;
+  totalSpent: number;
+  totalVisits: number;
+  segment: string;
+  tags: string[];
+  customerSince: string | null;
 }
 
 export interface CustomerAppointmentSummary {
@@ -130,6 +152,8 @@ export interface CustomerAppointmentSummary {
   treatmentName: string;
   staffName: string;
   status: string;
+  amount?: number;
+  durationMinutes?: number;
 }
 
 export interface CustomerDetail {
@@ -144,6 +168,64 @@ export interface CustomerDetail {
   cDate: string | null;
   totalAppointments: number;
   recentAppointments: CustomerAppointmentSummary[];
+  loyaltyPoints: number;
+  totalSpent: number;
+  totalVisits: number;
+  lastVisitDate: string | null;
+  customerSince: string | null;
+  preferredStaffId: number | null;
+  preferredStaffName: string | null;
+  allergies: string | null;
+  preferences: string | null;
+  tags: string[];
+  referralSource: string | null;
+  segment: string;
+  averageSpendPerVisit: number;
+}
+
+// ─── Customer History & Stats ───
+export interface CustomerTimelineItem {
+  id: number;
+  type: string; // "appointment" | "product_purchase" | "package_purchase" | "note"
+  date: string;
+  title: string;
+  description: string | null;
+  staffName: string | null;
+  amount: number | null;
+  status: string | null;
+  durationMinutes: number | null;
+}
+
+export interface CustomerHistory {
+  customerId: number;
+  customerFullName: string;
+  timeline: CustomerTimelineItem[];
+}
+
+export interface CustomerStats {
+  customerId: number;
+  customerFullName: string;
+  totalVisits: number;
+  totalSpent: number;
+  loyaltyPoints: number;
+  customerSince: string | null;
+  averageSpendPerVisit: number;
+  visitFrequencyDays: number;
+  segment: string;
+  preferredStaffName: string | null;
+  mostUsedTreatment: string | null;
+  mostUsedTreatmentCount: number;
+  lastVisitDate: string | null;
+  nextAppointmentDate: string | null;
+}
+
+export interface UpdateLoyaltyPoints {
+  points: number;
+  reason?: string;
+}
+
+export interface UpdateCustomerTags {
+  tags: string[];
 }
 
 // ─── Treatment ───
@@ -418,6 +500,54 @@ export interface ExpenseSummary {
   dailyBreakdown: DailyAmount[];
 }
 
+// ─── Dashboard Summary ───
+export interface DashboardSummary {
+  todayAppointmentsCount: number;
+  upcomingAppointments: number;
+  thisWeekRevenue: number;
+  thisMonthRevenue: number;
+  thisMonthExpense: number;
+  totalCustomers: number;
+  activePackages: number;
+  monthlyTrend: MonthlyTrend[];
+  topServices: RevenueByGroup[];
+  topStaff: RevenueByGroup[];
+  customerGrowth: CustomerGrowth[];
+  statusDistribution: AppointmentStatusDistribution;
+  todaySchedule: TodayAppointment[];
+}
+
+export interface MonthlyTrend {
+  month: string;
+  revenue: number;
+  expense: number;
+}
+
+export interface CustomerGrowth {
+  month: string;
+  newCustomers: number;
+  totalCustomers: number;
+}
+
+export interface AppointmentStatusDistribution {
+  scheduled: number;
+  confirmed: number;
+  completed: number;
+  cancelled: number;
+  noShow: number;
+  total: number;
+}
+
+export interface TodayAppointment {
+  id: number;
+  time: string;
+  customerName: string;
+  treatmentName: string;
+  staffName: string;
+  status: string;
+  treatmentColor: string | null;
+}
+
 // ─── Subscription ───
 export interface SubscriptionPlan {
   id: number;
@@ -514,6 +644,22 @@ export interface StaffCommissionSummary {
   paidCommissionInTry: number;
   unpaidCommissionInTry: number;
   recordCount: number;
+}
+
+export interface AllCommissionRates {
+  staffRates: StaffCommissionRate[];
+  treatments: TreatmentBasic[];
+}
+
+export interface TreatmentBasic {
+  id: number;
+  name: string;
+}
+
+export interface BulkPayCommissionsRequest {
+  staffId: number;
+  month: number;
+  year: number;
 }
 
 // ─── Package Sale ───
@@ -653,6 +799,178 @@ export interface ProductSaleListItem {
   paymentMethodDisplay: string;
   saleDate: string;
   notes: string | null;
+}
+
+// ─── Branch ───
+export interface BranchCreate {
+  name: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  workingHoursJson?: string;
+  isMainBranch: boolean;
+}
+
+export interface BranchUpdate {
+  name: string;
+  address?: string;
+  phone?: string;
+  email?: string;
+  workingHoursJson?: string;
+  isMainBranch: boolean;
+  isActive: boolean;
+}
+
+export interface BranchListItem {
+  id: number;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  isMainBranch: boolean;
+  isActive: boolean;
+  staffCount: number;
+  cDate: string | null;
+}
+
+export interface BranchStaffItem {
+  id: number;
+  name: string;
+  surname: string;
+  email: string;
+  roles: string[];
+}
+
+export interface BranchDetail {
+  id: number;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  email: string | null;
+  workingHoursJson: string | null;
+  isMainBranch: boolean;
+  isActive: boolean;
+  staffCount: number;
+  cDate: string | null;
+  staff: BranchStaffItem[];
+}
+
+export interface BranchLimit {
+  currentCount: number;
+  maxCount: number;
+  canAdd: boolean;
+  message: string | null;
+}
+
+// ─── Staff Shift ───
+export interface StaffShiftItem {
+  id: number;
+  staffId: number;
+  staffFullName: string;
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  breakStartTime: string | null;
+  breakEndTime: string | null;
+  isWorkingDay: boolean;
+}
+
+export interface StaffWeeklyShift {
+  staffId: number;
+  staffFullName: string;
+  shifts: StaffShiftItem[];
+}
+
+export interface StaffShiftUpsert {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+  breakStartTime?: string | null;
+  breakEndTime?: string | null;
+  isWorkingDay: boolean;
+}
+
+export interface StaffShiftBulkUpdate {
+  shifts: StaffShiftUpsert[];
+}
+
+// ─── Staff Leave ───
+export type LeaveType = "Annual" | "Sick" | "Maternity" | "Unpaid" | "Other";
+export type LeaveStatus = "Pending" | "Approved" | "Rejected";
+
+export interface StaffLeaveListItem {
+  id: number;
+  staffId: number;
+  staffFullName: string;
+  startDate: string;
+  endDate: string;
+  durationDays: number;
+  leaveType: string;
+  reason: string | null;
+  status: string;
+  approvedById: number | null;
+  approvedByName: string | null;
+  approvedDate: string | null;
+}
+
+export interface StaffLeaveCreate {
+  staffId?: number;
+  startDate: string;
+  endDate: string;
+  leaveType: string;
+  reason?: string;
+}
+
+export interface StaffLeaveBalance {
+  staffId: number;
+  staffFullName: string;
+  annualEntitlement: number;
+  usedDays: number;
+  pendingDays: number;
+  remainingDays: number;
+}
+
+// ─── Staff HR Info ───
+export interface StaffHRInfo {
+  id: number;
+  staffId: number;
+  staffFullName: string;
+  hireDate: string | null;
+  position: string | null;
+  salary: number | null;
+  salaryCurrency: string;
+  identityNumber: string | null;
+  emergencyContactName: string | null;
+  emergencyContactPhone: string | null;
+  annualLeaveEntitlement: number;
+  usedLeaveDays: number;
+  remainingLeaveDays: number;
+  notes: string | null;
+}
+
+export interface StaffHRInfoUpdate {
+  hireDate?: string | null;
+  position?: string | null;
+  salary?: number | null;
+  salaryCurrency?: string | null;
+  identityNumber?: string | null;
+  emergencyContactName?: string | null;
+  emergencyContactPhone?: string | null;
+  annualLeaveEntitlement?: number | null;
+  notes?: string | null;
+}
+
+export interface StaffHRSummary {
+  staffId: number;
+  staffFullName: string;
+  position: string | null;
+  hireDate: string | null;
+  salary: number | null;
+  salaryCurrency: string;
+  annualLeaveEntitlement: number;
+  usedLeaveDays: number;
+  remainingLeaveDays: number;
+  roles: string[];
 }
 
 // ─── Staff (with commission) ───

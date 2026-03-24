@@ -6,6 +6,9 @@ import { treatmentService } from "@/services/treatmentService";
 import { treatmentSchema, getValidationMessage } from "@/lib/validations";
 import type { TreatmentListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
+import Pagination from "@/components/ui/Pagination";
+import ExportButtons from "@/components/ui/ExportButtons";
+import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
 /* ═══════════════════════════════════════════
@@ -140,6 +143,12 @@ export default function TreatmentsScreen() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
+  /* ─── Pagination ─── */
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   /* ─── Form Modal ─── */
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -157,14 +166,28 @@ export default function TreatmentsScreen() {
   const fetchTreatments = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await treatmentService.list();
-      if (res.data.success && res.data.data) setTreatments(res.data.data);
+      const res = await treatmentService.listPaginated({ pageNumber: page, pageSize });
+      if (res.data.success && res.data.data) {
+        const pg = res.data.data;
+        setTreatments(pg.items);
+        setTotalCount(pg.totalCount);
+        setTotalPages(pg.totalPages);
+      }
     } catch {
-      toast.error(language === "tr" ? "Hizmetler yüklenemedi" : "Failed to load treatments");
+      try {
+        const res = await treatmentService.list();
+        if (res.data.success && res.data.data) {
+          setTreatments(res.data.data);
+          setTotalCount(res.data.data.length);
+          setTotalPages(1);
+        }
+      } catch {
+        toast.error(language === "tr" ? "Hizmetler yüklenemedi" : "Failed to load treatments");
+      }
     } finally {
       setLoading(false);
     }
-  }, [language]);
+  }, [page, pageSize, language]);
 
   useEffect(() => { fetchTreatments(); }, [fetchTreatments]);
 
@@ -272,13 +295,29 @@ export default function TreatmentsScreen() {
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
           <p className="mt-0.5 text-sm text-white/40">{treatments.length} {t.total}</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-          {t.newTreatment}
-        </button>
+        <div className="flex items-center gap-3">
+          <ExportButtons
+            data={filtered as unknown as Record<string, unknown>[]}
+            columns={((): ExportColumn[] => {
+              const isTr = language === "tr";
+              return [
+                { header: isTr ? "Hizmet Adı" : "Treatment Name", key: "name" },
+                { header: isTr ? "Açıklama" : "Description", key: "description" },
+                { header: isTr ? "Süre (dk)" : "Duration (min)", key: "durationMinutes", format: "number" },
+                { header: isTr ? "Fiyat" : "Price", key: "price", format: "currency" },
+              ];
+            })()}
+            filenamePrefix={language === "tr" ? "Hizmetler" : "Treatments"}
+            pdfTitle={language === "tr" ? "Hizmet Listesi" : "Treatments List"}
+          />
+          <button
+            onClick={openCreate}
+            className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            {t.newTreatment}
+          </button>
+        </div>
       </div>
 
       {/* ─── STATS ─── */}
@@ -381,10 +420,15 @@ export default function TreatmentsScreen() {
               })}
             </div>
 
-            {/* Footer */}
-            <div className="border-t border-white/[0.06] bg-white/[0.03] px-5 py-3 text-xs text-white/40">
-              {filtered.length} {t.total}
-            </div>
+            {/* Pagination */}
+            <Pagination
+              pageNumber={page}
+              pageSize={pageSize}
+              totalCount={totalCount}
+              totalPages={totalPages}
+              onPageChange={(p) => setPage(p)}
+              onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
+            />
           </>
         )}
       </div>

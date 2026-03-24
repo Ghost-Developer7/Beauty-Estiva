@@ -77,4 +77,32 @@ namespace API_BeautyWise.DTO
         [Required(ErrorMessage = "En az bir komisyon kaydı seçilmelidir.")]
         public List<int> CommissionRecordIds { get; set; } = new();
     }
+
+    // ─── Toplu Ödeme (Aylık Personel Bazlı) ──────────────────────────────────
+
+    public class BulkPayCommissionsDto
+    {
+        [Range(1, int.MaxValue, ErrorMessage = "Personel seçimi gereklidir.")]
+        public int StaffId { get; set; }
+
+        [Range(1, 12, ErrorMessage = "Geçerli bir ay seçiniz.")]
+        public int Month { get; set; }
+
+        [Range(2020, 2100, ErrorMessage = "Geçerli bir yıl seçiniz.")]
+        public int Year { get; set; }
+    }
+
+    // ─── Tüm Personel Komisyon Oranları ───────────────────────────────────────
+
+    public class AllCommissionRatesDto
+    {
+        public List<StaffCommissionRateDto> StaffRates { get; set; } = new();
+        public List<TreatmentBasicDto> Treatments { get; set; } = new();
+    }
+
+    public class TreatmentBasicDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = "";
+    }
 }

@@ -49,6 +49,50 @@ namespace API_BeautyWise.Services
             return result;
         }
 
+        public async Task<PaginatedResponse<StaffListDto>> GetStaffListPaginatedAsync(int tenantId, int pageNumber, int pageSize)
+        {
+            var query = _context.Users
+                .Where(u => u.TenantId == tenantId && u.IsActive == true);
+
+            var totalCount = await query.CountAsync();
+
+            var users = await query
+                .OrderBy(u => u.Name)
+                .ThenBy(u => u.Surname)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var result = new List<StaffListDto>();
+
+            foreach (var user in users)
+            {
+                var roles = await _userManager.GetRolesAsync(user);
+                result.Add(new StaffListDto
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Surname = user.Surname,
+                    Email = user.Email ?? "",
+                    Phone = user.PhoneNumber,
+                    BirthDate = user.BirthDate,
+                    Roles = roles.ToList(),
+                    IsActive = user.IsActive ?? false,
+                    IsApproved = user.IsApproved,
+                    DefaultCommissionRate = user.DefaultCommissionRate,
+                    CDate = user.CDate
+                });
+            }
+
+            return new PaginatedResponse<StaffListDto>
+            {
+                Items = result,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<StaffListDto?> GetStaffByIdAsync(int tenantId, int staffId)
         {
             var user = await _context.Users

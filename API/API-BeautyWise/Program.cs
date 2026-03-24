@@ -183,6 +183,9 @@ builder.Services.AddScoped<ITreatmentService, TreatmentService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IStaffScheduleService, StaffScheduleService>();
 
+// Dashboard Modülü
+builder.Services.AddScoped<IDashboardService, DashboardService>();
+
 // Finansal Modül
 builder.Services.AddScoped<ICurrencyService, CurrencyService>();
 builder.Services.AddScoped<IAppointmentPaymentService, AppointmentPaymentService>();
@@ -196,6 +199,9 @@ builder.Services.AddScoped<IPackageSaleService, PackageSaleService>();
 // Personel Modülü
 builder.Services.AddScoped<IStaffService, StaffService>();
 builder.Services.AddScoped<IRoleManagementService, RoleManagementService>();
+builder.Services.AddScoped<IStaffShiftService, StaffShiftService>();
+builder.Services.AddScoped<IStaffLeaveService, StaffLeaveService>();
+builder.Services.AddScoped<IStaffHRInfoService, StaffHRInfoService>();
 
 // Bildirim Modülü
 builder.Services.AddScoped<INotificationService, NotificationService>();
@@ -211,6 +217,12 @@ builder.Services.AddScoped<IStaffCommissionService, StaffCommissionService>();
 
 // Profil Modülü
 builder.Services.AddScoped<IProfileService, ProfileService>();
+
+// Şube Modülü
+builder.Services.AddScoped<IBranchService, BranchService>();
+
+// Tenant Ayarlar Modülü
+builder.Services.AddScoped<ITenantSettingsService, TenantSettingsService>();
 
 // ================================================================
 //  Controllers & Swagger

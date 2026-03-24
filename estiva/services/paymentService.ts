@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import type {
   ApiResponse,
+  PaginatedResponse,
   AppointmentPaymentCreate,
   AppointmentPaymentUpdate,
   AppointmentPaymentItem,
@@ -9,6 +10,13 @@ import type {
 export const paymentService = {
   list(params?: { startDate?: string; endDate?: string; staffId?: number; customerId?: number }) {
     return api.get<ApiResponse<AppointmentPaymentItem[]>>(
+      "/appointmentpayment",
+      { params },
+    );
+  },
+
+  listPaginated(params?: { startDate?: string; endDate?: string; staffId?: number; customerId?: number; pageNumber?: number; pageSize?: number }) {
+    return api.get<ApiResponse<PaginatedResponse<AppointmentPaymentItem>>>(
       "/appointmentpayment",
       { params },
     );

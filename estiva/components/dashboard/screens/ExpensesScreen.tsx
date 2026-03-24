@@ -7,6 +7,9 @@ import { currencyService } from "@/services/currencyService";
 import { expenseSchema, getValidationMessage } from "@/lib/validations";
 import type { ExpenseItem, ExpenseCategoryItem, CurrencyItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
+import Pagination from "@/components/ui/Pagination";
+import ExportButtons from "@/components/ui/ExportButtons";
+import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -86,6 +89,12 @@ export default function ExpensesScreen() {
   const [currencies, setCurrencies] = useState<CurrencyItem[]>([]);
   const [loading, setLoading] = useState(true);
 
+  /* ─── Pagination ─── */
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   // Filters
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -108,18 +117,38 @@ export default function ExpensesScreen() {
   const fetchExpenses = useCallback(async () => {
     try {
       setLoading(true);
-      const params: { startDate?: string; endDate?: string; categoryId?: number } = {};
+      const params: { startDate?: string; endDate?: string; categoryId?: number; pageNumber?: number; pageSize?: number } = {};
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
       if (catFilter !== "") params.categoryId = catFilter as number;
-      const res = await expenseService.list(Object.keys(params).length > 0 ? params : undefined);
-      if (res.data.success && res.data.data) setExpenses(res.data.data);
+      params.pageNumber = page;
+      params.pageSize = pageSize;
+      const res = await expenseService.listPaginated(Object.keys(params).length > 0 ? params : undefined);
+      if (res.data.success && res.data.data) {
+        const pg = res.data.data;
+        setExpenses(pg.items);
+        setTotalCount(pg.totalCount);
+        setTotalPages(pg.totalPages);
+      }
     } catch {
-      toast.error(language === "tr" ? "Masraflar yüklenemedi" : "Failed to load expenses");
+      try {
+        const params: { startDate?: string; endDate?: string; categoryId?: number } = {};
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
+        if (catFilter !== "") params.categoryId = catFilter as number;
+        const res = await expenseService.list(Object.keys(params).length > 0 ? params : undefined);
+        if (res.data.success && res.data.data) {
+          setExpenses(res.data.data);
+          setTotalCount(res.data.data.length);
+          setTotalPages(1);
+        }
+      } catch {
+        toast.error(language === "tr" ? "Masraflar yüklenemedi" : "Failed to load expenses");
+      }
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, catFilter, language]);
+  }, [startDate, endDate, catFilter, page, pageSize, language]);
 
   const fetchCategories = useCallback(async () => {
     try {
@@ -248,7 +277,23 @@ export default function ExpensesScreen() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{text.title}</h1>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <ExportButtons
+            data={expenses as unknown as Record<string, unknown>[]}
+            columns={((): ExportColumn[] => {
+              const isTr = language === "tr";
+              return [
+                { header: isTr ? "Kategori" : "Category", key: "categoryName" },
+                { header: isTr ? "Açıklama" : "Description", key: "description" },
+                { header: isTr ? "Tutar" : "Amount", key: "amountInTry", format: "currency" },
+                { header: isTr ? "Tarih" : "Date", key: "expenseDate", format: "date" },
+                { header: isTr ? "Fiş No" : "Receipt #", key: "receiptNumber" },
+                { header: isTr ? "Notlar" : "Notes", key: "notes" },
+              ];
+            })()}
+            filenamePrefix={language === "tr" ? "Masraflar" : "Expenses"}
+            pdfTitle={language === "tr" ? "Masraf Listesi" : "Expenses List"}
+          />
           <button onClick={() => { setCatForm({ name: "", description: "" }); setShowCatModal(true); }}
             className="rounded-xl border border-white/10 px-4 py-1.5 text-xs font-medium text-white/70 hover:bg-white/5">
             + {text.newCategory}
@@ -323,8 +368,16 @@ export default function ExpensesScreen() {
               </tbody>
             </table>
           )}
+          <Pagination
+            pageNumber={page}
+            pageSize={pageSize}
+            totalCount={totalCount}
+            totalPages={totalPages}
+            onPageChange={(p) => setPage(p)}
+            onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
+          />
           <div className="border-t border-white/10 bg-white/5 p-3 flex justify-between text-[10px] font-medium text-white/60">
-            <span>{text.recordCount}: {expenses.length}</span>
+            <span>{text.recordCount}: {totalCount}</span>
             <span>{text.totalAmount}: {formatCurrency(totalAmount)} TRY</span>
           </div>
         </div>

@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import type {
   ApiResponse,
+  PaginatedResponse,
   ExpenseCategoryCreate,
   ExpenseCategoryItem,
   ExpenseCreate,
@@ -39,6 +40,16 @@ export const expenseService = {
     categoryId?: number;
   }) {
     return api.get<ApiResponse<ExpenseItem[]>>("/expense", { params });
+  },
+
+  listPaginated(params?: {
+    startDate?: string;
+    endDate?: string;
+    categoryId?: number;
+    pageNumber?: number;
+    pageSize?: number;
+  }) {
+    return api.get<ApiResponse<PaginatedResponse<ExpenseItem>>>("/expense", { params });
   },
 
   getById(id: number) {

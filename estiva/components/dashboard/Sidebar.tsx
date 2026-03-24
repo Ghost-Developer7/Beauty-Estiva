@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { ComponentType } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { tenantService } from "@/services/tenantService";
+import type { TenantInfo } from "@/services/tenantService";
 import {
   IconCalendar,
   IconHome,
@@ -33,6 +35,7 @@ import {
   IconEstivaLogo,
   IconUserPlus,
   IconSettings,
+  IconBuilding,
 } from "@/components/dashboard/icons";
 
 const ChevronDown = () => (
@@ -83,11 +86,15 @@ const navItems = {
       children: [
         { label: "Staff List", href: "/dashboard/staff", icon: IconUsers },
         { label: "Invite Staff", href: "/dashboard/staff/invite", icon: IconEnvelope },
+        { label: "Shift Management", href: "/dashboard/staff/shifts", icon: IconClock },
+        { label: "Leave Management", href: "/dashboard/staff/leaves", icon: IconCalendar },
+        { label: "HR Records", href: "/dashboard/staff/hr", icon: IconList },
       ]
     },
     { label: "Product Sales", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Package Sales", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Subscription", href: "/dashboard/subscription", icon: IconWallet },
+    { label: "Branches", href: "/dashboard/branches", icon: IconBuilding },
     // SalonPOS - hidden (not in use)
     // {
     //   label: "SalonPOS",
@@ -155,6 +162,7 @@ const navItems = {
         { label: "Debts", href: "/dashboard/other/debts", icon: IconArrowUpRight },
       ]
     },
+    { label: "Settings", href: "/dashboard/settings", icon: IconSettings },
   ],
   tr: [
     { label: "Özet", href: "/dashboard", icon: IconHome },
@@ -170,11 +178,15 @@ const navItems = {
       children: [
         { label: "Personel Listesi", href: "/dashboard/staff", icon: IconUsers },
         { label: "Personel Davet Et", href: "/dashboard/staff/invite", icon: IconEnvelope },
+        { label: "Vardiya Yönetimi", href: "/dashboard/staff/shifts", icon: IconClock },
+        { label: "İzin Yönetimi", href: "/dashboard/staff/leaves", icon: IconCalendar },
+        { label: "Özlük Bilgileri", href: "/dashboard/staff/hr", icon: IconList },
       ]
     },
     { label: "Ürün satışları", href: "/dashboard/product-sales", icon: IconTag },
     { label: "Paket satışları", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Abonelik", href: "/dashboard/subscription", icon: IconWallet },
+    { label: "Şubeler", href: "/dashboard/branches", icon: IconBuilding },
     // SalonPOS - hidden (not in use)
     // {
     //   label: "SalonPOS",
@@ -242,6 +254,7 @@ const navItems = {
         { label: "Borçlar", href: "/dashboard/other/debts", icon: IconArrowUpRight },
       ]
     },
+    { label: "Ayarlar", href: "/dashboard/settings", icon: IconSettings },
   ],
 };
 
@@ -266,9 +279,18 @@ export default function Sidebar() {
     "/dashboard/other": true,
   });
 
+  const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const { language } = useLanguage();
   const { user } = useAuth();
   const isSuperAdmin = user?.roles?.includes("SuperAdmin") ?? false;
+
+  useEffect(() => {
+    tenantService.getTenantInfo().then((res) => {
+      if (res.data.success && res.data.data) {
+        setTenantInfo(res.data.data);
+      }
+    }).catch(() => {});
+  }, []);
 
   // Combine regular items with SuperAdmin items if applicable
   const items: NavItem[] = [
@@ -302,11 +324,24 @@ export default function Sidebar() {
             <IconEstivaLogo />
           </div>
           <div className={`transition-all duration-300 overflow-hidden ${expanded ? "w-auto opacity-100" : "w-0 opacity-0 hidden"}`}>
-            <div>
-              <p className="text-xs uppercase tracking-[0.4em] text-white/60">
-                Estiva
-              </p>
-              <p className="text-sm font-semibold whitespace-nowrap">Beauty OS</p>
+            <div className="min-w-0">
+              {tenantInfo?.companyName ? (
+                <>
+                  <p className="text-sm font-semibold whitespace-nowrap truncate max-w-[160px]">
+                    {tenantInfo.companyName}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">
+                    powered by Estiva
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs uppercase tracking-[0.4em] text-white/60">
+                    Estiva
+                  </p>
+                  <p className="text-sm font-semibold whitespace-nowrap">Beauty OS</p>
+                </>
+              )}
             </div>
           </div>
         </div>

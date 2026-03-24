@@ -23,6 +23,13 @@ namespace API_BeautyWise.DTO
 
         [StringLength(1000, ErrorMessage = "Notlar en fazla 1000 karakter olabilir.")]
         public string? Notes { get; set; }
+
+        // ── Loyalty & History optional fields on create ──
+        public string? Allergies { get; set; }
+        public string? Preferences { get; set; }
+        public string? ReferralSource { get; set; }
+        public int? PreferredStaffId { get; set; }
+        public List<string>? Tags { get; set; }
     }
 
     public class CustomerUpdateDto
@@ -46,6 +53,13 @@ namespace API_BeautyWise.DTO
 
         [StringLength(1000)]
         public string? Notes { get; set; }
+
+        // ── Loyalty & History optional fields on update ──
+        public string? Allergies { get; set; }
+        public string? Preferences { get; set; }
+        public string? ReferralSource { get; set; }
+        public int? PreferredStaffId { get; set; }
+        public List<string>? Tags { get; set; }
     }
 
     public class CustomerListDto
@@ -58,6 +72,14 @@ namespace API_BeautyWise.DTO
         public string? Email { get; set; }
         public int TotalAppointments { get; set; }
         public DateTime? LastAppointmentDate { get; set; }
+
+        // ── Loyalty ──
+        public int LoyaltyPoints { get; set; }
+        public decimal TotalSpent { get; set; }
+        public int TotalVisits { get; set; }
+        public string Segment { get; set; } = "New";
+        public List<string> Tags { get; set; } = new();
+        public DateTime? CustomerSince { get; set; }
     }
 
     public class CustomerDetailDto
@@ -73,6 +95,21 @@ namespace API_BeautyWise.DTO
         public DateTime? CDate { get; set; }
         public int TotalAppointments { get; set; }
         public List<CustomerAppointmentSummaryDto> RecentAppointments { get; set; } = new();
+
+        // ── Loyalty & History ──
+        public int LoyaltyPoints { get; set; }
+        public decimal TotalSpent { get; set; }
+        public int TotalVisits { get; set; }
+        public DateTime? LastVisitDate { get; set; }
+        public DateTime? CustomerSince { get; set; }
+        public int? PreferredStaffId { get; set; }
+        public string? PreferredStaffName { get; set; }
+        public string? Allergies { get; set; }
+        public string? Preferences { get; set; }
+        public List<string> Tags { get; set; } = new();
+        public string? ReferralSource { get; set; }
+        public string Segment { get; set; } = "New";
+        public decimal AverageSpendPerVisit { get; set; }
     }
 
     public class CustomerAppointmentSummaryDto
@@ -82,5 +119,7 @@ namespace API_BeautyWise.DTO
         public string TreatmentName { get; set; } = "";
         public string StaffName { get; set; } = "";
         public string Status { get; set; } = "";
+        public decimal? Amount { get; set; }
+        public int? DurationMinutes { get; set; }
     }
 }

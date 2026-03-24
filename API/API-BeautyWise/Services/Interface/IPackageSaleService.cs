@@ -7,6 +7,8 @@ namespace API_BeautyWise.Services.Interface
         // Package Sales
         Task<List<PackageSaleListDto>> GetAllAsync(int tenantId, DateTime? startDate = null, DateTime? endDate = null,
             int? customerId = null, int? treatmentId = null, int? status = null);
+        Task<PaginatedResponse<PackageSaleListDto>> GetAllPaginatedAsync(int tenantId, int pageNumber, int pageSize, DateTime? startDate = null, DateTime? endDate = null,
+            int? customerId = null, int? treatmentId = null, int? status = null);
         Task<PackageSaleListDto?> GetByIdAsync(int id, int tenantId);
         Task<int> CreateAsync(int tenantId, int staffId, PackageSaleCreateDto dto);
         Task UpdateAsync(int id, int tenantId, PackageSaleUpdateDto dto);

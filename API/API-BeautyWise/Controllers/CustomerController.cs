@@ -33,15 +33,28 @@ namespace API_BeautyWise.Controllers
         /// GET /api/customer?search=Ayşe
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetAll([FromQuery] string? search = null)
+        public async Task<IActionResult> GetAll(
+            [FromQuery] string? search     = null,
+            [FromQuery] int?    pageNumber = null,
+            [FromQuery] int?    pageSize   = null)
         {
             try
             {
                 var tenantId = GetTenantId();
                 if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
 
-                var result = await _customerService.GetAllAsync(tenantId, search);
-                return Ok(ApiResponse<List<CustomerListDto>>.Ok(result));
+                if (pageNumber.HasValue || pageSize.HasValue)
+                {
+                    var pn = pageNumber ?? 1;
+                    var ps = pageSize ?? 20;
+                    var result = await _customerService.GetAllPaginatedAsync(tenantId, pn, ps, search);
+                    return Ok(ApiResponse<PaginatedResponse<CustomerListDto>>.Ok(result));
+                }
+                else
+                {
+                    var result = await _customerService.GetAllAsync(tenantId, search);
+                    return Ok(ApiResponse<List<CustomerListDto>>.Ok(result));
+                }
             }
             catch (Exception)
             {
@@ -129,6 +142,131 @@ namespace API_BeautyWise.Controllers
 
                 await _customerService.DeleteAsync(id, tenantId);
                 return Ok(ApiResponse<object>.Ok(true, "Müşteri silindi."));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /* ════════════════════════════════════════════
+           LOYALTY & HISTORY ENDPOINTS
+           ════════════════════════════════════════════ */
+
+        /// <summary>
+        /// Müşteri ziyaret/satın alma geçmişi
+        /// GET /api/customer/{id}/history
+        /// </summary>
+        [HttpGet("{id:int}/history")]
+        public async Task<IActionResult> GetHistory(int id)
+        {
+            try
+            {
+                var tenantId = GetTenantId();
+                if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
+
+                var result = await _customerService.GetHistoryAsync(id, tenantId);
+                return Ok(ApiResponse<CustomerHistoryDto>.Ok(result));
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("NOT_FOUND"))
+            {
+                return NotFound(ApiResponse<object>.Fail("Müşteri bulunamadı."));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /// <summary>
+        /// Müşteri istatistikleri
+        /// GET /api/customer/{id}/stats
+        /// </summary>
+        [HttpGet("{id:int}/stats")]
+        public async Task<IActionResult> GetStats(int id)
+        {
+            try
+            {
+                var tenantId = GetTenantId();
+                if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
+
+                var result = await _customerService.GetStatsAsync(id, tenantId);
+                return Ok(ApiResponse<CustomerStatsDto>.Ok(result));
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("NOT_FOUND"))
+            {
+                return NotFound(ApiResponse<object>.Fail("Müşteri bulunamadı."));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /// <summary>
+        /// Sadakat puanı güncelle (ekle/çıkar)
+        /// PUT /api/customer/{id}/loyalty-points
+        /// </summary>
+        [HttpPut("{id:int}/loyalty-points")]
+        public async Task<IActionResult> UpdateLoyaltyPoints(int id, [FromBody] UpdateLoyaltyPointsDto dto)
+        {
+            try
+            {
+                var tenantId = GetTenantId();
+                if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
+
+                await _customerService.UpdateLoyaltyPointsAsync(id, tenantId, dto);
+                return Ok(ApiResponse<object>.Ok(true, "Sadakat puanları güncellendi."));
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("NOT_FOUND"))
+            {
+                return NotFound(ApiResponse<object>.Fail("Müşteri bulunamadı."));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /// <summary>
+        /// Müşteri etiketleri güncelle
+        /// PUT /api/customer/{id}/tags
+        /// </summary>
+        [HttpPut("{id:int}/tags")]
+        public async Task<IActionResult> UpdateTags(int id, [FromBody] UpdateCustomerTagsDto dto)
+        {
+            try
+            {
+                var tenantId = GetTenantId();
+                if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
+
+                await _customerService.UpdateTagsAsync(id, tenantId, dto);
+                return Ok(ApiResponse<object>.Ok(true, "Etiketler güncellendi."));
+            }
+            catch (Exception ex) when (ex.Message.StartsWith("NOT_FOUND"))
+            {
+                return NotFound(ApiResponse<object>.Fail("Müşteri bulunamadı."));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /// <summary>
+        /// VIP / en iyi müşteriler
+        /// GET /api/customer/vip
+        /// </summary>
+        [HttpGet("vip")]
+        public async Task<IActionResult> GetVipCustomers()
+        {
+            try
+            {
+                var tenantId = GetTenantId();
+                if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
+
+                var result = await _customerService.GetVipCustomersAsync(tenantId);
+                return Ok(ApiResponse<List<CustomerListDto>>.Ok(result));
             }
             catch (Exception)
             {

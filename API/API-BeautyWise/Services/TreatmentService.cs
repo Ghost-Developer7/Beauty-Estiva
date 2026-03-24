@@ -31,6 +31,37 @@ namespace API_BeautyWise.Services
                 .ToListAsync();
         }
 
+        public async Task<PaginatedResponse<TreatmentListDto>> GetAllPaginatedAsync(int tenantId, int pageNumber, int pageSize)
+        {
+            var query = _context.Treatments
+                .Where(t => t.TenantId == tenantId && t.IsActive == true);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderBy(t => t.Name)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(t => new TreatmentListDto
+                {
+                    Id              = t.Id,
+                    Name            = t.Name,
+                    Description     = t.Description,
+                    DurationMinutes = t.DurationMinutes,
+                    Price           = t.Price,
+                    Color           = t.Color
+                })
+                .ToListAsync();
+
+            return new PaginatedResponse<TreatmentListDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<TreatmentListDto?> GetByIdAsync(int id, int tenantId)
         {
             return await _context.Treatments

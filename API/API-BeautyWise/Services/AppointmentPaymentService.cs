@@ -93,6 +93,45 @@ namespace API_BeautyWise.Services
                 .ToListAsync();
         }
 
+        public async Task<PaginatedResponse<AppointmentPaymentListDto>> GetAllPaginatedAsync(
+            int tenantId, int pageNumber, int pageSize,
+            DateTime? startDate = null, DateTime? endDate = null,
+            int? staffId = null, int? customerId = null)
+        {
+            var query = _ctx.AppointmentPayments
+                .Include(p => p.Appointment).ThenInclude(a => a.Customer)
+                .Include(p => p.Appointment).ThenInclude(a => a.Treatment)
+                .Include(p => p.Appointment).ThenInclude(a => a.Staff)
+                .Include(p => p.Currency)
+                .Where(p => p.TenantId == tenantId && p.IsActive == true);
+
+            if (startDate.HasValue)
+                query = query.Where(p => p.PaidAt.Date >= startDate.Value.Date);
+            if (endDate.HasValue)
+                query = query.Where(p => p.PaidAt.Date <= endDate.Value.Date);
+            if (staffId.HasValue)
+                query = query.Where(p => p.Appointment.StaffId == staffId.Value);
+            if (customerId.HasValue)
+                query = query.Where(p => p.Appointment.CustomerId == customerId.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(p => p.PaidAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(p => Map(p))
+                .ToListAsync();
+
+            return new PaginatedResponse<AppointmentPaymentListDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<AppointmentPaymentListDto?> GetByIdAsync(int id, int tenantId)
         {
             var p = await _ctx.AppointmentPayments

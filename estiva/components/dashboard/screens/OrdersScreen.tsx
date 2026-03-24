@@ -16,6 +16,9 @@ import type {
   CurrencyItem,
 } from "@/types/api";
 import Modal from "@/components/ui/Modal";
+import Pagination from "@/components/ui/Pagination";
+import ExportButtons from "@/components/ui/ExportButtons";
+import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
 /* ═══════════════════════════════════════════
@@ -231,6 +234,12 @@ export default function OrdersScreen() {
 
   /* ─── Data ─── */
   const [payments, setPayments] = useState<AppointmentPaymentItem[]>([]);
+
+  /* ─── Pagination ─── */
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [appointments, setAppointments] = useState<AppointmentListItem[]>([]);
   const [customers, setCustomers] = useState<CustomerListItem[]>([]);
   const [treatments, setTreatments] = useState<TreatmentListItem[]>([]);
@@ -276,18 +285,38 @@ export default function OrdersScreen() {
   const fetchPayments = useCallback(async () => {
     setLoading(true);
     try {
-      const params: { startDate?: string; endDate?: string; staffId?: number } = {};
+      const params: { startDate?: string; endDate?: string; staffId?: number; pageNumber?: number; pageSize?: number } = {};
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
       if (staffFilter) params.staffId = staffFilter;
-      const res = await paymentService.list(Object.keys(params).length > 0 ? params : undefined);
-      if (res.data.success && res.data.data) setPayments(res.data.data);
+      params.pageNumber = page;
+      params.pageSize = pageSize;
+      const res = await paymentService.listPaginated(params);
+      if (res.data.success && res.data.data) {
+        const pg = res.data.data;
+        setPayments(pg.items);
+        setTotalCount(pg.totalCount);
+        setTotalPages(pg.totalPages);
+      }
     } catch {
-      toast.error(language === "tr" ? "Ödemeler yüklenemedi" : "Failed to load payments");
+      try {
+        const params: { startDate?: string; endDate?: string; staffId?: number } = {};
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
+        if (staffFilter) params.staffId = staffFilter;
+        const res = await paymentService.list(Object.keys(params).length > 0 ? params : undefined);
+        if (res.data.success && res.data.data) {
+          setPayments(res.data.data);
+          setTotalCount(res.data.data.length);
+          setTotalPages(1);
+        }
+      } catch {
+        toast.error(language === "tr" ? "Ödemeler yüklenemedi" : "Failed to load payments");
+      }
     } finally {
       setLoading(false);
     }
-  }, [startDate, endDate, staffFilter, language]);
+  }, [startDate, endDate, staffFilter, page, pageSize, language]);
 
   const fetchReferenceData = useCallback(async () => {
     try {
@@ -523,7 +552,23 @@ export default function OrdersScreen() {
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
           <p className="mt-0.5 text-sm text-white/40">{filtered.length} {t.total}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          <ExportButtons
+            data={filtered as unknown as Record<string, unknown>[]}
+            columns={((): ExportColumn[] => {
+              const isTr = language === "tr";
+              return [
+                { header: isTr ? "Müşteri" : "Customer", key: "customerFullName" },
+                { header: isTr ? "Hizmet" : "Treatment", key: "treatmentName" },
+                { header: isTr ? "Personel" : "Staff", key: "staffFullName" },
+                { header: isTr ? "Tarih" : "Date", key: "paidAt", format: "datetime" },
+                { header: isTr ? "Tutar" : "Amount", key: "amountInTry", format: "currency" },
+                { header: isTr ? "Yöntem" : "Method", key: "paymentMethodDisplay" },
+              ];
+            })()}
+            filenamePrefix={language === "tr" ? "Odemeler" : "Payments"}
+            pdfTitle={language === "tr" ? "Ödeme Listesi" : "Payments List"}
+          />
           <button
             onClick={openApptCreate}
             className="group flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/10 active:scale-[0.98]"
@@ -685,6 +730,14 @@ export default function OrdersScreen() {
             </div>
 
             {/* Footer totals */}
+            <Pagination
+              pageNumber={page}
+              pageSize={pageSize}
+              totalCount={totalCount}
+              totalPages={totalPages}
+              onPageChange={(p) => setPage(p)}
+              onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
+            />
             <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-5 py-3">
               <span className="text-xs text-white/40">{filtered.length} {t.total}</span>
               <span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span>

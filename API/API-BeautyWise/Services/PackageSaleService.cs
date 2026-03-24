@@ -46,6 +46,51 @@ namespace API_BeautyWise.Services
         }
 
         // ════════════════════════════════════════
+        //  GET ALL PAGINATED
+        // ════════════════════════════════════════
+
+        public async Task<PaginatedResponse<PackageSaleListDto>> GetAllPaginatedAsync(
+            int tenantId, int pageNumber, int pageSize,
+            DateTime? startDate = null, DateTime? endDate = null,
+            int? customerId = null, int? treatmentId = null, int? status = null)
+        {
+            var query = _ctx.PackageSales
+                .Include(s => s.Customer)
+                .Include(s => s.Treatment)
+                .Include(s => s.Staff)
+                .Include(s => s.Usages.Where(u => u.IsActive == true))
+                .Include(s => s.Payments.Where(p => p.IsActive == true))
+                .Where(s => s.TenantId == tenantId && s.IsActive == true);
+
+            if (startDate.HasValue)
+                query = query.Where(s => s.StartDate.Date >= startDate.Value.Date);
+            if (endDate.HasValue)
+                query = query.Where(s => s.StartDate.Date <= endDate.Value.Date);
+            if (customerId.HasValue)
+                query = query.Where(s => s.CustomerId == customerId.Value);
+            if (treatmentId.HasValue)
+                query = query.Where(s => s.TreatmentId == treatmentId.Value);
+            if (status.HasValue)
+                query = query.Where(s => (int)s.Status == status.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var sales = await query
+                .OrderByDescending(s => s.CDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return new PaginatedResponse<PackageSaleListDto>
+            {
+                Items = sales.Select(MapSale).ToList(),
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
+        // ════════════════════════════════════════
         //  GET BY ID
         // ════════════════════════════════════════
 

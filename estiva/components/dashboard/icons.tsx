@@ -228,3 +228,11 @@ export const IconUserPlus = () => (
     <line x1="22" y1="11" x2="16" y2="11" />
   </svg>
 );
+
+export const IconBuilding = () => (
+  <svg {...baseIconProps}>
+    <path d="M3 21h18" />
+    <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+    <path d="M9 7h1M9 11h1M9 15h1M14 7h1M14 11h1M14 15h1" />
+  </svg>
+);

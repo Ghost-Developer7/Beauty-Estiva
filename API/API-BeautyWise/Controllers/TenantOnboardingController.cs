@@ -54,6 +54,33 @@ namespace API_BeautyWise.Controllers
         }
 
         /// <summary>
+        /// Tenant temel bilgilerini dondurur (CompanyName, Address, Phone).
+        /// [Authorize] JWT gerekli.
+        /// GET /api/tenantonboarding/info
+        /// </summary>
+        [HttpGet("info")]
+        [Authorize]
+        public async Task<ActionResult<ApiResponse<TenantInfoDto>>> GetTenantInfo()
+        {
+            try
+            {
+                var tenantIdClaim = User.FindFirstValue("tenantId");
+                if (string.IsNullOrEmpty(tenantIdClaim) || !int.TryParse(tenantIdClaim, out var tenantId))
+                    return Unauthorized(ApiResponse<object>.Fail("Gecersiz token: tenantId bulunamadi."));
+
+                var info = await _tenantOnboardingService.GetTenantInfoAsync(tenantId);
+                if (info == null)
+                    return NotFound(ApiResponse<object>.Fail("Tenant bulunamadi."));
+
+                return Ok(ApiResponse<TenantInfoDto>.Ok(info));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+
+        /// <summary>
         /// Personel davet kodu olusturur.
         /// [Owner veya Admin] JWT gerekli.
         /// POST /api/tenantonboarding/invite-token

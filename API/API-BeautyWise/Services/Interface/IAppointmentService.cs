@@ -6,6 +6,7 @@ namespace API_BeautyWise.Services.Interface
     {
         // Listeleme
         Task<List<AppointmentListDto>> GetAllAsync(int tenantId, DateTime? startDate = null, DateTime? endDate = null, int? staffId = null, int? customerId = null);
+        Task<PaginatedResponse<AppointmentListDto>> GetAllPaginatedAsync(int tenantId, int pageNumber, int pageSize, DateTime? startDate = null, DateTime? endDate = null, int? staffId = null, int? customerId = null);
         Task<AppointmentDetailDto?> GetByIdAsync(int id, int tenantId);
 
         // CRUD

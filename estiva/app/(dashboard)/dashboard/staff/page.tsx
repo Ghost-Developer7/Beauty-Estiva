@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { staffService, type StaffMember } from "@/services/staffService";
+import Pagination from "@/components/ui/Pagination";
 import toast from "react-hot-toast";
 
 /* ═══════════════════════════════════════════
@@ -151,6 +152,12 @@ export default function StaffPage() {
   const [staff, setStaff] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+
+  /* ─── Pagination ─── */
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [selectedStaff, setSelectedStaff] = useState<StaffMember | null>(null);
   const [showDetail, setShowDetail] = useState(false);
   const [roleChanging, setRoleChanging] = useState(false);
@@ -199,14 +206,28 @@ export default function StaffPage() {
   const fetchStaff = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await staffService.list();
-      if (res.data.success && res.data.data) setStaff(res.data.data);
+      const res = await staffService.listPaginated({ pageNumber: page, pageSize });
+      if (res.data.success && res.data.data) {
+        const pg = res.data.data;
+        setStaff(pg.items);
+        setTotalCount(pg.totalCount);
+        setTotalPages(pg.totalPages);
+      }
     } catch {
-      toast.error(language === "tr" ? "Personel listesi yüklenemedi" : "Failed to load staff");
+      try {
+        const res = await staffService.list();
+        if (res.data.success && res.data.data) {
+          setStaff(res.data.data);
+          setTotalCount(res.data.data.length);
+          setTotalPages(1);
+        }
+      } catch {
+        toast.error(language === "tr" ? "Personel listesi yüklenemedi" : "Failed to load staff");
+      }
     } finally {
       setLoading(false);
     }
-  }, [language]);
+  }, [page, pageSize, language]);
 
   useEffect(() => { fetchStaff(); }, [fetchStaff]);
 
@@ -338,10 +359,15 @@ export default function StaffPage() {
               ))}
             </div>
 
-            {/* Footer */}
-            <div className="border-t border-white/[0.06] bg-white/[0.03] px-5 py-3 text-xs text-white/40">
-              {filtered.length} {t.total}
-            </div>
+            {/* Pagination */}
+            <Pagination
+              pageNumber={page}
+              pageSize={pageSize}
+              totalCount={totalCount}
+              totalPages={totalPages}
+              onPageChange={(p) => setPage(p)}
+              onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
+            />
           </>
         )}
       </div>

@@ -7,6 +7,8 @@ import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import ProfileScreen from "@/components/dashboard/screens/ProfileScreen";
+import { tenantService } from "@/services/tenantService";
+import type { TenantInfo } from "@/services/tenantService";
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
@@ -28,10 +30,20 @@ export default function Topbar() {
   const [search, setSearch] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
   const { user, logout } = useAuth();
   const text = copy[language];
+
+  // Fetch tenant info
+  useEffect(() => {
+    tenantService.getTenantInfo().then((res) => {
+      if (res.data.success && res.data.data) {
+        setTenantInfo(res.data.data);
+      }
+    }).catch(() => {});
+  }, []);
 
   const displayName = user ? `${user.name} ${user.surname}` : "—";
   const displayRole = user?.roles?.includes("Owner")
@@ -59,6 +71,17 @@ export default function Topbar() {
     <>
       <header className="flex flex-col gap-4 border-b border-white/10 bg-white/5 px-6 py-4 text-white backdrop-blur">
         <div className="flex flex-wrap items-center gap-4">
+          {/* Store Name */}
+          {tenantInfo?.companyName && (
+            <div className="flex items-center gap-2 shrink-0">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-[#ffd1dc] to-[#f3a4ff] flex items-center justify-center text-xs font-bold text-[#2e174e]">
+                {tenantInfo.companyName.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-semibold text-white/90 hidden sm:block">
+                {tenantInfo.companyName}
+              </span>
+            </div>
+          )}
           <div className="flex flex-1 items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80">
             <input
               type="text"

@@ -145,6 +145,37 @@ namespace API_BeautyWise.Services
                 .ToListAsync();
         }
 
+        public async Task<PaginatedResponse<ExpenseListDto>> GetAllPaginatedAsync(
+            int tenantId, int pageNumber, int pageSize,
+            DateTime? startDate = null, DateTime? endDate = null, int? categoryId = null)
+        {
+            var query = _ctx.Expenses
+                .Include(e => e.Currency)
+                .Include(e => e.ExpenseCategory)
+                .Where(e => e.TenantId == tenantId && e.IsActive == true);
+
+            if (startDate.HasValue) query = query.Where(e => e.ExpenseDate.Date >= startDate.Value.Date);
+            if (endDate.HasValue)   query = query.Where(e => e.ExpenseDate.Date <= endDate.Value.Date);
+            if (categoryId.HasValue) query = query.Where(e => e.ExpenseCategoryId == categoryId.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(e => e.ExpenseDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(e => MapExpense(e))
+                .ToListAsync();
+
+            return new PaginatedResponse<ExpenseListDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<ExpenseListDto?> GetByIdAsync(int id, int tenantId)
         {
             var e = await _ctx.Expenses

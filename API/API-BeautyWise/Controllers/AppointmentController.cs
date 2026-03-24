@@ -42,15 +42,27 @@ namespace API_BeautyWise.Controllers
             [FromQuery] DateTime? startDate   = null,
             [FromQuery] DateTime? endDate     = null,
             [FromQuery] int?      staffId     = null,
-            [FromQuery] int?      customerId  = null)
+            [FromQuery] int?      customerId  = null,
+            [FromQuery] int?      pageNumber  = null,
+            [FromQuery] int?      pageSize    = null)
         {
             try
             {
                 var tenantId = GetTenantId();
                 if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
 
-                var result = await _appointmentService.GetAllAsync(tenantId, startDate, endDate, staffId, customerId);
-                return Ok(ApiResponse<List<AppointmentListDto>>.Ok(result));
+                if (pageNumber.HasValue || pageSize.HasValue)
+                {
+                    var pn = pageNumber ?? 1;
+                    var ps = pageSize ?? 20;
+                    var result = await _appointmentService.GetAllPaginatedAsync(tenantId, pn, ps, startDate, endDate, staffId, customerId);
+                    return Ok(ApiResponse<PaginatedResponse<AppointmentListDto>>.Ok(result));
+                }
+                else
+                {
+                    var result = await _appointmentService.GetAllAsync(tenantId, startDate, endDate, staffId, customerId);
+                    return Ok(ApiResponse<List<AppointmentListDto>>.Ok(result));
+                }
             }
             catch (Exception)
             {

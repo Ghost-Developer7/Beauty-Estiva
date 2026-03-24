@@ -127,14 +127,25 @@ namespace API_BeautyWise.Controllers
         [HttpGet("sales")]
         public async Task<IActionResult> GetSales(
             [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
-            [FromQuery] int? staffId, [FromQuery] int? customerId)
+            [FromQuery] int? staffId, [FromQuery] int? customerId,
+            [FromQuery] int? pageNumber = null, [FromQuery] int? pageSize = null)
         {
             var tenantId = GetTenantId();
             if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Geçersiz oturum.", "AUTH_ERROR"));
             try
             {
-                var data = await _svc.GetAllSalesAsync(tenantId, startDate, endDate, staffId, customerId);
-                return Ok(ApiResponse<List<ProductSaleListDto>>.Ok(data));
+                if (pageNumber.HasValue || pageSize.HasValue)
+                {
+                    var pn = pageNumber ?? 1;
+                    var ps = pageSize ?? 20;
+                    var data = await _svc.GetAllSalesPaginatedAsync(tenantId, pn, ps, startDate, endDate, staffId, customerId);
+                    return Ok(ApiResponse<PaginatedResponse<ProductSaleListDto>>.Ok(data));
+                }
+                else
+                {
+                    var data = await _svc.GetAllSalesAsync(tenantId, startDate, endDate, staffId, customerId);
+                    return Ok(ApiResponse<List<ProductSaleListDto>>.Ok(data));
+                }
             }
             catch (Exception ex)
             {

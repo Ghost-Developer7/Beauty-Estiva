@@ -8,6 +8,9 @@ import { currencyService } from "@/services/currencyService";
 import { staffService, type StaffMember } from "@/services/staffService";
 import type { ProductListItem, ProductSaleListItem, CustomerListItem, CurrencyItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
+import Pagination from "@/components/ui/Pagination";
+import ExportButtons from "@/components/ui/ExportButtons";
+import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
 /* ═══ CONSTANTS ═══ */
@@ -79,6 +82,12 @@ export default function ProductSalesScreen() {
   const [currencies, setCurrencies] = useState<CurrencyItem[]>([]);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
+
+  /* ─── Pagination ─── */
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [tab, setTab] = useState<TabMode>("sales");
   const [search, setSearch] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -108,10 +117,26 @@ export default function ProductSalesScreen() {
       if (startDate) params.startDate = startDate;
       if (endDate) params.endDate = endDate;
       if (staffFilter) params.staffId = staffFilter;
-      const res = await productService.listSales(Object.keys(params).length > 0 ? params as { startDate?: string; endDate?: string; staffId?: number } : undefined);
-      if (res.data.success && res.data.data) setSales(res.data.data);
-    } catch { /* */ } finally { setLoading(false); }
-  }, [startDate, endDate, staffFilter]);
+      params.pageNumber = page;
+      params.pageSize = pageSize;
+      const res = await productService.listSalesPaginated(params as any);
+      if (res.data.success && res.data.data) {
+        const pg = res.data.data;
+        setSales(pg.items);
+        setTotalCount(pg.totalCount);
+        setTotalPages(pg.totalPages);
+      }
+    } catch {
+      try {
+        const params: Record<string, string | number> = {};
+        if (startDate) params.startDate = startDate;
+        if (endDate) params.endDate = endDate;
+        if (staffFilter) params.staffId = staffFilter;
+        const res = await productService.listSales(Object.keys(params).length > 0 ? params as any : undefined);
+        if (res.data.success && res.data.data) { setSales(res.data.data); setTotalCount(res.data.data.length); setTotalPages(1); }
+      } catch { /* */ }
+    } finally { setLoading(false); }
+  }, [startDate, endDate, staffFilter, page, pageSize]);
 
   const fetchProducts = useCallback(async () => {
     try { const res = await productService.list(); if (res.data.success && res.data.data) setProducts(res.data.data); } catch { /* */ }
@@ -152,7 +177,27 @@ export default function ProductSalesScreen() {
       {/* HEADER */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div><h1 className="text-2xl font-bold tracking-tight">{t.title}</h1><p className="mt-0.5 text-sm text-white/40">{tab === "sales" ? filteredSales.length : filteredProducts.length} {t.total}</p></div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-3">
+          {tab === "sales" && (
+            <ExportButtons
+              data={filteredSales as unknown as Record<string, unknown>[]}
+              columns={((): ExportColumn[] => {
+                const isTr = language === "tr";
+                return [
+                  { header: isTr ? "Ürün" : "Product", key: "productName" },
+                  { header: isTr ? "Müşteri" : "Customer", key: "customerFullName" },
+                  { header: isTr ? "Personel" : "Staff", key: "staffFullName" },
+                  { header: isTr ? "Adet" : "Qty", key: "quantity", format: "number" },
+                  { header: isTr ? "Birim Fiyat" : "Unit Price", key: "unitPrice", format: "currency" },
+                  { header: isTr ? "Toplam" : "Total", key: "amountInTry", format: "currency" },
+                  { header: isTr ? "Yöntem" : "Method", key: "paymentMethodDisplay" },
+                  { header: isTr ? "Tarih" : "Date", key: "saleDate", format: "datetime" },
+                ];
+              })()}
+              filenamePrefix={language === "tr" ? "Urun_Satislari" : "Product_Sales"}
+              pdfTitle={language === "tr" ? "Ürün Satış Listesi" : "Product Sales List"}
+            />
+          )}
           {tab === "products" && <button onClick={openProductCreate} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-[0.98]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newProduct}</button>}
           <button onClick={openSaleForm} className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newSale}</button>
         </div>
@@ -200,6 +245,7 @@ export default function ProductSalesScreen() {
                 </div>
               ))}
             </div>
+            <Pagination pageNumber={page} pageSize={pageSize} totalCount={totalCount} totalPages={totalPages} onPageChange={(p) => setPage(p)} onPageSizeChange={(s) => { setPageSize(s); setPage(1); }} />
             <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-5 py-3"><span className="text-xs text-white/40">{filteredSales.length} {t.total}</span><span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span></div>
           </>)}
         </div>

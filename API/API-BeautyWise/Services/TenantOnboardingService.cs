@@ -14,19 +14,22 @@ namespace API_BeautyWise.Services
         private readonly RoleManager<AppRole> _roleManager;
         private readonly LogService _logService;
         private readonly ITenantIdentifierGenerator _tenantIdentifierGenerator;
+        private readonly IBranchService _branchService;
 
         public TenantOnboardingService(
             Context context,
             UserManager<AppUser> userManager,
             RoleManager<AppRole> roleManager,
             LogService logService,
-    ITenantIdentifierGenerator tenantIdentifierGenerator)
+            ITenantIdentifierGenerator tenantIdentifierGenerator,
+            IBranchService branchService)
         {
             _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _logService = logService;
             _tenantIdentifierGenerator = tenantIdentifierGenerator;
+            _branchService = branchService;
         }
         public async Task<TenantOnboardingResultDto> RegisterTenantAsync(TenantOnboardingDto dto)
         {//Firma sahibinin ve Firmanın ilk kayıt işlemii
@@ -77,6 +80,10 @@ namespace API_BeautyWise.Services
                     await _roleManager.CreateAsync(new AppRole { Name = "Owner" });
 
                 await _userManager.AddToRoleAsync(user, "Owner");
+
+                // Auto-create main branch for the new tenant
+                await _branchService.CreateMainBranchForTenantAsync(tenant.Id, tenant.CompanyName, user.Id);
+
                 await tx.CommitAsync();
                 return new TenantOnboardingResultDto
                 {
@@ -155,6 +162,20 @@ namespace API_BeautyWise.Services
                 .Select(t => t.CompanyName)
                 .FirstOrDefaultAsync();
             return tenant ?? "Beauty Estiva";
+        }
+
+        public async Task<TenantInfoDto?> GetTenantInfoAsync(int tenantId)
+        {
+            var tenant = await _context.Tenants
+                .Where(t => t.Id == tenantId && t.IsActive == true)
+                .Select(t => new TenantInfoDto
+                {
+                    CompanyName = t.CompanyName,
+                    Address = t.Address,
+                    Phone = t.Phone
+                })
+                .FirstOrDefaultAsync();
+            return tenant;
         }
     }
 }

@@ -28,14 +28,25 @@ namespace API_BeautyWise.Controllers
         public async Task<IActionResult> GetAll(
             [FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate,
             [FromQuery] int? customerId, [FromQuery] int? treatmentId,
-            [FromQuery] int? status)
+            [FromQuery] int? status,
+            [FromQuery] int? pageNumber = null, [FromQuery] int? pageSize = null)
         {
             var tenantId = GetTenantId();
             if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Geçersiz oturum.", "AUTH_ERROR"));
             try
             {
-                var data = await _svc.GetAllAsync(tenantId, startDate, endDate, customerId, treatmentId, status);
-                return Ok(ApiResponse<List<PackageSaleListDto>>.Ok(data));
+                if (pageNumber.HasValue || pageSize.HasValue)
+                {
+                    var pn = pageNumber ?? 1;
+                    var ps = pageSize ?? 20;
+                    var data = await _svc.GetAllPaginatedAsync(tenantId, pn, ps, startDate, endDate, customerId, treatmentId, status);
+                    return Ok(ApiResponse<PaginatedResponse<PackageSaleListDto>>.Ok(data));
+                }
+                else
+                {
+                    var data = await _svc.GetAllAsync(tenantId, startDate, endDate, customerId, treatmentId, status);
+                    return Ok(ApiResponse<List<PackageSaleListDto>>.Ok(data));
+                }
             }
             catch (Exception ex)
             {

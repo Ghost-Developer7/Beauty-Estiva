@@ -29,12 +29,24 @@ namespace API_BeautyWise.Controllers
         /// </summary>
         [HttpGet]
         [Authorize(Roles = "Owner,Admin,Staff")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int? pageNumber = null,
+            [FromQuery] int? pageSize   = null)
         {
             try
             {
-                var staff = await _staffService.GetStaffListAsync(GetTenantId());
-                return Ok(ApiResponse<List<StaffListDto>>.Ok(staff));
+                if (pageNumber.HasValue || pageSize.HasValue)
+                {
+                    var pn = pageNumber ?? 1;
+                    var ps = pageSize ?? 20;
+                    var result = await _staffService.GetStaffListPaginatedAsync(GetTenantId(), pn, ps);
+                    return Ok(ApiResponse<PaginatedResponse<StaffListDto>>.Ok(result));
+                }
+                else
+                {
+                    var staff = await _staffService.GetStaffListAsync(GetTenantId());
+                    return Ok(ApiResponse<List<StaffListDto>>.Ok(staff));
+                }
             }
             catch (Exception)
             {

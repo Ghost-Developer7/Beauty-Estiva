@@ -15,6 +15,9 @@ import type {
   TreatmentListItem,
 } from "@/types/api";
 import Modal from "@/components/ui/Modal";
+import Pagination from "@/components/ui/Pagination";
+import ExportButtons from "@/components/ui/ExportButtons";
+import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
 /* ═══════════════════════════════════════════
@@ -267,6 +270,12 @@ export default function AppointmentsScreen() {
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
 
+  /* ─── Pagination ─── */
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+
   /* ─── Filters ─── */
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const param = searchParams.get("view");
@@ -300,22 +309,39 @@ export default function AppointmentsScreen() {
   const fetchAppointments = useCallback(async () => {
     try {
       setLoading(true);
-      const params: Record<string, string | number> = {};
+      const params: Record<string, string | number | undefined> = {};
       if (dateFilter) {
         params.startDate = dateFilter;
         params.endDate = dateFilter;
       }
       if (staffFilter) params.staffId = staffFilter;
-      const res = await appointmentService.list(params as { startDate?: string; endDate?: string; staffId?: number });
+      params.pageNumber = page;
+      params.pageSize = pageSize;
+      const res = await appointmentService.listPaginated(params as { startDate?: string; endDate?: string; staffId?: number; pageNumber?: number; pageSize?: number });
       if (res.data.success && res.data.data) {
-        setAppointments(res.data.data);
+        const pg = res.data.data;
+        setAppointments(pg.items);
+        setTotalCount(pg.totalCount);
+        setTotalPages(pg.totalPages);
       }
     } catch {
-      toast.error(language === "tr" ? "Randevular yüklenemedi" : "Failed to load appointments");
+      try {
+        const params: Record<string, string | number> = {};
+        if (dateFilter) { params.startDate = dateFilter; params.endDate = dateFilter; }
+        if (staffFilter) params.staffId = staffFilter;
+        const res = await appointmentService.list(params as { startDate?: string; endDate?: string; staffId?: number });
+        if (res.data.success && res.data.data) {
+          setAppointments(res.data.data);
+          setTotalCount(res.data.data.length);
+          setTotalPages(1);
+        }
+      } catch {
+        toast.error(language === "tr" ? "Randevular yüklenemedi" : "Failed to load appointments");
+      }
     } finally {
       setLoading(false);
     }
-  }, [dateFilter, staffFilter, language]);
+  }, [dateFilter, staffFilter, page, pageSize, language]);
 
   const fetchReferenceData = useCallback(async () => {
     try {
@@ -564,13 +590,31 @@ export default function AppointmentsScreen() {
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
           <p className="mt-0.5 text-sm text-white/40">{filtered.length} {t.total}</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-          {t.newAppointment}
-        </button>
+        <div className="flex items-center gap-3">
+          <ExportButtons
+            data={filtered as unknown as Record<string, unknown>[]}
+            columns={((): ExportColumn[] => {
+              const isTr = language === "tr";
+              return [
+                { header: isTr ? "Müşteri" : "Customer", key: "customerFullName" },
+                { header: isTr ? "Hizmet" : "Treatment", key: "treatmentName" },
+                { header: isTr ? "Personel" : "Staff", key: "staffFullName" },
+                { header: isTr ? "Tarih" : "Date", key: "startTime", format: "datetime" },
+                { header: isTr ? "Süre (dk)" : "Duration (min)", key: "durationMinutes", format: "number" },
+                { header: isTr ? "Durum" : "Status", key: "status" },
+              ];
+            })()}
+            filenamePrefix={language === "tr" ? "Randevular" : "Appointments"}
+            pdfTitle={language === "tr" ? "Randevu Listesi" : "Appointments List"}
+          />
+          <button
+            onClick={openCreate}
+            className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            {t.newAppointment}
+          </button>
+        </div>
       </div>
 
       {/* ─── STATS ─── */}
@@ -692,6 +736,7 @@ export default function AppointmentsScreen() {
               <p className="text-xs text-white/25">{t.noDataSub}</p>
             </div>
           ) : (
+            <>
             <div className="divide-y divide-white/[0.04]">
               {filtered.map((apt) => {
                 return (
@@ -770,6 +815,17 @@ export default function AppointmentsScreen() {
                 );
               })}
             </div>
+
+            {/* Pagination */}
+            <Pagination
+              pageNumber={page}
+              pageSize={pageSize}
+              totalCount={totalCount}
+              totalPages={totalPages}
+              onPageChange={(p) => setPage(p)}
+              onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
+            />
+          </>
           )}
         </div>
       )}

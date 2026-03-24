@@ -89,11 +89,23 @@ namespace API_BeautyWise.Controllers
         public async Task<IActionResult> GetAll(
             [FromQuery] DateTime? startDate  = null,
             [FromQuery] DateTime? endDate    = null,
-            [FromQuery] int?      categoryId = null)
+            [FromQuery] int?      categoryId = null,
+            [FromQuery] int?      pageNumber = null,
+            [FromQuery] int?      pageSize   = null)
         {
             var user = await GetUserAsync();
-            var list = await _service.GetAllAsync(user.TenantId, startDate, endDate, categoryId);
-            return Ok(ApiResponse<object>.Ok(list, $"{list.Count} gider kaydı bulundu."));
+            if (pageNumber.HasValue || pageSize.HasValue)
+            {
+                var pn = pageNumber ?? 1;
+                var ps = pageSize ?? 20;
+                var result = await _service.GetAllPaginatedAsync(user.TenantId, pn, ps, startDate, endDate, categoryId);
+                return Ok(ApiResponse<PaginatedResponse<ExpenseListDto>>.Ok(result));
+            }
+            else
+            {
+                var list = await _service.GetAllAsync(user.TenantId, startDate, endDate, categoryId);
+                return Ok(ApiResponse<object>.Ok(list, $"{list.Count} gider kaydı bulundu."));
+            }
         }
 
         /// <summary>GET /api/expense/{id}</summary>

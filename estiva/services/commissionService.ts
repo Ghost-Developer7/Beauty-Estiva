@@ -5,9 +5,16 @@ import type {
   SetStaffCommissionRequest,
   StaffCommissionRecord,
   StaffCommissionSummary,
+  AllCommissionRates,
+  BulkPayCommissionsRequest,
 } from "@/types/api";
 
 export const commissionService = {
+  /** Tüm personel/hizmet komisyon oranlarını getirir */
+  getAllRates() {
+    return api.get<ApiResponse<AllCommissionRates>>("/commission/rates");
+  },
+
   /** Personelin komisyon oranlarını getirir */
   getStaffRates(staffId: number) {
     return api.get<ApiResponse<StaffCommissionRate>>(
@@ -28,6 +35,7 @@ export const commissionService = {
     startDate?: string;
     endDate?: string;
     staffId?: number;
+    isPaid?: boolean;
   }) {
     return api.get<ApiResponse<StaffCommissionRecord[]>>(
       "/commission/records",
@@ -36,7 +44,12 @@ export const commissionService = {
   },
 
   /** Personel bazlı komisyon özetini getirir */
-  getSummary(params?: { startDate?: string; endDate?: string }) {
+  getSummary(params?: {
+    startDate?: string;
+    endDate?: string;
+    month?: number;
+    year?: number;
+  }) {
     return api.get<ApiResponse<StaffCommissionSummary[]>>(
       "/commission/summary",
       { params },
@@ -51,10 +64,31 @@ export const commissionService = {
     );
   },
 
-  /** Komisyon kayıtlarını "ödendi" olarak işaretler */
+  /** Bireysel personel komisyon geçmişi */
+  getStaffSummary(
+    staffId: number,
+    params?: { startDate?: string; endDate?: string },
+  ) {
+    return api.get<ApiResponse<StaffCommissionSummary | null>>(
+      `/commission/staff/${staffId}/summary`,
+      { params },
+    );
+  },
+
+  /** Tek komisyon kaydını ödendi olarak işaretler */
+  payRecord(id: number) {
+    return api.post<ApiResponse<null>>(`/commission/records/${id}/pay`);
+  },
+
+  /** Komisyon kayıtlarını "ödendi" olarak işaretler (çoklu) */
   markPaid(commissionRecordIds: number[]) {
     return api.post<ApiResponse<null>>("/commission/mark-paid", {
       commissionRecordIds,
     });
+  },
+
+  /** Aylık toplu ödeme */
+  bulkPay(data: BulkPayCommissionsRequest) {
+    return api.post<ApiResponse<null>>("/commission/records/bulk-pay", data);
   },
 };

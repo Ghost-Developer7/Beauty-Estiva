@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import type {
   ApiResponse,
+  PaginatedResponse,
   PackageSaleCreate,
   PackageSaleUpdate,
   PackageSaleListItem,
@@ -18,6 +19,18 @@ export const packageSaleService = {
     status?: number;
   }) {
     return api.get<ApiResponse<PackageSaleListItem[]>>("/packagesale", { params });
+  },
+
+  listPaginated(params?: {
+    startDate?: string;
+    endDate?: string;
+    customerId?: number;
+    treatmentId?: number;
+    status?: number;
+    pageNumber?: number;
+    pageSize?: number;
+  }) {
+    return api.get<ApiResponse<PaginatedResponse<PackageSaleListItem>>>("/packagesale", { params });
   },
 
   getById(id: number) {

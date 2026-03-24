@@ -33,15 +33,27 @@ namespace API_BeautyWise.Controllers
         /// GET /api/treatment
         /// </summary>
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll(
+            [FromQuery] int? pageNumber = null,
+            [FromQuery] int? pageSize   = null)
         {
             try
             {
                 var tenantId = GetTenantId();
                 if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
 
-                var result = await _treatmentService.GetAllAsync(tenantId);
-                return Ok(ApiResponse<List<TreatmentListDto>>.Ok(result));
+                if (pageNumber.HasValue || pageSize.HasValue)
+                {
+                    var pn = pageNumber ?? 1;
+                    var ps = pageSize ?? 20;
+                    var result = await _treatmentService.GetAllPaginatedAsync(tenantId, pn, ps);
+                    return Ok(ApiResponse<PaginatedResponse<TreatmentListDto>>.Ok(result));
+                }
+                else
+                {
+                    var result = await _treatmentService.GetAllAsync(tenantId);
+                    return Ok(ApiResponse<List<TreatmentListDto>>.Ok(result));
+                }
             }
             catch (Exception)
             {

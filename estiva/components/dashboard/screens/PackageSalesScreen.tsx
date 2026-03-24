@@ -14,6 +14,9 @@ import type {
   StaffMember,
 } from "@/types/api";
 import Modal from "@/components/ui/Modal";
+import Pagination from "@/components/ui/Pagination";
+import ExportButtons from "@/components/ui/ExportButtons";
+import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
 /* ═══════════════════════════════════════════
@@ -288,6 +291,12 @@ export default function PackageSalesScreen() {
   /* ─── Data ─── */
   const [sales, setSales] = useState<PackageSaleListItem[]>([]);
   const [stats, setStats] = useState<PackageSaleStats>({ totalSales: 0, totalRevenue: 0, activePackages: 0, completedPackages: 0 });
+
+  /* ─── Pagination ─── */
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const [customers, setCustomers] = useState<CustomerListItem[]>([]);
   const [treatments, setTreatments] = useState<TreatmentListItem[]>([]);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
@@ -342,19 +351,46 @@ export default function PackageSalesScreen() {
       if (statusFilter) params.status = statusFilter;
       if (treatmentFilter) params.treatmentId = treatmentFilter;
 
+      params.pageNumber = page;
+      params.pageSize = pageSize;
+
       const [salesRes, statsRes] = await Promise.all([
-        packageSaleService.list(params),
+        packageSaleService.listPaginated(params as any),
         packageSaleService.stats(dateRange),
       ]);
 
-      if (salesRes.data.success && salesRes.data.data) setSales(salesRes.data.data);
+      if (salesRes.data.success && salesRes.data.data) {
+        const pg = salesRes.data.data;
+        setSales(pg.items);
+        setTotalCount(pg.totalCount);
+        setTotalPages(pg.totalPages);
+      }
       if (statsRes.data.success && statsRes.data.data) setStats(statsRes.data.data);
     } catch {
-      toast.error(language === "tr" ? "Veriler yuklenemedi" : "Failed to load data");
+      try {
+        const dateRange = getDateRange(dateFilter);
+        const params: Record<string, string | number | undefined> = {};
+        if (dateRange.startDate) params.startDate = dateRange.startDate;
+        if (dateRange.endDate) params.endDate = dateRange.endDate;
+        if (statusFilter) params.status = statusFilter;
+        if (treatmentFilter) params.treatmentId = treatmentFilter;
+        const [salesRes, statsRes] = await Promise.all([
+          packageSaleService.list(params),
+          packageSaleService.stats(dateRange),
+        ]);
+        if (salesRes.data.success && salesRes.data.data) {
+          setSales(salesRes.data.data);
+          setTotalCount(salesRes.data.data.length);
+          setTotalPages(1);
+        }
+        if (statsRes.data.success && statsRes.data.data) setStats(statsRes.data.data);
+      } catch {
+        toast.error(language === "tr" ? "Veriler yuklenemedi" : "Failed to load data");
+      }
     } finally {
       setLoading(false);
     }
-  }, [dateFilter, statusFilter, treatmentFilter, language]);
+  }, [dateFilter, statusFilter, treatmentFilter, page, pageSize, language]);
 
   const fetchReferenceData = useCallback(async () => {
     try {
@@ -551,13 +587,37 @@ export default function PackageSalesScreen() {
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
           <p className="mt-0.5 text-sm text-white/40">{sales.length} {t.total}</p>
         </div>
-        <button
-          onClick={openCreate}
-          className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-          {t.newSale}
-        </button>
+        <div className="flex items-center gap-3">
+          <ExportButtons
+            data={filtered as unknown as Record<string, unknown>[]}
+            columns={((): ExportColumn[] => {
+              const isTr = language === "tr";
+              return [
+                { header: isTr ? "Müşteri" : "Customer", key: "customerFullName" },
+                { header: isTr ? "Hizmet" : "Treatment", key: "treatmentName" },
+                { header: isTr ? "Personel" : "Staff", key: "staffFullName" },
+                { header: isTr ? "Toplam Seans" : "Total Sessions", key: "totalSessions", format: "number" },
+                { header: isTr ? "Kullanılan" : "Used", key: "usedSessions", format: "number" },
+                { header: isTr ? "Kalan" : "Remaining", key: "remainingSessions", format: "number" },
+                { header: isTr ? "Toplam Fiyat" : "Total Price", key: "totalPrice", format: "currency" },
+                { header: isTr ? "Ödenen" : "Paid", key: "paidAmount", format: "currency" },
+                { header: isTr ? "Kalan Ödeme" : "Remaining Payment", key: "remainingPayment", format: "currency" },
+                { header: isTr ? "Durum" : "Status", key: "statusDisplay" },
+                { header: isTr ? "Başlangıç" : "Start Date", key: "startDate", format: "date" },
+                { header: isTr ? "Bitiş" : "End Date", key: "endDate", format: "date" },
+              ];
+            })()}
+            filenamePrefix={language === "tr" ? "Paket_Satislari" : "Package_Sales"}
+            pdfTitle={language === "tr" ? "Paket Satış Listesi" : "Package Sales List"}
+          />
+          <button
+            onClick={openCreate}
+            className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            {t.newSale}
+          </button>
+        </div>
       </div>
 
       {/* ─── STATS ─── */}
@@ -747,8 +807,16 @@ export default function PackageSalesScreen() {
               })}
             </div>
 
-            {/* Footer */}
-            <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-4 py-3 text-xs text-white/40">
+            {/* Pagination */}
+            <Pagination
+              pageNumber={page}
+              pageSize={pageSize}
+              totalCount={totalCount}
+              totalPages={totalPages}
+              onPageChange={(p) => setPage(p)}
+              onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
+            />
+            <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-4 py-2 text-xs text-white/40">
               <span>{filtered.length} {t.total}</span>
               <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} TL</span>
             </div>

@@ -1,5 +1,5 @@
 import api from "@/lib/api";
-import type { ApiResponse } from "@/types/api";
+import type { ApiResponse, PaginatedResponse } from "@/types/api";
 
 export interface StaffMember {
   id: number;
@@ -18,6 +18,12 @@ export interface StaffMember {
 export const staffService = {
   list() {
     return api.get<ApiResponse<StaffMember[]>>("/staff");
+  },
+
+  listPaginated(params?: { pageNumber?: number; pageSize?: number }) {
+    return api.get<ApiResponse<PaginatedResponse<StaffMember>>>("/staff", {
+      params,
+    });
   },
 
   getById(id: number) {

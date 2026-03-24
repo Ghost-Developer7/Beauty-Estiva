@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import type {
   ApiResponse,
+  PaginatedResponse,
   ProductCreate,
   ProductUpdate,
   ProductListItem,
@@ -33,6 +34,10 @@ export const productService = {
   // Product Sales
   listSales(params?: { startDate?: string; endDate?: string; staffId?: number; customerId?: number }) {
     return api.get<ApiResponse<ProductSaleListItem[]>>("/product/sales", { params });
+  },
+
+  listSalesPaginated(params?: { startDate?: string; endDate?: string; staffId?: number; customerId?: number; pageNumber?: number; pageSize?: number }) {
+    return api.get<ApiResponse<PaginatedResponse<ProductSaleListItem>>>("/product/sales", { params });
   },
 
   getSaleById(id: number) {

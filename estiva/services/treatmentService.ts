@@ -1,6 +1,7 @@
 import api from "@/lib/api";
 import type {
   ApiResponse,
+  PaginatedResponse,
   TreatmentCreate,
   TreatmentUpdate,
   TreatmentListItem,
@@ -9,6 +10,12 @@ import type {
 export const treatmentService = {
   list() {
     return api.get<ApiResponse<TreatmentListItem[]>>("/treatment");
+  },
+
+  listPaginated(params?: { pageNumber?: number; pageSize?: number }) {
+    return api.get<ApiResponse<PaginatedResponse<TreatmentListItem>>>("/treatment", {
+      params,
+    });
   },
 
   getById(id: number) {

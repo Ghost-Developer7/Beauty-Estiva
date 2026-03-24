@@ -43,6 +43,48 @@ namespace API_BeautyWise.Services
             };
         }
 
+        public async Task<AllCommissionRatesDto> GetAllCommissionRatesAsync(int tenantId)
+        {
+            // Tüm aktif personeli getir
+            var staffMembers = await _ctx.Users
+                .Where(u => u.TenantId == tenantId && u.IsActive == true)
+                .ToListAsync();
+
+            // Tüm aktif hizmetleri getir
+            var treatments = await _ctx.Treatments
+                .Where(t => t.TenantId == tenantId && t.IsActive == true)
+                .Select(t => new TreatmentBasicDto { Id = t.Id, Name = t.Name })
+                .ToListAsync();
+
+            // Tüm aktif komisyon oranlarını getir
+            var allCommissions = await _ctx.StaffTreatmentCommissions
+                .Where(c => c.TenantId == tenantId && c.IsActive == true)
+                .Include(c => c.Treatment)
+                .ToListAsync();
+
+            var staffRates = staffMembers.Select(s => new StaffCommissionRateDto
+            {
+                StaffId = s.Id,
+                StaffFullName = $"{s.Name} {s.Surname}",
+                DefaultCommissionRate = s.DefaultCommissionRate,
+                TreatmentCommissions = allCommissions
+                    .Where(c => c.StaffId == s.Id)
+                    .Select(c => new TreatmentCommissionDto
+                    {
+                        TreatmentId = c.TreatmentId,
+                        TreatmentName = c.Treatment.Name,
+                        CommissionRate = c.CommissionRate
+                    })
+                    .ToList()
+            }).ToList();
+
+            return new AllCommissionRatesDto
+            {
+                StaffRates = staffRates,
+                Treatments = treatments
+            };
+        }
+
         public async Task SetStaffCommissionAsync(int tenantId, int staffId, SetStaffCommissionDto dto, int updatedByUserId)
         {
             var staff = await _ctx.Users.FirstOrDefaultAsync(u => u.Id == staffId && u.TenantId == tenantId)
@@ -142,7 +184,7 @@ namespace API_BeautyWise.Services
         // ────────────────────────────────────────────────────────────────────
 
         public async Task<List<StaffCommissionRecordDto>> GetCommissionRecordsAsync(
-            int tenantId, DateTime? startDate, DateTime? endDate, int? staffId)
+            int tenantId, DateTime? startDate, DateTime? endDate, int? staffId, bool? isPaid)
         {
             var query = _ctx.StaffCommissionRecords
                 .Where(r => r.TenantId == tenantId && r.IsActive == true)
@@ -163,6 +205,9 @@ namespace API_BeautyWise.Services
 
             if (endDate.HasValue)
                 query = query.Where(r => r.CDate <= endDate.Value.AddDays(1));
+
+            if (isPaid.HasValue)
+                query = query.Where(r => r.IsPaid == isPaid.Value);
 
             return await query
                 .OrderByDescending(r => r.CDate)
@@ -221,6 +266,13 @@ namespace API_BeautyWise.Services
             return summaries.FirstOrDefault(s => s.StaffId == staffId);
         }
 
+        public async Task<StaffCommissionSummaryDto?> GetStaffCommissionHistoryAsync(
+            int tenantId, int staffId, DateTime? startDate, DateTime? endDate)
+        {
+            var summaries = await GetCommissionSummaryAsync(tenantId, startDate, endDate);
+            return summaries.FirstOrDefault(s => s.StaffId == staffId);
+        }
+
         // ────────────────────────────────────────────────────────────────────
         //  Ödeme Takibi
         // ────────────────────────────────────────────────────────────────────
@@ -230,6 +282,31 @@ namespace API_BeautyWise.Services
             var records = await _ctx.StaffCommissionRecords
                 .Where(r => r.TenantId == tenantId &&
                             commissionRecordIds.Contains(r.Id) &&
+                            r.IsActive == true &&
+                            !r.IsPaid)
+                .ToListAsync();
+
+            foreach (var record in records)
+            {
+                record.IsPaid = true;
+                record.PaidAt = DateTime.UtcNow;
+                record.UUser = updatedByUserId;
+                record.UDate = DateTime.UtcNow;
+            }
+
+            await _ctx.SaveChangesAsync();
+        }
+
+        public async Task BulkPayCommissionsAsync(int tenantId, int staffId, int month, int year, int updatedByUserId)
+        {
+            var startDate = new DateTime(year, month, 1, 0, 0, 0, DateTimeKind.Utc);
+            var endDate = startDate.AddMonths(1);
+
+            var records = await _ctx.StaffCommissionRecords
+                .Where(r => r.TenantId == tenantId &&
+                            r.StaffId == staffId &&
+                            r.CDate >= startDate &&
+                            r.CDate < endDate &&
                             r.IsActive == true &&
                             !r.IsPaid)
                 .ToListAsync();

@@ -24,11 +24,37 @@ namespace API_BeautyWise.Models
         // --- GENEL AYARLAR ---
         public int ReminderHourBefore { get; set; } = 24;
 
+        // Çalışma saatleri (JSON olarak saklanır)
+        public string? WorkingHoursJson { get; set; }
+
+        // Tatil günleri (JSON olarak saklanır)
+        public string? HolidaysJson { get; set; }
+
+        // Para birimi (varsayılan TRY)
+        [MaxLength(10)]
+        public string Currency { get; set; } = "TRY";
+
+        // Saat dilimi
+        [MaxLength(50)]
+        public string Timezone { get; set; } = "Europe/Istanbul";
+
+        // Randevu slot süresi (dakika)
+        public int AppointmentSlotMinutes { get; set; } = 30;
+
+        // Randevuları otomatik onayla
+        public bool AutoConfirmAppointments { get; set; } = false;
+
+        // Randevular arası tampon süre (dakika)
+        public int BufferMinutes { get; set; } = 0;
+
 
         // --- İLİŞKİLER (Collections & Navigations) ---
 
         // 1. Personeller
         public ICollection<AppUser> Users { get; set; }
+
+        // 1b. Şubeler
+        public ICollection<Branch> Branches { get; set; }
 
         // 2. Davetiyeler
         public ICollection<TenantInviteToken> InviteTokens { get; set; }

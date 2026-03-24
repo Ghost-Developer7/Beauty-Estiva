@@ -66,6 +66,9 @@ namespace API_BeautyWise.Migrations
                     b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int?>("BranchId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("CDate")
                         .HasColumnType("datetime2");
 
@@ -146,6 +149,8 @@ namespace API_BeautyWise.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
 
                     b.HasIndex("NormalizedEmail")
                         .HasDatabaseName("EmailIndex");
@@ -296,6 +301,63 @@ namespace API_BeautyWise.Migrations
                     b.HasIndex("TenantId");
 
                     b.ToTable("AppointmentPayments", (string)null);
+                });
+
+            modelBuilder.Entity("API_BeautyWise.Models.Branch", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("CDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CUser")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Email")
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsMainBranch")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Phone")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UUser")
+                        .HasColumnType("int");
+
+                    b.Property<string>("WorkingHoursJson")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TenantId");
+
+                    b.ToTable("Branches", (string)null);
                 });
 
             modelBuilder.Entity("API_BeautyWise.Models.Coupon", b =>
@@ -516,6 +578,9 @@ namespace API_BeautyWise.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Allergies")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime?>("BirthDate")
                         .HasColumnType("datetime2");
 
@@ -525,11 +590,20 @@ namespace API_BeautyWise.Migrations
                     b.Property<int?>("CUser")
                         .HasColumnType("int");
 
+                    b.Property<DateTime>("CustomerSince")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("Email")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
+
+                    b.Property<DateTime?>("LastVisitDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LoyaltyPoints")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -542,11 +616,29 @@ namespace API_BeautyWise.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Preferences")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("PreferredStaffId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ReferralSource")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Surname")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Tags")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TotalSpent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TotalVisits")
                         .HasColumnType("int");
 
                     b.Property<DateTime?>("UDate")
@@ -556,6 +648,8 @@ namespace API_BeautyWise.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PreferredStaffId");
 
                     b.HasIndex("TenantId");
 
@@ -1098,6 +1192,206 @@ namespace API_BeautyWise.Migrations
                     b.ToTable("StaffCommissionRecords", (string)null);
                 });
 
+            modelBuilder.Entity("API_BeautyWise.Models.StaffHRInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("AnnualLeaveEntitlement")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("CDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CUser")
+                        .HasColumnType("int");
+
+                    b.Property<string>("EmergencyContactName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("EmergencyContactPhone")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("HireDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("IdentityNumber")
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<string>("Position")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<decimal?>("Salary")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SalaryCurrency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UUser")
+                        .HasColumnType("int");
+
+                    b.Property<int>("UsedLeaveDays")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("TenantId", "StaffId")
+                        .IsUnique()
+                        .HasFilter("[IsActive] = 1");
+
+                    b.ToTable("StaffHRInfos", (string)null);
+                });
+
+            modelBuilder.Entity("API_BeautyWise.Models.StaffLeave", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ApprovedById")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("CDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CUser")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LeaveType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Reason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UUser")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApprovedById");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("TenantId", "StaffId", "StartDate");
+
+                    b.ToTable("StaffLeaves", (string)null);
+                });
+
+            modelBuilder.Entity("API_BeautyWise.Models.StaffShift", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<TimeSpan?>("BreakEndTime")
+                        .HasColumnType("time");
+
+                    b.Property<TimeSpan?>("BreakStartTime")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime?>("CDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("CUser")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("EndTime")
+                        .HasColumnType("time");
+
+                    b.Property<bool?>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsWorkingDay")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.Property<TimeSpan>("StartTime")
+                        .HasColumnType("time");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UUser")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("TenantId", "StaffId", "DayOfWeek")
+                        .HasFilter("[IsActive] = 1");
+
+                    b.ToTable("StaffShifts", (string)null);
+                });
+
             modelBuilder.Entity("API_BeautyWise.Models.StaffTreatmentCommission", b =>
                 {
                     b.Property<int>("Id")
@@ -1277,6 +1571,15 @@ namespace API_BeautyWise.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("AppointmentSlotMinutes")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("AutoConfirmAppointments")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("BufferMinutes")
+                        .HasColumnType("int");
+
                     b.Property<DateTime?>("CDate")
                         .HasColumnType("datetime2");
 
@@ -1287,6 +1590,14 @@ namespace API_BeautyWise.Migrations
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("HolidaysJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("IsActive")
                         .HasColumnType("bit");
@@ -1314,11 +1625,19 @@ namespace API_BeautyWise.Migrations
                     b.Property<int>("TenantUUID")
                         .HasColumnType("int");
 
+                    b.Property<string>("Timezone")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<DateTime?>("UDate")
                         .HasColumnType("datetime2");
 
                     b.Property<int?>("UUser")
                         .HasColumnType("int");
+
+                    b.Property<string>("WorkingHoursJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -2040,11 +2359,18 @@ namespace API_BeautyWise.Migrations
 
             modelBuilder.Entity("API_BeautyWise.Models.AppUser", b =>
                 {
+                    b.HasOne("API_BeautyWise.Models.Branch", "Branch")
+                        .WithMany("Staff")
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("API_BeautyWise.Models.Tenant", "Tenant")
                         .WithMany("Users")
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Branch");
 
                     b.Navigation("Tenant");
                 });
@@ -2118,6 +2444,17 @@ namespace API_BeautyWise.Migrations
                     b.Navigation("Tenant");
                 });
 
+            modelBuilder.Entity("API_BeautyWise.Models.Branch", b =>
+                {
+                    b.HasOne("API_BeautyWise.Models.Tenant", "Tenant")
+                        .WithMany("Branches")
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Tenant");
+                });
+
             modelBuilder.Entity("API_BeautyWise.Models.Coupon", b =>
                 {
                     b.HasOne("API_BeautyWise.Models.Tenant", "SpecificTenant")
@@ -2157,11 +2494,17 @@ namespace API_BeautyWise.Migrations
 
             modelBuilder.Entity("API_BeautyWise.Models.Customer", b =>
                 {
+                    b.HasOne("API_BeautyWise.Models.AppUser", "PreferredStaff")
+                        .WithMany()
+                        .HasForeignKey("PreferredStaffId");
+
                     b.HasOne("API_BeautyWise.Models.Tenant", "Tenant")
                         .WithMany()
                         .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("PreferredStaff");
 
                     b.Navigation("Tenant");
                 });
@@ -2384,6 +2727,70 @@ namespace API_BeautyWise.Migrations
                         .IsRequired();
 
                     b.Navigation("AppointmentPayment");
+
+                    b.Navigation("Staff");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("API_BeautyWise.Models.StaffHRInfo", b =>
+                {
+                    b.HasOne("API_BeautyWise.Models.AppUser", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("API_BeautyWise.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Staff");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("API_BeautyWise.Models.StaffLeave", b =>
+                {
+                    b.HasOne("API_BeautyWise.Models.AppUser", "ApprovedBy")
+                        .WithMany()
+                        .HasForeignKey("ApprovedById")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("API_BeautyWise.Models.AppUser", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("API_BeautyWise.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApprovedBy");
+
+                    b.Navigation("Staff");
+
+                    b.Navigation("Tenant");
+                });
+
+            modelBuilder.Entity("API_BeautyWise.Models.StaffShift", b =>
+                {
+                    b.HasOne("API_BeautyWise.Models.AppUser", "Staff")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("API_BeautyWise.Models.Tenant", "Tenant")
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Staff");
 
@@ -2654,6 +3061,11 @@ namespace API_BeautyWise.Migrations
                     b.Navigation("ChildAppointments");
                 });
 
+            modelBuilder.Entity("API_BeautyWise.Models.Branch", b =>
+                {
+                    b.Navigation("Staff");
+                });
+
             modelBuilder.Entity("API_BeautyWise.Models.Coupon", b =>
                 {
                     b.Navigation("CouponUsages");
@@ -2695,6 +3107,8 @@ namespace API_BeautyWise.Migrations
 
             modelBuilder.Entity("API_BeautyWise.Models.Tenant", b =>
                 {
+                    b.Navigation("Branches");
+
                     b.Navigation("EmailIntegration");
 
                     b.Navigation("InviteTokens");

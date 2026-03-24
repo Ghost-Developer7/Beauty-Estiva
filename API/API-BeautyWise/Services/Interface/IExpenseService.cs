@@ -20,6 +20,12 @@ namespace API_BeautyWise.Services.Interface
             DateTime? endDate    = null,
             int?      categoryId = null);
 
+        Task<PaginatedResponse<ExpenseListDto>> GetAllPaginatedAsync(
+            int tenantId, int pageNumber, int pageSize,
+            DateTime? startDate  = null,
+            DateTime? endDate    = null,
+            int?      categoryId = null);
+
         Task<ExpenseListDto?> GetByIdAsync(int id, int tenantId);
         Task<int>             CreateAsync(int tenantId, int userId, ExpenseCreateDto dto);
         Task                  UpdateAsync(int id, int tenantId, ExpenseUpdateDto dto);

@@ -58,4 +58,11 @@ namespace API_BeautyWise.DTO
         public string RegisterUrl { get; set; } = "";
         public bool EmailSent { get; set; }
     }
+
+    public class TenantInfoDto
+    {
+        public string CompanyName { get; set; } = "";
+        public string? Address { get; set; }
+        public string? Phone { get; set; }
+    }
 }

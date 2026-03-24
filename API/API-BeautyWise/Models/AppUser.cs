@@ -23,6 +23,13 @@ namespace API_BeautyWise.Models
         [ForeignKey("TenantId")]
         public Tenant Tenant { get; set; }
 
+        // --- ŞUBE BAĞLANTISI (OPSİYONEL) ---
+        // Kullanıcı hangi şubeye atanmış?
+        public int? BranchId { get; set; }
+
+        [ForeignKey("BranchId")]
+        public Branch? Branch { get; set; }
+
 
         // --- İLİŞKİLER ---
         // Personelin bildirim tercihleri (Whatsapp gelsin, SMS gelmesin vb.)

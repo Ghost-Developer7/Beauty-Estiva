@@ -107,6 +107,45 @@ namespace API_BeautyWise.Services
                 .ToListAsync();
         }
 
+        public async Task<PaginatedResponse<ProductSaleListDto>> GetAllSalesPaginatedAsync(
+            int tenantId, int pageNumber, int pageSize,
+            DateTime? startDate = null, DateTime? endDate = null,
+            int? staffId = null, int? customerId = null)
+        {
+            var query = _ctx.ProductSales
+                .Include(s => s.Product)
+                .Include(s => s.Customer)
+                .Include(s => s.Staff)
+                .Include(s => s.Currency)
+                .Where(s => s.TenantId == tenantId && s.IsActive == true);
+
+            if (startDate.HasValue)
+                query = query.Where(s => s.SaleDate.Date >= startDate.Value.Date);
+            if (endDate.HasValue)
+                query = query.Where(s => s.SaleDate.Date <= endDate.Value.Date);
+            if (staffId.HasValue)
+                query = query.Where(s => s.StaffId == staffId.Value);
+            if (customerId.HasValue)
+                query = query.Where(s => s.CustomerId == customerId.Value);
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .OrderByDescending(s => s.SaleDate)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(s => MapSale(s))
+                .ToListAsync();
+
+            return new PaginatedResponse<ProductSaleListDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<ProductSaleListDto?> GetSaleByIdAsync(int id, int tenantId)
         {
             var s = await _ctx.ProductSales

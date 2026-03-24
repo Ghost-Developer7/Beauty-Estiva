@@ -50,6 +50,14 @@ namespace API_BeautyWise.Models
         public DbSet<StaffTreatmentCommission> StaffTreatmentCommissions { get; set; }
         public DbSet<StaffCommissionRecord>    StaffCommissionRecords    { get; set; }
 
+        // Şube Modülü
+        public DbSet<Branch> Branches { get; set; }
+
+        // Personel Vardiya / İzin / Özlük Modülü
+        public DbSet<StaffShift>  StaffShifts  { get; set; }
+        public DbSet<StaffLeave>  StaffLeaves  { get; set; }
+        public DbSet<StaffHRInfo> StaffHRInfos { get; set; }
+
         // Rol Yönetimi Audit Log
         public DbSet<RoleChangeAuditLog> RoleChangeAuditLogs { get; set; }
 
@@ -66,6 +74,11 @@ namespace API_BeautyWise.Models
                       .WithMany(t => t.Users)
                       .HasForeignKey(u => u.TenantId)
                       .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(u => u.Branch)
+                      .WithMany(b => b.Staff)
+                      .HasForeignKey(u => u.BranchId)
+                      .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasMany(u => u.NotificationPreferences)
                       .WithOne(p => p.AppUser)
@@ -118,6 +131,24 @@ namespace API_BeautyWise.Models
                       .WithOne()
                       .HasForeignKey(h => h.TenantId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            // ============================================================
+            //  Şube Modülü
+            // ============================================================
+            builder.Entity<Branch>(entity =>
+            {
+                entity.ToTable("Branches");
+                entity.Property(b => b.Name).IsRequired().HasMaxLength(200);
+                entity.Property(b => b.Address).HasMaxLength(500);
+                entity.Property(b => b.Phone).HasMaxLength(30);
+                entity.Property(b => b.Email).HasMaxLength(150);
+                entity.Property(b => b.WorkingHoursJson).HasMaxLength(2000);
+
+                entity.HasOne(b => b.Tenant)
+                      .WithMany(t => t.Branches)
+                      .HasForeignKey(b => b.TenantId)
+                      .OnDelete(DeleteBehavior.NoAction);
             });
 
             builder.Entity<SubscriptionPlan>(entity =>
@@ -566,6 +597,79 @@ namespace API_BeautyWise.Models
             // ============================================================
             //  Ürün Satış Modülü
             // ============================================================
+
+            // ============================================================
+            //  Personel Vardiya / İzin / Özlük Modülü
+            // ============================================================
+
+            builder.Entity<StaffShift>(entity =>
+            {
+                entity.ToTable("StaffShifts");
+
+                entity.HasIndex(s => new { s.TenantId, s.StaffId, s.DayOfWeek })
+                      .HasFilter("[IsActive] = 1");
+
+                entity.HasOne(s => s.Tenant)
+                      .WithMany()
+                      .HasForeignKey(s => s.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(s => s.Staff)
+                      .WithMany()
+                      .HasForeignKey(s => s.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<StaffLeave>(entity =>
+            {
+                entity.ToTable("StaffLeaves");
+                entity.Property(l => l.LeaveType).IsRequired().HasMaxLength(50);
+                entity.Property(l => l.Status).IsRequired().HasMaxLength(20);
+                entity.Property(l => l.Reason).HasMaxLength(500);
+
+                entity.HasIndex(l => new { l.TenantId, l.StaffId, l.StartDate });
+
+                entity.HasOne(l => l.Tenant)
+                      .WithMany()
+                      .HasForeignKey(l => l.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(l => l.Staff)
+                      .WithMany()
+                      .HasForeignKey(l => l.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(l => l.ApprovedBy)
+                      .WithMany()
+                      .HasForeignKey(l => l.ApprovedById)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            builder.Entity<StaffHRInfo>(entity =>
+            {
+                entity.ToTable("StaffHRInfos");
+                entity.Property(h => h.Salary).HasColumnType("decimal(18,2)");
+                entity.Property(h => h.SalaryCurrency).HasMaxLength(10);
+                entity.Property(h => h.Position).HasMaxLength(100);
+                entity.Property(h => h.IdentityNumber).HasMaxLength(20);
+                entity.Property(h => h.EmergencyContactName).HasMaxLength(100);
+                entity.Property(h => h.EmergencyContactPhone).HasMaxLength(30);
+                entity.Property(h => h.Notes).HasMaxLength(1000);
+
+                entity.HasIndex(h => new { h.TenantId, h.StaffId })
+                      .IsUnique()
+                      .HasFilter("[IsActive] = 1");
+
+                entity.HasOne(h => h.Tenant)
+                      .WithMany()
+                      .HasForeignKey(h => h.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(h => h.Staff)
+                      .WithMany()
+                      .HasForeignKey(h => h.StaffId)
+                      .OnDelete(DeleteBehavior.Restrict);
+            });
 
             // ============================================================
             //  Rol Yönetimi Audit Log

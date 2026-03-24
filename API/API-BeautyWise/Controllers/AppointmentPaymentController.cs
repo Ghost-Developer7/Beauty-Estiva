@@ -44,17 +44,29 @@ namespace API_BeautyWise.Controllers
             [FromQuery] DateTime? startDate  = null,
             [FromQuery] DateTime? endDate    = null,
             [FromQuery] int?      staffId    = null,
-            [FromQuery] int?      customerId = null)
+            [FromQuery] int?      customerId = null,
+            [FromQuery] int?      pageNumber = null,
+            [FromQuery] int?      pageSize   = null)
         {
             var (user, isOwnerOrAdmin) = await GetCurrentUserAsync();
 
             // Staff kendi dışındaki verileri göremez
             var effectiveStaffId = isOwnerOrAdmin ? staffId : user.Id;
 
-            var list = await _service.GetAllAsync(
-                user.TenantId, startDate, endDate, effectiveStaffId, customerId);
-
-            return Ok(ApiResponse<object>.Ok(list, $"{list.Count} ödeme kaydı bulundu."));
+            if (pageNumber.HasValue || pageSize.HasValue)
+            {
+                var pn = pageNumber ?? 1;
+                var ps = pageSize ?? 20;
+                var result = await _service.GetAllPaginatedAsync(
+                    user.TenantId, pn, ps, startDate, endDate, effectiveStaffId, customerId);
+                return Ok(ApiResponse<PaginatedResponse<AppointmentPaymentListDto>>.Ok(result));
+            }
+            else
+            {
+                var list = await _service.GetAllAsync(
+                    user.TenantId, startDate, endDate, effectiveStaffId, customerId);
+                return Ok(ApiResponse<object>.Ok(list, $"{list.Count} ödeme kaydı bulundu."));
+            }
         }
 
         // ─── GET /api/appointmentpayment/appointment/{appointmentId} ─────────────
