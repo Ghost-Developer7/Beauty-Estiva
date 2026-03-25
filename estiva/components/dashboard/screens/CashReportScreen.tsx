@@ -106,7 +106,7 @@ export default function CashReportScreen() {
       ) : (
         <div className="space-y-4">
           {/* Summary cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
               <p className="text-xs uppercase tracking-wider text-white/50">{text.revenue}</p>
               <p className="mt-2 text-2xl font-semibold text-emerald-400">{fmt(revenue?.totalAmountInTry || 0)} TRY</p>

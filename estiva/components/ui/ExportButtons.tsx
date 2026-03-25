@@ -43,7 +43,7 @@ export default function ExportButtons({ data, columns, filenamePrefix, pdfTitle 
       <button
         onClick={handleExcel}
         disabled={exporting !== null || data.length === 0}
-        className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[11px] font-medium text-white/50 transition hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 sm:px-2.5 py-1.5 text-[11px] font-medium text-white/50 transition hover:bg-emerald-500/10 hover:text-emerald-400 hover:border-emerald-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
         title="Excel"
       >
         {exporting === "excel" ? (
@@ -57,14 +57,14 @@ export default function ExportButtons({ data, columns, filenamePrefix, pdfTitle 
             <polyline points="10 9 9 9 8 9" />
           </svg>
         )}
-        Excel
+        <span className="hidden sm:inline">Excel</span>
       </button>
 
       {/* PDF Button */}
       <button
         onClick={handlePDF}
         disabled={exporting !== null || data.length === 0}
-        className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 py-1.5 text-[11px] font-medium text-white/50 transition hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+        className="flex items-center gap-1.5 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 sm:px-2.5 py-1.5 text-[11px] font-medium text-white/50 transition hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
         title="PDF"
       >
         {exporting === "pdf" ? (
@@ -77,7 +77,7 @@ export default function ExportButtons({ data, columns, filenamePrefix, pdfTitle 
             <polyline points="9 15 12 12 15 15" />
           </svg>
         )}
-        PDF
+        <span className="hidden sm:inline">PDF</span>
       </button>
     </div>
   );

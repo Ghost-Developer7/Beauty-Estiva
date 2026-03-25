@@ -994,7 +994,7 @@ export default function AppointmentsScreen() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input
                   type="text"
                   value={form.newCustomerName}
@@ -1021,7 +1021,7 @@ export default function AppointmentsScreen() {
           </div>
 
           {/* Treatment + Staff */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.treatment}</label>
               <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
@@ -1080,7 +1080,7 @@ export default function AppointmentsScreen() {
           </div>
 
           {/* Date, Time, Notes */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.dateTime}</label>
               <input
@@ -1179,7 +1179,7 @@ export default function AppointmentsScreen() {
               </div>
 
               {/* Info grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <DetailRow icon="user" label={t.customerInfo} value={apt.customerFullName} />
                 <DetailRow icon="tag" label={t.treatmentInfo}>
                   <TreatmentChip name={apt.treatmentName} color={apt.treatmentColor} />

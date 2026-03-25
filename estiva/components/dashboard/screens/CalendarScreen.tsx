@@ -138,33 +138,33 @@ export default function CalendarScreen() {
   return (
     <div className="flex flex-col gap-4 text-white">
       {/* Header Bar */}
-      <div className="flex items-center justify-between rounded-lg border border-white/10 bg-white/5 p-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/5 p-2">
         <div className="flex items-center gap-2">
           <button
             onClick={prevDay}
-            className="flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-white/5 hover:bg-white/10"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/10 bg-white/5 hover:bg-white/10"
           >
             {"<"}
           </button>
-          <div className="flex h-8 min-w-[200px] items-center justify-center rounded border border-white/10 bg-white/5 px-3 text-sm font-medium">
+          <div className="flex h-8 min-w-0 sm:min-w-[200px] items-center justify-center rounded border border-white/10 bg-white/5 px-2 sm:px-3 text-xs sm:text-sm font-medium truncate">
             {formatDateDisplay(currentDate, language)}
           </div>
           <button
             onClick={nextDay}
-            className="flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-white/5 hover:bg-white/10"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/10 bg-white/5 hover:bg-white/10"
           >
             {">"}
           </button>
           <button
             onClick={goToday}
-            className="h-8 rounded border border-white/10 bg-white/5 px-4 text-sm font-medium hover:bg-white/10"
+            className="h-8 shrink-0 rounded border border-white/10 bg-white/5 px-3 sm:px-4 text-xs sm:text-sm font-medium hover:bg-white/10"
           >
             {text.today}
           </button>
         </div>
         <button
           onClick={() => (window.location.href = "/dashboard/appointments")}
-          className="h-8 rounded bg-[#2ecc71] px-4 text-sm font-semibold text-white hover:bg-[#27ae60]"
+          className="h-8 rounded bg-[#2ecc71] px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white hover:bg-[#27ae60]"
         >
           + {text.newBooking}
         </button>
@@ -180,7 +180,7 @@ export default function CalendarScreen() {
           {text.noAppointments}
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-white/10 bg-[#0b0614]">
+        <div className="overflow-x-auto rounded-lg border border-white/10 bg-[#0b0614]">
           {/* Staff Headers */}
           <div
             className="grid"

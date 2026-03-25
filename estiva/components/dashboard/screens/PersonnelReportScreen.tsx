@@ -170,7 +170,8 @@ export default function PersonnelReportScreen() {
         ) : items.length === 0 ? (
           <div className="p-8 text-center text-white/60">{text.noData}</div>
         ) : (
-          <table className="w-full text-left text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full min-w-[600px] text-left text-sm">
             <thead>
               <tr className="border-b border-white/10 bg-white/5 font-semibold text-white/50">
                 {text.headers.map((h, i) => <th key={i} className="px-4 py-3 whitespace-nowrap">{h}</th>)}
@@ -194,6 +195,7 @@ export default function PersonnelReportScreen() {
               ))}
             </tbody>
           </table>
+          </div>
         )}
         <div className="border-t border-white/10 bg-white/5 p-3 text-[10px] font-medium text-white/60">
           {text.recordCount}: {items.length}
@@ -203,7 +205,7 @@ export default function PersonnelReportScreen() {
       {/* Create Modal */}
       <Modal open={showModal} onClose={() => setShowModal(false)} title={text.modalCreate}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.startTime} *</label>
               <input type="datetime-local" required value={form.startTime}

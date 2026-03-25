@@ -626,7 +626,7 @@ export default function CustomersScreen() {
       {/* ═══ CREATE / EDIT MODAL ═══ */}
       <Modal open={showForm} onClose={() => setShowForm(false)} title={formMode === "create" ? t.createTitle : t.editTitle} maxWidth="max-w-lg">
         <form onSubmit={handleSubmit} className="space-y-5">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.name}</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls("name")} />
@@ -638,7 +638,7 @@ export default function CustomersScreen() {
               {fieldErrors.surname && <p className="text-[11px] text-red-400">{fieldErrors.surname}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.phone}</label>
               <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls("phone")} />
@@ -650,7 +650,7 @@ export default function CustomersScreen() {
               {fieldErrors.email && <p className="text-[11px] text-red-400">{fieldErrors.email}</p>}
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.birthDate}</label>
               <input type="date" value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25" />

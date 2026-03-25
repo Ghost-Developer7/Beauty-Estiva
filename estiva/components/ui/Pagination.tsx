@@ -114,7 +114,8 @@ export default function Pagination({
           <span className="hidden sm:inline">{t.previous}</span>
         </button>
 
-        {/* Page numbers */}
+        {/* Page numbers - hidden on very small screens */}
+        <span className="hidden sm:flex items-center gap-1">
         {getPageNumbers().map((page, i) =>
           page === "..." ? (
             <span
@@ -137,6 +138,11 @@ export default function Pagination({
             </button>
           )
         )}
+        </span>
+        {/* Mobile: show page X of Y */}
+        <span className="flex sm:hidden items-center text-xs text-white/40 px-2">
+          {pageNumber}/{totalPages}
+        </span>
 
         {/* Next */}
         <button

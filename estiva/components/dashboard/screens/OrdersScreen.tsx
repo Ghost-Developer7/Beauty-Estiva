@@ -796,7 +796,7 @@ export default function OrdersScreen() {
           </div>
 
           {/* Amount + Currency */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentAmount}</label>
               <input
@@ -842,7 +842,7 @@ export default function OrdersScreen() {
           {/* Payment Method */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentMethod}</label>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {PAYMENT_METHODS.map((m) => (
                 <button
                   key={m.value}
@@ -1009,7 +1009,7 @@ export default function OrdersScreen() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input type="text" value={apptForm.newName} onChange={(e) => setApptForm({ ...apptForm, newName: e.target.value })} placeholder={t.customerName + " *"}
                   className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
                 <input type="text" value={apptForm.newSurname} onChange={(e) => setApptForm({ ...apptForm, newSurname: e.target.value })} placeholder={t.customerSurname + " *"}
@@ -1021,7 +1021,7 @@ export default function OrdersScreen() {
           </div>
 
           {/* Treatment + Staff */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.apptTreatment}</label>
               <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
@@ -1065,7 +1065,7 @@ export default function OrdersScreen() {
           </div>
 
           {/* Date + Notes */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.apptDateTime}</label>
               <input type="datetime-local" value={apptForm.startTime} onChange={(e) => setApptForm({ ...apptForm, startTime: e.target.value })}

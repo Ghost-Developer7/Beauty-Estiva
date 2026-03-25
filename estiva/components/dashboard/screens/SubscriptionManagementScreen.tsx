@@ -374,7 +374,7 @@ export default function SubscriptionManagementScreen() {
           </div>
 
           {/* Prices */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
                 {t.monthlyPrice} (TRY)
@@ -402,7 +402,7 @@ export default function SubscriptionManagementScreen() {
           </div>
 
           {/* Limits */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
                 {t.maxStaff}

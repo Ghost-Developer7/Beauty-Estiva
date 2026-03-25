@@ -95,16 +95,6 @@ const navItems = {
     { label: "Package Sales", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Subscription", href: "/dashboard/subscription", icon: IconWallet },
     { label: "Branches", href: "/dashboard/branches", icon: IconBuilding },
-    // SalonPOS - hidden (not in use)
-    // {
-    //   label: "SalonPOS",
-    //   href: "/dashboard/pos",
-    //   icon: IconPOS,
-    //   expandable: true,
-    //   children: [
-    //     { label: "POS Application", href: "/dashboard/pos/application", icon: IconList },
-    //   ]
-    // },
     {
       label: "Reports",
       href: "/dashboard/reports",
@@ -116,36 +106,6 @@ const navItems = {
         { label: "Sales Reports", href: "/dashboard/reports/sales", icon: IconBanknote },
       ]
     },
-    // Messaging - hidden (not in use)
-    // {
-    //   label: "Messaging",
-    //   href: "/dashboard/messaging",
-    //   icon: IconMessage,
-    //   expandable: true,
-    //   beta: true,
-    //   children: [
-    //     {
-    //       label: "Whatsapp",
-    //       href: "/dashboard/messaging/whatsapp",
-    //       icon: IconWhatsapp,
-    //       expandable: true,
-    //       beta: true,
-    //       children: [
-    //         { label: "Business Registration", href: "/dashboard/messaging/whatsapp/register", icon: IconMessage }
-    //       ]
-    //     },
-    //     {
-    //       label: "Instagram",
-    //       href: "/dashboard/messaging/instagram",
-    //       icon: IconInstagram,
-    //       expandable: true,
-    //       beta: true,
-    //       children: [
-    //         { label: "Business Registration", href: "/dashboard/messaging/instagram/register", icon: IconMessage }
-    //       ]
-    //     }
-    //   ]
-    // },
     {
       label: "Other",
       href: "/dashboard/other",
@@ -187,16 +147,6 @@ const navItems = {
     { label: "Paket satışları", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Abonelik", href: "/dashboard/subscription", icon: IconWallet },
     { label: "Şubeler", href: "/dashboard/branches", icon: IconBuilding },
-    // SalonPOS - hidden (not in use)
-    // {
-    //   label: "SalonPOS",
-    //   href: "/dashboard/pos",
-    //   icon: IconPOS,
-    //   expandable: true,
-    //   children: [
-    //     { label: "POS başvurusu", href: "/dashboard/pos/application", icon: IconList },
-    //   ]
-    // },
     {
       label: "Raporlar",
       href: "/dashboard/reports",
@@ -208,36 +158,6 @@ const navItems = {
         { label: "Satış raporları", href: "/dashboard/reports/sales", icon: IconBanknote },
       ]
     },
-    // Mesajlaşma - hidden (not in use)
-    // {
-    //   label: "Mesajlaşma",
-    //   href: "/dashboard/messaging",
-    //   icon: IconMessage,
-    //   expandable: true,
-    //   beta: true,
-    //   children: [
-    //     {
-    //       label: "Whatsapp",
-    //       href: "/dashboard/messaging/whatsapp",
-    //       icon: IconWhatsapp,
-    //       expandable: true,
-    //       beta: true,
-    //       children: [
-    //         { label: "İşletme Kaydı", href: "/dashboard/messaging/whatsapp/register", icon: IconMessage }
-    //       ]
-    //     },
-    //     {
-    //       label: "Instagram",
-    //       href: "/dashboard/messaging/instagram",
-    //       icon: IconInstagram,
-    //       expandable: true,
-    //       beta: true,
-    //       children: [
-    //         { label: "İşletme Kaydı", href: "/dashboard/messaging/instagram/register", icon: IconMessage }
-    //       ]
-    //     }
-    //   ]
-    // },
     {
       label: "Diğer",
       href: "/dashboard/other",
@@ -268,7 +188,12 @@ const superAdminItems = {
   ],
 };
 
-export default function Sidebar() {
+interface SidebarProps {
+  mobileOpen?: boolean;
+  onMobileClose?: () => void;
+}
+
+export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   const pathname = usePathname();
   const [expanded, setExpanded] = useState(true);
   const [openMenus, setOpenMenus] = useState<Record<string, boolean>>({
@@ -292,6 +217,14 @@ export default function Sidebar() {
     }).catch(() => {});
   }, []);
 
+  // Close mobile sidebar on route change
+  useEffect(() => {
+    if (mobileOpen && onMobileClose) {
+      onMobileClose();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
   // Combine regular items with SuperAdmin items if applicable
   const items: NavItem[] = [
     ...navItems[language],
@@ -302,17 +235,17 @@ export default function Sidebar() {
     setOpenMenus(prev => ({ ...prev, [href]: !prev[href] }));
   };
 
-  return (
+  const sidebarContent = (
     <aside
-      className={`estiva-dashboard-sidebar relative flex flex-col text-white shadow-[0_0_40px_rgba(5,4,17,0.8)] transition-all duration-300 ${
+      className={`estiva-dashboard-sidebar relative flex flex-col text-white shadow-[0_0_40px_rgba(5,4,17,0.8)] transition-all duration-300 h-full ${
         expanded ? "w-64" : "w-20"
       }`}
     >
-      {/* Floating Toggle Button */}
+      {/* Floating Toggle Button - hidden on mobile overlay */}
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
-        className="absolute -right-3 top-9 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition-colors hover:bg-white/20 hover:border-white/40"
+        className="absolute -right-3 top-9 z-50 hidden md:flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition-colors hover:bg-white/20 hover:border-white/40"
       >
         {expanded ? <ChevronLeft /> : <ChevronRight />}
       </button>
@@ -345,6 +278,19 @@ export default function Sidebar() {
             </div>
           </div>
         </div>
+        {/* Close button for mobile */}
+        {mobileOpen && (
+          <button
+            type="button"
+            onClick={onMobileClose}
+            className="ml-auto flex h-8 w-8 items-center justify-center rounded-lg text-white/60 hover:bg-white/10 hover:text-white md:hidden"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        )}
       </div>
 
       <nav className="mt-4 flex-1 space-y-0.5 px-3 overflow-y-auto custom-scrollbar">
@@ -357,6 +303,32 @@ export default function Sidebar() {
         </p>
       </div>
     </aside>
+  );
+
+  // Desktop: render sidebar inline
+  // Mobile: render as overlay
+  return (
+    <>
+      {/* Desktop sidebar */}
+      <div className="hidden md:flex">
+        {sidebarContent}
+      </div>
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          {/* Backdrop */}
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={onMobileClose}
+          />
+          {/* Sidebar panel */}
+          <div className="relative z-10 h-full w-64 animate-slide-in-left">
+            {sidebarContent}
+          </div>
+        </div>
+      )}
+    </>
   );
 }
 

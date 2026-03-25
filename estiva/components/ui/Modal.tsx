@@ -37,17 +37,17 @@ export default function Modal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={(e) => {
         if (e.target === overlayRef.current) onClose();
       }}
     >
       <div
-        className={`w-full ${maxWidth} mx-4 rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl`}
+        className={`w-full ${maxWidth} mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl border border-white/10 bg-[#1a1a2e] p-4 sm:p-6 shadow-2xl max-h-[95vh] sm:max-h-[85vh] flex flex-col`}
       >
         {/* Header */}
-        <div className="mb-6 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-white">{title}</h2>
+        <div className="mb-4 sm:mb-6 flex items-center justify-between shrink-0">
+          <h2 className="text-base sm:text-lg font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
             className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
@@ -68,7 +68,7 @@ export default function Modal({
           </button>
         </div>
         {/* Content */}
-        <div className="max-h-[70vh] overflow-y-auto">{children}</div>
+        <div className="flex-1 overflow-y-auto">{children}</div>
       </div>
     </div>
   );

@@ -289,7 +289,7 @@ export default function StaffLeavesPage() {
                 className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm"
               >
                 <p className="text-sm font-semibold text-white truncate">{b.staffFullName}</p>
-                <div className="mt-3 grid grid-cols-4 gap-2 text-center">
+                <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div>
                     <p className="text-[10px] text-white/30">{t.entitlement}</p>
                     <p className="text-sm font-bold text-white">{b.annualEntitlement}</p>
@@ -483,7 +483,7 @@ export default function StaffLeavesPage() {
               </div>
 
               {/* Dates */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.startDate}</label>
                   <input

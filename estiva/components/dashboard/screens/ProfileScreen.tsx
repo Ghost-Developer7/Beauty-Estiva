@@ -361,7 +361,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                 Kisisel Bilgiler
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Name */}
                 <div>
                   <label className="mb-1 block text-xs font-medium text-white/40">

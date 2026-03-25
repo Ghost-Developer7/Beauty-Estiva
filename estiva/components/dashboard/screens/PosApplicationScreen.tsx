@@ -152,8 +152,8 @@ export default function PosApplicationScreen() {
 
                 {/* Right Comparison Table */}
                 <div className="lg:col-span-9 space-y-6">
-                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 overflow-hidden">
-                        <div className="grid grid-cols-4 gap-4 text-center text-xs">
+                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 overflow-x-auto">
+                        <div className="grid grid-cols-4 gap-4 text-center text-xs min-w-[500px]">
                             {/* Headers */}
                             <div className="col-span-1"></div> {/* Empty corner */}
                             <div className="col-span-1 rounded-t-xl bg-red-500/10 p-4 font-bold text-red-400 border border-red-500/20">

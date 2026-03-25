@@ -879,7 +879,7 @@ export default function PackageSalesScreen() {
           </div>
 
           {/* Sessions + Price row */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.sessionCount}</label>
               <input
@@ -902,7 +902,7 @@ export default function PackageSalesScreen() {
           </div>
 
           {/* Payment row */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentAmount}</label>
               <div className="relative">
@@ -929,7 +929,7 @@ export default function PackageSalesScreen() {
           </div>
 
           {/* Dates */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.startDate}</label>
               <input

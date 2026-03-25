@@ -26,11 +26,16 @@ const copy = {
   },
 };
 
-export default function Topbar() {
+interface TopbarProps {
+  onMenuToggle?: () => void;
+}
+
+export default function Topbar({ onMenuToggle }: TopbarProps) {
   const [search, setSearch] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
   const { user, logout } = useAuth();
@@ -69,8 +74,21 @@ export default function Topbar() {
 
   return (
     <>
-      <header className="flex flex-col gap-4 border-b border-white/10 bg-white/5 px-6 py-4 text-white backdrop-blur">
-        <div className="flex flex-wrap items-center gap-4">
+      <header className="flex flex-col gap-4 border-b border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 text-white backdrop-blur">
+        <div className="flex items-center gap-2 sm:gap-4">
+          {/* Hamburger button - mobile only */}
+          <button
+            type="button"
+            onClick={onMenuToggle}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-white/70 hover:bg-white/10 hover:text-white transition md:hidden shrink-0"
+          >
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+
           {/* Store Name */}
           {tenantInfo?.companyName && (
             <div className="flex items-center gap-2 shrink-0">
@@ -82,7 +100,9 @@ export default function Topbar() {
               </span>
             </div>
           )}
-          <div className="flex flex-1 items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80">
+
+          {/* Search bar - hidden on mobile, shown via toggle */}
+          <div className="hidden sm:flex flex-1 items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80">
             <input
               type="text"
               value={search}
@@ -91,31 +111,41 @@ export default function Topbar() {
               className="w-full bg-transparent text-white placeholder:text-white/40 focus:outline-none"
             />
           </div>
-          <div className="flex items-center gap-3 text-white/70">
-            <LanguageToggle />
-            <ThemeToggle />
+
+          {/* Mobile search toggle */}
+          <button
+            type="button"
+            onClick={() => setShowMobileSearch(!showMobileSearch)}
+            className="flex sm:hidden h-10 w-10 items-center justify-center rounded-xl text-white/50 hover:bg-white/10 hover:text-white transition shrink-0 ml-auto"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          </button>
+
+          <div className="flex items-center gap-2 sm:gap-3 text-white/70">
+            <div className="hidden sm:block"><LanguageToggle /></div>
+            <div className="hidden sm:block"><ThemeToggle /></div>
 
             {/* User profile dropdown */}
             <div className="relative" ref={menuRef}>
               <div
                 onClick={() => setShowMenu(!showMenu)}
-                className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-1.5 pr-4 transition-all hover:bg-white/10 hover:border-white/20 cursor-pointer group"
+                className="flex items-center gap-2 sm:gap-3 rounded-2xl border border-white/10 bg-white/5 p-1 sm:p-1.5 sm:pr-4 transition-all hover:bg-white/10 hover:border-white/20 cursor-pointer group"
               >
                 <div className="relative">
                   {avatarUrl ? (
                     <img
                       src={avatarUrl}
                       alt="Profil"
-                      className="h-10 w-10 rounded-full object-cover shadow-lg shadow-pink-500/20"
+                      className="h-8 w-8 sm:h-10 sm:w-10 rounded-full object-cover shadow-lg shadow-pink-500/20"
                     />
                   ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#ffd1dc] to-[#f3a4ff] shadow-lg shadow-pink-500/20 text-sm font-bold text-[#2e174e]">
+                    <div className="flex h-8 w-8 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-gradient-to-br from-[#ffd1dc] to-[#f3a4ff] shadow-lg shadow-pink-500/20 text-xs sm:text-sm font-bold text-[#2e174e]">
                       {user ? `${user.name.charAt(0)}${user.surname.charAt(0)}` : "?"}
                     </div>
                   )}
-                  <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-[#130628] bg-emerald-500" />
+                  <div className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full border-2 border-[#130628] bg-emerald-500" />
                 </div>
-                <div className="flex flex-col">
+                <div className="hidden sm:flex flex-col">
                   <span className="text-sm font-semibold text-white group-hover:text-pink-100 transition-colors leading-tight">
                     {displayName}
                   </span>
@@ -123,7 +153,7 @@ export default function Topbar() {
                     {displayRole}
                   </span>
                 </div>
-                <div className="ml-1 text-white/20 group-hover:text-white/50 transition-colors">
+                <div className="hidden sm:block ml-1 text-white/20 group-hover:text-white/50 transition-colors">
                   <IconChevronDown />
                 </div>
               </div>
@@ -131,6 +161,12 @@ export default function Topbar() {
               {/* Dropdown menu */}
               {showMenu && (
                 <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-white/10 bg-[#1a1a2e] p-1 shadow-xl z-50">
+                  {/* Show language/theme toggles in dropdown on mobile */}
+                  <div className="flex items-center gap-2 px-3 py-2 sm:hidden">
+                    <LanguageToggle />
+                    <ThemeToggle />
+                  </div>
+                  <div className="mx-2 my-0.5 h-px bg-white/5 sm:hidden" />
                   <button
                     onClick={() => {
                       setShowMenu(false);
@@ -164,6 +200,28 @@ export default function Topbar() {
             </div>
           </div>
         </div>
+
+        {/* Mobile search bar - expandable */}
+        {showMobileSearch && (
+          <div className="flex sm:hidden items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80">
+            <input
+              type="text"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder={text.search}
+              className="w-full bg-transparent text-white placeholder:text-white/40 focus:outline-none"
+              autoFocus
+            />
+            <button
+              onClick={() => setShowMobileSearch(false)}
+              className="ml-2 text-white/40 hover:text-white"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Profile Modal */}

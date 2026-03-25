@@ -336,7 +336,8 @@ export default function ExpensesScreen() {
           ) : expenses.length === 0 ? (
             <div className="p-8 text-center text-white/60">{text.noData}</div>
           ) : (
-            <table className="w-full text-left text-[10px] md:text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[700px] text-left text-[10px] md:text-sm">
               <thead>
                 <tr className="border-b border-white/10 bg-white/5 font-semibold text-white/50">
                   {text.headers.map((h, i) => <th key={i} className="px-4 py-3 whitespace-nowrap">{h}</th>)}
@@ -367,6 +368,7 @@ export default function ExpensesScreen() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
           <Pagination
             pageNumber={page}
@@ -418,7 +420,7 @@ export default function ExpensesScreen() {
       <Modal open={showExpenseModal} onClose={() => setShowExpenseModal(false)}
         title={expenseMode === "create" ? text.modalCreate : text.modalEdit}>
         <form onSubmit={handleExpenseSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-xs font-medium text-white/60">{text.category} *</label>
               <select value={expForm.categoryId} onChange={(e) => setExpForm({ ...expForm, categoryId: Number(e.target.value) })}

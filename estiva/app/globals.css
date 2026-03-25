@@ -344,6 +344,20 @@ textarea:focus {
   }
 }
 
+/* Mobile sidebar slide-in animation */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slide-in-left 0.25s ease-out;
+}
+
 /* Webkit/Blink select option highlight override */
 .estiva-dashboard select option:checked {
   background: linear-gradient(0deg, #2d2b55 0%, #2d2b55 100%);

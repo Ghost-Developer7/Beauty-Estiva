@@ -413,7 +413,7 @@ export default function StaffHRPage() {
               </div>
 
               {/* Salary + Currency */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.salaryLabel}</label>
                   <input
@@ -453,7 +453,7 @@ export default function StaffHRPage() {
               </div>
 
               {/* Emergency Contact */}
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.emergencyName}</label>
                   <input
@@ -475,7 +475,7 @@ export default function StaffHRPage() {
               </div>
 
               {/* Annual Leave */}
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.annualLeave}</label>
                   <input
