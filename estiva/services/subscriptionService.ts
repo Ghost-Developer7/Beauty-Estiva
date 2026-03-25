@@ -74,4 +74,27 @@ export const subscriptionService = {
   adminTogglePlan(id: number) {
     return api.patch<ApiResponse<boolean>>(`/admin/subscription-plans/${id}/toggle`);
   },
+
+  // SuperAdmin: Tenant'lara plan atama
+  adminGetTenants() {
+    return api.get<ApiResponse<Array<{
+      id: number;
+      companyName: string;
+      phone: string;
+      cDate: string;
+      activeSubscription: { name: string; startDate: string; endDate: string; isTrialPeriod: boolean } | null;
+    }>>>("/admin/subscriptionplan/tenants");
+  },
+
+  adminAssignPlan(tenantId: number, planId: number, isYearly: boolean) {
+    return api.post<ApiResponse<{
+      id: number;
+      tenantId: number;
+      subscriptionPlanId: number;
+      startDate: string;
+      endDate: string;
+      priceSold: number;
+      isActive: boolean;
+    }>>("/admin/subscriptionplan/assign", { tenantId, planId, isYearly });
+  },
 };

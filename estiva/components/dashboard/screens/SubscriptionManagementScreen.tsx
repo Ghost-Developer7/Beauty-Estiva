@@ -52,6 +52,23 @@ const copy = {
     yes: "Yes",
     no: "No",
     unlimited: "Unlimited",
+    // Tenant assignment
+    tenantSection: "Assign Plan to Store",
+    tenantSectionSub: "Assign subscription plans to stores (bypasses payment)",
+    storeName: "Store",
+    currentPlan: "Current Plan",
+    noPlan: "No plan",
+    trial: "Trial",
+    assignPlan: "Assign Plan",
+    selectPlan: "Select plan...",
+    selectStore: "Select store...",
+    yearly: "Yearly",
+    monthly: "Monthly",
+    assignBtn: "Assign",
+    assigning: "Assigning...",
+    assignedOk: "Plan assigned successfully",
+    loadingTenants: "Loading stores...",
+    noTenants: "No stores found.",
   },
   tr: {
     title: "Paket Yönetimi",
@@ -87,6 +104,22 @@ const copy = {
     yes: "Evet",
     no: "Hayır",
     unlimited: "Sınırsız",
+    tenantSection: "Mağazaya Plan Ata",
+    tenantSectionSub: "Mağazalara abonelik planı atayın (ödemeyi atlar)",
+    storeName: "Mağaza",
+    currentPlan: "Mevcut Plan",
+    noPlan: "Plan yok",
+    trial: "Deneme",
+    assignPlan: "Plan Ata",
+    selectPlan: "Plan seçin...",
+    selectStore: "Mağaza seçin...",
+    yearly: "Yıllık",
+    monthly: "Aylık",
+    assignBtn: "Ata",
+    assigning: "Atanıyor...",
+    assignedOk: "Plan başarıyla atandı",
+    loadingTenants: "Mağazalar yükleniyor...",
+    noTenants: "Mağaza bulunamadı.",
   },
 };
 
@@ -111,6 +144,15 @@ export default function SubscriptionManagementScreen() {
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Tenant assignment state
+  type TenantItem = { id: number; companyName: string; phone: string; cDate: string; activeSubscription: { name: string; startDate: string; endDate: string; isTrialPeriod: boolean } | null };
+  const [tenants, setTenants] = useState<TenantItem[]>([]);
+  const [tenantsLoading, setTenantsLoading] = useState(false);
+  const [assignTenantId, setAssignTenantId] = useState(0);
+  const [assignPlanId, setAssignPlanId] = useState(0);
+  const [assignYearly, setAssignYearly] = useState(false);
+  const [assigning, setAssigning] = useState(false);
 
   // Edit form state
   const [formName, setFormName] = useState("");
@@ -138,13 +180,46 @@ export default function SubscriptionManagementScreen() {
     }
   }, [language]);
 
+  const fetchTenants = useCallback(async () => {
+    setTenantsLoading(true);
+    try {
+      const res = await subscriptionService.adminGetTenants();
+      if (res.data.success && res.data.data) {
+        setTenants(res.data.data);
+      }
+    } catch {
+      // silent
+    } finally {
+      setTenantsLoading(false);
+    }
+  }, []);
+
+  const handleAssignPlan = async () => {
+    if (!assignTenantId || !assignPlanId) return;
+    setAssigning(true);
+    try {
+      const res = await subscriptionService.adminAssignPlan(assignTenantId, assignPlanId, assignYearly);
+      if (res.data.success) {
+        toast.success(t.assignedOk);
+        setAssignTenantId(0);
+        setAssignPlanId(0);
+        fetchTenants();
+      }
+    } catch {
+      toast.error(language === "tr" ? "Plan atanamadı" : "Failed to assign plan");
+    } finally {
+      setAssigning(false);
+    }
+  };
+
   useEffect(() => {
     if (!isSuperAdmin) {
       router.push("/dashboard");
       return;
     }
     fetchPlans();
-  }, [isSuperAdmin, router, fetchPlans]);
+    fetchTenants();
+  }, [isSuperAdmin, router, fetchPlans, fetchTenants]);
 
   const openEdit = (plan: SubscriptionPlan) => {
     setEditingPlan(plan);
@@ -336,6 +411,114 @@ export default function SubscriptionManagementScreen() {
           })}
         </div>
       )}
+
+      {/* --- TENANT PLAN ASSIGNMENT --- */}
+      <div className="mt-8">
+        <h2 className="text-lg font-bold">{t.tenantSection}</h2>
+        <p className="mt-0.5 text-sm text-white/40">{t.tenantSectionSub}</p>
+
+        {/* Assign form */}
+        <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+          <div className="flex-1 min-w-[200px] space-y-1">
+            <label className="text-xs font-semibold text-white/40">{t.storeName}</label>
+            <select
+              value={assignTenantId}
+              onChange={(e) => setAssignTenantId(Number(e.target.value))}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+            >
+              <option value={0}>{t.selectStore}</option>
+              {tenants.map((tn) => (
+                <option key={tn.id} value={tn.id}>
+                  {tn.companyName} (ID: {tn.id})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1 min-w-[200px] space-y-1">
+            <label className="text-xs font-semibold text-white/40">{t.assignPlan}</label>
+            <select
+              value={assignPlanId}
+              onChange={(e) => setAssignPlanId(Number(e.target.value))}
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+            >
+              <option value={0}>{t.selectPlan}</option>
+              {plans.filter(p => p.isActive !== false).map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-white/40">&nbsp;</label>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setAssignYearly(!assignYearly)}
+                className={`rounded-lg border px-3 py-2.5 text-xs font-semibold transition ${
+                  assignYearly
+                    ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                    : "border-white/10 bg-white/5 text-white/50"
+                }`}
+              >
+                {assignYearly ? t.yearly : t.monthly}
+              </button>
+              <button
+                onClick={handleAssignPlan}
+                disabled={!assignTenantId || !assignPlanId || assigning}
+                className="rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2.5 text-xs font-bold text-white shadow-lg disabled:opacity-40 transition-all hover:shadow-purple-900/40"
+              >
+                {assigning ? t.assigning : t.assignBtn}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tenant list */}
+        {tenantsLoading ? (
+          <p className="mt-4 text-sm text-white/30">{t.loadingTenants}</p>
+        ) : tenants.length === 0 ? (
+          <p className="mt-4 text-sm text-white/30">{t.noTenants}</p>
+        ) : (
+          <div className="mt-4 rounded-2xl border border-white/[0.06] overflow-hidden">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-white/[0.03] text-xs text-white/40">
+                <tr>
+                  <th className="px-4 py-3">ID</th>
+                  <th className="px-4 py-3">{t.storeName}</th>
+                  <th className="px-4 py-3">{t.currentPlan}</th>
+                  <th className="px-4 py-3">{t.status}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/[0.04]">
+                {tenants.map((tn) => (
+                  <tr key={tn.id} className="hover:bg-white/[0.02]">
+                    <td className="px-4 py-3 text-white/50">{tn.id}</td>
+                    <td className="px-4 py-3 font-medium text-white">{tn.companyName}</td>
+                    <td className="px-4 py-3 text-white/60">
+                      {tn.activeSubscription
+                        ? `${tn.activeSubscription.name}${tn.activeSubscription.isTrialPeriod ? ` (${t.trial})` : ""}`
+                        : <span className="text-red-400">{t.noPlan}</span>
+                      }
+                    </td>
+                    <td className="px-4 py-3">
+                      {tn.activeSubscription ? (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
+                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                          {t.active}
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400">
+                          <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+                          {t.noPlan}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* === EDIT MODAL === */}
       <Modal

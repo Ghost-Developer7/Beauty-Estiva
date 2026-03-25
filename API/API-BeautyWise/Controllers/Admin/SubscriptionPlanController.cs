@@ -2,12 +2,13 @@ using API_BeautyWise.Models;
 using API_BeautyWise.Services.Interface;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace API_BeautyWise.Controllers.Admin
 {
     [ApiController]
     [Route("api/admin/[controller]")]
-    [Authorize(Roles = "Admin")] // Sadece sistem admini
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public class SubscriptionPlanController : ControllerBase
     {
         private readonly ISubscriptionService _subscriptionService;
@@ -135,5 +136,85 @@ namespace API_BeautyWise.Controllers.Admin
                 return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
+
+        /// <summary>
+        /// SuperAdmin: Belirli bir tenant'a plan atar (ödeme bypass).
+        /// POST /api/admin/subscriptionplan/assign
+        /// Body: { tenantId, planId, isYearly }
+        /// </summary>
+        [HttpPost("assign")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> AssignPlanToTenant([FromBody] AssignPlanRequest request)
+        {
+            try
+            {
+                var subscription = await _subscriptionService.AssignPlanToTenantAsync(
+                    request.TenantId, request.PlanId, request.IsYearly);
+
+                return Ok(ApiResponse<object>.Ok(new
+                {
+                    subscription.Id,
+                    subscription.TenantId,
+                    subscription.SubscriptionPlanId,
+                    subscription.StartDate,
+                    subscription.EndDate,
+                    subscription.PriceSold,
+                    subscription.IsActive
+                }, "Plan başarıyla atandı."));
+            }
+            catch (Exception ex)
+            {
+                var parts = ex.Message.Split('|');
+                var message = parts.Length > 1 ? parts[1] : ex.Message;
+                return BadRequest(ApiResponse<object>.Fail(message));
+            }
+        }
+
+        /// <summary>
+        /// SuperAdmin: Tüm tenant'ları listeler (plan atamak için).
+        /// GET /api/admin/subscriptionplan/tenants
+        /// </summary>
+        [HttpGet("tenants")]
+        [Authorize(Roles = "SuperAdmin")]
+        public async Task<IActionResult> GetTenants()
+        {
+            try
+            {
+                var tenants = await _context.Tenants
+                    .Where(t => t.IsActive == true)
+                    .Select(t => new
+                    {
+                        t.Id,
+                        t.CompanyName,
+                        t.Phone,
+                        t.CDate,
+                        ActiveSubscription = t.Subscriptions
+                            .Where(s => s.IsActive == true)
+                            .Select(s => new
+                            {
+                                s.SubscriptionPlan.Name,
+                                s.StartDate,
+                                s.EndDate,
+                                s.IsTrialPeriod
+                            })
+                            .FirstOrDefault()
+                    })
+                    .OrderByDescending(t => t.CDate)
+                    .ToListAsync();
+
+                return Ok(ApiResponse<object>.Ok(tenants));
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
+    }
+
+    public class AssignPlanRequest
+    {
+        public int TenantId { get; set; }
+        public int PlanId { get; set; }
+        public bool IsYearly { get; set; } = false;
     }
 }

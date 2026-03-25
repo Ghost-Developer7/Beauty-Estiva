@@ -55,5 +55,8 @@ namespace API_BeautyWise.Services.Interface
 
         // Admin: Plan aktif/pasif toggle
         Task<bool> TogglePlanStatusAsync(int planId);
+
+        // SuperAdmin: Belirli bir tenant'a plan ata (bypass payment)
+        Task<TenantSubscription> AssignPlanToTenantAsync(int tenantId, int planId, bool isYearly);
     }
 }

@@ -597,5 +597,66 @@ namespace API_BeautyWise.Services
             await _context.SaveChangesAsync();
             return true;
         }
+
+        /// <summary>
+        /// SuperAdmin: Belirli bir tenant'a ödeme olmadan plan atar.
+        /// Mevcut aktif abonelik varsa deaktive eder, yeni planı aktif olarak ekler.
+        /// </summary>
+        public async Task<TenantSubscription> AssignPlanToTenantAsync(int tenantId, int planId, bool isYearly)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var plan = await GetPlanByIdAsync(planId);
+                if (plan == null)
+                    throw new Exception("PLAN_NOT_FOUND|Plan bulunamadı.");
+
+                var tenant = await _context.Tenants.FindAsync(tenantId);
+                if (tenant == null)
+                    throw new Exception("TENANT_NOT_FOUND|Mağaza bulunamadı.");
+
+                // Mevcut aktif abonelikleri deaktive et
+                var activeSubscriptions = await _context.TenantSubscriptions
+                    .Where(s => s.TenantId == tenantId && s.IsActive == true)
+                    .ToListAsync();
+
+                foreach (var sub in activeSubscriptions)
+                {
+                    sub.IsActive = false;
+                    sub.UDate = DateTime.Now;
+                }
+
+                // Yeni abonelik oluştur
+                var validityMonths = isYearly ? 12 : (plan.ValidityMonths > 0 ? plan.ValidityMonths : 1);
+                var price = isYearly ? plan.YearlyPrice : plan.MonthlyPrice;
+
+                var subscription = new TenantSubscription
+                {
+                    TenantId           = tenantId,
+                    SubscriptionPlanId = planId,
+                    PriceSold          = price,
+                    StartDate          = DateTime.Now,
+                    EndDate            = DateTime.Now.AddMonths(validityMonths),
+                    IsTrialPeriod      = false,
+                    AutoRenew          = true,
+                    NextRenewalDate    = DateTime.Now.AddMonths(validityMonths),
+                    PaymentStatus      = "Paid",
+                    IsActive           = true,
+                    CDate              = DateTime.Now
+                };
+
+                _context.TenantSubscriptions.Add(subscription);
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+
+                return subscription;
+            }
+            catch
+            {
+                await tx.RollbackAsync();
+                throw;
+            }
+        }
     }
 }
