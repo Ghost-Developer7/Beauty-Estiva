@@ -431,7 +431,7 @@ const renderNavItem = (
         <div
           className="overflow-hidden transition-all duration-200 ease-out"
           style={{
-            maxHeight: isOpen ? `${children.length * 48 + 16}px` : "0px",
+            maxHeight: isOpen ? `${children.length * 56 + 24}px` : "0px",
             opacity: isOpen ? 1 : 0,
           }}
         >
