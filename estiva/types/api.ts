@@ -367,7 +367,7 @@ export interface AppointmentPaymentCreate {
   amount: number;
   currencyId?: number;
   exchangeRateToTry?: number;
-  paymentMethod: string;
+  paymentMethod: number | string;
   paidAt?: string;
   notes?: string;
 }

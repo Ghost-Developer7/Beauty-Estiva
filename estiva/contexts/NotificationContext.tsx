@@ -18,9 +18,10 @@ import {
   type InAppNotification,
 } from "@/services/notificationInAppService";
 
-const HUB_URL =
-  (process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000") +
-  "/hubs/notification";
+// NEXT_PUBLIC_API_URL = "https://test.mehmetkara.xyz/api" gibi olabilir
+// Hub URL icin /api kismini cikarip /hubs/notification ekliyoruz
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const HUB_URL = API_URL.replace(/\/api\/?$/, "") + "/hubs/notification";
 
 interface NotificationContextValue {
   notifications: InAppNotification[];

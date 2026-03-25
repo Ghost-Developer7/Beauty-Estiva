@@ -25,12 +25,12 @@ import toast from "react-hot-toast";
    CONSTANTS
    ═══════════════════════════════════════════ */
 
-const PAYMENT_METHODS: { value: string; en: string; tr: string; icon: string }[] = [
-  { value: "Cash", en: "Cash", tr: "Nakit", icon: "💵" },
-  { value: "CreditCard", en: "Credit Card", tr: "Kredi Kartı", icon: "💳" },
-  { value: "BankTransfer", en: "Bank Transfer", tr: "Havale/EFT", icon: "🏦" },
-  { value: "Check", en: "Check", tr: "Çek", icon: "📄" },
-  { value: "Other", en: "Other", tr: "Diğer", icon: "📋" },
+const PAYMENT_METHODS: { value: string; enumValue: number; en: string; tr: string; icon: string }[] = [
+  { value: "Cash", enumValue: 1, en: "Cash", tr: "Nakit", icon: "💵" },
+  { value: "CreditCard", enumValue: 2, en: "Credit Card", tr: "Kredi Kartı", icon: "💳" },
+  { value: "BankTransfer", enumValue: 3, en: "Bank Transfer", tr: "Havale/EFT", icon: "🏦" },
+  { value: "Check", enumValue: 4, en: "Check", tr: "Çek", icon: "📄" },
+  { value: "Other", enumValue: 5, en: "Other", tr: "Diğer", icon: "📋" },
 ];
 
 const METHOD_COLORS: Record<string, string> = {
@@ -434,12 +434,13 @@ export default function OrdersScreen() {
 
     setSaving(true);
     try {
+      const methodEnum = PAYMENT_METHODS.find(m => m.value === form.paymentMethod)?.enumValue ?? 1;
       await paymentService.create({
         appointmentId: form.appointmentId,
         amount: form.amount,
         currencyId: form.currencyId || undefined,
         exchangeRateToTry: form.exchangeRateToTry,
-        paymentMethod: form.paymentMethod,
+        paymentMethod: methodEnum,
         notes: form.notes || undefined,
       });
       toast.success(language === "tr" ? "Ödeme kaydedildi" : "Payment recorded");
