@@ -356,7 +356,7 @@ export default function TreatmentsScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className="hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
               <span>{t.treatment}</span>
               <span>{t.durationCol}</span>
               <span>{t.priceCol}</span>
@@ -441,7 +441,7 @@ export default function TreatmentsScreen() {
 
           {/* Name */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.name}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.name}</label>
             <input
               type="text"
               value={form.name}
@@ -454,7 +454,7 @@ export default function TreatmentsScreen() {
 
           {/* Description */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.description}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.description}</label>
             <textarea
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
@@ -466,7 +466,7 @@ export default function TreatmentsScreen() {
 
           {/* Duration */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.duration}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.duration}</label>
             <div className="flex flex-wrap gap-2">
               {DURATION_PRESETS.map((d) => (
                 <button
@@ -496,7 +496,7 @@ export default function TreatmentsScreen() {
 
           {/* Price */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.price}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.price}</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">₺</span>
               <input
@@ -514,7 +514,7 @@ export default function TreatmentsScreen() {
 
           {/* Color */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.color}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.color}</label>
             <p className="text-[10px] text-white/25">{t.colorSub}</p>
             <div className="flex flex-wrap gap-2">
               {COLORS.map((c) => (

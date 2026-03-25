@@ -100,6 +100,8 @@ const copy = {
     confirmCancel: "Cancel this appointment?",
     // Timeline
     today: "Today",
+    yesterday: "Yesterday",
+    tomorrow: "Tomorrow",
     noStaff: "No staff members found.",
     // Stats
     scheduled: "Scheduled",
@@ -159,6 +161,8 @@ const copy = {
     whatsappReminder: "WhatsApp Hatırlatma Gönder",
     confirmCancel: "Bu randevuyu iptal etmek istediğinize emin misiniz?",
     today: "Bugün",
+    yesterday: "Dün",
+    tomorrow: "Yarın",
     noStaff: "Personel bulunamadı.",
     scheduled: "Planlandı",
     confirmed: "Onaylandı",
@@ -535,6 +539,19 @@ export default function AppointmentsScreen() {
   const goToday = () => setDateFilter(new Date().toISOString().split("T")[0]);
   const isToday = dateFilter === new Date().toISOString().split("T")[0];
 
+  const getDateLabel = () => {
+    const today = new Date();
+    const todayStr = today.toISOString().split("T")[0];
+    if (dateFilter === todayStr) return t.today;
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    if (dateFilter === yesterday.toISOString().split("T")[0]) return t.yesterday;
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    if (dateFilter === tomorrow.toISOString().split("T")[0]) return t.tomorrow;
+    return null;
+  };
+
   /* ═══ CUSTOMER SEARCH ═══ */
   const filteredCustomers = customers.filter((c) => {
     if (!customerSearch) return true;
@@ -718,7 +735,7 @@ export default function AppointmentsScreen() {
       {/* ─── DATE DISPLAY ─── */}
       <div className="text-sm font-medium text-white/50">
         {formatDate(dateFilter + "T00:00:00")}
-        {isToday && <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{t.today}</span>}
+        {getDateLabel() && <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{getDateLabel()}</span>}
       </div>
 
       {/* ═══ LIST VIEW ═══ */}
@@ -937,7 +954,7 @@ export default function AppointmentsScreen() {
 
           {/* Customer Selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.customer}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.customer}</label>
 
             {/* Toggle: existing vs new */}
             <div className="flex gap-2 mb-2">
@@ -1023,7 +1040,7 @@ export default function AppointmentsScreen() {
           {/* Treatment + Staff */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.treatment}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.treatment}</label>
               <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
                 {treatments.map((tr) => (
                   <button
@@ -1046,7 +1063,7 @@ export default function AppointmentsScreen() {
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.staff}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.staff}</label>
               <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
                 <button
                   type="button"
@@ -1082,7 +1099,7 @@ export default function AppointmentsScreen() {
           {/* Date, Time, Notes */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.dateTime}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.dateTime}</label>
               <input
                 type="datetime-local"
                 value={form.startTime}
@@ -1091,7 +1108,7 @@ export default function AppointmentsScreen() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.notes}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
               <input
                 type="text"
                 value={form.notes}
@@ -1198,7 +1215,7 @@ export default function AppointmentsScreen() {
               {/* Series appointments */}
               {apt.seriesAppointments && apt.seriesAppointments.length > 1 && (
                 <div className="space-y-2">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.seriesTitle}</p>
+                  <p className="text-xs font-semibold tracking-wider text-white/40">{t.seriesTitle}</p>
                   <div className="max-h-32 space-y-1 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-2">
                     {apt.seriesAppointments.map((sa) => {
                       const ss = STATUS_MAP[sa.status] || STATUS_MAP["Scheduled"];
@@ -1292,7 +1309,7 @@ export default function AppointmentsScreen() {
 function DetailRow({ label, value, children }: { icon: string; label: string; value?: string; children?: React.ReactNode }) {
   return (
     <div className="space-y-1">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{label}</p>
+      <p className="text-[10px] font-semibold tracking-wider text-white/30">{label}</p>
       {children || <p className="text-sm text-white">{value}</p>}
     </div>
   );

@@ -62,7 +62,7 @@ export default function CallLogsScreen() {
             <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-xs">
-                        <thead className="bg-white/5 text-xs font-semibold uppercase text-white/60">
+                        <thead className="bg-white/5 text-xs font-semibold text-white/60">
                             <tr>
                                 {text.table.cols.map((col, i) => (
                                     <th key={i} className="px-6 py-4 whitespace-nowrap">

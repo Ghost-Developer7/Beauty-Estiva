@@ -8,8 +8,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const navLinks = {
-  en: ["About", "Membership", "Contact"],
-  tr: ["Hakkımızda", "Üyelik", "İletişim"],
+  en: ["ABOUT", "MEMBERSHIP", "CONTACT"],
+  tr: ["HAKKIMIZDA", "ÜYELİK", "İLETİŞİM"],
 };
 
 const highlights = {
@@ -27,26 +27,26 @@ const highlights = {
 
 const stats = {
   en: [
-    { label: "Suites", value: "24" },
-    { label: "Members", value: "1.2k" },
-    { label: "Avg. rating", value: "4.9" },
+    { label: "SUITES", value: "24" },
+    { label: "MEMBERS", value: "1.2k" },
+    { label: "AVG. RATING", value: "4.9" },
   ],
   tr: [
-    { label: "Suiteler", value: "24" },
-    { label: "Üyeler", value: "1.2k" },
-    { label: "Ort. puan", value: "4.9" },
+    { label: "SÜİTLER", value: "24" },
+    { label: "ÜYELER", value: "1.2k" },
+    { label: "ORT. PUAN", value: "4.9" },
   ],
 };
 
 const heroCopy = {
   en: {
-    badge: "Beauty center",
+    badge: "BEAUTY CENTER",
     title: "A membership built for calm operators.",
     subtitle:
       "Request a tailored demo and we will configure Estiva around your rituals, team, and retail flow.",
   },
   tr: {
-    badge: "Güzellik merkezi",
+    badge: "GÜZELLİK MERKEZİ",
     title: "Sakin operatörler için bir üyelik.",
     subtitle:
       "Size özel demo talep edin; Estiva'yı ritüellerinize, ekibinize ve satış akışınıza göre kuralım.",
@@ -55,14 +55,14 @@ const heroCopy = {
 
 const formCopy = {
   en: {
-    badge: "Membership request",
+    badge: "MEMBERSHIP REQUEST",
     title: "Sign up",
     subtitle: "Share a few details and we'll reach out quickly.",
     alreadyHave: "Already a member?",
     signIn: "Sign in",
   },
   tr: {
-    badge: "Üyelik başvurusu",
+    badge: "ÜYELİK BAŞVURUSU",
     title: "Üye ol",
     subtitle: "Kısa bilgileri paylaşın; hızlıca size dönüş yapalım.",
     alreadyHave: "Zaten üye misin?",
@@ -106,7 +106,7 @@ export default function SignupPage() {
         >
           <div className="text-lg font-semibold tracking-[0.5em]">ESTIVA</div>
           <nav
-            className={`hidden gap-8 text-xs uppercase tracking-[0.3em] ${isDark ? "text-white/70" : "text-[#65558c]"
+            className={`hidden gap-8 text-xs tracking-[0.3em] ${isDark ? "text-white/70" : "text-[#65558c]"
               } md:flex`}
           >
             {nav.map((link) => (
@@ -124,7 +124,7 @@ export default function SignupPage() {
         <main className="container grid flex-1 items-start content-center gap-10 py-12 lg:grid-cols-2">
           <section className="space-y-10">
             <div
-              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold uppercase tracking-[0.3em] ${pillBorder} ${pillBg} ${isDark ? "text-white/80" : "text-[#5c478d]"
+              className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.3em] ${pillBorder} ${pillBg} ${isDark ? "text-white/80" : "text-[#5c478d]"
                 }`}
             >
               {hero.badge}
@@ -148,7 +148,7 @@ export default function SignupPage() {
             </div>
 
             <div
-              className={`rounded-3xl ${cardBorder} ${cardBg} p-6 text-sm uppercase tracking-[0.35em] ${subtleText} shadow-[0_25px_80px_rgba(6,5,18,0.35)]`}
+              className={`rounded-3xl ${cardBorder} ${cardBg} p-6 text-sm tracking-[0.35em] ${subtleText} shadow-[0_25px_80px_rgba(6,5,18,0.35)]`}
             >
               <div className="grid gap-4 sm:grid-cols-3">
                 {statList.map((stat) => (
@@ -165,7 +165,7 @@ export default function SignupPage() {
             className={`w-full max-w-xl justify-self-center rounded-[32px] border ${cardBorder} ${cardBg} p-10 shadow-[0_30px_90px_rgba(6,5,18,0.3)] backdrop-blur-xl lg:justify-self-end sm:p-12`}
           >
             <div className="mb-6 space-y-2 text-center">
-              <p className={`text-xs font-semibold uppercase tracking-[0.4em] ${subtleText}`}>
+              <p className={`text-xs font-semibold tracking-[0.4em] ${subtleText}`}>
                 {form.badge}
               </p>
               <h2 className="text-3xl font-semibold">{form.title}</h2>

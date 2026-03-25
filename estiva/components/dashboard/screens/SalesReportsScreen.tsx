@@ -5,7 +5,7 @@ import { useState } from "react";
 
 const copy = {
     en: {
-        title: "Sales reports",
+        title: "Sales Reports",
         datePlaceholder: "This month",
         download: "Download",
         tabs: ["Daily/Weekly report", "Summary", "Services", "Product sales", "Package sales"],
@@ -27,7 +27,7 @@ const copy = {
         }
     },
     tr: {
-        title: "Satış raporları",
+        title: "Satış Raporları",
         datePlaceholder: "Bu ay",
         download: "İndir",
         tabs: ["Günlük/Haftalık rapor", "Özet", "Hizmetler", "Ürün satışları", "Paket satışları"],
@@ -127,7 +127,7 @@ export default function SalesReportsScreen() {
                         <tbody className="divide-y divide-white/5">
                             {/* Week Header */}
                             <tr className="bg-white/[0.02]">
-                                <td colSpan={10} className="py-2 px-2 font-bold text-[10px] text-white/50 uppercase tracking-widest">
+                                <td colSpan={10} className="py-2 px-2 font-bold text-[10px] text-white/50 tracking-widest">
                                     {text.table.weekHeader}
                                 </td>
                             </tr>
@@ -149,13 +149,13 @@ export default function SalesReportsScreen() {
                             <tr>
                                 <td className="py-4 text-white">{text.table.footer}</td>
                                 <td></td>
-                                <td className="py-4 px-2">0 TL</td>
-                                <td className="py-4 px-2">0 TL</td>
-                                <td className="py-4 px-2">0 TL</td>
-                                <td className="py-4 px-2">0 TL</td>
-                                <td className="py-4 px-2">0 TL</td>
-                                <td className="py-4 text-center px-4">0 TL</td>
-                                <td className="py-4 text-right px-4">0 TL</td>
+                                <td className="py-4 px-2">0 TRY</td>
+                                <td className="py-4 px-2">0 TRY</td>
+                                <td className="py-4 px-2">0 TRY</td>
+                                <td className="py-4 px-2">0 TRY</td>
+                                <td className="py-4 px-2">0 TRY</td>
+                                <td className="py-4 text-center px-4">0 TRY</td>
+                                <td className="py-4 text-right px-4">0 TRY</td>
                             </tr>
                         </tfoot>
                     </table>

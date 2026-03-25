@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import type { ComponentType } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { tenantService } from "@/services/tenantService";
@@ -206,6 +207,8 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const { user } = useAuth();
   const isSuperAdmin = user?.roles?.includes("SuperAdmin") ?? false;
 
@@ -216,6 +219,17 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       }
     }).catch(() => {});
   }, []);
+
+  // Reset submenus when sidebar collapses
+  useEffect(() => {
+    if (!expanded) {
+      setOpenMenus(prev => {
+        const reset: Record<string, boolean> = {};
+        Object.keys(prev).forEach(key => { reset[key] = false; });
+        return reset;
+      });
+    }
+  }, [expanded]);
 
   // Close mobile sidebar on route change
   useEffect(() => {
@@ -245,7 +259,11 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       <button
         type="button"
         onClick={() => setExpanded((prev) => !prev)}
-        className="absolute -right-3 top-9 z-50 hidden md:flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white shadow-lg transition-colors hover:bg-white/20 hover:border-white/40"
+        className={`absolute -right-3 top-8 z-50 hidden md:flex h-7 w-7 items-center justify-center rounded-full border shadow-lg transition-colors ${
+          isLight
+            ? "border-gray-300 bg-white text-gray-600 hover:bg-gray-100 hover:border-gray-400"
+            : "border-white/20 bg-[#1a1625] text-white hover:bg-white/20 hover:border-white/40"
+        }`}
       >
         {expanded ? <ChevronLeft /> : <ChevronRight />}
       </button>
@@ -263,14 +281,14 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
                   <p className="text-sm font-semibold whitespace-nowrap truncate max-w-[160px]">
                     {tenantInfo.companyName}
                   </p>
-                  <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">
-                    powered by Estiva
+                  <p className="text-[10px] tracking-[0.3em] text-white/40">
+                    POWERED BY ESTIVA
                   </p>
                 </>
               ) : (
                 <>
-                  <p className="text-xs uppercase tracking-[0.4em] text-white/60">
-                    Estiva
+                  <p className="text-xs tracking-[0.4em] text-white/60">
+                    ESTIVA
                   </p>
                   <p className="text-sm font-semibold whitespace-nowrap">Beauty OS</p>
                 </>
@@ -371,7 +389,7 @@ const renderNavItem = (
           {iconBox}
           <span className="truncate">{item.label}</span>
           {item.beta && (
-            <span className="rounded border border-[#6d28d9] bg-[#6d28d9]/20 px-1.5 py-0.5 text-[10px] font-bold text-[#a78bfa] uppercase tracking-wider shrink-0">
+            <span className="rounded border border-[#6d28d9] bg-[#6d28d9]/20 px-1.5 py-0.5 text-[10px] font-bold text-[#a78bfa] tracking-wider shrink-0">
               BETA
             </span>
           )}
@@ -411,9 +429,9 @@ const renderNavItem = (
 
       {expanded && hasChildren && (
         <div
-          className="overflow-hidden transition-all duration-200 ease-out"
+          className="overflow-hidden transition-all duration-200 ease-out pb-1"
           style={{
-            maxHeight: isOpen ? `${children.length * 56}px` : "0px",
+            maxHeight: isOpen ? `${children.length * 52 + 8}px` : "0px",
             opacity: isOpen ? 1 : 0,
           }}
         >

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, ReactNode } from "react";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface ModalProps {
   open: boolean;
@@ -18,6 +19,8 @@ export default function Modal({
   maxWidth = "max-w-lg",
 }: ModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   useEffect(() => {
     if (!open) return;
@@ -43,14 +46,22 @@ export default function Modal({
       }}
     >
       <div
-        className={`w-full ${maxWidth} mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl border border-white/10 bg-[#1a1a2e] p-4 sm:p-6 shadow-2xl max-h-[95vh] sm:max-h-[85vh] flex flex-col`}
+        className={`w-full ${maxWidth} mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl border p-4 sm:p-6 shadow-2xl max-h-[95vh] sm:max-h-[85vh] flex flex-col ${
+          isDark
+            ? "border-white/10 bg-[#1a1a2e]"
+            : "border-gray-200 bg-white shadow-xl"
+        }`}
       >
         {/* Header */}
         <div className="mb-4 sm:mb-6 flex items-center justify-between shrink-0">
-          <h2 className="text-base sm:text-lg font-semibold text-white">{title}</h2>
+          <h2 className={`text-base sm:text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
+              isDark
+                ? "text-white/50 hover:bg-white/10 hover:text-white"
+                : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            }`}
           >
             <svg
               width="16"

@@ -463,7 +463,7 @@ export default function SettingsScreen() {
 
   // ─── Input Classes ───
   const inputClass = "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/10 transition-all";
-  const labelClass = "text-xs font-medium uppercase tracking-wider text-white/50";
+  const labelClass = "text-xs font-medium tracking-wider text-white/50";
   const cardClass = "rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-5";
   const btnClass = "rounded-xl bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] px-6 py-2.5 text-sm font-semibold text-[#1a1a2e] hover:opacity-90 disabled:opacity-50 transition-opacity";
 
@@ -490,7 +490,7 @@ export default function SettingsScreen() {
     <div className="space-y-6 text-white">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-semibold">{text.title}</h1>
+        <h1 className="text-2xl font-semibold">{text.title}</h1>
         <p className="mt-1 text-sm text-white/50">{text.subtitle}</p>
       </div>
 
@@ -651,7 +651,7 @@ export default function SettingsScreen() {
                       )}
 
                       {!day.isOpen && (
-                        <span className="text-xs text-white/20 uppercase tracking-wider">{text.closed}</span>
+                        <span className="text-xs text-white/20 tracking-wider">{text.closed}</span>
                       )}
                     </div>
 

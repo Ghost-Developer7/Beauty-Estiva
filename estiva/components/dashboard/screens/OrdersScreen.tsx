@@ -659,7 +659,7 @@ export default function OrdersScreen() {
         ) : (
           <>
             {/* Table header */}
-            <div className="hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
               <span>{t.customer}</span>
               <span>{t.treatment}</span>
               <span>{t.staffMember}</span>
@@ -755,7 +755,7 @@ export default function OrdersScreen() {
 
           {/* Appointment Selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.appointment}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.appointment}</label>
             <div className="relative" ref={appointmentDropdownRef}>
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
@@ -799,7 +799,7 @@ export default function OrdersScreen() {
           {/* Amount + Currency */}
           <div className={`grid grid-cols-1 gap-3 ${(() => { const curr = currencies.find(c => c.id === form.currencyId); return curr && curr.code !== "TRY" ? "sm:grid-cols-3" : "sm:grid-cols-2"; })()}`}>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentAmount}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentAmount}</label>
               <input
                 type="number"
                 min={0}
@@ -811,7 +811,7 @@ export default function OrdersScreen() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.currency}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.currency}</label>
               <select
                 value={form.currencyId}
                 onChange={(e) => handleCurrencyChange(Number(e.target.value))}
@@ -827,7 +827,7 @@ export default function OrdersScreen() {
             </div>
             {(() => { const curr = currencies.find(c => c.id === form.currencyId); return curr && curr.code !== "TRY"; })() && (
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.exchangeRate}</label>
+                <label className="text-xs font-semibold tracking-wider text-white/40">{t.exchangeRate}</label>
                 <input
                   type="number"
                   min={0}
@@ -845,7 +845,7 @@ export default function OrdersScreen() {
 
           {/* Payment Method */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentMethod}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentMethod}</label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {PAYMENT_METHODS.map((m) => (
                 <button
@@ -867,7 +867,7 @@ export default function OrdersScreen() {
 
           {/* Notes */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.notes}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
             <input
               type="text"
               value={form.notes}
@@ -918,34 +918,34 @@ export default function OrdersScreen() {
               {/* Info grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.customer}</p>
+                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.customer}</p>
                   <p className="text-sm text-white">{p.customerFullName}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.treatment}</p>
+                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.treatment}</p>
                   <p className="text-sm text-white">{p.treatmentName}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.staffMember}</p>
+                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.staffMember}</p>
                   <p className="text-sm text-white">{p.staffFullName}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.appointmentDate}</p>
+                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.appointmentDate}</p>
                   <p className="text-sm text-white">{formatDateTime(p.appointmentStartTime)}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.paidAt}</p>
+                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.paidAt}</p>
                   <p className="text-sm text-white">{formatDateTime(p.paidAt)}</p>
                 </div>
                 {p.currencyCode !== "TRY" && (
                   <div className="space-y-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.exchangeRate}</p>
+                    <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.exchangeRate}</p>
                     <p className="text-sm text-white">1 {p.currencyCode} = ₺{fmt(p.exchangeRateToTry)}</p>
                   </div>
                 )}
                 {p.notes && (
                   <div className="col-span-2 space-y-1">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.notes}</p>
+                    <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.notes}</p>
                     <p className="text-sm text-white/70">{p.notes}</p>
                   </div>
                 )}
@@ -973,7 +973,7 @@ export default function OrdersScreen() {
 
           {/* Customer */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.apptCustomer}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptCustomer}</label>
             <div className="flex gap-2 mb-2">
               <button type="button" onClick={() => setApptForm({ ...apptForm, isNewCustomer: false })}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${!apptForm.isNewCustomer ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}>
@@ -1027,7 +1027,7 @@ export default function OrdersScreen() {
           {/* Treatment + Staff */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.apptTreatment}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptTreatment}</label>
               <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
                 {treatments.map((tr) => (
                   <button key={tr.id} type="button" onClick={() => setApptForm({ ...apptForm, treatmentId: tr.id })}
@@ -1045,7 +1045,7 @@ export default function OrdersScreen() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.apptStaff}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptStaff}</label>
               <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
                 <button type="button" onClick={() => setApptForm({ ...apptForm, staffId: 0 })}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.staffId === 0 ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}>
@@ -1071,12 +1071,12 @@ export default function OrdersScreen() {
           {/* Date + Notes */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.apptDateTime}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptDateTime}</label>
               <input type="datetime-local" value={apptForm.startTime} onChange={(e) => setApptForm({ ...apptForm, startTime: e.target.value })}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.apptNotes}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptNotes}</label>
               <input type="text" value={apptForm.notes} onChange={(e) => setApptForm({ ...apptForm, notes: e.target.value })} placeholder={t.notesPlaceholder}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
             </div>

@@ -11,7 +11,7 @@ export interface ExportColumn {
 
 /* ─── Currency formatter ─── */
 const fmtCurrency = (n: number): string =>
-  n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " TL";
+  n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " TRY";
 
 const fmtDate = (d: string | null | undefined): string => {
   if (!d) return "—";

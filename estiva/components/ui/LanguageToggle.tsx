@@ -17,7 +17,7 @@ export default function LanguageToggle() {
       type="button"
       onClick={toggleLanguage}
       aria-label="Change language"
-      className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold uppercase transition ${baseClasses}`}
+      className={`flex h-10 w-10 items-center justify-center rounded-full text-xs font-semibold transition ${baseClasses}`}
     >
       {language === "en" ? "EN" : "TR"}
     </button>

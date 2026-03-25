@@ -6,6 +6,7 @@ import LanguageToggle from "@/components/ui/LanguageToggle";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import ProfileScreen from "@/components/dashboard/screens/ProfileScreen";
 import { tenantService } from "@/services/tenantService";
 import type { TenantInfo } from "@/services/tenantService";
@@ -39,6 +40,8 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
   const menuRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const text = copy[language];
 
   // Fetch tenant info
@@ -149,8 +152,8 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
                   <span className="text-sm font-semibold text-white group-hover:text-pink-100 transition-colors leading-tight">
                     {displayName}
                   </span>
-                  <span className="text-[10px] uppercase tracking-[0.2em] text-white/40 font-medium leading-tight">
-                    {displayRole}
+                  <span className="text-[10px] tracking-[0.2em] text-white/40 font-medium leading-tight">
+                    {displayRole.toLocaleUpperCase('en')}
                   </span>
                 </div>
                 <div className="hidden sm:block ml-1 text-white/20 group-hover:text-white/50 transition-colors">
@@ -160,19 +163,27 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
               {/* Dropdown menu */}
               {showMenu && (
-                <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-white/10 bg-[#1a1a2e] p-1 shadow-xl z-50">
+                <div className={`absolute right-0 top-full mt-2 w-48 rounded-xl border p-1 shadow-xl z-50 ${
+                  isDark
+                    ? "border-white/10 bg-[#1a1a2e]"
+                    : "border-gray-200 bg-white"
+                }`}>
                   {/* Show language/theme toggles in dropdown on mobile */}
                   <div className="flex items-center gap-2 px-3 py-2 sm:hidden">
                     <LanguageToggle />
                     <ThemeToggle />
                   </div>
-                  <div className="mx-2 my-0.5 h-px bg-white/5 sm:hidden" />
+                  <div className={`mx-2 my-0.5 h-px sm:hidden ${isDark ? "bg-white/5" : "bg-gray-200"}`} />
                   <button
                     onClick={() => {
                       setShowMenu(false);
                       setShowProfile(true);
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-white/70 hover:bg-white/10 hover:text-white transition"
+                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition ${
+                      isDark
+                        ? "text-white/70 hover:bg-white/10 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
@@ -180,13 +191,17 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
                     </svg>
                     {text.profile}
                   </button>
-                  <div className="mx-2 my-0.5 h-px bg-white/5" />
+                  <div className={`mx-2 my-0.5 h-px ${isDark ? "bg-white/5" : "bg-gray-200"}`} />
                   <button
                     onClick={() => {
                       setShowMenu(false);
                       logout();
                     }}
-                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-white/70 hover:bg-white/10 hover:text-white transition"
+                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-sm transition ${
+                      isDark
+                        ? "text-white/70 hover:bg-white/10 hover:text-white"
+                        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                    }`}
                   >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />

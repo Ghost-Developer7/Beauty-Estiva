@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface PaginationProps {
   pageNumber: number;
@@ -18,7 +19,6 @@ const copy = {
     showing: "Showing",
     of: "of",
     results: "results",
-    perPage: "per page",
     previous: "Previous",
     next: "Next",
   },
@@ -26,7 +26,6 @@ const copy = {
     showing: "Gösterilen",
     of: "/",
     results: "sonuç",
-    perPage: "sayfa başı",
     previous: "Önceki",
     next: "Sonraki",
   },
@@ -41,7 +40,9 @@ export default function Pagination({
   onPageSizeChange,
 }: PaginationProps) {
   const { language } = useLanguage();
+  const { theme } = useTheme();
   const t = copy[language];
+  const isDark = theme === "dark";
 
   if (totalCount === 0) return null;
 
@@ -74,20 +75,26 @@ export default function Pagination({
   };
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 border-t border-white/[0.06] bg-white/[0.02]">
+    <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 border-t ${
+      isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-gray-50"
+    }`}>
       {/* Info */}
-      <div className="flex items-center gap-3 text-xs text-white/40">
+      <div className={`flex items-center gap-3 text-xs ${isDark ? "text-white/40" : "text-gray-500"}`}>
         <span>
           {t.showing} {start}-{end} {t.of} {totalCount} {t.results}
         </span>
         <select
           value={pageSize}
           onChange={(e) => onPageSizeChange(Number(e.target.value))}
-          className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-xs text-white/60 focus:outline-none focus:border-white/20 transition cursor-pointer"
+          className={`rounded-lg border px-2 py-1 text-xs focus:outline-none transition cursor-pointer ${
+            isDark
+              ? "border-white/[0.08] bg-white/[0.03] text-white/60 focus:border-white/20"
+              : "border-gray-200 bg-white text-gray-700 focus:border-gray-400"
+          }`}
         >
           {PAGE_SIZE_OPTIONS.map((size) => (
-            <option key={size} value={size} className="bg-[#1a1a2e] text-white">
-              {size} {t.perPage}
+            <option key={size} value={size} className={isDark ? "bg-[#1a1a2e] text-white" : "bg-white text-gray-700"}>
+              {size}
             </option>
           ))}
         </select>
@@ -99,7 +106,11 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(pageNumber - 1)}
           disabled={pageNumber <= 1}
-          className="flex h-8 items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 text-xs text-white/50 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+          className={`flex h-8 items-center gap-1 rounded-lg border px-2.5 text-xs transition disabled:opacity-30 disabled:cursor-not-allowed ${
+            isDark
+              ? "border-white/[0.08] bg-white/[0.03] text-white/50 hover:bg-white/[0.06] hover:text-white disabled:hover:bg-transparent"
+              : "border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:hover:bg-white"
+          }`}
         >
           <svg
             width="12"
@@ -120,7 +131,7 @@ export default function Pagination({
           page === "..." ? (
             <span
               key={`dots-${i}`}
-              className="flex h-8 w-8 items-center justify-center text-xs text-white/30"
+              className={`flex h-8 w-8 items-center justify-center text-xs ${isDark ? "text-white/30" : "text-gray-400"}`}
             >
               ...
             </span>
@@ -130,8 +141,12 @@ export default function Pagination({
               onClick={() => onPageChange(page)}
               className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-medium transition ${
                 page === pageNumber
-                  ? "bg-white/10 text-white border border-white/20"
-                  : "text-white/40 hover:bg-white/[0.06] hover:text-white/70"
+                  ? isDark
+                    ? "bg-white/10 text-white border border-white/20"
+                    : "bg-gray-200 text-gray-900 border border-gray-300"
+                  : isDark
+                    ? "text-white/40 hover:bg-white/[0.06] hover:text-white/70"
+                    : "text-gray-500 hover:bg-gray-100 hover:text-gray-700"
               }`}
             >
               {page}
@@ -140,7 +155,7 @@ export default function Pagination({
         )}
         </span>
         {/* Mobile: show page X of Y */}
-        <span className="flex sm:hidden items-center text-xs text-white/40 px-2">
+        <span className={`flex sm:hidden items-center text-xs px-2 ${isDark ? "text-white/40" : "text-gray-500"}`}>
           {pageNumber}/{totalPages}
         </span>
 
@@ -148,7 +163,11 @@ export default function Pagination({
         <button
           onClick={() => onPageChange(pageNumber + 1)}
           disabled={pageNumber >= totalPages}
-          className="flex h-8 items-center gap-1 rounded-lg border border-white/[0.08] bg-white/[0.03] px-2.5 text-xs text-white/50 transition hover:bg-white/[0.06] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent"
+          className={`flex h-8 items-center gap-1 rounded-lg border px-2.5 text-xs transition disabled:opacity-30 disabled:cursor-not-allowed ${
+            isDark
+              ? "border-white/[0.08] bg-white/[0.03] text-white/50 hover:bg-white/[0.06] hover:text-white disabled:hover:bg-transparent"
+              : "border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:hover:bg-white"
+          }`}
         >
           <span className="hidden sm:inline">{t.next}</span>
           <svg

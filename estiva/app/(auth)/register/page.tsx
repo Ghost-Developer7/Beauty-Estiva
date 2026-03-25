@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 const copy = {
   en: {
-    badge: "Staff registration",
+    badge: "STAFF REGISTRATION",
     title: "Join your salon",
     subtitle: "Enter the invite code shared by your salon owner to create your account.",
     inviteToken: "Invite Code",
@@ -37,7 +37,7 @@ const copy = {
     passwordMismatch: "Passwords don't match",
   },
   tr: {
-    badge: "Personel kaydı",
+    badge: "PERSONEL KAYDI",
     title: "Salonuna katıl",
     subtitle: "Salon sahibinizin paylaştığı davet kodunu girerek hesabınızı oluşturun.",
     inviteToken: "Davet Kodu",
@@ -155,7 +155,7 @@ function StaffRegisterContent() {
         <div className={`w-full max-w-lg rounded-3xl ${cardBorder} ${cardBg} p-10 shadow-2xl`}>
           {/* Header */}
           <div className="mb-8 text-center">
-            <p className={`text-xs font-semibold uppercase tracking-[0.4em] ${subtleText}`}>
+            <p className={`text-xs font-semibold tracking-[0.4em] ${subtleText}`}>
               {text.badge}
             </p>
             <h1 className="mt-2 text-2xl font-semibold">{text.title}</h1>

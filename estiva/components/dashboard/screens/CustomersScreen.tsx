@@ -278,7 +278,7 @@ function DetailStatCard({ icon, label, value }: { icon: React.ReactNode; label: 
     <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 space-y-1">
       <div className="flex items-center gap-2">
         <div className="text-white/30">{icon}</div>
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-white/40">{label}</p>
+        <p className="text-[10px] font-semibold tracking-wider text-white/40">{label}</p>
       </div>
       <p className="text-lg font-bold text-white">{value}</p>
     </div>
@@ -567,7 +567,7 @@ export default function CustomersScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className="hidden lg:grid grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden lg:grid grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
               <span>{t.customer}</span>
               <span>{t.contact}</span>
               <span>{t.visits}</span>
@@ -640,48 +640,48 @@ export default function CustomersScreen() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.name}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.name}</label>
               <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputCls("name")} />
               {fieldErrors.name && <p className="text-[11px] text-red-400">{fieldErrors.name}</p>}
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.surname}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.surname}</label>
               <input type="text" value={form.surname} onChange={(e) => setForm({ ...form, surname: e.target.value })} className={inputCls("surname")} />
               {fieldErrors.surname && <p className="text-[11px] text-red-400">{fieldErrors.surname}</p>}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.phone}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.phone}</label>
               <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls("phone")} />
               {fieldErrors.phone && <p className="text-[11px] text-red-400">{fieldErrors.phone}</p>}
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.email}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.email}</label>
               <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} className={inputCls("email")} />
               {fieldErrors.email && <p className="text-[11px] text-red-400">{fieldErrors.email}</p>}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.birthDate}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.birthDate}</label>
               <input type="date" value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25" />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.referralSource}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.referralSource}</label>
               <input type="text" value={form.referralSource} onChange={(e) => setForm({ ...form, referralSource: e.target.value })} placeholder={t.referralPlaceholder} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-white/25" />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.allergies}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.allergies}</label>
             <input type="text" value={form.allergies} onChange={(e) => setForm({ ...form, allergies: e.target.value })} placeholder={t.allergiesPlaceholder} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-white/25" />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.preferences}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.preferences}</label>
             <input type="text" value={form.preferences} onChange={(e) => setForm({ ...form, preferences: e.target.value })} placeholder={t.preferencesPlaceholder} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/20 focus:outline-none focus:border-white/25" />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.notes}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
             <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} placeholder={t.notesPlaceholder} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none" />
           </div>
           <div className="flex gap-3 pt-1">
@@ -838,14 +838,14 @@ export default function CustomersScreen() {
                           { label: t.referralSource, value: c.referralSource },
                         ].map(({ label, value }) => (
                           <div key={label} className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 space-y-1">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{label}</p>
+                            <p className="text-[10px] font-semibold tracking-wider text-white/30">{label}</p>
                             <p className="text-sm text-white/70">{value || "\u2014"}</p>
                           </div>
                         ))}
 
                         {/* Tags Management */}
                         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 space-y-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.tags}</p>
+                          <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.tags}</p>
                           <div className="flex flex-wrap gap-1.5">
                             {detailTags.map(tg => <TagPill key={tg} tag={tg} onRemove={() => handleRemoveTag(tg)} />)}
                           </div>
@@ -864,11 +864,11 @@ export default function CustomersScreen() {
 
                         <div className="grid grid-cols-2 gap-4">
                           <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 space-y-1">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.birthDate}</p>
+                            <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.birthDate}</p>
                             <p className="text-sm text-white">{formatDate(c.birthDate)}</p>
                           </div>
                           <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 space-y-1">
-                            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.registered}</p>
+                            <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.registered}</p>
                             <p className="text-sm text-white">{formatDate(c.cDate)}</p>
                           </div>
                         </div>
@@ -880,9 +880,9 @@ export default function CustomersScreen() {
                       <div className="space-y-4">
                         <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-5 text-center space-y-2">
                           <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mx-auto text-amber-400"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-amber-400/60">{t.pointsBalance}</p>
+                          <p className="text-[10px] font-semibold tracking-wider text-amber-400/60">{t.pointsBalance}</p>
                           <p className="text-4xl font-bold text-amber-400">{c.loyaltyPoints}</p>
-                          <p className="text-xs text-white/30">{language === "tr" ? "Her 100 TL harcamada 1 puan" : "1 point per 100 TL spent"}</p>
+                          <p className="text-xs text-white/30">{language === "tr" ? "Her 100 TRY harcamada 1 puan" : "1 point per 100 TRY spent"}</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
@@ -895,11 +895,11 @@ export default function CustomersScreen() {
                         </div>
 
                         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 space-y-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.tier}</p>
+                          <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.tier}</p>
                           <div className="flex items-center gap-3">
                             <SegmentBadge segment={c.segment} language={language} />
                             <p className="text-xs text-white/40">
-                              {c.segment === "VIP" && (language === "tr" ? "10+ ziyaret veya 5000+ TL harcama" : "10+ visits or 5000+ TL spent")}
+                              {c.segment === "VIP" && (language === "tr" ? "10+ ziyaret veya 5000+ TRY harcama" : "10+ visits or 5000+ TRY spent")}
                               {c.segment === "Regular" && (language === "tr" ? "3+ ziyaret" : "3+ visits")}
                               {c.segment === "New" && (language === "tr" ? "Yeni m\u00fc\u015fteri" : "New customer")}
                               {c.segment === "Lost" && (language === "tr" ? "90+ g\u00fcnd\u00fcr ziyaret yok" : "No visit in 90+ days")}
@@ -910,19 +910,19 @@ export default function CustomersScreen() {
                         {stats && (
                           <div className="grid grid-cols-2 gap-3">
                             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 space-y-1">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{language === "tr" ? "Ziyaret S\u0131kl\u0131\u011f\u0131" : "Visit Frequency"}</p>
+                              <p className="text-[10px] font-semibold tracking-wider text-white/30">{language === "tr" ? "Ziyaret S\u0131kl\u0131\u011f\u0131" : "Visit Frequency"}</p>
                               <p className="text-sm font-bold text-white">{stats.visitFrequencyDays > 0 ? `${stats.visitFrequencyDays} ${language === "tr" ? "g\u00fcn" : "days"}` : "\u2014"}</p>
                             </div>
                             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 space-y-1">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{language === "tr" ? "En \u00c7ok Kullan\u0131lan" : "Most Used"}</p>
+                              <p className="text-[10px] font-semibold tracking-wider text-white/30">{language === "tr" ? "En \u00c7ok Kullan\u0131lan" : "Most Used"}</p>
                               <p className="text-sm font-bold text-white truncate">{stats.mostUsedTreatment || "\u2014"}{stats.mostUsedTreatmentCount > 0 && <span className="text-white/30 text-xs ml-1">({stats.mostUsedTreatmentCount}x)</span>}</p>
                             </div>
                             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 space-y-1">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{language === "tr" ? "Son Ziyaret" : "Last Visit"}</p>
+                              <p className="text-[10px] font-semibold tracking-wider text-white/30">{language === "tr" ? "Son Ziyaret" : "Last Visit"}</p>
                               <p className="text-sm font-bold text-white">{formatDate(stats.lastVisitDate)}</p>
                             </div>
                             <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 space-y-1">
-                              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{language === "tr" ? "Sonraki Randevu" : "Next Appointment"}</p>
+                              <p className="text-[10px] font-semibold tracking-wider text-white/30">{language === "tr" ? "Sonraki Randevu" : "Next Appointment"}</p>
                               <p className="text-sm font-bold text-white">{formatDate(stats.nextAppointmentDate)}</p>
                             </div>
                           </div>
@@ -930,7 +930,7 @@ export default function CustomersScreen() {
 
                         {/* Tier progress */}
                         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 space-y-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{language === "tr" ? "Seviye \u0130lerlemesi" : "Tier Progress"}</p>
+                          <p className="text-[10px] font-semibold tracking-wider text-white/30">{language === "tr" ? "Seviye \u0130lerlemesi" : "Tier Progress"}</p>
                           <div className="space-y-2">
                             <div className="space-y-1">
                               <div className="flex justify-between text-[10px] text-white/40">

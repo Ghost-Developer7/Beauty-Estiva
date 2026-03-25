@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { staffScheduleService } from "@/services/staffScheduleService";
+import { staffService, type StaffMember } from "@/services/staffService";
 import type { StaffUnavailabilityListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import toast from "react-hot-toast";
@@ -15,7 +16,8 @@ const copy = {
     loading: "Loading...",
     noData: "No unavailabilities found.",
     recordCount: "Total",
-    staffId: "Staff ID",
+    staffId: "Staff",
+    selectStaff: "Select staff member...",
     startDate: "Start Date",
     endDate: "End Date",
     filter: "Search",
@@ -38,7 +40,8 @@ const copy = {
     loading: "Yükleniyor...",
     noData: "Müsait olmama kaydı bulunamadı.",
     recordCount: "Toplam",
-    staffId: "Personel ID",
+    staffId: "Personel",
+    selectStaff: "Personel seçin...",
     startDate: "Başlangıç",
     endDate: "Bitiş",
     filter: "Ara",
@@ -64,6 +67,7 @@ export default function PersonnelReportScreen() {
   const [staffIdFilter, setStaffIdFilter] = useState<number>(0);
   const [startFilter, setStartFilter] = useState("");
   const [endFilter, setEndFilter] = useState("");
+  const [staffList, setStaffList] = useState<StaffMember[]>([]);
 
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState({
@@ -95,6 +99,12 @@ export default function PersonnelReportScreen() {
   }, [staffIdFilter, startFilter, endFilter, language]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  useEffect(() => {
+    staffService.list().then((res) => {
+      if (res.data.success && res.data.data) setStaffList(res.data.data);
+    }).catch(() => {});
+  }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -144,8 +154,18 @@ export default function PersonnelReportScreen() {
       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
         <div className="space-y-1">
           <label className="text-[10px] text-white/40">{text.staffId}</label>
-          <input type="number" min={1} value={staffIdFilter || ""} onChange={(e) => setStaffIdFilter(Number(e.target.value))}
-            className="w-24 rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none" />
+          <select
+            value={staffIdFilter || ""}
+            onChange={(e) => setStaffIdFilter(Number(e.target.value))}
+            className="min-w-[180px] rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none"
+          >
+            <option value="" className="bg-[#1a1a2e]">{text.selectStaff}</option>
+            {staffList.filter(s => s.isActive).map((s) => (
+              <option key={s.id} value={s.id} className="bg-[#1a1a2e]">
+                {s.name} {s.surname}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="space-y-1">
           <label className="text-[10px] text-white/40">{text.startDate}</label>
@@ -163,7 +183,7 @@ export default function PersonnelReportScreen() {
       <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
         {!staffIdFilter ? (
           <div className="p-8 text-center text-white/40">
-            {language === "tr" ? "Personel ID girerek arama yapın" : "Enter a Staff ID to search"}
+            {language === "tr" ? "Personel seçerek arama yapın" : "Select a staff member to search"}
           </div>
         ) : loading ? (
           <div className="p-8 text-center text-white/60">{text.loading}</div>

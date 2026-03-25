@@ -500,7 +500,7 @@ export default function BranchesScreen() {
       {canManage && limit && (
         <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-white/50 uppercase tracking-wider">{t.branchUsage}</span>
+            <span className="text-xs font-semibold text-white/50 tracking-wider">{t.branchUsage}</span>
             <span className="text-sm font-bold text-white">
               {limit.maxCount === -1
                 ? `${limit.currentCount} (${t.unlimited})`
@@ -687,7 +687,7 @@ export default function BranchesScreen() {
             <div className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5">{t.name}</label>
+                <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.name}</label>
                 <input
                   type="text"
                   value={formName}
@@ -699,7 +699,7 @@ export default function BranchesScreen() {
 
               {/* Address */}
               <div>
-                <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5">{t.address}</label>
+                <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.address}</label>
                 <input
                   type="text"
                   value={formAddress}
@@ -711,7 +711,7 @@ export default function BranchesScreen() {
               {/* Phone & Email */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5">{t.phone}</label>
+                  <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.phone}</label>
                   <input
                     type="text"
                     value={formPhone}
@@ -720,7 +720,7 @@ export default function BranchesScreen() {
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-1.5">{t.email}</label>
+                  <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.email}</label>
                   <input
                     type="email"
                     value={formEmail}
@@ -756,7 +756,7 @@ export default function BranchesScreen() {
 
               {/* Working Hours */}
               <div>
-                <label className="block text-xs font-semibold text-white/50 uppercase tracking-wider mb-2">{t.workingHours}</label>
+                <label className="block text-xs font-semibold text-white/50 tracking-wider mb-2">{t.workingHours}</label>
                 <div className="space-y-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
                   {formWorkingHours.map((wh, idx) => (
                     <div key={wh.day} className="flex items-center gap-2">
@@ -871,19 +871,19 @@ export default function BranchesScreen() {
             {/* Info Grid */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.address}</p>
+                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.address}</p>
                 <p className="text-sm text-white">{selectedBranch.address || "--"}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.phone}</p>
+                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.phone}</p>
                 <p className="text-sm text-white">{selectedBranch.phone || "--"}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.email}</p>
+                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.email}</p>
                 <p className="text-sm text-white">{selectedBranch.email || "--"}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.staffCount}</p>
+                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.staffCount}</p>
                 <p className="text-sm font-bold text-blue-400">{selectedBranch.staffCount}</p>
               </div>
             </div>
@@ -894,7 +894,7 @@ export default function BranchesScreen() {
                 const wh: WorkingHour[] = JSON.parse(selectedBranch.workingHoursJson);
                 return (
                   <div className="mb-6">
-                    <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mb-2">{t.workingHours}</p>
+                    <p className="text-[10px] font-semibold tracking-wider text-white/30 mb-2">{t.workingHours}</p>
                     <div className="space-y-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
                       {wh.map((h, idx) => (
                         <div key={h.day} className="flex items-center justify-between text-xs">
@@ -914,7 +914,7 @@ export default function BranchesScreen() {
 
             {/* Assigned Staff */}
             <div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30 mb-3">{t.assignedStaff}</p>
+              <p className="text-[10px] font-semibold tracking-wider text-white/30 mb-3">{t.assignedStaff}</p>
 
               {selectedBranch.staff.length === 0 ? (
                 <p className="text-xs text-white/30 py-4 text-center">{t.noStaffAssigned}</p>

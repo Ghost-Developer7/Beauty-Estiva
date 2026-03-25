@@ -303,7 +303,7 @@ export default function StaffPage() {
         ) : (
           <>
             {/* Header */}
-            <div className="hidden md:grid grid-cols-[1fr_1fr_0.7fr_0.5fr] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden md:grid grid-cols-[1fr_1fr_0.7fr_0.5fr] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
               <span>{t.staffMember}</span>
               <span>{t.contact}</span>
               <span>{t.rolesCol}</span>
@@ -416,15 +416,15 @@ export default function StaffPage() {
                   {/* Info grid */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.email}</p>
+                      <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.email}</p>
                       <p className="text-sm text-white truncate">{s.email}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.phone}</p>
+                      <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.phone}</p>
                       <p className="text-sm text-white">{s.phone || "—"}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.status}</p>
+                      <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.status}</p>
                       <div className="flex items-center gap-2">
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${s.isActive ? "bg-emerald-500/15 text-emerald-400" : "bg-red-500/15 text-red-400"}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${s.isActive ? "bg-emerald-400" : "bg-red-400"}`} />
@@ -436,15 +436,15 @@ export default function StaffPage() {
                       </div>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.registered}</p>
+                      <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.registered}</p>
                       <p className="text-sm text-white">{formatDate(s.cDate)}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.birthDate}</p>
+                      <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.birthDate}</p>
                       <p className="text-sm text-white">{formatDate(s.birthDate)}</p>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.commission}</p>
+                      <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.commission}</p>
                       <p className="text-sm font-bold text-emerald-400">%{s.defaultCommissionRate ?? 0}</p>
                     </div>
                   </div>
@@ -452,7 +452,7 @@ export default function StaffPage() {
                   {/* ── Rol Değiştirme ── */}
                   {canManageRoles && user?.id && parseInt(user.id) !== s.id && (
                     <div className="mt-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 space-y-3">
-                      <p className="text-xs font-semibold text-white/50 uppercase tracking-wider">{t.changeRole}</p>
+                      <p className="text-xs font-semibold text-white/50 tracking-wider">{t.changeRole}</p>
                       <div className="flex items-center gap-2">
                         <select
                           value={selectedNewRole}

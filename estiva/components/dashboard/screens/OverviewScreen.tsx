@@ -38,72 +38,72 @@ const STATUS_COLORS: Record<string, string> = {
 const copy = {
   en: {
     welcome: "Welcome back",
-    todayAppointments: "Today's Appointments",
-    monthRevenue: "This Month Revenue",
-    totalCustomers: "Total Customers",
-    activePackages: "Active Packages",
+    todayAppointments: "TODAY'S APPOINTMENTS",
+    monthRevenue: "THIS MONTH REVENUE",
+    totalCustomers: "TOTAL CUSTOMERS",
+    activePackages: "ACTIVE PACKAGES",
     upcoming: "upcoming",
-    revenueExpenseTrend: "Revenue & Expense Trend",
-    appointmentStatus: "Appointment Status",
-    customerGrowth: "Customer Growth",
-    topServicesRevenue: "Top Services by Revenue",
-    todaySchedule: "Today's Schedule",
-    quickStats: "Quick Stats",
+    revenueExpenseTrend: "REVENUE & EXPENSE TREND",
+    appointmentStatus: "APPOINTMENT STATUS",
+    customerGrowth: "CUSTOMER GROWTH",
+    topServicesRevenue: "TOP SERVICES BY REVENUE",
+    todaySchedule: "TODAY'S SCHEDULE",
+    quickStats: "QUICK STATS",
     revenue: "Revenue",
     expense: "Expense",
     newCustomers: "New Customers",
     totalCust: "Total",
     noData: "No data available",
     loading: "Loading...",
-    time: "Time",
-    customer: "Customer",
-    treatment: "Treatment",
-    staff: "Staff",
-    status: "Status",
+    time: "TIME",
+    customer: "CUSTOMER",
+    treatment: "TREATMENT",
+    staff: "STAFF",
+    status: "STATUS",
     thisWeek: "This Week",
     thisMonth: "This Month",
-    netProfit: "Net Profit",
+    netProfit: "NET PROFIT",
     scheduled: "Scheduled",
     confirmed: "Confirmed",
     completed: "Completed",
     cancelled: "Cancelled",
     noShow: "No Show",
-    topStaff: "Top Staff by Revenue",
+    topStaff: "TOP STAFF BY REVENUE",
     monthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
   },
   tr: {
     welcome: "Tekrar hoş geldiniz",
-    todayAppointments: "Bugünün Randevuları",
-    monthRevenue: "Bu Ay Gelir",
-    totalCustomers: "Toplam Müşteri",
-    activePackages: "Aktif Paketler",
+    todayAppointments: "BUGÜNÜN RANDEVULARI",
+    monthRevenue: "BU AY GELİR",
+    totalCustomers: "TOPLAM MÜŞTERİ",
+    activePackages: "AKTİF PAKETLER",
     upcoming: "yaklaşan",
-    revenueExpenseTrend: "Gelir & Gider Trendi",
-    appointmentStatus: "Randevu Durumu",
-    customerGrowth: "Müşteri Büyümesi",
-    topServicesRevenue: "Gelire Göre En İyi Hizmetler",
-    todaySchedule: "Bugünün Programı",
-    quickStats: "Hızlı İstatistikler",
+    revenueExpenseTrend: "GELİR & GİDER TRENDİ",
+    appointmentStatus: "RANDEVU DURUMU",
+    customerGrowth: "MÜŞTERİ BÜYÜMESİ",
+    topServicesRevenue: "GELİRE GÖRE EN İYİ HİZMETLER",
+    todaySchedule: "BUGÜNÜN PROGRAMI",
+    quickStats: "HIZLI İSTATİSTİKLER",
     revenue: "Gelir",
     expense: "Gider",
     newCustomers: "Yeni Müşteri",
     totalCust: "Toplam",
     noData: "Veri bulunamadı",
     loading: "Yükleniyor...",
-    time: "Saat",
-    customer: "Müşteri",
-    treatment: "Hizmet",
-    staff: "Personel",
-    status: "Durum",
+    time: "SAAT",
+    customer: "MÜŞTERİ",
+    treatment: "HİZMET",
+    staff: "PERSONEL",
+    status: "DURUM",
     thisWeek: "Bu Hafta",
     thisMonth: "Bu Ay",
-    netProfit: "Net Kar",
+    netProfit: "NET KAR",
     scheduled: "Planlandı",
     confirmed: "Onaylandı",
     completed: "Tamamlandı",
     cancelled: "İptal",
     noShow: "Gelmedi",
-    topStaff: "Gelire Göre En İyi Personel",
+    topStaff: "GELİRE GÖRE EN İYİ PERSONEL",
     monthNames: ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"],
   },
 };
@@ -164,7 +164,7 @@ function CustomTooltip({ active, payload, label }: any) {
       <p className="mb-1 text-xs font-medium text-white/60">{label}</p>
       {payload.map((entry: any, i: number) => (
         <p key={i} className="text-sm font-semibold" style={{ color: entry.color }}>
-          {entry.name}: {formatCurrency(entry.value)} TL
+          {entry.name}: {formatCurrency(entry.value)} TRY
         </p>
       ))}
     </div>
@@ -316,8 +316,8 @@ export default function OverviewScreen() {
     },
     {
       label: t.monthRevenue,
-      value: `${formatCurrency(data.thisMonthRevenue)} TL`,
-      sub: `${t.thisWeek}: ${formatCurrency(data.thisWeekRevenue)} TL`,
+      value: `${formatCurrency(data.thisMonthRevenue)} TRY`,
+      sub: `${t.thisWeek}: ${formatCurrency(data.thisWeekRevenue)} TRY`,
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -384,7 +384,7 @@ export default function OverviewScreen() {
             <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
             <div className="relative">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium uppercase tracking-wider text-white/50">
+                <p className="text-xs font-medium tracking-wider text-white/50">
                   {card.label}
                 </p>
                 <span className={`${card.iconColor}`}>{card.icon}</span>
@@ -402,19 +402,19 @@ export default function OverviewScreen() {
       {isOwnerOrAdmin && (
         <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-white/10 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-cyan-500/10 px-6 py-4 backdrop-blur-sm">
           <div className="flex-1">
-            <p className="text-xs font-medium uppercase tracking-wider text-white/50">{t.netProfit} ({t.thisMonth})</p>
+            <p className="text-xs font-medium tracking-wider text-white/50">{t.netProfit} ({t.thisMonth})</p>
             <p className={`mt-1 text-2xl font-bold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)} TL
+              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)} TRY
             </p>
           </div>
           <div className="flex gap-8 text-sm">
             <div>
               <p className="text-white/40">{t.revenue}</p>
-              <p className="font-semibold text-emerald-400">{formatCurrency(data.thisMonthRevenue)} TL</p>
+              <p className="font-semibold text-emerald-400">{formatCurrency(data.thisMonthRevenue)} TRY</p>
             </div>
             <div>
               <p className="text-white/40">{t.expense}</p>
-              <p className="font-semibold text-red-400">{formatCurrency(data.thisMonthExpense)} TL</p>
+              <p className="font-semibold text-red-400">{formatCurrency(data.thisMonthExpense)} TRY</p>
             </div>
           </div>
         </div>
@@ -425,7 +425,7 @@ export default function OverviewScreen() {
         {/* Revenue/Expense Line Chart */}
         {isOwnerOrAdmin && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm lg:col-span-2">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+            <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
               {t.revenueExpenseTrend}
             </h2>
             {trendData.length > 0 ? (
@@ -448,7 +448,7 @@ export default function OverviewScreen() {
 
         {/* Appointment Status Pie/Donut Chart */}
         <div className={`rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm ${!isOwnerOrAdmin ? "lg:col-span-3" : ""}`}>
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+          <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
             {t.appointmentStatus}
           </h2>
           {pieData.length > 0 ? (
@@ -493,7 +493,7 @@ export default function OverviewScreen() {
       <section className="grid gap-4 md:grid-cols-2">
         {/* Customer Growth Bar Chart */}
         <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+          <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
             {t.customerGrowth}
           </h2>
           {customerData.length > 0 ? (
@@ -516,7 +516,7 @@ export default function OverviewScreen() {
         {/* Top Services Horizontal Bar */}
         {isOwnerOrAdmin && (
           <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+            <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
               {t.topServicesRevenue}
             </h2>
             {topServicesData.length > 0 ? (
@@ -533,7 +533,7 @@ export default function OverviewScreen() {
                       color: "#fff",
                       fontSize: 13,
                     }}
-                    formatter={(value) => [`${formatCurrency(Number(value ?? 0))} TL`, t.revenue]}
+                    formatter={(value) => [`${formatCurrency(Number(value ?? 0))} TRY`, t.revenue]}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {topServicesData.map((_, index) => (
@@ -552,7 +552,7 @@ export default function OverviewScreen() {
       {/* ── Row 4: Today's Schedule Table ───────────────────────────────── */}
       <section className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
         <div className="border-b border-white/10 px-6 py-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-white/70">
+          <h2 className="text-sm font-semibold tracking-wider text-white/70">
             {t.todaySchedule}
           </h2>
         </div>
@@ -560,7 +560,7 @@ export default function OverviewScreen() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-xs font-semibold uppercase tracking-wider text-white/40">
+                <tr className="border-b border-white/10 text-xs font-semibold tracking-wider text-white/40">
                   <th className="px-6 py-3">{t.time}</th>
                   <th className="px-6 py-3">{t.customer}</th>
                   <th className="px-6 py-3">{t.treatment}</th>
@@ -615,7 +615,7 @@ export default function OverviewScreen() {
       {/* ── Row 5: Top Staff (owner/admin only) ─────────────────────────── */}
       {isOwnerOrAdmin && data.topStaff.length > 0 && (
         <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-white/70">
+          <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
             {t.topStaff}
           </h2>
           <div className="space-y-3">
@@ -634,7 +634,7 @@ export default function OverviewScreen() {
                       </span>
                       {staff.label}
                     </span>
-                    <span className="font-semibold text-white/60">{formatCurrency(staff.amountInTry)} TL</span>
+                    <span className="font-semibold text-white/60">{formatCurrency(staff.amountInTry)} TRY</span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
                     <div

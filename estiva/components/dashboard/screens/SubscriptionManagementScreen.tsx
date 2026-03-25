@@ -276,13 +276,13 @@ export default function SubscriptionManagementScreen() {
                 {/* Pricing */}
                 <div className="mb-4 grid grid-cols-2 gap-3">
                   <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider">{t.monthlyPrice}</p>
+                    <p className="text-[10px] text-white/30 tracking-wider">{t.monthlyPrice}</p>
                     <p className="mt-0.5 text-lg font-bold text-white">
                       {"\u20BA"}{fmt(plan.monthlyPrice)}
                     </p>
                   </div>
                   <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                    <p className="text-[10px] text-white/30 uppercase tracking-wider">{t.yearlyPrice}</p>
+                    <p className="text-[10px] text-white/30 tracking-wider">{t.yearlyPrice}</p>
                     <p className="mt-0.5 text-lg font-bold text-white">
                       {"\u20BA"}{fmt(plan.yearlyPrice)}
                     </p>
@@ -347,7 +347,7 @@ export default function SubscriptionManagementScreen() {
         <div className="space-y-5">
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+            <label className="text-xs font-semibold tracking-wider text-white/40">
               {t.planName}
             </label>
             <input
@@ -361,7 +361,7 @@ export default function SubscriptionManagementScreen() {
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+            <label className="text-xs font-semibold tracking-wider text-white/40">
               {t.description}
             </label>
             <textarea
@@ -376,7 +376,7 @@ export default function SubscriptionManagementScreen() {
           {/* Prices */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+              <label className="text-xs font-semibold tracking-wider text-white/40">
                 {t.monthlyPrice} (TRY)
               </label>
               <input
@@ -388,7 +388,7 @@ export default function SubscriptionManagementScreen() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+              <label className="text-xs font-semibold tracking-wider text-white/40">
                 {t.yearlyPrice} (TRY)
               </label>
               <input
@@ -404,7 +404,7 @@ export default function SubscriptionManagementScreen() {
           {/* Limits */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+              <label className="text-xs font-semibold tracking-wider text-white/40">
                 {t.maxStaff}
               </label>
               <input
@@ -416,7 +416,7 @@ export default function SubscriptionManagementScreen() {
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+              <label className="text-xs font-semibold tracking-wider text-white/40">
                 {t.maxBranch}
               </label>
               <input
@@ -431,7 +431,7 @@ export default function SubscriptionManagementScreen() {
 
           {/* Validity */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+            <label className="text-xs font-semibold tracking-wider text-white/40">
               {t.validityMonths}
             </label>
             <input
@@ -445,7 +445,7 @@ export default function SubscriptionManagementScreen() {
 
           {/* Feature Checkboxes */}
           <div className="space-y-3">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">
+            <label className="text-xs font-semibold tracking-wider text-white/40">
               {t.features}
             </label>
             <ToggleRow

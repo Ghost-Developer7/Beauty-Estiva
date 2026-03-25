@@ -8,8 +8,8 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const navLinks = {
-  en: ["About", "Membership", "Contact"],
-  tr: ["Hakkımızda", "Üyelik", "İletişim"],
+  en: ["ABOUT", "MEMBERSHIP", "CONTACT"],
+  tr: ["HAKKIMIZDA", "ÜYELİK", "İLETİŞİM"],
 };
 
 const highlights = {
@@ -27,26 +27,26 @@ const highlights = {
 
 const stats = {
   en: [
-    { label: "Suites", value: "24" },
-    { label: "Members", value: "1.2k" },
-    { label: "Avg. rating", value: "4.9" },
+    { label: "SUITES", value: "24" },
+    { label: "MEMBERS", value: "1.2k" },
+    { label: "AVG. RATING", value: "4.9" },
   ],
   tr: [
-    { label: "Suiteler", value: "24" },
-    { label: "Üyeler", value: "1.2k" },
-    { label: "Ort. puan", value: "4.9" },
+    { label: "SÜİTLER", value: "24" },
+    { label: "ÜYELER", value: "1.2k" },
+    { label: "ORT. PUAN", value: "4.9" },
   ],
 };
 
 const heroCopy = {
   en: {
-    badge: "Beauty center",
+    badge: "BEAUTY CENTER",
     title: "Modern, prestigious, impossibly calm.",
     subtitle:
       "Elevate every client arrival with Estiva's minimal interface and cinematic gradient environment built for premium salons.",
   },
   tr: {
-    badge: "Güzellik merkezi",
+    badge: "GÜZELLİK MERKEZİ",
     title: "Modern, prestijli, benzersiz sakinlikte.",
     subtitle:
       "Estiva'nın minimal arayüzüyle her müşteri gelişi aynı huzurda gelebilir.",
@@ -55,7 +55,7 @@ const heroCopy = {
 
 const formCopy = {
   en: {
-    badge: "Member access",
+    badge: "MEMBER ACCESS",
     title: "Sign in",
     subtitle: "A single, quiet console for every spa ritual.",
     needCredentials: "Need credentials?",
@@ -63,7 +63,7 @@ const formCopy = {
     signupButton: "Open membership request form",
   },
   tr: {
-    badge: "Üye girişi",
+    badge: "ÜYE GİRİŞİ",
     title: "Giriş yap",
     subtitle: "Her spa ritüeli için tek ve sakin konsol.",
     needCredentials: "Yetkin yok mu?",
@@ -74,22 +74,22 @@ const formCopy = {
 
 const footerCopy = {
   en: {
-    aboutTitle: "About",
+    aboutTitle: "ABOUT",
     aboutText:
       "Estiva orchestrates bookings, rituals, and retail for prestige beauty centers worldwide.",
-    contactTitle: "Contact",
-    visitTitle: "Visit",
+    contactTitle: "CONTACT",
+    visitTitle: "VISIT",
     visitSubtitle: "By appointment only.",
-    socialTitle: "Social",
+    socialTitle: "SOCIAL",
   },
   tr: {
-    aboutTitle: "Hakkımızda",
+    aboutTitle: "HAKKIMIZDA",
     aboutText:
       "Estiva prestijli güzellik merkezlerinin rezervasyon ve ritüellerini yönetir.",
-    contactTitle: "İletişim",
-    visitTitle: "Ziyaret",
+    contactTitle: "İLETİŞİM",
+    visitTitle: "ZİYARET",
     visitSubtitle: "Sadece randevu ile.",
-    socialTitle: "Sosyal",
+    socialTitle: "SOSYAL",
   },
 };
 
@@ -131,7 +131,7 @@ export default function LoginPage() {
         >
           <div className="text-lg font-semibold tracking-[0.5em]">ESTIVA</div>
           <nav
-            className={`hidden gap-8 text-xs uppercase tracking-[0.3em] ${
+            className={`hidden gap-8 text-xs tracking-[0.3em] ${
               isDark ? "text-white/70" : "text-[#65558c]"
             } md:flex`}
           >
@@ -151,7 +151,7 @@ export default function LoginPage() {
           <main className="grid flex-1 gap-6 py-8 lg:grid-cols-[1fr_1.2fr]">
             <section className="space-y-8">
               <div
-                className={`inline-flex items-center gap-3 rounded-full border px-5 py-2 text-xs font-semibold uppercase tracking-[0.4em] backdrop-blur ${pillBorder} ${pillBg} ${
+                className={`inline-flex items-center gap-3 rounded-full border px-5 py-2 text-xs font-semibold tracking-[0.4em] backdrop-blur ${pillBorder} ${pillBg} ${
                   isDark ? "text-white/80" : "text-[#5c478d]"
                 }`}
               >
@@ -176,7 +176,7 @@ export default function LoginPage() {
                 ))}
               </div>
               <div
-                className={`rounded-3xl ${cardBorder} ${cardBg} p-6 text-sm uppercase tracking-[0.35em] ${subtleText} shadow-[0_25px_80px_rgba(6,5,18,0.35)]`}
+                className={`rounded-3xl ${cardBorder} ${cardBg} p-6 text-sm tracking-[0.35em] ${subtleText} shadow-[0_25px_80px_rgba(6,5,18,0.35)]`}
               >
                 <div className="grid gap-4 sm:grid-cols-3">
                   {statList.map((stat) => (
@@ -193,7 +193,7 @@ export default function LoginPage() {
               className={`w-full max-w-xl justify-self-center rounded-[32px] ${cardBorder} ${cardBg} p-12 shadow-[0_30px_90px_rgba(6,5,18,0.3)] backdrop-blur-xl lg:justify-self-end`}
             >
               <div className="mb-6 space-y-2 text-center">
-                <p className={`text-xs font-semibold uppercase tracking-[0.4em] ${subtleText}`}>
+                <p className={`text-xs font-semibold tracking-[0.4em] ${subtleText}`}>
                   {form.badge}
                 </p>
                 <h2 className="text-3xl font-semibold">{form.title}</h2>
@@ -229,7 +229,7 @@ export default function LoginPage() {
           >
             <div>
               <p
-                className={`text-xs uppercase tracking-[0.35em] ${
+                className={`text-xs tracking-[0.35em] ${
                   isDark ? "text-white/40" : "text-[#9a88c2]"
                 }`}
               >
@@ -239,7 +239,7 @@ export default function LoginPage() {
             </div>
             <div>
               <p
-                className={`text-xs uppercase tracking-[0.35em] ${
+                className={`text-xs tracking-[0.35em] ${
                   isDark ? "text-white/40" : "text-[#9a88c2]"
                 }`}
               >
@@ -250,7 +250,7 @@ export default function LoginPage() {
             </div>
             <div>
               <p
-                className={`text-xs uppercase tracking-[0.35em] ${
+                className={`text-xs tracking-[0.35em] ${
                   isDark ? "text-white/40" : "text-[#9a88c2]"
                 }`}
               >
@@ -261,7 +261,7 @@ export default function LoginPage() {
             </div>
             <div>
               <p
-                className={`text-xs uppercase tracking-[0.35em] ${
+                className={`text-xs tracking-[0.35em] ${
                   isDark ? "text-white/40" : "text-[#9a88c2]"
                 }`}
               >

@@ -546,7 +546,7 @@ export default function CommissionScreen() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold uppercase tracking-wider text-white/50">
+                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold tracking-wider text-white/50">
                       <th className="px-4 py-3">{t.staff}</th>
                       <th className="px-4 py-3 text-center">{t.servicesPerformed}</th>
                       <th className="px-4 py-3 text-right">{t.revenueGenerated}</th>
@@ -635,7 +635,7 @@ export default function CommissionScreen() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold uppercase tracking-wider text-white/50">
+                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold tracking-wider text-white/50">
                       <th className="sticky left-0 z-10 bg-[#0f0f1a] px-4 py-3">{t.staff}</th>
                       <th className="px-3 py-3 text-center">{t.defaultRate}</th>
                       {allRates.treatments.map((tr) => (
@@ -736,7 +736,7 @@ export default function CommissionScreen() {
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold uppercase tracking-wider text-white/50">
+                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold tracking-wider text-white/50">
                       <th className="px-3 py-3 text-center">
                         <input
                           type="checkbox"
@@ -862,7 +862,7 @@ function SummaryCard({
     <div
       className={`relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${bgGlow} to-transparent p-5`}
     >
-      <p className="text-xs font-medium uppercase tracking-wider text-white/50">{label}</p>
+      <p className="text-xs font-medium tracking-wider text-white/50">{label}</p>
       <p className={`mt-2 text-2xl font-bold ${color}`}>
         {value} <span className="text-sm font-normal text-white/40">{currency}</span>
       </p>

@@ -281,7 +281,7 @@ export default function SubscriptionScreen() {
           <div className="p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.currentPlan}</p>
+                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.currentPlan}</p>
                 <p className="mt-1 text-2xl font-bold">{current.planName}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {/* Status badge */}
@@ -361,18 +361,22 @@ export default function SubscriptionScreen() {
 
       {/* ─── BILLING TOGGLE ─── */}
       <div className="flex items-center justify-center gap-4">
-        <span className={`text-sm font-medium transition ${!isYearly ? "text-white" : "text-white/30"}`}>{t.monthly}</span>
+        <span className={`min-w-[60px] text-right text-sm font-medium transition ${!isYearly ? "text-white" : "text-white/30"}`}>{t.monthly}</span>
         <button
           onClick={() => setIsYearly(!isYearly)}
-          className={`relative h-7 w-14 rounded-full transition-all ${isYearly ? "bg-emerald-500" : "bg-white/15"}`}
+          className={`relative h-7 w-14 shrink-0 rounded-full transition-all ${isYearly ? "bg-emerald-500" : "bg-white/15"}`}
         >
           <div className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-all ${isYearly ? "left-7" : "left-0.5"}`} />
         </button>
-        <span className={`text-sm font-medium transition ${isYearly ? "text-white" : "text-white/30"}`}>
+        <span className={`min-w-[60px] text-sm font-medium transition ${isYearly ? "text-white" : "text-white/30"}`}>
           {t.yearly}
-          {isYearly && <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{t.saveYearly}</span>}
         </span>
       </div>
+      {isYearly && (
+        <div className="flex justify-center -mt-4">
+          <span className="rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{t.saveYearly}</span>
+        </div>
+      )}
 
       {/* ─── PLANS GRID ─── */}
       <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -462,7 +466,7 @@ export default function SubscriptionScreen() {
 
           {/* Coupon */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.couponCode}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.couponCode}</label>
             <div className="flex gap-2">
               <input
                 type="text"
@@ -576,7 +580,7 @@ export default function SubscriptionScreen() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.cancelReason}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.cancelReason}</label>
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}

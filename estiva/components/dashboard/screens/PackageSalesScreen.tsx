@@ -248,10 +248,13 @@ function StatCard({ label, value, sub, icon, gradient }: {
   label: string; value: string; sub?: string; icon: React.ReactNode; gradient: string;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition-all hover:border-white/[0.12] hover:bg-white/[0.05]">
-      <div className={`absolute -right-4 -top-4 h-20 w-20 rounded-full opacity-10 blur-2xl ${gradient}`} />
-      <div className="flex items-center gap-3">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${gradient} bg-opacity-20`}>
+    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition-all duration-300 hover:border-white/[0.15] hover:bg-white/[0.06] hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5">
+      {/* Animated background glow */}
+      <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-20 blur-2xl transition-all duration-500 group-hover:opacity-40 group-hover:h-32 group-hover:w-32 ${gradient}`} />
+      {/* Shimmer overlay */}
+      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
+      <div className="relative flex items-center gap-3">
+        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${gradient} bg-opacity-20 transition-transform duration-300 group-hover:scale-110`}>
           {icon}
         </div>
         <div className="min-w-0">
@@ -630,7 +633,7 @@ export default function PackageSalesScreen() {
         />
         <StatCard
           label={t.totalRevenue}
-          value={`${fmt(stats.totalRevenue)} TL`}
+          value={`${fmt(stats.totalRevenue)} TRY`}
           icon={<svg className="text-emerald-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
           gradient="bg-emerald-500"
         />
@@ -711,7 +714,7 @@ export default function PackageSalesScreen() {
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div className="hidden lg:grid grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 border-b border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden lg:grid grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 border-b border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
               <span>{t.customer}</span>
               <span>{t.treatment}</span>
               <span>{t.sessions}</span>
@@ -764,14 +767,14 @@ export default function PackageSalesScreen() {
                     </div>
 
                     {/* Price */}
-                    <p className="hidden lg:block text-sm font-bold text-white">{fmt(sale.totalPrice)} TL</p>
+                    <p className="hidden lg:block text-sm font-bold text-white">{fmt(sale.totalPrice)} TRY</p>
 
                     {/* Paid */}
-                    <p className="hidden lg:block text-sm text-emerald-400">{fmt(sale.paidAmount)} TL</p>
+                    <p className="hidden lg:block text-sm text-emerald-400">{fmt(sale.paidAmount)} TRY</p>
 
                     {/* Remaining */}
                     <p className={`hidden lg:block text-sm font-medium ${sale.remainingPayment > 0 ? "text-amber-400" : "text-white/40"}`}>
-                      {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} TL` : "-"}
+                      {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} TRY` : "-"}
                     </p>
 
                     {/* Status */}
@@ -784,7 +787,7 @@ export default function PackageSalesScreen() {
                     {/* Mobile info */}
                     <div className="flex items-center justify-between lg:hidden">
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold text-white">{fmt(sale.totalPrice)} TL</span>
+                        <span className="text-sm font-bold text-white">{fmt(sale.totalPrice)} TRY</span>
                         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
                           {sale.statusDisplay}
                         </span>
@@ -818,7 +821,7 @@ export default function PackageSalesScreen() {
             />
             <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-4 py-2 text-xs text-white/40">
               <span>{filtered.length} {t.total}</span>
-              <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} TL</span>
+              <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} TRY</span>
             </div>
           </>
         )}
@@ -832,7 +835,7 @@ export default function PackageSalesScreen() {
 
           {/* Customer selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.selectCustomer}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.selectCustomer}</label>
             <div className="relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
@@ -873,7 +876,7 @@ export default function PackageSalesScreen() {
 
           {/* Treatment selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.selectTreatment}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.selectTreatment}</label>
             <div className="relative">
               <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
@@ -913,7 +916,7 @@ export default function PackageSalesScreen() {
           {/* Sessions + Price row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.sessionCount}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.sessionCount}</label>
               <input
                 type="number" min={1} value={createForm.totalSessions}
                 onChange={(e) => setCreateForm({ ...createForm, totalSessions: Number(e.target.value) })}
@@ -921,9 +924,9 @@ export default function PackageSalesScreen() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.packagePrice}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.packagePrice}</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TL</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TRY</span>
                 <input
                   type="number" min={0} step={0.01} value={createForm.totalPrice || ""}
                   onChange={(e) => setCreateForm({ ...createForm, totalPrice: Number(e.target.value) })}
@@ -936,9 +939,9 @@ export default function PackageSalesScreen() {
           {/* Payment row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentAmount}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentAmount}</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TL</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TRY</span>
                 <input
                   type="number" min={0} step={0.01} value={createForm.paidAmount || ""}
                   onChange={(e) => setCreateForm({ ...createForm, paidAmount: Number(e.target.value) })}
@@ -947,7 +950,7 @@ export default function PackageSalesScreen() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentMethod}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentMethod}</label>
               <select
                 value={createForm.paymentMethod}
                 onChange={(e) => setCreateForm({ ...createForm, paymentMethod: e.target.value })}
@@ -963,7 +966,7 @@ export default function PackageSalesScreen() {
           {/* Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.startDate}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.startDate}</label>
               <input
                 type="date" value={createForm.startDate}
                 onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })}
@@ -971,7 +974,7 @@ export default function PackageSalesScreen() {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.endDate}</label>
+              <label className="text-xs font-semibold tracking-wider text-white/40">{t.endDate}</label>
               <input
                 type="date" value={createForm.endDate}
                 onChange={(e) => setCreateForm({ ...createForm, endDate: e.target.value })}
@@ -982,7 +985,7 @@ export default function PackageSalesScreen() {
 
           {/* Notes */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.notes}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
             <textarea
               value={createForm.notes}
               onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })}
@@ -1044,16 +1047,16 @@ export default function PackageSalesScreen() {
                 </div>
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
                   <p className="text-[10px] text-white/30">{t.totalPrice}</p>
-                  <p className="mt-1 text-xl font-bold text-white">{fmt(sale.totalPrice)} TL</p>
+                  <p className="mt-1 text-xl font-bold text-white">{fmt(sale.totalPrice)} TRY</p>
                 </div>
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
                   <p className="text-[10px] text-white/30">{t.paidAmount}</p>
-                  <p className="mt-1 text-xl font-bold text-emerald-400">{fmt(sale.paidAmount)} TL</p>
+                  <p className="mt-1 text-xl font-bold text-emerald-400">{fmt(sale.paidAmount)} TRY</p>
                 </div>
                 <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
                   <p className="text-[10px] text-white/30">{t.remainingPayment}</p>
                   <p className={`mt-1 text-xl font-bold ${sale.remainingPayment > 0 ? "text-amber-400" : "text-white/40"}`}>
-                    {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} TL` : "-"}
+                    {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} TRY` : "-"}
                   </p>
                 </div>
               </div>
@@ -1111,7 +1114,7 @@ export default function PackageSalesScreen() {
                     {sale.payments.map((p) => (
                       <div key={p.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-emerald-400">{fmt(p.amount)} TL</span>
+                          <span className="text-xs font-bold text-emerald-400">{fmt(p.amount)} TRY</span>
                           <span className="text-[10px] text-white/30">{p.paymentMethodDisplay}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1162,7 +1165,7 @@ export default function PackageSalesScreen() {
       <Modal open={showUsage} onClose={() => setShowUsage(false)} title={t.usageTitle} maxWidth="max-w-md">
         <form onSubmit={handleRecordUsage} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.usageDate}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.usageDate}</label>
             <input
               type="date" value={usageForm.usageDate}
               onChange={(e) => setUsageForm({ ...usageForm, usageDate: e.target.value })}
@@ -1170,7 +1173,7 @@ export default function PackageSalesScreen() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.usageStaff}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.usageStaff}</label>
             <select
               value={usageForm.staffId}
               onChange={(e) => setUsageForm({ ...usageForm, staffId: Number(e.target.value) })}
@@ -1183,7 +1186,7 @@ export default function PackageSalesScreen() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.usageNotes}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.usageNotes}</label>
             <textarea
               value={usageForm.notes}
               onChange={(e) => setUsageForm({ ...usageForm, notes: e.target.value })}
@@ -1214,9 +1217,9 @@ export default function PackageSalesScreen() {
       <Modal open={showPayment} onClose={() => setShowPayment(false)} title={t.paymentTitle} maxWidth="max-w-md">
         <form onSubmit={handleAddPayment} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentAmountLabel}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentAmountLabel}</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TL</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TRY</span>
               <input
                 type="number" min={0.01} step={0.01} value={paymentForm.amount || ""}
                 onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
@@ -1225,7 +1228,7 @@ export default function PackageSalesScreen() {
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentMethod}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentMethod}</label>
             <select
               value={paymentForm.paymentMethod}
               onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
@@ -1237,7 +1240,7 @@ export default function PackageSalesScreen() {
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentDate}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentDate}</label>
             <input
               type="date" value={paymentForm.paidAt}
               onChange={(e) => setPaymentForm({ ...paymentForm, paidAt: e.target.value })}
@@ -1245,7 +1248,7 @@ export default function PackageSalesScreen() {
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.notes}</label>
+            <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
             <textarea
               value={paymentForm.notes}
               onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}

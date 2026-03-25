@@ -26,7 +26,7 @@ const copy = {
             headers: ["EFT-POS", "YN-ÖKC (Register) POS", "GMU (VUK 507) E-Invoice POS"],
             rows: [
                 ["Usage after Nov 15, 2024", false, true, true],
-                ["Usage over 3000 TL after Jan 1, 2025", false, false, true],
+                ["Usage over 3000 TRY after Jan 1, 2025", false, false, true],
                 ["Usage after Jan 1, 2026", false, "!", true],
                 ["Sales software integration mandatory", false, "!", true],
                 ["E-invoice / E-archive issuance", false, false, true],
@@ -66,7 +66,7 @@ const copy = {
             headers: ["EFT-POS", "YN-ÖKC (Yazarkasa) POS", "GMU (VUK 507) E-Fatura POS"],
             rows: [
                 ["15 Kasım 2024 sonrası kullanım", false, true, true],
-                ["1 Ocak 2025 sonrası 3000 TL üzeri ödemelerde kullanım", false, false, true],
+                ["1 Ocak 2025 sonrası 3000 TRY üzeri ödemelerde kullanım", false, false, true],
                 ["1 Ocak 2026 sonrası kullanım", false, "!", true],
                 ["Satış yazılımı entegrasyon zorunluluğu mevzuatına uyumluluk", false, "!", true],
                 ["E-fatura / E-arşiv kesme özelliği", false, false, true],

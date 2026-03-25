@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 const copy = {
   en: {
-    companyBadge: "Business registration",
+    companyBadge: "BUSINESS REGISTRATION",
     companyTitle: "Register your beauty center",
     companyName: "Company Name",
     companyNamePh: "Glow Atelier",
@@ -41,7 +41,7 @@ const copy = {
     successMessage: "Registration successful! Please login.",
   },
   tr: {
-    companyBadge: "İşletme kaydı",
+    companyBadge: "İŞLETME KAYDI",
     companyTitle: "Güzellik merkezinizi kaydedin",
     companyName: "Şirket Adı",
     companyNamePh: "Glow Atelier",
@@ -132,7 +132,7 @@ export default function SignUpForm() {
     <form className={`space-y-6 ${baseText}`} onSubmit={handleSubmit(onSubmit)}>
       <section className={`space-y-6 rounded-3xl border p-8 shadow-[0_25px_60px_rgba(3,2,9,0.6)] ${cardBorder} ${cardBg}`}>
         <div>
-          <p className={`text-sm uppercase tracking-[0.2em] ${eyebrowText}`}>{text.companyBadge}</p>
+          <p className={`text-sm tracking-[0.2em] ${eyebrowText}`}>{text.companyBadge}</p>
           <h2 className="text-2xl font-semibold">{text.companyTitle}</h2>
         </div>
 

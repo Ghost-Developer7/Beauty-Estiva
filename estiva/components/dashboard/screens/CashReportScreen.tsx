@@ -108,15 +108,15 @@ export default function CashReportScreen() {
           {/* Summary cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs uppercase tracking-wider text-white/50">{text.revenue}</p>
+              <p className="text-xs tracking-wider text-white/50">{text.revenue}</p>
               <p className="mt-2 text-2xl font-semibold text-emerald-400">{fmt(revenue?.totalAmountInTry || 0)} TRY</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs uppercase tracking-wider text-white/50">{text.expenses}</p>
+              <p className="text-xs tracking-wider text-white/50">{text.expenses}</p>
               <p className="mt-2 text-2xl font-semibold text-red-400">{fmt(expense?.totalAmountInTry || 0)} TRY</p>
             </div>
             <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs uppercase tracking-wider text-white/50">{text.netProfit}</p>
+              <p className="text-xs tracking-wider text-white/50">{text.netProfit}</p>
               <p className={`mt-2 text-2xl font-semibold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {fmt(netProfit)} TRY
               </p>

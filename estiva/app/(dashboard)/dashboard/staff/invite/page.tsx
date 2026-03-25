@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { tenantService } from "@/services/tenantService";
+import { subscriptionService } from "@/services/subscriptionService";
 import toast from "react-hot-toast";
 import Link from "next/link";
 
@@ -99,6 +100,24 @@ export default function StaffInvitePage() {
   const [result, setResult] = useState<InviteResult | null>(null);
   const [limitReached, setLimitReached] = useState(false);
   const [limitMessage, setLimitMessage] = useState("");
+
+  const checkLimit = useCallback(async () => {
+    try {
+      const res = await subscriptionService.checkStaffLimit();
+      if (res.data.success && res.data.data) {
+        if (!res.data.data.canAdd) {
+          setLimitReached(true);
+          setLimitMessage(res.data.data.errorMessage || t.limitDesc);
+        }
+      }
+    } catch {
+      // If the check fails (e.g., no subscription), don't block -- the invite call itself will catch it
+    }
+  }, [t.limitDesc]);
+
+  useEffect(() => {
+    checkLimit();
+  }, [checkLimit]);
 
   const handleGenerate = async () => {
     setGenerating(true);
@@ -197,7 +216,7 @@ export default function StaffInvitePage() {
 
               {/* Email input */}
               <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.emailLabel}</label>
+                <label className="text-xs font-semibold tracking-wider text-white/40">{t.emailLabel}</label>
                 <div className="relative">
                   <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 7L2 7" /></svg>
                   <input
@@ -261,7 +280,7 @@ export default function StaffInvitePage() {
 
               {/* Invite Code */}
               <div className="space-y-2">
-                <label className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.tokenLabel}</label>
+                <label className="text-[10px] font-semibold tracking-wider text-white/30">{t.tokenLabel}</label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 rounded-xl border border-white/[0.08] bg-black/20 px-5 py-4 text-center">
                     <code className="text-2xl font-mono font-bold tracking-[0.4em] text-white">{result.token}</code>
@@ -277,7 +296,7 @@ export default function StaffInvitePage() {
 
               {/* Registration Link */}
               <div className="space-y-2">
-                <label className="text-[10px] font-semibold uppercase tracking-wider text-white/30">{t.linkLabel}</label>
+                <label className="text-[10px] font-semibold tracking-wider text-white/30">{t.linkLabel}</label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 overflow-hidden rounded-xl border border-white/[0.08] bg-black/20 px-4 py-3">
                     <code className="block text-xs font-mono text-white/50 truncate">{result.registerUrl}</code>
@@ -311,7 +330,7 @@ export default function StaffInvitePage() {
 
         {/* ─── SIDEBAR: HOW IT WORKS ─── */}
         <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 h-fit">
-          <p className="text-xs font-semibold uppercase tracking-wider text-white/40 mb-4">{t.howTitle}</p>
+          <p className="text-xs font-semibold tracking-wider text-white/40 mb-4">{t.howTitle}</p>
           <div className="space-y-4">
             {howSteps.map((step, i) => (
               <div key={i} className="flex gap-3">

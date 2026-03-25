@@ -247,7 +247,7 @@ export default function StaffHRPage() {
         ) : (
           <>
             {/* Header */}
-            <div className="hidden lg:grid grid-cols-[1fr_0.7fr_0.6fr_0.7fr_0.8fr_0.5fr] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden lg:grid grid-cols-[1fr_0.7fr_0.6fr_0.7fr_0.8fr_0.5fr] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
               <span>{t.staffMember}</span>
               <span>{t.position}</span>
               <span>{t.hireDate}</span>

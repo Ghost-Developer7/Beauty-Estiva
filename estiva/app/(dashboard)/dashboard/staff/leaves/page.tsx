@@ -276,7 +276,7 @@ export default function StaffLeavesPage() {
       {/* Leave Balances (Owner/Admin only) */}
       {isOwnerOrAdmin && balances.length > 0 && (
         <div>
-          <h2 className="mb-3 text-sm font-semibold text-white/50 uppercase tracking-wider">
+          <h2 className="mb-3 text-sm font-semibold text-white/50 tracking-wider">
             {t.leaveBalances}
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
@@ -341,7 +341,7 @@ export default function StaffLeavesPage() {
         ) : (
           <>
             {/* Header */}
-            <div className="hidden lg:grid grid-cols-[1fr_0.7fr_1fr_0.5fr_0.6fr_0.8fr] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-white/30">
+            <div className="hidden lg:grid grid-cols-[1fr_0.7fr_1fr_0.5fr_0.6fr_0.8fr] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
               <span>{t.staff}</span>
               <span>{t.type}</span>
               <span>{t.dates}</span>

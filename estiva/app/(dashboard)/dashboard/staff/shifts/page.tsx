@@ -278,7 +278,7 @@ export default function StaffShiftsPage() {
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[700px]">
                     <thead>
-                      <tr className="border-b border-white/[0.06] text-[10px] font-semibold uppercase tracking-wider text-white/30">
+                      <tr className="border-b border-white/[0.06] text-[10px] font-semibold tracking-wider text-white/30">
                         <th className="px-4 py-2 text-left w-24">{t.staffMember}</th>
                         {DAY_SHORT[language].map((d, i) => (
                           <th key={i} className="px-2 py-2 text-center">
