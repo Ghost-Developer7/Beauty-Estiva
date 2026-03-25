@@ -139,16 +139,14 @@ export default function ProductSalesScreen() {
   }, [startDate, endDate, staffFilter, page, pageSize]);
 
   const fetchProducts = useCallback(async () => {
-    try { const res = await productService.list(); if (res.data.success && res.data.data) setProducts(res.data.data); } catch { /* */ }
-  }, []);
+    try { const res = await productService.list(); if (res.data.success && res.data.data) setProducts(res.data.data); } catch { toast.error(language === "tr" ? "Ürünler yüklenemedi" : "Failed to load products"); }
+  }, [language]);
 
   const fetchRef = useCallback(async () => {
-    try {
-      const [a, b, c] = await Promise.all([customerService.list(), currencyService.list(), staffService.list()]);
-      if (a.data.success && a.data.data) setCustomers(a.data.data);
-      if (b.data.success && b.data.data) setCurrencies(b.data.data);
-      if (c.data.success && c.data.data) setStaffList(c.data.data);
-    } catch { /* */ }
+    const [a, b, c] = await Promise.allSettled([customerService.list(), currencyService.list(), staffService.list()]);
+    if (a.status === "fulfilled" && a.value.data.success && a.value.data.data) setCustomers(a.value.data.data);
+    if (b.status === "fulfilled" && b.value.data.success && b.value.data.data) setCurrencies(b.value.data.data);
+    if (c.status === "fulfilled" && c.value.data.success && c.value.data.data) setStaffList(c.value.data.data);
   }, []);
 
   useEffect(() => { fetchSales(); }, [fetchSales]);
@@ -281,7 +279,14 @@ export default function ProductSalesScreen() {
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.product}</label>
             <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
-              {products.map(p => (<button key={p.id} type="button" onClick={() => setSaleForm({ ...saleForm, productId: p.id })} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition ${saleForm.productId === p.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}><div><p className="text-xs font-medium text-white">{p.name}</p><p className="text-[10px] text-white/30">₺{fmt(p.price)} • {p.stockQuantity} {t.pcs}</p></div>{saleForm.productId === p.id && <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}</button>))}
+              {products.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-4 text-center">
+                  <p className="text-xs text-white/40">{language === "tr" ? "Ürün bulunamadı" : "No products found"}</p>
+                  <p className="mt-1 text-[10px] text-white/25">{language === "tr" ? "Önce \"Ürünler\" sekmesinden ürün ekleyin" : "Add products from the \"Products\" tab first"}</p>
+                </div>
+              ) : (
+                products.map(p => (<button key={p.id} type="button" onClick={() => setSaleForm({ ...saleForm, productId: p.id })} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition ${saleForm.productId === p.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}><div><p className="text-xs font-medium text-white">{p.name}</p><p className="text-[10px] text-white/30">₺{fmt(p.price)} • {p.stockQuantity} {t.pcs}</p></div>{saleForm.productId === p.id && <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}</button>))
+              )}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

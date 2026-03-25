@@ -40,6 +40,16 @@ const STATUS_COLORS: Record<string, string> = {
   Expired: "text-amber-400",
 };
 
+const STATUS_LABELS: Record<string, Record<string, string>> = {
+  Scheduled: { en: "Scheduled", tr: "Planlandı" },
+  Confirmed: { en: "Confirmed", tr: "Onaylandı" },
+  Completed: { en: "Completed", tr: "Tamamlandı" },
+  Cancelled: { en: "Cancelled", tr: "İptal" },
+  NoShow: { en: "No Show", tr: "Gelmedi" },
+  Active: { en: "Active", tr: "Aktif" },
+  Expired: { en: "Expired", tr: "Süresi Dolmuş" },
+};
+
 const SEGMENT_STYLES: Record<string, { bg: string; text: string; label: Record<string, string> }> = {
   VIP:     { bg: "bg-amber-500/20 border-amber-500/30", text: "text-amber-400", label: { en: "VIP", tr: "VIP" } },
   Regular: { bg: "bg-blue-500/20 border-blue-500/30",   text: "text-blue-400",  label: { en: "Regular", tr: "Düzenli" } },
@@ -209,7 +219,9 @@ type DetailTab = "history" | "purchases" | "preferences" | "loyalty";
 
 const formatDate = (d: string | null | undefined) => {
   if (!d) return "\u2014";
-  return new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+  const date = new Date(d);
+  if (isNaN(date.getTime()) || date.getFullYear() < 1900) return "\u2014";
+  return date.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
 };
 
 const formatDateTime = (d: string) =>
@@ -359,12 +371,12 @@ export default function CustomersScreen() {
   const loadDetailData = async (id: number) => {
     setHistoryLoading(true);
     try {
-      const [hRes, sRes] = await Promise.all([
+      const [hRes, sRes] = await Promise.allSettled([
         customerService.getHistory(id),
         customerService.getStats(id),
       ]);
-      if (hRes.data.success && hRes.data.data) setHistory(hRes.data.data);
-      if (sRes.data.success && sRes.data.data) setStats(sRes.data.data);
+      if (hRes.status === "fulfilled" && hRes.value.data.success && hRes.value.data.data) setHistory(hRes.value.data.data);
+      if (sRes.status === "fulfilled" && sRes.value.data.success && sRes.value.data.data) setStats(sRes.value.data.data);
     } catch { /* detail modal still shows basic info */ } finally {
       setHistoryLoading(false);
     }
@@ -506,7 +518,7 @@ export default function CustomersScreen() {
                 { header: "Segment", key: "segment" },
               ];
             })()}
-            filenamePrefix={language === "tr" ? "Musteriler" : "Customers"}
+            filenamePrefix={language === "tr" ? "Müşteriler" : "Customers"}
             pdfTitle={language === "tr" ? "M\u00fc\u015fteri Listesi" : "Customer List"}
           />
           <button
@@ -764,7 +776,7 @@ export default function CustomersScreen() {
                                   <div className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.03] p-3 transition hover:bg-white/[0.05]">
                                     <div className="flex items-center justify-between">
                                       <p className="text-sm font-semibold text-white">{item.title}</p>
-                                      <span className={`text-[10px] font-bold ${statusColor}`}>{item.status}</span>
+                                      <span className={`text-[10px] font-bold ${statusColor}`}>{STATUS_LABELS[item.status || ""]?.[language] || item.status}</span>
                                     </div>
                                     <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 text-[11px] text-white/40">
                                       <span>{formatDateTime(item.date)}</span>
@@ -801,7 +813,7 @@ export default function CustomersScreen() {
                                 <div className="flex gap-3 text-[11px] text-white/40 mt-0.5">
                                   <span>{formatDate(item.date)}</span>
                                   {item.staffName && <span>{item.staffName}</span>}
-                                  {item.status && <span className={STATUS_COLORS[item.status] || "text-white/40"}>{item.status}</span>}
+                                  {item.status && <span className={STATUS_COLORS[item.status] || "text-white/40"}>{STATUS_LABELS[item.status || ""]?.[language] || item.status}</span>}
                                 </div>
                               </div>
                               {item.amount != null && <p className="text-sm font-bold text-emerald-400">{formatCurrency(item.amount)}</p>}

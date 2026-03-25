@@ -77,67 +77,67 @@ const copy = {
   },
   tr: {
     title: "Ayarlar",
-    subtitle: "Salon ayarlarinizi yonetin",
+    subtitle: "Salon ayarlarınızı yönetin",
     tabs: [
       { label: "Salon Profili", icon: "store" },
-      { label: "Calisma Saatleri", icon: "clock" },
-      { label: "Tatil Gunleri", icon: "calendar" },
-      { label: "Randevu Ayarlari", icon: "booking" },
+      { label: "Çalışma Saatleri", icon: "clock" },
+      { label: "Tatil Günleri", icon: "calendar" },
+      { label: "Randevu Ayarları", icon: "booking" },
       { label: "Bildirimler", icon: "bell" },
     ],
     // Profile
-    salonName: "Salon Adi",
+    salonName: "Salon Adı",
     phone: "Telefon",
     address: "Adres",
     taxNumber: "Vergi No",
     taxOffice: "Vergi Dairesi",
     currency: "Para Birimi",
     timezone: "Saat Dilimi",
-    save: "Degisiklikleri Kaydet",
+    save: "Değişiklikleri Kaydet",
     saving: "Kaydediliyor...",
     saved: "Ayarlar kaydedildi",
-    saveFailed: "Kaydetme basarisiz",
+    saveFailed: "Kaydetme başarısız",
     // Working Hours
-    workingHoursTitle: "Calisma Saatleri",
-    workingHoursDesc: "Haftanin her gunu icin salonunuzun acilis ve kapanis saatlerini belirleyin.",
-    days: ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"],
-    open: "Acik",
-    closed: "Kapali",
-    openTime: "Acilis",
-    closeTime: "Kapanis",
-    lunchStart: "Oglen Arasi Baslangic",
-    lunchEnd: "Oglen Arasi Bitis",
-    addLunch: "Oglen Arasi Ekle",
-    removeLunch: "Kaldir",
+    workingHoursTitle: "Çalışma Saatleri",
+    workingHoursDesc: "Haftanın her günü için salonunuzun açılış ve kapanış saatlerini belirleyin.",
+    days: ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"],
+    open: "Açık",
+    closed: "Kapalı",
+    openTime: "Açılış",
+    closeTime: "Kapanış",
+    lunchStart: "Öğlen Arası Başlangıç",
+    lunchEnd: "Öğlen Arası Bitiş",
+    addLunch: "Öğlen Arası Ekle",
+    removeLunch: "Kaldır",
     // Holidays
-    holidaysTitle: "Tatil Gunleri",
-    holidaysDesc: "Salonunuzun kapali olacagi tatil gunlerini tanimlayin.",
+    holidaysTitle: "Tatil Günleri",
+    holidaysDesc: "Salonunuzun kapalı olacağı tatil günlerini tanımlayın.",
     date: "Tarih",
-    description: "Aciklama",
-    recurring: "Her Yil Tekrarla",
+    description: "Açıklama",
+    recurring: "Her Yıl Tekrarla",
     addHoliday: "Tatil Ekle",
     deleteHoliday: "Sil",
-    noHolidays: "Tanimli tatil gunu yok.",
+    noHolidays: "Tanımlı tatil günü yok.",
     // Appointment
-    appointmentTitle: "Randevu Ayarlari",
-    appointmentDesc: "Salonunuzda randevularin nasil calisacagini yapilandirin.",
-    slotDuration: "Slot Suresi (dakika)",
+    appointmentTitle: "Randevu Ayarları",
+    appointmentDesc: "Salonunuzda randevuların nasıl çalışacağını yapılandırın.",
+    slotDuration: "Slot Süresi (dakika)",
     autoConfirm: "Otomatik Randevu Onaylama",
-    autoConfirmDesc: "Yeni randevulari manuel onay olmadan otomatik olarak onaylayin.",
-    bufferTime: "Randevular Arasi Tampon Sure (dakika)",
-    reminderHour: "Randevudan Kac Saat Once Hatirlatma",
+    autoConfirmDesc: "Yeni randevuları manuel onay olmadan otomatik olarak onaylayın.",
+    bufferTime: "Randevular Arası Tampon Süre (dakika)",
+    reminderHour: "Randevudan Kaç Saat Önce Hatırlatma",
     // Notifications
-    notificationTitle: "Bildirim Ayarlari",
-    notificationDesc: "Musterilerin bildirimleri nasil alacagini yapilandirin.",
+    notificationTitle: "Bildirim Ayarları",
+    notificationDesc: "Müşterilerin bildirimleri nasıl alacağını yapılandırın.",
     smsEnabled: "SMS Bildirimleri",
     emailEnabled: "E-posta Bildirimleri",
     whatsappEnabled: "WhatsApp Bildirimleri",
     whatsappTitle: "WhatsApp Entegrasyonu",
-    whatsappDesc: "WhatsApp Business API bilgilerinizi yapilandirin.",
+    whatsappDesc: "WhatsApp Business API bilgilerinizi yapılandırın.",
     apiToken: "API Token",
     instanceId: "Instance ID",
-    loading: "Yukleniyor...",
-    unauthorized: "Ayarlara erismek icin Owner veya Admin rolune ihtiyaciniz var.",
+    loading: "Yükleniyor...",
+    unauthorized: "Ayarlara erişmek için Owner veya Admin rolüne ihtiyacınız var.",
   },
 };
 
@@ -737,7 +737,7 @@ export default function SettingsScreen() {
                     type="text"
                     value={newHoliday.description}
                     onChange={e => setNewHoliday({ ...newHoliday, description: e.target.value })}
-                    placeholder={language === "tr" ? "ornek: Yilbasi" : "e.g. New Year"}
+                    placeholder={language === "tr" ? "örnek: Yılbaşı" : "e.g. New Year"}
                     className={inputClass}
                   />
                 </div>
@@ -777,7 +777,7 @@ export default function SettingsScreen() {
                       <div>
                         <p className="text-sm font-medium">{h.description || "-"}</p>
                         <p className="text-xs text-white/40">
-                          {h.isRecurring ? (language === "tr" ? "Her yil tekrarlar" : "Repeats annually") : (language === "tr" ? "Tek seferlik" : "One-time")}
+                          {h.isRecurring ? (language === "tr" ? "Her yıl tekrarlar" : "Repeats annually") : (language === "tr" ? "Tek seferlik" : "One-time")}
                         </p>
                       </div>
                     </div>

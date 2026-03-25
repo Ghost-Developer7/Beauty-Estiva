@@ -23,11 +23,11 @@ const copy = {
     next: "Next",
   },
   tr: {
-    showing: "Gosterilen",
+    showing: "Gösterilen",
     of: "/",
-    results: "sonuc",
-    perPage: "sayfa basi",
-    previous: "Onceki",
+    results: "sonuç",
+    perPage: "sayfa başı",
+    previous: "Önceki",
     next: "Sonraki",
   },
 };

@@ -14,12 +14,12 @@ import toast from "react-hot-toast";
 
 const DAY_LABELS = {
   en: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-  tr: ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"],
+  tr: ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"],
 };
 
 const DAY_SHORT = {
   en: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-  tr: ["Paz", "Pzt", "Sal", "Car", "Per", "Cum", "Cmt"],
+  tr: ["Paz", "Pzt", "Sal", "Çar", "Per", "Cum", "Cmt"],
 };
 
 const copy = {
@@ -45,24 +45,24 @@ const copy = {
     staffMember: "Staff Member",
   },
   tr: {
-    title: "Vardiya Yonetimi",
-    subtitle: "Tum personel icin haftalik calisma programi",
-    loading: "Yukleniyor...",
-    noData: "Personel bulunamadi.",
+    title: "Vardiya Yönetimi",
+    subtitle: "Tüm personel için haftalık çalışma programı",
+    loading: "Yükleniyor...",
+    noData: "Personel bulunamadı.",
     save: "Kaydet",
     saving: "Kaydediliyor...",
-    saveAll: "Tum Degisiklikleri Kaydet",
-    saved: "Vardiyalar basariyla kaydedildi",
-    startTime: "Baslangic",
-    endTime: "Bitis",
-    breakStart: "Mola Bas.",
+    saveAll: "Tüm Değişiklikleri Kaydet",
+    saved: "Vardiyalar başarıyla kaydedildi",
+    startTime: "Başlangıç",
+    endTime: "Bitiş",
+    breakStart: "Mola Baş.",
     breakEnd: "Mola Bit.",
-    workingDay: "Calisma Gunu",
+    workingDay: "Çalışma Günü",
     dayOff: "Tatil",
-    edit: "Duzenle",
-    cancel: "Iptal",
-    resetDefaults: "Varsayilan Program Uygula",
-    defaultApplied: "Varsayilan program uygulandi",
+    edit: "Düzenle",
+    cancel: "İptal",
+    resetDefaults: "Varsayılan Program Uygula",
+    defaultApplied: "Varsayılan program uygulandı",
     staffMember: "Personel",
   },
 };
@@ -122,7 +122,7 @@ export default function StaffShiftsPage() {
         }
       }
     } catch {
-      toast.error(language === "tr" ? "Veriler yuklenemedi" : "Failed to load data");
+      toast.error(language === "tr" ? "Veriler yüklenemedi" : "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -171,7 +171,7 @@ export default function StaffShiftsPage() {
       setEditingStaffId(null);
       fetchData();
     } catch {
-      toast.error(language === "tr" ? "Kaydetme hatasi" : "Failed to save");
+      toast.error(language === "tr" ? "Kaydetme hatası" : "Failed to save");
     } finally {
       setSaving(false);
     }

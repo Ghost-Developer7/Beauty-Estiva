@@ -114,86 +114,86 @@ const copy = {
     paymentDate: "Payment Date",
   },
   tr: {
-    title: "Paket Satislari",
+    title: "Paket Satışları",
     total: "toplam",
     newSale: "+ Yeni Paket",
-    search: "Musteri, hizmet ara...",
-    loading: "Yukleniyor...",
-    noData: "Henuz paket satisi yok.",
-    noDataSub: "Musterilerinize hizmet paketleri satmaya baslayin.",
-    noResult: "Filtrenizle eslesen sonuc yok.",
-    totalSales: "Toplam Satis",
+    search: "Müşteri, hizmet ara...",
+    loading: "Yükleniyor...",
+    noData: "Henüz paket satışı yok.",
+    noDataSub: "Müşterilerinize hizmet paketleri satmaya başlayın.",
+    noResult: "Filtrenizle eşleşen sonuç yok.",
+    totalSales: "Toplam Satış",
     totalRevenue: "Toplam Gelir",
     activePackages: "Aktif Paketler",
     completedPackages: "Tamamlanan",
-    allStatuses: "Tum Durumlar",
+    allStatuses: "Tüm Durumlar",
     active: "Aktif",
-    completed: "Tamamlandi",
-    expired: "Suresi Doldu",
-    cancelled: "Iptal",
-    allTreatments: "Tum Hizmetler",
+    completed: "Tamamlandı",
+    expired: "Süresi Doldu",
+    cancelled: "İptal",
+    allTreatments: "Tüm Hizmetler",
     thisMonth: "Bu Ay",
-    lastMonth: "Gecen Ay",
+    lastMonth: "Geçen Ay",
     last3Months: "Son 3 Ay",
-    allTime: "Tum Zamanlar",
-    saleDate: "Satis Tarihi",
-    customer: "Musteri",
+    allTime: "Tüm Zamanlar",
+    saleDate: "Satış Tarihi",
+    customer: "Müşteri",
     treatment: "Hizmet",
     sessions: "Seanslar",
-    progress: "Ilerleme",
+    progress: "İlerleme",
     totalPrice: "Toplam",
-    paidAmount: "Odenen",
+    paidAmount: "Ödenen",
     remainingPayment: "Kalan",
     status: "Durum",
-    actions: "Islemler",
-    used: "kullanildi",
+    actions: "İşlemler",
+    used: "kullanıldı",
     remaining: "kalan",
-    createTitle: "Yeni Paket Satisi",
-    editTitle: "Paket Duzenle",
-    selectCustomer: "Musteri Secin",
-    selectTreatment: "Hizmet Secin",
-    sessionCount: "Seans Sayisi",
-    packagePrice: "Paket Fiyati",
-    paymentAmount: "Odeme Tutari",
-    paymentMethod: "Odeme Yontemi",
+    createTitle: "Yeni Paket Satışı",
+    editTitle: "Paket Düzenle",
+    selectCustomer: "Müşteri Seçin",
+    selectTreatment: "Hizmet Seçin",
+    sessionCount: "Seans Sayısı",
+    packagePrice: "Paket Fiyatı",
+    paymentAmount: "Ödeme Tutarı",
+    paymentMethod: "Ödeme Yöntemi",
     cash: "Nakit",
-    creditCard: "Kredi / Banka Karti",
+    creditCard: "Kredi / Banka Kartı",
     bankTransfer: "Havale / EFT",
-    check: "Cek",
-    other: "Diger",
-    startDate: "Baslangic Tarihi",
-    endDate: "Bitis Tarihi (Gecerlilik)",
+    check: "Çek",
+    other: "Diğer",
+    startDate: "Başlangıç Tarihi",
+    endDate: "Bitiş Tarihi (Geçerlilik)",
     notes: "Notlar",
-    notesPlaceholder: "Istege bagli notlar...",
+    notesPlaceholder: "İsteğe bağlı notlar...",
     save: "Kaydet",
     saving: "Kaydediliyor...",
-    cancel: "Vazgec",
-    detailTitle: "Paket Detayi",
+    cancel: "Vazgeç",
+    detailTitle: "Paket Detayı",
     packageInfo: "Paket Bilgisi",
-    usageHistory: "Kullanim Gecmisi",
-    paymentHistory: "Odeme Gecmisi",
-    recordUsage: "Seans Kullanimi Kaydet",
-    addPayment: "Odeme Ekle",
-    noUsage: "Henuz seans kullanilmadi.",
-    noPayments: "Odeme kaydi yok.",
-    edit: "Duzenle",
+    usageHistory: "Kullanım Geçmişi",
+    paymentHistory: "Ödeme Geçmişi",
+    recordUsage: "Seans Kullanımı Kaydet",
+    addPayment: "Ödeme Ekle",
+    noUsage: "Henüz seans kullanılmadı.",
+    noPayments: "Ödeme kaydı yok.",
+    edit: "Düzenle",
     delete: "Sil",
-    confirmDelete: "Bu paket satisini silmek istediginize emin misiniz?",
+    confirmDelete: "Bu paket satışını silmek istediğinize emin misiniz?",
     session: "Seans",
     of: "/",
-    validUntil: "Gecerlilik",
-    seller: "Satici",
-    createdAt: "Olusturulma",
-    usageTitle: "Seans Kullanimi Kaydet",
+    validUntil: "Geçerlilik",
+    seller: "Satıcı",
+    createdAt: "Oluşturulma",
+    usageTitle: "Seans Kullanımı Kaydet",
     usageDate: "Seans Tarihi",
-    usageStaff: "Personel (istege bagli)",
-    selectStaff: "Personel Secin",
+    usageStaff: "Personel (isteğe bağlı)",
+    selectStaff: "Personel Seçin",
     usageNotes: "Notlar",
     record: "Kaydet",
     recording: "Kaydediliyor...",
-    paymentTitle: "Odeme Ekle",
+    paymentTitle: "Ödeme Ekle",
     paymentAmountLabel: "Tutar",
-    paymentDate: "Odeme Tarihi",
+    paymentDate: "Ödeme Tarihi",
   },
 };
 
@@ -323,7 +323,9 @@ export default function PackageSalesScreen() {
     notes: "",
   });
   const [customerSearch, setCustomerSearch] = useState("");
+  const [showCustomerDd, setShowCustomerDd] = useState(false);
   const [treatmentSearch, setTreatmentSearch] = useState("");
+  const [showTreatmentDd, setShowTreatmentDd] = useState(false);
 
   /* ─── Detail Modal ─── */
   const [showDetail, setShowDetail] = useState(false);
@@ -385,7 +387,7 @@ export default function PackageSalesScreen() {
         }
         if (statsRes.data.success && statsRes.data.data) setStats(statsRes.data.data);
       } catch {
-        toast.error(language === "tr" ? "Veriler yuklenemedi" : "Failed to load data");
+        toast.error(language === "tr" ? "Veriler yüklenemedi" : "Failed to load data");
       }
     } finally {
       setLoading(false);
@@ -393,18 +395,14 @@ export default function PackageSalesScreen() {
   }, [dateFilter, statusFilter, treatmentFilter, page, pageSize, language]);
 
   const fetchReferenceData = useCallback(async () => {
-    try {
-      const [custRes, treatRes, staffRes] = await Promise.all([
-        customerService.list(),
-        treatmentService.list(),
-        staffService.list(),
-      ]);
-      if (custRes.data.success && custRes.data.data) setCustomers(custRes.data.data);
-      if (treatRes.data.success && treatRes.data.data) setTreatments(treatRes.data.data);
-      if (staffRes.data.success && staffRes.data.data) setStaffList(staffRes.data.data);
-    } catch {
-      /* silently ignore - reference data is optional for display */
-    }
+    const [custRes, treatRes, staffRes] = await Promise.allSettled([
+      customerService.list(),
+      treatmentService.list(),
+      staffService.list(),
+    ]);
+    if (custRes.status === "fulfilled" && custRes.value.data.success && custRes.value.data.data) setCustomers(custRes.value.data.data);
+    if (treatRes.status === "fulfilled" && treatRes.value.data.success && treatRes.value.data.data) setTreatments(treatRes.value.data.data);
+    if (staffRes.status === "fulfilled" && staffRes.value.data.success && staffRes.value.data.data) setStaffList(staffRes.value.data.data);
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
@@ -433,14 +431,16 @@ export default function PackageSalesScreen() {
       notes: "",
     });
     setCustomerSearch("");
+    setShowCustomerDd(false);
     setTreatmentSearch("");
+    setShowTreatmentDd(false);
     setShowCreate(true);
   };
 
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     if (!createForm.customerId || !createForm.treatmentId) {
-      toast.error(language === "tr" ? "Musteri ve hizmet secimi zorunludur" : "Customer and treatment are required");
+      toast.error(language === "tr" ? "Müşteri ve hizmet seçimi zorunludur" : "Customer and treatment are required");
       return;
     }
     setSaving(true);
@@ -456,11 +456,11 @@ export default function PackageSalesScreen() {
         endDate: createForm.endDate ? new Date(createForm.endDate).toISOString() : undefined,
         notes: createForm.notes || undefined,
       });
-      toast.success(language === "tr" ? "Paket satisi olusturuldu" : "Package sale created");
+      toast.success(language === "tr" ? "Paket satışı oluşturuldu" : "Package sale created");
       setShowCreate(false);
       fetchData();
     } catch {
-      toast.error(language === "tr" ? "Islem basarisiz" : "Operation failed");
+      toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
     } finally {
       setSaving(false);
     }
@@ -484,11 +484,11 @@ export default function PackageSalesScreen() {
     if (!confirm(t.confirmDelete)) return;
     try {
       await packageSaleService.delete(id);
-      toast.success(language === "tr" ? "Paket satisi silindi" : "Package sale deleted");
+      toast.success(language === "tr" ? "Paket satışı silindi" : "Package sale deleted");
       setShowDetail(false);
       fetchData();
     } catch {
-      toast.error(language === "tr" ? "Silme basarisiz" : "Delete failed");
+      toast.error(language === "tr" ? "Silme başarısız" : "Delete failed");
     }
   };
 
@@ -507,14 +507,14 @@ export default function PackageSalesScreen() {
         staffId: usageForm.staffId || undefined,
         notes: usageForm.notes || undefined,
       });
-      toast.success(language === "tr" ? "Seans kullanimi kaydedildi" : "Session usage recorded");
+      toast.success(language === "tr" ? "Seans kullanımı kaydedildi" : "Session usage recorded");
       setShowUsage(false);
       // Refresh detail
       const res = await packageSaleService.getById(selectedSale.id);
       if (res.data.success && res.data.data) setSelectedSale(res.data.data);
       fetchData();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : (language === "tr" ? "Islem basarisiz" : "Operation failed");
+      const msg = err instanceof Error ? err.message : (language === "tr" ? "İşlem başarısız" : "Operation failed");
       toast.error(msg);
     } finally {
       setRecordingUsage(false);
@@ -542,13 +542,13 @@ export default function PackageSalesScreen() {
         paidAt: paymentForm.paidAt ? new Date(paymentForm.paidAt).toISOString() : undefined,
         notes: paymentForm.notes || undefined,
       });
-      toast.success(language === "tr" ? "Odeme kaydedildi" : "Payment recorded");
+      toast.success(language === "tr" ? "Ödeme kaydedildi" : "Payment recorded");
       setShowPayment(false);
       const res = await packageSaleService.getById(selectedSale.id);
       if (res.data.success && res.data.data) setSelectedSale(res.data.data);
       fetchData();
     } catch {
-      toast.error(language === "tr" ? "Islem basarisiz" : "Operation failed");
+      toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
     } finally {
       setRecordingPayment(false);
     }
@@ -607,7 +607,7 @@ export default function PackageSalesScreen() {
                 { header: isTr ? "Bitiş" : "End Date", key: "endDate", format: "date" },
               ];
             })()}
-            filenamePrefix={language === "tr" ? "Paket_Satislari" : "Package_Sales"}
+            filenamePrefix={language === "tr" ? "Paket_Satışları" : "Package_Sales"}
             pdfTitle={language === "tr" ? "Paket Satış Listesi" : "Package Sales List"}
           />
           <button
@@ -833,49 +833,81 @@ export default function PackageSalesScreen() {
           {/* Customer selection */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.selectCustomer}</label>
-            <input
-              type="text" value={customerSearch}
-              onChange={(e) => setCustomerSearch(e.target.value)}
-              placeholder={t.search}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
-            />
-            {(customerSearch || createForm.customerId === 0) && (
-              <div className="max-h-32 overflow-y-auto rounded-xl border border-white/10 bg-white/5">
-                {filteredCustomers.slice(0, 8).map((c) => (
-                  <button
-                    key={c.id} type="button"
-                    onClick={() => { setCreateForm({ ...createForm, customerId: c.id }); setCustomerSearch(`${c.name} ${c.surname}`); }}
-                    className={`w-full text-left px-3 py-2 text-sm transition hover:bg-white/10 ${createForm.customerId === c.id ? "bg-white/10 text-white" : "text-white/60"}`}
-                  >
-                    {c.name} {c.surname} {c.phone && <span className="text-white/30 text-xs ml-2">{c.phone}</span>}
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <input
+                type="text" value={customerSearch}
+                onChange={(e) => { setCustomerSearch(e.target.value); setShowCustomerDd(true); }}
+                onFocus={() => setShowCustomerDd(true)}
+                placeholder={t.search}
+                className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+              />
+              {showCustomerDd && (
+                <div className="absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
+                  {filteredCustomers.length === 0 ? (
+                    <div className="px-4 py-3 text-xs text-white/30">{language === "tr" ? "Müşteri bulunamadı" : "No customers found"}</div>
+                  ) : (
+                    filteredCustomers.slice(0, 10).map((c) => (
+                      <button
+                        key={c.id} type="button"
+                        onClick={() => { setCreateForm({ ...createForm, customerId: c.id }); setCustomerSearch(`${c.name} ${c.surname}`); setShowCustomerDd(false); }}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-white/5 ${createForm.customerId === c.id ? "bg-white/5" : ""}`}
+                      >
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold text-white/70">
+                          {c.name[0]}{c.surname[0]}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-white truncate">{c.name} {c.surname}</p>
+                          {c.phone && <p className="text-[11px] text-white/30">{c.phone}</p>}
+                        </div>
+                        {createForm.customerId === c.id && (
+                          <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Treatment selection */}
           <div className="space-y-2">
             <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.selectTreatment}</label>
-            <input
-              type="text" value={treatmentSearch}
-              onChange={(e) => setTreatmentSearch(e.target.value)}
-              placeholder={t.search}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
-            />
-            {(treatmentSearch || createForm.treatmentId === 0) && (
-              <div className="max-h-32 overflow-y-auto rounded-xl border border-white/10 bg-white/5">
-                {filteredTreatments.slice(0, 8).map((tr) => (
-                  <button
-                    key={tr.id} type="button"
-                    onClick={() => { setCreateForm({ ...createForm, treatmentId: tr.id }); setTreatmentSearch(tr.name); }}
-                    className={`w-full text-left px-3 py-2 text-sm transition hover:bg-white/10 ${createForm.treatmentId === tr.id ? "bg-white/10 text-white" : "text-white/60"}`}
-                  >
-                    {tr.name} <span className="text-white/30 text-xs ml-2">{fmt(tr.price ?? 0)} TL</span>
-                  </button>
-                ))}
-              </div>
-            )}
+            <div className="relative">
+              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <input
+                type="text" value={treatmentSearch}
+                onChange={(e) => { setTreatmentSearch(e.target.value); setShowTreatmentDd(true); }}
+                onFocus={() => setShowTreatmentDd(true)}
+                placeholder={t.search}
+                className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+              />
+              {showTreatmentDd && (
+                <div className="absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
+                  {filteredTreatments.length === 0 ? (
+                    <div className="px-4 py-3 text-xs text-white/30">{language === "tr" ? "Hizmet bulunamadı" : "No treatments found"}</div>
+                  ) : (
+                    filteredTreatments.slice(0, 10).map((tr) => (
+                      <button
+                        key={tr.id} type="button"
+                        onClick={() => { setCreateForm({ ...createForm, treatmentId: tr.id }); setTreatmentSearch(tr.name); setShowTreatmentDd(false); }}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-white/5 ${createForm.treatmentId === tr.id ? "bg-white/5" : ""}`}
+                      >
+                        <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tr.color || "#a78bfa" }} />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm text-white truncate">{tr.name}</p>
+                          <p className="text-[10px] text-white/30">{tr.durationMinutes} {language === "tr" ? "dk" : "min"} • ₺{fmt(tr.price ?? 0)}</p>
+                        </div>
+                        {createForm.treatmentId === tr.id && (
+                          <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                        )}
+                      </button>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Sessions + Price row */}

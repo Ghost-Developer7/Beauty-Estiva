@@ -20,12 +20,12 @@ import toast from "react-hot-toast";
    ================================================================ */
 
 const DAYS_EN = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-const DAYS_TR = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
+const DAYS_TR = ["Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi", "Pazar"];
 
 const ROLE_LABELS: Record<string, { en: string; tr: string; bg: string }> = {
-  SuperAdmin: { en: "SuperAdmin", tr: "Super Yonetici", bg: "bg-red-500/15 text-red-400 border-red-500/20" },
+  SuperAdmin: { en: "SuperAdmin", tr: "Süper Yönetici", bg: "bg-red-500/15 text-red-400 border-red-500/20" },
   Owner:  { en: "Owner",  tr: "Sahip",    bg: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
-  Admin:  { en: "Admin",  tr: "Yonetici", bg: "bg-violet-500/15 text-violet-400 border-violet-500/20" },
+  Admin:  { en: "Admin",  tr: "Yönetici", bg: "bg-violet-500/15 text-violet-400 border-violet-500/20" },
   Staff:  { en: "Staff",  tr: "Personel", bg: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
 };
 
@@ -106,57 +106,57 @@ const copy = {
     total: "total",
   },
   tr: {
-    title: "Subeler",
-    subtitle: "Isletme subelerinizi yonetin",
-    newBranch: "Yeni Sube",
-    search: "Sube ara...",
-    loading: "Yukleniyor...",
-    noData: "Henuz sube yok.",
-    noDataSub: "Baslamak icin ilk subenizi olusturun.",
-    noResult: "Aramanizla eslesen sube yok.",
-    mainBranch: "Ana Sube",
+    title: "Şubeler",
+    subtitle: "İşletme şubelerinizi yönetin",
+    newBranch: "Yeni Şube",
+    search: "Şube ara...",
+    loading: "Yükleniyor...",
+    noData: "Henüz şube yok.",
+    noDataSub: "Başlamak için ilk şubenizi oluşturun.",
+    noResult: "Aramanızla eşleşen şube yok.",
+    mainBranch: "Ana Şube",
     staffCount: "Personel",
     active: "Aktif",
     inactive: "Pasif",
-    edit: "Duzenle",
+    edit: "Düzenle",
     deactivate: "Pasife Al",
-    createTitle: "Sube Olustur",
-    editTitle: "Sube Duzenle",
-    detailTitle: "Sube Detayi",
-    name: "Sube Adi",
-    namePlaceholder: "orn. Merkez Sube",
+    createTitle: "Şube Oluştur",
+    editTitle: "Şube Düzenle",
+    detailTitle: "Şube Detayı",
+    name: "Şube Adı",
+    namePlaceholder: "örn. Merkez Şube",
     address: "Adres",
     phone: "Telefon",
     email: "E-posta",
-    workingHours: "Calisma Saatleri",
-    isMainBranch: "Ana Sube",
+    workingHours: "Çalışma Saatleri",
+    isMainBranch: "Ana Şube",
     isActive: "Aktif",
     save: "Kaydet",
-    cancel: "Iptal",
-    creating: "Olusturuluyor...",
+    cancel: "İptal",
+    creating: "Oluşturuluyor...",
     saving: "Kaydediliyor...",
-    open: "Acilis",
-    close: "Kapanis",
-    closed: "Kapali",
+    open: "Açılış",
+    close: "Kapanış",
+    closed: "Kapalı",
     assignedStaff: "Atanan Personel",
     assignStaff: "Personel Ata",
-    removeStaff: "Cikar",
-    selectStaff: "Atanacak personeli secin...",
-    noStaffAssigned: "Bu subeye henuz personel atanmadi.",
+    removeStaff: "Çıkar",
+    selectStaff: "Atanacak personeli seçin...",
+    noStaffAssigned: "Bu şubeye henüz personel atanmadı.",
     assign: "Ata",
-    branchUsage: "Sube Kullanimi",
-    branchesUsed: "sube kullaniliyor",
+    branchUsage: "Şube Kullanımı",
+    branchesUsed: "şube kullanılıyor",
     unlimited: "Limitsiz",
-    upgradeMessage: "Daha fazla sube eklemek icin paketinizi yukseltin.",
-    limitReached: "Sube limitine ulasildi",
-    confirmDeactivate: "Bu subeyi pasife almak istediginizden emin misiniz?",
-    confirmRemoveStaff: "Bu personeli subeden cikarmak istiyor musunuz?",
-    createSuccess: "Sube basariyla olusturuldu",
-    updateSuccess: "Sube basariyla guncellendi",
-    deactivateSuccess: "Sube basariyla pasife alindi",
-    assignSuccess: "Personel basariyla atandi",
-    removeStaffSuccess: "Personel subeden cikarildi",
-    cannotDeactivateMain: "Ana sube pasife alinamaz. Oncelikle baska bir subeyi ana sube olarak atayin.",
+    upgradeMessage: "Daha fazla şube eklemek için paketinizi yükseltin.",
+    limitReached: "Şube limitine ulaşıldı",
+    confirmDeactivate: "Bu şubeyi pasife almak istediğinizden emin misiniz?",
+    confirmRemoveStaff: "Bu personeli şubeden çıkarmak istiyor musunuz?",
+    createSuccess: "Şube başarıyla oluşturuldu",
+    updateSuccess: "Şube başarıyla güncellendi",
+    deactivateSuccess: "Şube başarıyla pasife alındı",
+    assignSuccess: "Personel başarıyla atandı",
+    removeStaffSuccess: "Personel şubeden çıkarıldı",
+    cannotDeactivateMain: "Ana şube pasife alınamaz. Öncelikle başka bir şubeyi ana şube olarak atayın.",
     total: "toplam",
   },
 };
@@ -272,7 +272,7 @@ export default function BranchesScreen() {
       if (branchRes.data.success && branchRes.data.data) setBranches(branchRes.data.data);
       if (limitRes && limitRes.data.success && limitRes.data.data) setLimit(limitRes.data.data);
     } catch {
-      toast.error(language === "tr" ? "Subeler yuklenemedi" : "Failed to load branches");
+      toast.error(language === "tr" ? "Şubeler yüklenemedi" : "Failed to load branches");
     } finally {
       setLoading(false);
     }
@@ -347,7 +347,7 @@ export default function BranchesScreen() {
         setShowDetailModal(true);
       }
     } catch {
-      toast.error(language === "tr" ? "Sube detayi yuklenemedi" : "Failed to load branch detail");
+      toast.error(language === "tr" ? "Şube detayı yüklenemedi" : "Failed to load branch detail");
     }
   };
 
@@ -374,7 +374,7 @@ export default function BranchesScreen() {
       if (code === "BRANCH_LIMIT_REACHED") {
         toast.error(t.limitReached);
       } else {
-        toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Sube olusturulamadi" : "Failed to create branch"));
+        toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Şube oluşturulamadı" : "Failed to create branch"));
       }
     } finally {
       setFormSaving(false);
@@ -401,7 +401,7 @@ export default function BranchesScreen() {
         fetchBranches();
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Sube guncellenemedi" : "Failed to update branch"));
+      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Şube güncellenemedi" : "Failed to update branch"));
     } finally {
       setFormSaving(false);
     }
@@ -424,7 +424,7 @@ export default function BranchesScreen() {
       if (code === "CANNOT_DEACTIVATE_MAIN_BRANCH") {
         toast.error(t.cannotDeactivateMain);
       } else {
-        toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Sube silinemedi" : "Failed to deactivate branch"));
+        toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Şube silinemedi" : "Failed to deactivate branch"));
       }
     }
   };
@@ -443,7 +443,7 @@ export default function BranchesScreen() {
         fetchBranches();
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Personel atanamadi" : "Failed to assign staff"));
+      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Personel atanamadı" : "Failed to assign staff"));
     } finally {
       setAssignLoading(false);
     }
@@ -461,7 +461,7 @@ export default function BranchesScreen() {
         fetchBranches();
       }
     } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Personel cikarilmadi" : "Failed to remove staff"));
+      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Personel çıkarılmadı" : "Failed to remove staff"));
     }
   };
 

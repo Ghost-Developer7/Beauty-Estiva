@@ -237,7 +237,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 
   const sidebarContent = (
     <aside
-      className={`estiva-dashboard-sidebar relative flex flex-col text-white shadow-[0_0_40px_rgba(5,4,17,0.8)] transition-all duration-300 h-full ${
+      className={`estiva-dashboard-sidebar relative flex flex-col overflow-hidden text-white shadow-[0_0_40px_rgba(5,4,17,0.8)] transition-all duration-300 h-full ${
         expanded ? "w-64" : "w-20"
       }`}
     >
@@ -293,7 +293,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         )}
       </div>
 
-      <nav className="mt-4 flex-1 space-y-0.5 px-3 overflow-y-auto custom-scrollbar">
+      <nav className="mt-4 flex-1 min-h-0 space-y-1 px-3 overflow-y-auto custom-scrollbar">
         {items.map((item, index) => renderNavItem(item, index, pathname, expanded, openMenus, toggleMenu))}
       </nav>
 
@@ -413,11 +413,11 @@ const renderNavItem = (
         <div
           className="overflow-hidden transition-all duration-200 ease-out"
           style={{
-            maxHeight: isOpen ? `${children.length * 52}px` : "0px",
+            maxHeight: isOpen ? `${children.length * 56}px` : "0px",
             opacity: isOpen ? 1 : 0,
           }}
         >
-          <div className="mt-0.5 space-y-0.5 ml-4 border-l border-white/[0.06] pl-1">
+          <div className="mt-1 space-y-1 ml-4 border-l border-white/[0.06] pl-1">
             {children.map((child, cIndex) =>
               renderNavItem(
                 child,

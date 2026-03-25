@@ -344,6 +344,78 @@ textarea:focus {
   }
 }
 
+/* ─── Dark-theme date / datetime-local input styling ─── */
+
+.estiva-dashboard input[type="date"],
+.estiva-dashboard input[type="datetime-local"] {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 8px 12px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+  color-scheme: dark;
+}
+
+.estiva-dashboard input[type="date"]:hover,
+.estiva-dashboard input[type="datetime-local"]:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.estiva-dashboard input[type="date"]:focus,
+.estiva-dashboard input[type="datetime-local"]:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+/* Calendar popup / picker styling (Webkit) */
+.estiva-dashboard input[type="date"]::-webkit-calendar-picker-indicator,
+.estiva-dashboard input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: invert(0.7) sepia(0.2) saturate(3) hue-rotate(220deg);
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px;
+  transition: filter 0.2s ease;
+}
+
+.estiva-dashboard input[type="date"]::-webkit-calendar-picker-indicator:hover,
+.estiva-dashboard input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  filter: invert(0.9) sepia(0.3) saturate(4) hue-rotate(220deg);
+}
+
+/* Light theme override for date inputs */
+body.theme-light .estiva-dashboard input[type="date"],
+body.theme-light .estiva-dashboard input[type="datetime-local"] {
+  background-color: rgba(255, 255, 255, 0.85);
+  color: #1f1233;
+  border-color: #e3d8ff;
+  color-scheme: light;
+}
+
+body.theme-light .estiva-dashboard input[type="date"]:hover,
+body.theme-light .estiva-dashboard input[type="datetime-local"]:hover {
+  border-color: #d0c0f5;
+  background-color: rgba(255, 255, 255, 0.95);
+}
+
+body.theme-light .estiva-dashboard input[type="date"]:focus,
+body.theme-light .estiva-dashboard input[type="datetime-local"]:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+}
+
+body.theme-light .estiva-dashboard input[type="date"]::-webkit-calendar-picker-indicator,
+body.theme-light .estiva-dashboard input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
 /* Mobile sidebar slide-in animation */
 @keyframes slide-in-left {
   from {

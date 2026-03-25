@@ -12,9 +12,9 @@ import toast from "react-hot-toast";
    ═══════════════════════════════════════════ */
 
 const ROLE_LABELS: Record<string, { en: string; tr: string; bg: string }> = {
-  SuperAdmin: { en: "SuperAdmin", tr: "Super Yonetici", bg: "bg-red-500/15 text-red-400 border-red-500/20" },
+  SuperAdmin: { en: "SuperAdmin", tr: "Süper Yönetici", bg: "bg-red-500/15 text-red-400 border-red-500/20" },
   Owner: { en: "Owner", tr: "Sahip", bg: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
-  Admin: { en: "Admin", tr: "Yonetici", bg: "bg-violet-500/15 text-violet-400 border-violet-500/20" },
+  Admin: { en: "Admin", tr: "Yönetici", bg: "bg-violet-500/15 text-violet-400 border-violet-500/20" },
   Staff: { en: "Staff", tr: "Personel", bg: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
 };
 
@@ -55,37 +55,37 @@ const copy = {
     total: "total",
   },
   tr: {
-    title: "Ozluk Bilgileri",
-    subtitle: "Personel ozluk bilgileri ve kayitlari",
-    loading: "Yukleniyor...",
-    noData: "Personel kaydi bulunamadi.",
+    title: "Özlük Bilgileri",
+    subtitle: "Personel özlük bilgileri ve kayıtları",
+    loading: "Yükleniyor...",
+    noData: "Personel kaydı bulunamadı.",
     staffMember: "Personel",
     position: "Pozisyon",
-    hireDate: "Ise Giris",
-    salary: "Maas",
-    leaveBalance: "Izin Bakiyesi",
+    hireDate: "İşe Giriş",
+    salary: "Maaş",
+    leaveBalance: "İzin Bakiyesi",
     roles: "Roller",
-    edit: "Duzenle",
+    edit: "Düzenle",
     save: "Kaydet",
     saving: "Kaydediliyor...",
-    cancel: "Iptal",
-    saved: "Kayitlar guncellendi",
+    cancel: "İptal",
+    saved: "Kayıtlar güncellendi",
     positionLabel: "Pozisyon",
-    hireDateLabel: "Ise Giris Tarihi",
-    salaryLabel: "Maas",
+    hireDateLabel: "İşe Giriş Tarihi",
+    salaryLabel: "Maaş",
     currencyLabel: "Para Birimi",
     identityLabel: "TC Kimlik No",
-    emergencyName: "Acil Durum Kisisi",
+    emergencyName: "Acil Durum Kişisi",
     emergencyPhone: "Acil Durum Telefonu",
-    annualLeave: "Yillik Izin Hakki",
-    usedLeave: "Kullanilan Izin",
-    remainingLeave: "Kalan Izin",
+    annualLeave: "Yıllık İzin Hakkı",
+    usedLeave: "Kullanılan İzin",
+    remainingLeave: "Kalan İzin",
     notes: "Notlar",
     notesPlaceholder: "Notlar...",
-    daysUnit: "gun",
-    positionPlaceholder: "orn. Kuafor",
-    noPosition: "Belirlenmemis",
-    noHireDate: "Belirlenmemis",
+    daysUnit: "gün",
+    positionPlaceholder: "örn. Kuaför",
+    noPosition: "Belirlenmemiş",
+    noHireDate: "Belirlenmemiş",
     total: "toplam",
   },
 };
@@ -151,7 +151,7 @@ export default function StaffHRPage() {
         }
       }
     } catch {
-      toast.error(language === "tr" ? "Veriler yuklenemedi" : "Failed to load data");
+      toast.error(language === "tr" ? "Veriler yüklenemedi" : "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -181,7 +181,7 @@ export default function StaffHRPage() {
         setEditingStaffId(staffId);
       }
     } catch {
-      toast.error(language === "tr" ? "Bilgiler yuklenemedi" : "Failed to load details");
+      toast.error(language === "tr" ? "Bilgiler yüklenemedi" : "Failed to load details");
     }
   };
 

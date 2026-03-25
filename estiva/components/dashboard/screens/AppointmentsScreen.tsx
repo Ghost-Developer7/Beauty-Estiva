@@ -344,18 +344,14 @@ export default function AppointmentsScreen() {
   }, [dateFilter, staffFilter, page, pageSize, language]);
 
   const fetchReferenceData = useCallback(async () => {
-    try {
-      const [custRes, treatRes, staffRes] = await Promise.all([
-        customerService.list(),
-        treatmentService.list(),
-        staffService.list(),
-      ]);
-      if (custRes.data.success && custRes.data.data) setCustomers(custRes.data.data);
-      if (treatRes.data.success && treatRes.data.data) setTreatments(treatRes.data.data);
-      if (staffRes.data.success && staffRes.data.data) setStaffList(staffRes.data.data);
-    } catch {
-      /* silent */
-    }
+    const [custRes, treatRes, staffRes] = await Promise.allSettled([
+      customerService.list(),
+      treatmentService.list(),
+      staffService.list(),
+    ]);
+    if (custRes.status === "fulfilled" && custRes.value.data.success && custRes.value.data.data) setCustomers(custRes.value.data.data);
+    if (treatRes.status === "fulfilled" && treatRes.value.data.success && treatRes.value.data.data) setTreatments(treatRes.value.data.data);
+    if (staffRes.status === "fulfilled" && staffRes.value.data.success && staffRes.value.data.data) setStaffList(staffRes.value.data.data);
   }, []);
 
   useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
@@ -394,7 +390,11 @@ export default function AppointmentsScreen() {
   /* ═══ ACTIONS ═══ */
 
   const openCreate = () => {
-    setForm(emptyForm);
+    // Pre-fill with next nearest half hour
+    const now = new Date();
+    now.setMinutes(now.getMinutes() < 30 ? 30 : 60, 0, 0);
+    const defaultTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}T${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    setForm({ ...emptyForm, startTime: defaultTime });
     setCustomerSearch("");
     setShowCreate(true);
   };

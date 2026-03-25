@@ -96,10 +96,10 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
           surname: res.data.data.surname,
           profilePicturePath: res.data.data.profilePicturePath,
         });
-        toast.success("Profil bilgileri guncellendi.");
+        toast.success("Profil bilgileri güncellendi.");
       }
     } catch {
-      toast.error("Profil guncellenemedi.");
+      toast.error("Profil güncellenemedi.");
     } finally {
       setSaving(false);
     }
@@ -107,15 +107,15 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
 
   const handleChangePassword = async () => {
     if (!currentPassword || !newPassword || !confirmNewPassword) {
-      toast.error("Tum sifre alanlari zorunludur.");
+      toast.error("Tüm şifre alanları zorunludur.");
       return;
     }
     if (newPassword !== confirmNewPassword) {
-      toast.error("Yeni sifreler eslesmiyor.");
+      toast.error("Yeni şifreler eşleşmiyor.");
       return;
     }
     if (newPassword.length < 8) {
-      toast.error("Sifre en az 8 karakter olmalidir.");
+      toast.error("Şifre en az 8 karakter olmalıdır.");
       return;
     }
     try {
@@ -126,14 +126,14 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
         confirmNewPassword,
       });
       if (res.data.success) {
-        toast.success("Sifre basariyla degistirildi.");
+        toast.success("Şifre başarıyla değiştirildi.");
         setCurrentPassword("");
         setNewPassword("");
         setConfirmNewPassword("");
         setShowPasswordSection(false);
       }
     } catch {
-      toast.error("Sifre degistirilemedi. Mevcut sifrenizi kontrol edin.");
+      toast.error("Şifre değiştirilemedi. Mevcut şifrenizi kontrol edin.");
     } finally {
       setChangingPassword(false);
     }
@@ -160,10 +160,10 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
           prev ? { ...prev, profilePicturePath: newPath } : prev
         );
         updateUser({ profilePicturePath: newPath });
-        toast.success("Profil fotografi guncellendi.");
+        toast.success("Profil fotoğrafı güncellendi.");
       }
     } catch {
-      toast.error("Fotograf yuklenemedi.");
+      toast.error("Fotoğraf yüklenemedi.");
     } finally {
       setUploadingPicture(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -179,10 +179,10 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
           prev ? { ...prev, profilePicturePath: null } : prev
         );
         updateUser({ profilePicturePath: null });
-        toast.success("Profil fotografi kaldirildi.");
+        toast.success("Profil fotoğrafı kaldırıldı.");
       }
     } catch {
-      toast.error("Fotograf kaldirilamadi.");
+      toast.error("Fotoğraf kaldırılamadı.");
     } finally {
       setUploadingPicture(false);
     }
@@ -312,7 +312,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                     <polyline points="17 8 12 3 7 8" />
                     <line x1="12" y1="3" x2="12" y2="15" />
                   </svg>
-                  {profile?.profilePicturePath ? "Degistir" : "Yukle"}
+                  {profile?.profilePicturePath ? "Değiştir" : "Yükle"}
                 </button>
                 {profile?.profilePicturePath && (
                   <button
@@ -333,7 +333,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                       <polyline points="3 6 5 6 21 6" />
                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                     </svg>
-                    Kaldir
+                    Kaldır
                   </button>
                 )}
               </div>
@@ -358,7 +358,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                   <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                   <circle cx="12" cy="7" r="4" />
                 </svg>
-                Kisisel Bilgiler
+                Kişisel Bilgiler
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -466,7 +466,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                       <line x1="8" y1="2" x2="8" y2="6" />
                       <line x1="3" y1="10" x2="21" y2="10" />
                     </svg>
-                    Dogum Tarihi
+                    Doğum Tarihi
                   </span>
                 </label>
                 <input
@@ -501,7 +501,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                     <polyline points="7 3 7 8 15 8" />
                   </svg>
                 )}
-                {saving ? "Kaydediliyor..." : "Degisiklikleri Kaydet"}
+                {saving ? "Kaydediliyor..." : "Değişiklikleri Kaydet"}
               </button>
             </div>
 
@@ -535,7 +535,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                     />
                     <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                   </svg>
-                  Sifre Degistir
+                  Şifre Değiştir
                 </span>
                 <svg
                   width="16"
@@ -556,19 +556,19 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                 <div className="mt-3 space-y-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
                   <div>
                     <label className="mb-1 block text-xs font-medium text-white/40">
-                      Mevcut Sifre
+                      Mevcut Şifre
                     </label>
                     <input
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
-                      placeholder="Mevcut sifreniz"
+                      placeholder="Mevcut şifreniz"
                     />
                   </div>
                   <div>
                     <label className="mb-1 block text-xs font-medium text-white/40">
-                      Yeni Sifre
+                      Yeni Şifre
                     </label>
                     <input
                       type="password"
@@ -580,14 +580,14 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                   </div>
                   <div>
                     <label className="mb-1 block text-xs font-medium text-white/40">
-                      Yeni Sifre Tekrar
+                      Yeni Şifre Tekrar
                     </label>
                     <input
                       type="password"
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
                       className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
-                      placeholder="Yeni sifrenizi tekrar girin"
+                      placeholder="Yeni şifrenizi tekrar girin"
                     />
                   </div>
                   <button
@@ -620,8 +620,8 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                       </svg>
                     )}
                     {changingPassword
-                      ? "Degistiriliyor..."
-                      : "Sifreyi Degistir"}
+                      ? "Değiştiriliyor..."
+                      : "Şifreyi Değiştir"}
                   </button>
                 </div>
               )}

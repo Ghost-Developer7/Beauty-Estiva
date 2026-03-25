@@ -319,20 +319,18 @@ export default function OrdersScreen() {
   }, [startDate, endDate, staffFilter, page, pageSize, language]);
 
   const fetchReferenceData = useCallback(async () => {
-    try {
-      const [apptRes, currRes, staffRes, custRes, treatRes] = await Promise.all([
-        appointmentService.list(),
-        currencyService.list(),
-        staffService.list(),
-        customerService.list(),
-        treatmentService.list(),
-      ]);
-      if (apptRes.data.success && apptRes.data.data) setAppointments(apptRes.data.data);
-      if (currRes.data.success && currRes.data.data) setCurrencies(currRes.data.data);
-      if (staffRes.data.success && staffRes.data.data) setStaffList(staffRes.data.data);
-      if (custRes.data.success && custRes.data.data) setCustomers(custRes.data.data);
-      if (treatRes.data.success && treatRes.data.data) setTreatments(treatRes.data.data);
-    } catch { /* silent */ }
+    const [apptRes, currRes, staffRes, custRes, treatRes] = await Promise.allSettled([
+      appointmentService.list(),
+      currencyService.list(),
+      staffService.list(),
+      customerService.list(),
+      treatmentService.list(),
+    ]);
+    if (apptRes.status === "fulfilled" && apptRes.value.data.success && apptRes.value.data.data) setAppointments(apptRes.value.data.data);
+    if (currRes.status === "fulfilled" && currRes.value.data.success && currRes.value.data.data) setCurrencies(currRes.value.data.data);
+    if (staffRes.status === "fulfilled" && staffRes.value.data.success && staffRes.value.data.data) setStaffList(staffRes.value.data.data);
+    if (custRes.status === "fulfilled" && custRes.value.data.success && custRes.value.data.data) setCustomers(custRes.value.data.data);
+    if (treatRes.status === "fulfilled" && treatRes.value.data.success && treatRes.value.data.data) setTreatments(treatRes.value.data.data);
   }, []);
 
   useEffect(() => { fetchPayments(); }, [fetchPayments]);
@@ -474,7 +472,10 @@ export default function OrdersScreen() {
   /* ═══ APPOINTMENT CREATE ═══ */
 
   const openApptCreate = () => {
-    setApptForm({ customerId: 0, isNewCustomer: false, newName: "", newSurname: "", newPhone: "", treatmentId: 0, staffId: 0, startTime: "", notes: "" });
+    const now = new Date();
+    now.setMinutes(now.getMinutes() < 30 ? 30 : 60, 0, 0);
+    const defaultTime = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}T${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+    setApptForm({ customerId: 0, isNewCustomer: false, newName: "", newSurname: "", newPhone: "", treatmentId: 0, staffId: 0, startTime: defaultTime, notes: "" });
     setApptCustomerSearch("");
     setShowApptCreate(true);
   };
@@ -566,7 +567,7 @@ export default function OrdersScreen() {
                 { header: isTr ? "Yöntem" : "Method", key: "paymentMethodDisplay" },
               ];
             })()}
-            filenamePrefix={language === "tr" ? "Odemeler" : "Payments"}
+            filenamePrefix={language === "tr" ? "Ödemeler" : "Payments"}
             pdfTitle={language === "tr" ? "Ödeme Listesi" : "Payments List"}
           />
           <button
@@ -796,7 +797,7 @@ export default function OrdersScreen() {
           </div>
 
           {/* Amount + Currency */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className={`grid grid-cols-1 gap-3 ${(() => { const curr = currencies.find(c => c.id === form.currencyId); return curr && curr.code !== "TRY" ? "sm:grid-cols-3" : "sm:grid-cols-2"; })()}`}>
             <div className="space-y-2">
               <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.paymentAmount}</label>
               <input
@@ -816,6 +817,7 @@ export default function OrdersScreen() {
                 onChange={(e) => handleCurrencyChange(Number(e.target.value))}
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
               >
+                {currencies.length === 0 && <option value={0} className="bg-[#1a1a2e]">₺ TRY</option>}
                 {currencies.map((c) => (
                   <option key={c.id} value={c.id} className="bg-[#1a1a2e]">
                     {c.symbol} {c.code}
@@ -823,20 +825,22 @@ export default function OrdersScreen() {
                 ))}
               </select>
             </div>
-            <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.exchangeRate}</label>
-              <input
-                type="number"
-                min={0}
-                step={0.0001}
-                value={form.exchangeRateToTry}
-                onChange={(e) => setForm({ ...form, exchangeRateToTry: Number(e.target.value) })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
-              />
-              {form.amount > 0 && form.exchangeRateToTry !== 1 && (
-                <p className="text-[10px] text-white/30">= ₺{fmt(form.amount * form.exchangeRateToTry)}</p>
-              )}
-            </div>
+            {(() => { const curr = currencies.find(c => c.id === form.currencyId); return curr && curr.code !== "TRY"; })() && (
+              <div className="space-y-2">
+                <label className="text-xs font-semibold uppercase tracking-wider text-white/40">{t.exchangeRate}</label>
+                <input
+                  type="number"
+                  min={0}
+                  step={0.0001}
+                  value={form.exchangeRateToTry}
+                  onChange={(e) => setForm({ ...form, exchangeRateToTry: Number(e.target.value) })}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                />
+                {form.amount > 0 && form.exchangeRateToTry > 0 && (
+                  <p className="text-[10px] text-white/30">= ₺{fmt(form.amount * form.exchangeRateToTry)}</p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Payment Method */}

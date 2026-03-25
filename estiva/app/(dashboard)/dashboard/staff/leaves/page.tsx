@@ -13,16 +13,16 @@ import toast from "react-hot-toast";
    ═══════════════════════════════════════════ */
 
 const LEAVE_TYPES = [
-  { value: "Annual", en: "Annual Leave", tr: "Yillik Izin", color: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
-  { value: "Sick", en: "Sick Leave", tr: "Hastalik Izni", color: "bg-red-500/15 text-red-400 border-red-500/20" },
-  { value: "Maternity", en: "Maternity Leave", tr: "Dogum Izni", color: "bg-pink-500/15 text-pink-400 border-pink-500/20" },
-  { value: "Unpaid", en: "Unpaid Leave", tr: "Ucretsiz Izin", color: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
-  { value: "Other", en: "Other", tr: "Diger", color: "bg-white/10 text-white/60 border-white/10" },
+  { value: "Annual", en: "Annual Leave", tr: "Yıllık İzin", color: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
+  { value: "Sick", en: "Sick Leave", tr: "Hastalık İzni", color: "bg-red-500/15 text-red-400 border-red-500/20" },
+  { value: "Maternity", en: "Maternity Leave", tr: "Doğum İzni", color: "bg-pink-500/15 text-pink-400 border-pink-500/20" },
+  { value: "Unpaid", en: "Unpaid Leave", tr: "Ücretsiz İzin", color: "bg-amber-500/15 text-amber-400 border-amber-500/20" },
+  { value: "Other", en: "Other", tr: "Diğer", color: "bg-white/10 text-white/60 border-white/10" },
 ];
 
 const STATUS_CONFIG: Record<string, { en: string; tr: string; color: string }> = {
   Pending: { en: "Pending", tr: "Beklemede", color: "bg-amber-500/15 text-amber-400" },
-  Approved: { en: "Approved", tr: "Onaylandi", color: "bg-emerald-500/15 text-emerald-400" },
+  Approved: { en: "Approved", tr: "Onaylandı", color: "bg-emerald-500/15 text-emerald-400" },
   Rejected: { en: "Rejected", tr: "Reddedildi", color: "bg-red-500/15 text-red-400" },
 };
 
@@ -70,46 +70,46 @@ const copy = {
     created: "Leave request created",
   },
   tr: {
-    title: "Izin Yonetimi",
+    title: "İzin Yönetimi",
     subtitle: "Personel izin talepleri ve bakiyeleri",
-    loading: "Yukleniyor...",
-    noData: "Izin talebi bulunamadi.",
-    newLeave: "Yeni Izin Talebi",
+    loading: "Yükleniyor...",
+    noData: "İzin talebi bulunamadı.",
+    newLeave: "Yeni İzin Talebi",
     staff: "Personel",
-    type: "Tur",
+    type: "Tür",
     dates: "Tarihler",
-    duration: "Sure",
+    duration: "Süre",
     status: "Durum",
     reason: "Sebep",
-    actions: "Islemler",
+    actions: "İşlemler",
     approve: "Onayla",
     reject: "Reddet",
-    cancel: "Iptal",
+    cancel: "İptal",
     delete: "Sil",
-    days: "gun",
-    day: "gun",
-    create: "Olustur",
-    creating: "Olusturuluyor...",
-    startDate: "Baslangic Tarihi",
-    endDate: "Bitis Tarihi",
-    selectStaff: "Personel secin",
-    selectType: "Tur secin",
-    reasonPlaceholder: "Sebep (istege bagli)...",
+    days: "gün",
+    day: "gün",
+    create: "Oluştur",
+    creating: "Oluşturuluyor...",
+    startDate: "Başlangıç Tarihi",
+    endDate: "Bitiş Tarihi",
+    selectStaff: "Personel seçin",
+    selectType: "Tür seçin",
+    reasonPlaceholder: "Sebep (isteğe bağlı)...",
     approvedBy: "Onaylayan",
-    leaveBalances: "Izin Bakiyeleri",
+    leaveBalances: "İzin Bakiyeleri",
     entitlement: "Hak",
-    used: "Kullanilan",
+    used: "Kullanılan",
     pending: "Bekleyen",
     remaining: "Kalan",
-    all: "Tumunu",
-    filterStatus: "Duruma gore filtrele",
+    all: "Tümünü",
+    filterStatus: "Duruma göre filtrele",
     approveConfirm: "Bu izin talebini onaylamak istiyor musunuz?",
     rejectConfirm: "Bu izin talebini reddetmek istiyor musunuz?",
     deleteConfirm: "Bu izin talebini silmek istiyor musunuz?",
-    approved: "Izin onaylandi",
-    rejected: "Izin reddedildi",
-    deleted: "Izin silindi",
-    created: "Izin talebi olusturuldu",
+    approved: "İzin onaylandı",
+    rejected: "İzin reddedildi",
+    deleted: "İzin silindi",
+    created: "İzin talebi oluşturuldu",
   },
 };
 
@@ -149,25 +149,22 @@ export default function StaffLeavesPage() {
       const params: any = {};
       if (statusFilter) params.status = statusFilter;
 
-      const [leavesRes] = await Promise.all([
-        staffLeaveService.list(params),
-      ]);
-
+      const leavesRes = await staffLeaveService.list(params);
       if (leavesRes.data.success && leavesRes.data.data)
         setLeaves(leavesRes.data.data);
 
       if (isOwnerOrAdmin) {
-        const [balancesRes, staffRes] = await Promise.all([
+        const [balancesRes, staffRes] = await Promise.allSettled([
           staffLeaveService.getBalances(),
           staffService.list(),
         ]);
-        if (balancesRes.data.success && balancesRes.data.data)
-          setBalances(balancesRes.data.data);
-        if (staffRes.data.success && staffRes.data.data)
-          setStaffList(staffRes.data.data);
+        if (balancesRes.status === "fulfilled" && balancesRes.value.data.success && balancesRes.value.data.data)
+          setBalances(balancesRes.value.data.data);
+        if (staffRes.status === "fulfilled" && staffRes.value.data.success && staffRes.value.data.data)
+          setStaffList(staffRes.value.data.data);
       }
     } catch {
-      toast.error(language === "tr" ? "Veriler yuklenemedi" : "Failed to load data");
+      toast.error(language === "tr" ? "Veriler yüklenemedi" : "Failed to load data");
     } finally {
       setLoading(false);
     }
@@ -420,7 +417,7 @@ export default function StaffLeavesPage() {
 
             {/* Footer */}
             <div className="border-t border-white/[0.06] bg-white/[0.03] px-5 py-3 text-xs text-white/40">
-              {leaves.length} {language === "tr" ? "kayit" : "records"}
+              {leaves.length} {language === "tr" ? "kayıt" : "records"}
             </div>
           </>
         )}

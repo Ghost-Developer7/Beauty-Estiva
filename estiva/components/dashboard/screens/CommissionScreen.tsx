@@ -76,55 +76,55 @@ const copy = {
     currency: "TRY",
   },
   tr: {
-    title: "Komisyon Yonetimi",
-    tabs: ["Ozet", "Komisyon Oranlari", "Detayli Kayitlar"],
+    title: "Komisyon Yönetimi",
+    tabs: ["Özet", "Komisyon Oranları", "Detaylı Kayıtlar"],
     month: "Ay",
-    year: "Yil",
-    months: ["Oca", "Sub", "Mar", "Nis", "May", "Haz", "Tem", "Agu", "Eyl", "Eki", "Kas", "Ara"],
-    totalEarnedThisMonth: "Toplam Kazanilan",
-    totalPaid: "Toplam Odenen",
+    year: "Yıl",
+    months: ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"],
+    totalEarnedThisMonth: "Toplam Kazanılan",
+    totalPaid: "Toplam Ödenen",
     remainingToPay: "Kalan",
     staff: "Personel",
     servicesPerformed: "Hizmet",
     revenueGenerated: "Gelir",
     avgRate: "Ort. Oran",
-    commissionEarned: "Kazanilan",
-    paidAmount: "Odenen",
+    commissionEarned: "Kazanılan",
+    paidAmount: "Ödenen",
     remaining: "Kalan",
-    payBtn: "Ode",
-    payAll: "Tumunu Ode",
-    defaultRate: "Varsayilan (%)",
+    payBtn: "Öde",
+    payAll: "Tümünü Öde",
+    defaultRate: "Varsayılan (%)",
     quickSet: "Toplu Ayarla",
     quickSetPlaceholder: "Oran %",
     applyAll: "Uygula",
     save: "Kaydet",
     saving: "Kaydediliyor...",
-    saved: "Komisyon oranlari kaydedildi.",
-    noTreatments: "Hizmet bulunamadi.",
+    saved: "Komisyon oranları kaydedildi.",
+    noTreatments: "Hizmet bulunamadı.",
     date: "Tarih",
     treatment: "Hizmet",
-    customer: "Musteri",
-    servicePrice: "Hizmet Fiyati",
+    customer: "Müşteri",
+    servicePrice: "Hizmet Fiyatı",
     ratePercent: "Oran %",
     commissionAmount: "Komisyon",
     status: "Durum",
-    action: "Islem",
-    paidLabel: "Odendi",
-    unpaidLabel: "Odenmedi",
-    markPaid: "Odendi Isaretle",
-    bulkPay: "Secilenleri Ode",
-    selectAll: "Tumunu Sec",
-    filterByStaff: "Tum Personel",
-    filterByStatus: "Tum Durum",
-    paidFilter: "Odenmis",
-    unpaidFilter: "Odenmemis",
-    confirmPayTitle: "Odeme Onayi",
-    confirmPayMsg: "Secili komisyonlari odendi olarak isaretle?",
-    confirmBulkPayMsg: "Bu personelin bu aydaki tum odenmemis komisyonlarini ode?",
+    action: "İşlem",
+    paidLabel: "Ödendi",
+    unpaidLabel: "Ödenmedi",
+    markPaid: "Ödendi İşaretle",
+    bulkPay: "Seçilenleri Öde",
+    selectAll: "Tümünü Seç",
+    filterByStaff: "Tüm Personel",
+    filterByStatus: "Tüm Durum",
+    paidFilter: "Ödenmiş",
+    unpaidFilter: "Ödenmemiş",
+    confirmPayTitle: "Ödeme Onayı",
+    confirmPayMsg: "Seçili komisyonları ödendi olarak işaretle?",
+    confirmBulkPayMsg: "Bu personelin bu aydaki tüm ödenmemiş komisyonlarını öde?",
     confirm: "Onayla",
-    cancel: "Iptal",
-    loading: "Yukleniyor...",
-    noData: "Veri bulunamadi.",
+    cancel: "İptal",
+    loading: "Yükleniyor...",
+    noData: "Veri bulunamadı.",
     currency: "TRY",
   },
 };
@@ -197,7 +197,7 @@ export default function CommissionScreen() {
       if (res.data.success && res.data.data) setSummaries(res.data.data);
       else setSummaries([]);
     } catch {
-      toast.error(language === "tr" ? "Ozet yuklenemedi" : "Failed to load summary");
+      toast.error(language === "tr" ? "Özet yüklenemedi" : "Failed to load summary");
     } finally {
       setSummaryLoading(false);
     }
@@ -217,7 +217,7 @@ export default function CommissionScreen() {
       if (res.data.success && res.data.data) setRecords(res.data.data);
       else setRecords([]);
     } catch {
-      toast.error(language === "tr" ? "Kayitlar yuklenemedi" : "Failed to load records");
+      toast.error(language === "tr" ? "Kayıtlar yüklenemedi" : "Failed to load records");
     } finally {
       setRecordsLoading(false);
     }
@@ -241,7 +241,7 @@ export default function CommissionScreen() {
         setEditedRates(init);
       }
     } catch {
-      toast.error(language === "tr" ? "Oranlar yuklenemedi" : "Failed to load rates");
+      toast.error(language === "tr" ? "Oranlar yüklenemedi" : "Failed to load rates");
     } finally {
       setRatesLoading(false);
     }
@@ -334,7 +334,7 @@ export default function CommissionScreen() {
       toast.success(t.saved);
       fetchRates();
     } catch {
-      toast.error(language === "tr" ? "Kayit basarisiz" : "Failed to save");
+      toast.error(language === "tr" ? "Kayıt başarısız" : "Failed to save");
     } finally {
       setSaving(false);
     }
@@ -361,12 +361,12 @@ export default function CommissionScreen() {
       onConfirm: async () => {
         try {
           await commissionService.markPaid([...selectedIds]);
-          toast.success(language === "tr" ? "Komisyonlar odendi olarak isaretlendi" : "Commissions marked as paid");
+          toast.success(language === "tr" ? "Komisyonlar ödendi olarak işaretlendi" : "Commissions marked as paid");
           setSelectedIds(new Set());
           fetchRecords();
           fetchSummary();
         } catch {
-          toast.error(language === "tr" ? "Islem basarisiz" : "Operation failed");
+          toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
         }
         setModal((p) => ({ ...p, show: false }));
       },
@@ -380,11 +380,11 @@ export default function CommissionScreen() {
       onConfirm: async () => {
         try {
           await commissionService.payRecord(id);
-          toast.success(language === "tr" ? "Komisyon odendi" : "Commission paid");
+          toast.success(language === "tr" ? "Komisyon ödendi" : "Commission paid");
           fetchRecords();
           fetchSummary();
         } catch {
-          toast.error(language === "tr" ? "Islem basarisiz" : "Operation failed");
+          toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
         }
         setModal((p) => ({ ...p, show: false }));
       },
@@ -402,11 +402,11 @@ export default function CommissionScreen() {
             month: selectedMonth,
             year: selectedYear,
           });
-          toast.success(language === "tr" ? "Tum komisyonlar odendi" : "All commissions paid");
+          toast.success(language === "tr" ? "Tüm komisyonlar ödendi" : "All commissions paid");
           fetchSummary();
           fetchRecords();
         } catch {
-          toast.error(language === "tr" ? "Islem basarisiz" : "Operation failed");
+          toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
         }
         setModal((p) => ({ ...p, show: false }));
       },
@@ -440,7 +440,7 @@ export default function CommissionScreen() {
                   { header: isTr ? "Kayıt" : "Records", key: "recordCount", format: "number" },
                 ];
               })()}
-              filenamePrefix={language === "tr" ? "Komisyon_Ozet" : "Commission_Summary"}
+              filenamePrefix={language === "tr" ? "Komisyon_Özet" : "Commission_Summary"}
               pdfTitle={language === "tr" ? "Komisyon Özeti" : "Commission Summary"}
             />
           )}
@@ -460,7 +460,7 @@ export default function CommissionScreen() {
                   { header: isTr ? "Durum" : "Status", key: "isPaid" },
                 ];
               })()}
-              filenamePrefix={language === "tr" ? "Komisyon_Kayitlari" : "Commission_Records"}
+              filenamePrefix={language === "tr" ? "Komisyon_Kayıtları" : "Commission_Records"}
               pdfTitle={language === "tr" ? "Komisyon Kayıtları" : "Commission Records"}
             />
           )}
