@@ -217,17 +217,14 @@ export default function StaffInvitePage() {
               {/* Email input */}
               <div className="space-y-2">
                 <label className="text-xs font-semibold tracking-wider text-white/40">{t.emailLabel}</label>
-                <div className="relative">
-                  <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/25" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="4" width="20" height="16" rx="2" /><path d="M22 7l-10 7L2 7" /></svg>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={t.emailPh}
-                    disabled={generating}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 py-3 pl-11 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition disabled:opacity-50"
-                  />
-                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t.emailPh}
+                  disabled={generating}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 py-3 px-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition disabled:opacity-50"
+                />
                 <p className="text-[10px] text-white/25">{t.emailOptional}</p>
               </div>
 

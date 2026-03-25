@@ -251,22 +251,10 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 
   const sidebarContent = (
     <aside
-      className={`estiva-dashboard-sidebar relative flex flex-col overflow-hidden text-white shadow-[0_0_40px_rgba(5,4,17,0.8)] transition-all duration-300 h-full ${
+      className={`estiva-dashboard-sidebar relative flex flex-col text-white shadow-[0_0_40px_rgba(5,4,17,0.8)] transition-all duration-300 h-full ${
         expanded ? "w-64" : "w-20"
       }`}
     >
-      {/* Floating Toggle Button - hidden on mobile overlay */}
-      <button
-        type="button"
-        onClick={() => setExpanded((prev) => !prev)}
-        className={`absolute -right-3 top-8 z-50 hidden md:flex h-7 w-7 items-center justify-center rounded-full border shadow-lg transition-colors ${
-          isLight
-            ? "border-gray-300 bg-white text-gray-600 hover:bg-gray-100 hover:border-gray-400"
-            : "border-white/20 bg-[#1a1625] text-white hover:bg-white/20 hover:border-white/40"
-        }`}
-      >
-        {expanded ? <ChevronLeft /> : <ChevronRight />}
-      </button>
 
       {/* Header Logo Area */}
       <div className={`flex items-center px-5 py-6 ${expanded ? "justify-start" : "justify-center"}`}>
@@ -328,8 +316,20 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden md:flex">
+      <div className="hidden md:flex relative">
         {sidebarContent}
+        {/* Floating Toggle Button - outside sidebar to avoid overflow clipping */}
+        <button
+          type="button"
+          onClick={() => setExpanded((prev) => !prev)}
+          className={`absolute -right-3 top-8 z-50 flex h-7 w-7 items-center justify-center rounded-full border shadow-lg transition-colors ${
+            isLight
+              ? "border-gray-300 bg-white text-gray-600 hover:bg-gray-100 hover:border-gray-400"
+              : "border-white/20 bg-[#1a1625] text-white hover:bg-white/20 hover:border-white/40"
+          }`}
+        >
+          {expanded ? <ChevronLeft /> : <ChevronRight />}
+        </button>
       </div>
 
       {/* Mobile overlay */}
@@ -429,13 +429,13 @@ const renderNavItem = (
 
       {expanded && hasChildren && (
         <div
-          className="overflow-hidden transition-all duration-200 ease-out pb-1"
+          className="overflow-hidden transition-all duration-200 ease-out"
           style={{
-            maxHeight: isOpen ? `${children.length * 52 + 8}px` : "0px",
+            maxHeight: isOpen ? `${children.length * 48 + 16}px` : "0px",
             opacity: isOpen ? 1 : 0,
           }}
         >
-          <div className="mt-1 space-y-1 ml-4 border-l border-white/[0.06] pl-1">
+          <div className="mt-1 space-y-0.5 ml-4 border-l border-white/[0.06] pl-1 pb-2">
             {children.map((child, cIndex) =>
               renderNavItem(
                 child,
