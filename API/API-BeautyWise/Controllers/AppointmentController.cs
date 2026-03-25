@@ -51,6 +51,10 @@ namespace API_BeautyWise.Controllers
                 var tenantId = GetTenantId();
                 if (tenantId == 0) return BadRequest(ApiResponse<object>.Fail("Tenant ID bulunamadı."));
 
+                // endDate sadece tarih olarak geliyorsa günün sonuna ayarla (23:59:59)
+                if (endDate.HasValue && endDate.Value.TimeOfDay == TimeSpan.Zero)
+                    endDate = endDate.Value.Date.AddDays(1).AddSeconds(-1);
+
                 if (pageNumber.HasValue || pageSize.HasValue)
                 {
                     var pn = pageNumber ?? 1;

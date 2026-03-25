@@ -37,10 +37,11 @@ namespace API_BeautyWise.Services
             if (customerId.HasValue)
                 query = query.Where(a => a.CustomerId == customerId.Value);
 
-            return await query
+            var data = await query
                 .OrderBy(a => a.StartTime)
-                .Select(a => MapToListDto(a))
                 .ToListAsync();
+
+            return data.Select(a => MapToListDto(a)).ToList();
         }
 
         public async Task<PaginatedResponse<AppointmentListDto>> GetAllPaginatedAsync(
@@ -65,12 +66,13 @@ namespace API_BeautyWise.Services
 
             var totalCount = await query.CountAsync();
 
-            var items = await query
+            var data = await query
                 .OrderBy(a => a.StartTime)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(a => MapToListDto(a))
                 .ToListAsync();
+
+            var items = data.Select(a => MapToListDto(a)).ToList();
 
             return new PaginatedResponse<AppointmentListDto>
             {
@@ -222,14 +224,15 @@ namespace API_BeautyWise.Services
                 throw new Exception("CONFLICT|Tüm seans zamanlarında çakışma var. Lütfen farklı bir zaman seçin.");
 
             // Yeni oluşturulanları dto olarak dön
-            return await _context.Appointments
+            var created = await _context.Appointments
                 .Include(a => a.Customer)
                 .Include(a => a.Staff)
                 .Include(a => a.Treatment)
                 .Where(a => createdAppointments.Select(x => x.Id).Contains(a.Id))
                 .OrderBy(a => a.StartTime)
-                .Select(a => MapToListDto(a))
                 .ToListAsync();
+
+            return created.Select(a => MapToListDto(a)).ToList();
         }
 
         // ================================================================
