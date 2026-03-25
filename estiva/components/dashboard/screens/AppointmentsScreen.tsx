@@ -549,7 +549,10 @@ export default function AppointmentsScreen() {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
     if (dateFilter === tomorrow.toISOString().split("T")[0]) return t.tomorrow;
-    return null;
+    // Format the date for display
+    const d = new Date(dateFilter + "T00:00:00");
+    const locale = language === "tr" ? "tr-TR" : "en-US";
+    return d.toLocaleDateString(locale, { day: "numeric", month: "short" });
   };
 
   /* ═══ CUSTOMER SEARCH ═══ */
@@ -653,7 +656,7 @@ export default function AppointmentsScreen() {
             onClick={goToday}
             className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${isToday ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
           >
-            {t.today}
+            {getDateLabel() || t.today}
           </button>
           <button onClick={() => navigateDate(1)} className="rounded-lg px-2.5 py-1.5 text-white/60 transition hover:bg-white/10 hover:text-white">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
