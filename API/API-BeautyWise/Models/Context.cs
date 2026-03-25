@@ -22,6 +22,7 @@ namespace API_BeautyWise.Models
         public DbSet<TenantNotificationRule> TenantNotificationRules { get; set; }
         public DbSet<TenantNotificationHistory> TenantNotificationHistories { get; set; }
         public DbSet<UserNotificationPreference> UserNotificationPreferences { get; set; }
+        public DbSet<InAppNotification> InAppNotifications { get; set; }
         public DbSet<Coupon> Coupons { get; set; }
         public DbSet<CouponUsage> CouponUsages { get; set; }
 
@@ -57,6 +58,10 @@ namespace API_BeautyWise.Models
         public DbSet<StaffShift>  StaffShifts  { get; set; }
         public DbSet<StaffLeave>  StaffLeaves  { get; set; }
         public DbSet<StaffHRInfo> StaffHRInfos { get; set; }
+
+        // Borç/Alacak Modülü
+        public DbSet<CustomerDebt>        CustomerDebts        { get; set; }
+        public DbSet<CustomerDebtPayment> CustomerDebtPayments { get; set; }
 
         // Rol Yönetimi Audit Log
         public DbSet<RoleChangeAuditLog> RoleChangeAuditLogs { get; set; }
@@ -235,6 +240,7 @@ namespace API_BeautyWise.Models
             builder.Entity<TenantSMSIntegration>(entity =>
             {
                 entity.ToTable("TenantSMSIntegrations");
+                entity.Property(s => s.CreditBalance).HasColumnType("decimal(18,2)");
                 entity.HasOne(si => si.Tenant)
                       .WithOne(t => t.SMSIntegration)
                       .HasForeignKey<TenantSMSIntegration>(si => si.TenantId)
@@ -267,6 +273,40 @@ namespace API_BeautyWise.Models
                       .WithMany(u => u.NotificationPreferences)
                       .HasForeignKey(p => p.AppUserId)
                       .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<InAppNotification>(entity =>
+            {
+                entity.ToTable("InAppNotifications");
+                entity.Property(n => n.Title).IsRequired().HasMaxLength(200);
+                entity.Property(n => n.Message).IsRequired().HasMaxLength(1000);
+                entity.Property(n => n.Type).HasMaxLength(20);
+                entity.Property(n => n.EntityType).HasMaxLength(50);
+                entity.Property(n => n.ActionUrl).HasMaxLength(500);
+                entity.Property(n => n.Icon).HasMaxLength(50);
+                entity.Property(n => n.DeduplicationKey).HasMaxLength(200);
+
+                // Performans icin composite index: tenant + kullanici + okundu durumu
+                entity.HasIndex(n => new { n.TenantId, n.UserId, n.IsRead })
+                      .HasFilter("[IsActive] = 1");
+
+                // Deduplication sorgusu icin index
+                entity.HasIndex(n => n.DeduplicationKey)
+                      .HasFilter("[DeduplicationKey] IS NOT NULL");
+
+                // Siralama icin index
+                entity.HasIndex(n => new { n.TenantId, n.CDate })
+                      .HasFilter("[IsActive] = 1");
+
+                entity.HasOne(n => n.Tenant)
+                      .WithMany()
+                      .HasForeignKey(n => n.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(n => n.User)
+                      .WithMany()
+                      .HasForeignKey(n => n.UserId)
+                      .OnDelete(DeleteBehavior.SetNull);
             });
 
             builder.Entity<Coupon>(entity =>
@@ -751,6 +791,56 @@ namespace API_BeautyWise.Models
                       .WithMany()
                       .HasForeignKey(s => s.CurrencyId)
                       .OnDelete(DeleteBehavior.Restrict);
+            });
+
+            // ============================================================
+            //  Borç/Alacak Modülü
+            // ============================================================
+
+            builder.Entity<CustomerDebt>(entity =>
+            {
+                entity.ToTable("CustomerDebts");
+                entity.Property(d => d.Amount).HasColumnType("decimal(18,2)");
+                entity.Property(d => d.PaidAmount).HasColumnType("decimal(18,2)");
+                entity.Property(d => d.Type).IsRequired().HasMaxLength(20);
+                entity.Property(d => d.Status).IsRequired().HasMaxLength(20);
+                entity.Property(d => d.Currency).HasMaxLength(10);
+                entity.Property(d => d.PersonName).HasMaxLength(200);
+                entity.Property(d => d.Description).HasMaxLength(500);
+                entity.Property(d => d.Notes).HasMaxLength(1000);
+                entity.Property(d => d.Source).HasMaxLength(50);
+
+                entity.HasOne(d => d.Tenant)
+                      .WithMany()
+                      .HasForeignKey(d => d.TenantId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne(d => d.Customer)
+                      .WithMany()
+                      .HasForeignKey(d => d.CustomerId)
+                      .OnDelete(DeleteBehavior.SetNull);
+
+                entity.HasMany(d => d.Payments)
+                      .WithOne(p => p.CustomerDebt)
+                      .HasForeignKey(p => p.CustomerDebtId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(d => new { d.TenantId, d.Type, d.Status });
+            });
+
+            builder.Entity<CustomerDebtPayment>(entity =>
+            {
+                entity.ToTable("CustomerDebtPayments");
+                entity.Property(p => p.Amount).HasColumnType("decimal(18,2)");
+                entity.Property(p => p.PaymentMethod).IsRequired().HasMaxLength(50);
+                entity.Property(p => p.Notes).HasMaxLength(1000);
+
+                entity.HasOne(p => p.CustomerDebt)
+                      .WithMany(d => d.Payments)
+                      .HasForeignKey(p => p.CustomerDebtId)
+                      .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(p => new { p.TenantId, p.PaymentDate });
             });
         }
     }

@@ -1,95 +1,228 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { debtService } from "@/services/debtService";
+import type { CollectionListItem } from "@/types/api";
+import Pagination from "@/components/ui/Pagination";
+import toast from "react-hot-toast";
 
 const copy = {
-    en: {
-        title: "Collections",
-        datePlaceholder: "This month",
-        placeholder: "Search",
-        download: "Download",
-        table: {
-            cols: ["Customer", "Sales date", "Payment method", "Amount", "Source", "Product / Service", "Creator", "Created"],
-            empty: "Total amount: 0 TRY"
-        }
-    },
-    tr: {
-        title: "Tahsilatlar",
-        datePlaceholder: "Bu ay",
-        placeholder: "Ara",
-        download: "İndir",
-        table: {
-            cols: ["Müşteri", "Satış tarihi", "Ödeme yöntemi", "Tutar", "Kaynak", "Ürün / Hizmet", "Oluşturan", "Oluşturulma"],
-            empty: "Toplam tutar: 0 TRY"
-        }
-    },
+  en: {
+    title: "Collections",
+    placeholder: "Search by customer name...",
+    loading: "Loading...",
+    noData: "No collections found.",
+    cols: ["Customer", "Description", "Type", "Amount", "Payment Method", "Payment Date", "Source", "Notes"],
+    totalCollected: "Total Collected",
+    thisMonth: "This Month",
+    filter: "Filter",
+    startDate: "Start Date",
+    endDate: "End Date",
+    allMethods: "All Methods",
+    error: "Failed to load collections.",
+    types: { Receivable: "Receivable", Debt: "Debt" },
+    methods: { Cash: "Cash", Card: "Card", BankTransfer: "Bank Transfer", Other: "Other" },
+    methodFilters: { Cash: "Cash", Card: "Card", BankTransfer: "Bank Transfer", Other: "Other" },
+  },
+  tr: {
+    title: "Tahsilatlar",
+    placeholder: "Musteri adina gore ara...",
+    loading: "Yukleniyor...",
+    noData: "Tahsilat bulunamadi.",
+    cols: ["Musteri", "Aciklama", "Tur", "Tutar", "Odeme Yontemi", "Odeme Tarihi", "Kaynak", "Notlar"],
+    totalCollected: "Toplam Tahsilat",
+    thisMonth: "Bu Ay",
+    filter: "Filtrele",
+    startDate: "Baslangic",
+    endDate: "Bitis",
+    allMethods: "Tum Yontemler",
+    error: "Tahsilatlar yuklenemedi.",
+    types: { Receivable: "Alacak", Debt: "Borc" },
+    methods: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diger" },
+    methodFilters: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diger" },
+  },
 };
 
 export default function CollectionsScreen() {
-    const { language } = useLanguage();
-    const text = copy[language];
+  const { language } = useLanguage();
+  const t = copy[language];
 
-    return (
-        <div className="space-y-6 text-white h-full flex flex-col">
-            {/* Header */}
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-semibold">{text.title}</h1>
+  // Data
+  const [collections, setCollections] = useState<CollectionListItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [methodFilter, setMethodFilter] = useState("");
 
-                <div className="relative min-w-[120px]">
-                    <select className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none">
-                        <option className="bg-[#1a1a1a]">{text.datePlaceholder}</option>
-                    </select>
-                    <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-white/40">v</div>
-                </div>
-            </div>
+  // Pagination
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-            {/* Toolbar */}
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center justify-between gap-4">
-                <input
-                    type="text"
-                    placeholder={text.placeholder}
-                    className="w-full md:w-64 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/20"
-                />
+  // Summary
+  const [totalCollected, setTotalCollected] = useState(0);
 
-                <div className="flex gap-2">
-                    <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] text-white shadow-lg hover:bg-[#2563eb] text-sm">
-                        ⚙
-                    </button>
-                    <button className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] text-white shadow-lg hover:bg-[#2563eb] text-xs">
-                        ↻
-                    </button>
-                    <button className="flex items-center gap-2 rounded-lg bg-[#3b82f6] px-6 py-2 text-sm font-medium text-white shadow-lg  hover:bg-[#2563eb]">
-                        📄 {text.download}
-                    </button>
-                </div>
-            </div>
+  const fetchCollections = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await debtService.getCollections({
+        startDate: startDate || undefined,
+        endDate: endDate || undefined,
+        search: search || undefined,
+        paymentMethod: methodFilter || undefined,
+        page,
+        pageSize,
+      });
+      const data = res.data.data;
+      if (data) {
+        setCollections(data.items);
+        setTotalCount(data.totalCount);
+        setTotalPages(data.totalPages);
+        // Calculate total from current page items (summary for visible items)
+        setTotalCollected(data.items.reduce((sum, c) => sum + c.amount, 0));
+      }
+    } catch {
+      toast.error(t.error);
+    } finally {
+      setLoading(false);
+    }
+  }, [page, pageSize, search, startDate, endDate, methodFilter, t.error]);
 
-            {/* Table */}
-            <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
-                <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs">
-                        <thead className="bg-white/5 text-xs font-semibold text-white/60">
-                            <tr>
-                                {text.table.cols.map((col, i) => (
-                                    <th key={i} className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center gap-2 cursor-pointer hover:text-white">
-                                            {col}
-                                            <span className="opacity-50 text-[10px]">▼</span>
-                                        </div>
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-white/5">
-                            <tr className="bg-white/[0.02]">
-                                <td colSpan={8} className="px-6 py-4 font-bold text-white/60">
-                                    {text.table.empty}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  useEffect(() => { fetchCollections(); }, [fetchCollections]);
+
+  const formatCurrency = (amount: number) =>
+    new Intl.NumberFormat(language === "tr" ? "tr-TR" : "en-US", {
+      style: "currency",
+      currency: "TRY",
+      minimumFractionDigits: 2,
+    }).format(amount);
+
+  const formatDate = (dateStr: string | null) => {
+    if (!dateStr) return "-";
+    return new Date(dateStr).toLocaleDateString(language === "tr" ? "tr-TR" : "en-US");
+  };
+
+  const getDisplayName = (item: CollectionListItem) =>
+    item.customerName || item.personName || "-";
+
+  return (
+    <div className="space-y-6 text-white h-full flex flex-col">
+      {/* Header */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-semibold">{t.title}</h1>
+      </div>
+
+      {/* Summary Card */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+          <div className="text-xs text-white/50 mb-1">{t.totalCollected}</div>
+          <div className="text-xl font-bold text-green-400">{formatCurrency(totalCollected)}</div>
+          <div className="text-[10px] text-white/30 mt-1">{totalCount} {language === "tr" ? "kayit" : "records"}</div>
         </div>
-    );
+      </div>
+
+      {/* Toolbar */}
+      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3">
+        <input
+          type="text"
+          placeholder={t.placeholder}
+          value={search}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          className="w-full md:w-56 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/20"
+        />
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={startDate}
+            onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 [color-scheme:dark]"
+            placeholder={t.startDate}
+          />
+          <span className="text-white/30 text-xs">-</span>
+          <input
+            type="date"
+            value={endDate}
+            onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 [color-scheme:dark]"
+            placeholder={t.endDate}
+          />
+        </div>
+        <select
+          value={methodFilter}
+          onChange={(e) => { setMethodFilter(e.target.value); setPage(1); }}
+          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20"
+        >
+          <option value="" className="bg-[#1a1a1a]">{t.allMethods}</option>
+          {Object.entries(t.methodFilters).map(([val, label]) => (
+            <option key={val} value={val} className="bg-[#1a1a1a]">{label}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Table */}
+      <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 overflow-hidden flex flex-col">
+        <div className="overflow-x-auto flex-1">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-white/5 text-xs font-semibold text-white/60">
+              <tr>
+                {t.cols.map((col, i) => (
+                  <th key={i} className="px-4 py-3 whitespace-nowrap">{col}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {loading ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-white/40">{t.loading}</td>
+                </tr>
+              ) : collections.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-4 py-8 text-center text-white/40">{t.noData}</td>
+                </tr>
+              ) : (
+                collections.map((item) => (
+                  <tr key={item.id} className="hover:bg-white/[0.03] transition">
+                    <td className="px-4 py-3 whitespace-nowrap font-medium">{getDisplayName(item)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-white/60 max-w-[200px] truncate">
+                      {item.debtDescription || "-"}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                        item.debtType === "Receivable"
+                          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                          : "bg-orange-500/20 text-orange-400 border-orange-500/30"
+                      }`}>
+                        {t.types[item.debtType as keyof typeof t.types] || item.debtType}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap font-medium text-green-400">{formatCurrency(item.amount)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <span className="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-medium text-white/60">
+                        {t.methods[item.paymentMethod as keyof typeof t.methods] || item.paymentMethod}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">{formatDate(item.paymentDate)}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-white/50">{item.source || "-"}</td>
+                    <td className="px-4 py-3 whitespace-nowrap text-white/40 max-w-[150px] truncate">{item.notes || "-"}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <Pagination
+          pageNumber={page}
+          pageSize={pageSize}
+          totalCount={totalCount}
+          totalPages={totalPages}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => { setPageSize(size); setPage(1); }}
+        />
+      </div>
+    </div>
+  );
 }

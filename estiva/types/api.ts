@@ -973,6 +973,99 @@ export interface StaffHRSummary {
   roles: string[];
 }
 
+// ─── Customer Debt / Receivable ───
+export interface CustomerDebtItem {
+  id: number;
+  tenantId: number;
+  customerId: number | null;
+  customerName: string | null;
+  customerPhone: string | null;
+  personName: string | null;
+  type: string;
+  amount: number;
+  paidAmount: number;
+  remainingAmount: number;
+  currency: string | null;
+  description: string | null;
+  notes: string | null;
+  dueDate: string | null;
+  status: string;
+  relatedAppointmentId: number | null;
+  relatedPackageSaleId: number | null;
+  source: string | null;
+  cDate: string | null;
+  payments: CustomerDebtPaymentItem[];
+}
+
+export interface CustomerDebtCreate {
+  customerId?: number | null;
+  personName?: string | null;
+  type: string;
+  amount: number;
+  currency?: string;
+  description?: string;
+  notes?: string;
+  dueDate?: string | null;
+  relatedAppointmentId?: number | null;
+  relatedPackageSaleId?: number | null;
+  source?: string;
+}
+
+export interface CustomerDebtUpdate {
+  customerId?: number | null;
+  personName?: string | null;
+  amount: number;
+  currency?: string;
+  description?: string;
+  notes?: string;
+  dueDate?: string | null;
+  source?: string;
+  status?: string;
+}
+
+export interface CustomerDebtPaymentItem {
+  id: number;
+  customerDebtId: number;
+  amount: number;
+  paymentMethod: string;
+  notes: string | null;
+  paymentDate: string;
+  cDate: string | null;
+}
+
+export interface CreateDebtPayment {
+  amount: number;
+  paymentMethod: string;
+  notes?: string;
+  paymentDate?: string | null;
+}
+
+export interface CustomerDebtSummary {
+  totalAmount: number;
+  totalPaid: number;
+  totalRemaining: number;
+  totalCount: number;
+  pendingCount: number;
+  partialCount: number;
+  paidCount: number;
+  overdueCount: number;
+}
+
+export interface CollectionListItem {
+  id: number;
+  customerDebtId: number;
+  customerName: string | null;
+  personName: string | null;
+  debtDescription: string | null;
+  debtType: string;
+  amount: number;
+  paymentMethod: string;
+  notes: string | null;
+  paymentDate: string;
+  source: string | null;
+  cDate: string | null;
+}
+
 // ─── Staff (with commission) ───
 export interface StaffMember {
   id: number;

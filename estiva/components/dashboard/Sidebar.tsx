@@ -115,8 +115,6 @@ const navItems = {
       children: [
         { label: "Easy SMS", href: "/dashboard/other/sms", icon: IconEnvelope },
         { label: "Commissions", href: "/dashboard/commission", icon: IconPercent },
-        { label: "Reviews", href: "/dashboard/other/reviews", icon: IconMessageSquare },
-        { label: "Call Logs", href: "/dashboard/other/calls", icon: IconPhone },
         { label: "Expenses", href: "/dashboard/other/expenses", icon: IconUpload },
         { label: "Collections", href: "/dashboard/other/collections", icon: IconDownload },
         { label: "Receivables", href: "/dashboard/other/receivables", icon: IconArrowDownLeft },
@@ -167,8 +165,6 @@ const navItems = {
       children: [
         { label: "Kolay SMS", href: "/dashboard/other/sms", icon: IconEnvelope },
         { label: "Komisyonlar", href: "/dashboard/commission", icon: IconPercent },
-        { label: "Yorumlar", href: "/dashboard/other/reviews", icon: IconMessageSquare },
-        { label: "Arama kayıtları", href: "/dashboard/other/calls", icon: IconPhone },
         { label: "Masraflar", href: "/dashboard/other/expenses", icon: IconUpload },
         { label: "Tahsilatlar", href: "/dashboard/other/collections", icon: IconDownload },
         { label: "Alacaklar", href: "/dashboard/other/receivables", icon: IconArrowDownLeft },

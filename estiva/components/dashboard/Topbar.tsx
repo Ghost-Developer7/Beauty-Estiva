@@ -8,6 +8,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import ProfileScreen from "@/components/dashboard/screens/ProfileScreen";
+import NotificationBell from "@/components/dashboard/NotificationBell";
 import { tenantService } from "@/services/tenantService";
 import type { TenantInfo } from "@/services/tenantService";
 
@@ -125,6 +126,7 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
           </button>
 
           <div className="flex items-center gap-2 sm:gap-3 text-white/70">
+            <NotificationBell />
             <div className="hidden sm:block"><LanguageToggle /></div>
             <div className="hidden sm:block"><ThemeToggle /></div>
 

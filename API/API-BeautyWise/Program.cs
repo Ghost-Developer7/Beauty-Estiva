@@ -142,6 +142,21 @@ builder.Services.AddAuthentication(x =>
         ValidateLifetime         = true,
         ClockSkew                = TimeSpan.FromMinutes(1),
     };
+
+    // SignalR WebSocket baglantilari icin JWT token'i query string'den al
+    x.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 // ================================================================
@@ -157,6 +172,12 @@ builder.Services.AddHttpClient("TCMB", client =>
 {
     client.DefaultRequestHeaders.Add("Accept", "application/xml");
     client.Timeout = TimeSpan.FromSeconds(15);
+});
+
+builder.Services.AddHttpClient("IletiMerkezi", client =>
+{
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    client.Timeout = TimeSpan.FromSeconds(30);
 });
 
 // ================================================================
@@ -192,6 +213,7 @@ builder.Services.AddScoped<IAppointmentPaymentService, AppointmentPaymentService
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<IFinancialReportService, FinancialReportService>();
+builder.Services.AddScoped<ICustomerDebtService, CustomerDebtService>();
 
 // Paket Satış Modülü
 builder.Services.AddScoped<IPackageSaleService, PackageSaleService>();
@@ -205,9 +227,13 @@ builder.Services.AddScoped<IStaffHRInfoService, StaffHRInfoService>();
 
 // Bildirim Modülü
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IInAppNotificationService, InAppNotificationService>();
 
 // Email Modülü
 builder.Services.AddScoped<IEmailService, EmailService>();
+
+// SMS Modülü
+builder.Services.AddScoped<ISmsService, SmsService>();
 
 // Kur Modülü
 builder.Services.AddScoped<ITcmbExchangeRateService, TcmbExchangeRateService>();
@@ -223,6 +249,11 @@ builder.Services.AddScoped<IBranchService, BranchService>();
 
 // Tenant Ayarlar Modülü
 builder.Services.AddScoped<ITenantSettingsService, TenantSettingsService>();
+
+// ================================================================
+//  SignalR (Gercek zamanli bildirimler)
+// ================================================================
+builder.Services.AddSignalR();
 
 // ================================================================
 //  Controllers & Swagger
@@ -347,6 +378,7 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<API_BeautyWise.Hubs.NotificationHub>("/hubs/notification");
 
 // ── SuperAdmin Seed ──
 using (var scope = app.Services.CreateScope())
