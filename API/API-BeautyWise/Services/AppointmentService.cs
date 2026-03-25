@@ -23,6 +23,9 @@ namespace API_BeautyWise.Services
             int? staffId = null, int? customerId = null)
         {
             var query = _context.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Staff)
+                .Include(a => a.Treatment)
                 .Where(a => a.TenantId == tenantId && a.IsActive == true);
 
             if (startDate.HasValue)
@@ -46,6 +49,9 @@ namespace API_BeautyWise.Services
             int? staffId = null, int? customerId = null)
         {
             var query = _context.Appointments
+                .Include(a => a.Customer)
+                .Include(a => a.Staff)
+                .Include(a => a.Treatment)
                 .Where(a => a.TenantId == tenantId && a.IsActive == true);
 
             if (startDate.HasValue)
