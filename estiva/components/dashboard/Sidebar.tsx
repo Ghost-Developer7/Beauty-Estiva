@@ -202,7 +202,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     "/dashboard/pos": false,
     "/dashboard/reports": false,
     "/dashboard/messaging": false,
-    "/dashboard/other": true,
+    "/dashboard/other": false,
   });
 
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
