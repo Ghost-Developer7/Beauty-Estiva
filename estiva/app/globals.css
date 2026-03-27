@@ -408,22 +408,24 @@ body.theme-light .estiva-dashboard .text-white\/25 {
   padding-inline: 1rem;
 }
 
-/* Base form styles */
+/* Base form styles — inside @layer base so Tailwind utilities (pl-11 etc.) can override */
 
-input,
-select,
-textarea {
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-}
+@layer base {
+  input,
+  select,
+  textarea {
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+  }
 
-input:focus,
-select:focus,
-textarea:focus {
-  outline: none;
-  border-color: var(--color-purple);
+  input:focus,
+  select:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--color-purple);
+  }
 }
 
 /* Dashboard select / dropdown dark theme styling */
