@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { expenseService } from "@/services/expenseService";
 import { currencyService } from "@/services/currencyService";
 import { expenseSchema, getValidationMessage } from "@/lib/validations";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import type { ExpenseItem, ExpenseCategoryItem, CurrencyItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
@@ -310,10 +311,10 @@ export default function ExpensesScreen() {
 
       {/* Filters */}
       <div className={`flex flex-wrap items-center gap-3 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-3`}>
-        <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-          className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
-        <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-          className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
+        <LocaleDateInput value={startDate} onChange={(e) => setStartDate(e.target.value)}
+          className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
+        <LocaleDateInput value={endDate} onChange={(e) => setEndDate(e.target.value)}
+          className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
         <select value={catFilter} onChange={(e) => setCatFilter(e.target.value === "" ? "" : Number(e.target.value))}
           className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}>
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{text.selectCategory}</option>
@@ -435,8 +436,8 @@ export default function ExpensesScreen() {
             </div>
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.expenseDate} *</label>
-              <input type="date" value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.expenseDate ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
+              <LocaleDateInput value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })}
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.expenseDate ? "border-red-500" : "border-white/10 focus:border-white/30"}`} isDark={isDark} />
               {fieldErrors.expenseDate && <p className="text-xs text-red-500">{fieldErrors.expenseDate}</p>}
             </div>
           </div>

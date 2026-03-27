@@ -9,6 +9,7 @@ import { customerService } from "@/services/customerService";
 import { treatmentService } from "@/services/treatmentService";
 import { currencyService } from "@/services/currencyService";
 import { staffService, type StaffMember } from "@/services/staffService";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import type {
   AppointmentPaymentItem,
   AppointmentListItem,
@@ -605,20 +606,20 @@ export default function OrdersScreen() {
 
       {/* ─── FILTERS ─── */}
       <div className="flex flex-wrap items-center gap-3">
-        <input
-          type="date"
+        <LocaleDateInput
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
           className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
           title={t.startDate}
+          isDark={isDark}
         />
         <span className="text-white/20">—</span>
-        <input
-          type="date"
+        <LocaleDateInput
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
           className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
           title={t.endDate}
+          isDark={isDark}
         />
 
         <div className={`h-6 w-px ${isDark ? "bg-white/10" : "bg-gray-100"}`} />
@@ -1075,8 +1076,8 @@ export default function OrdersScreen() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptDateTime}</label>
-              <input type="datetime-local" value={apptForm.startTime} onChange={(e) => setApptForm({ ...apptForm, startTime: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} />
+              <LocaleDateInput type="datetime-local" value={apptForm.startTime} onChange={(e) => setApptForm({ ...apptForm, startTime: e.target.value })}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} isDark={isDark} />
             </div>
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptNotes}</label>

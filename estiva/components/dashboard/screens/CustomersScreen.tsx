@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { customerService } from "@/services/customerService";
 import { customerSchema, getValidationMessage } from "@/lib/validations";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import type {
   CustomerListItem,
   CustomerDetail,
@@ -668,7 +669,7 @@ export default function CustomersScreen() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.birthDate}</label>
-              <input type="date" value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} />
+              <LocaleDateInput value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} isDark={isDark} />
             </div>
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.referralSource}</label>

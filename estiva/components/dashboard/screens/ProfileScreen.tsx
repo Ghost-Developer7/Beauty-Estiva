@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { profileService } from "@/services/profileService";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import toast from "react-hot-toast";
 import type { ProfileData } from "@/types/api";
 
@@ -554,11 +555,11 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                     {t.birthDate}
                   </span>
                 </label>
-                <input
-                  type="date"
+                <LocaleDateInput
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
                   className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition [color-scheme:dark]`}
+                  isDark={isDark}
                 />
               </div>
 

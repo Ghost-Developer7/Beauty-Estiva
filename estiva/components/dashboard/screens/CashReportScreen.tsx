@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { financialReportService } from "@/services/financialReportService";
 import type { RevenueSummary, ExpenseSummary } from "@/types/api";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -97,10 +98,10 @@ export default function CashReportScreen() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{text.title}</h1>
         <div className="flex items-center gap-3">
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
+          <LocaleDateInput value={startDate} onChange={(e) => setStartDate(e.target.value)}
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
+          <LocaleDateInput value={endDate} onChange={(e) => setEndDate(e.target.value)}
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import { tenantService } from "@/services/tenantService";
 import { notificationService } from "@/services/notificationService";
 import type { TenantFullSettings, WorkingHourDay, HolidayItem } from "@/services/tenantService";
 import type { NotificationRule, WhatsappIntegration } from "@/services/notificationService";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import toast from "react-hot-toast";
 
 // ─── Translations ───
@@ -727,11 +728,11 @@ export default function SettingsScreen() {
               <div className="flex flex-wrap items-end gap-3">
                 <div className="space-y-1 flex-1 min-w-[140px]">
                   <label className={labelClass}>{text.date}</label>
-                  <input
-                    type="date"
+                  <LocaleDateInput
                     value={newHoliday.date}
                     onChange={e => setNewHoliday({ ...newHoliday, date: e.target.value })}
                     className={`${inputClass} [color-scheme:dark]`}
+                    isDark={isDark}
                   />
                 </div>
                 <div className="space-y-1 flex-[2] min-w-[180px]">

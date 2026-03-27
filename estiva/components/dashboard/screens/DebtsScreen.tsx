@@ -8,6 +8,7 @@ import { customerService } from "@/services/customerService";
 import type { CustomerDebtItem, CustomerListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import toast from "react-hot-toast";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -595,11 +596,11 @@ export default function DebtsScreen() {
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.dueDate}</label>
-              <input
-                type="date"
+              <LocaleDateInput
                 value={form.dueDate}
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
                 className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none [color-scheme:dark]`}
+                isDark={isDark}
               />
             </div>
             <div className="space-y-1">
@@ -692,11 +693,11 @@ export default function DebtsScreen() {
             </div>
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.payment.date}</label>
-              <input
-                type="date"
+              <LocaleDateInput
                 value={paymentForm.paymentDate}
                 onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
                 className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none [color-scheme:dark]`}
+                isDark={isDark}
               />
             </div>
           </div>

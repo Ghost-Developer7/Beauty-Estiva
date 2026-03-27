@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { debtService } from "@/services/debtService";
 import type { CollectionListItem } from "@/types/api";
 import Pagination from "@/components/ui/Pagination";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -137,20 +138,20 @@ export default function CollectionsScreen() {
           className={`w-full md:w-56 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none focus:border-white/20`}
         />
         <div className="flex items-center gap-2">
-          <input
-            type="date"
+          <LocaleDateInput
             value={startDate}
             onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
             className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 [color-scheme:dark]`}
             placeholder={t.startDate}
+            isDark={isDark}
           />
           <span className={`${isDark ? "text-white/30" : "text-gray-300"} text-xs`}>-</span>
-          <input
-            type="date"
+          <LocaleDateInput
             value={endDate}
             onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
             className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 [color-scheme:dark]`}
             placeholder={t.endDate}
+            isDark={isDark}
           />
         </div>
         <select

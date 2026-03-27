@@ -7,6 +7,7 @@ import { productService } from "@/services/productService";
 import { customerService } from "@/services/customerService";
 import { currencyService } from "@/services/currencyService";
 import { staffService, type StaffMember } from "@/services/staffService";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import type { ProductListItem, ProductSaleListItem, CustomerListItem, CurrencyItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
@@ -218,9 +219,9 @@ export default function ProductSalesScreen() {
           {(["sales", "products"] as TabMode[]).map(m => (<button key={m} onClick={() => { setTab(m); setSearch(""); }} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === m ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"}`}>{m === "sales" ? t.salesTab : t.productsTab}</button>))}
         </div>
         {tab === "sales" && (<>
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
+          <LocaleDateInput value={startDate} onChange={e => setStartDate(e.target.value)} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
           <span className="text-white/20">—</span>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
+          <LocaleDateInput value={endDate} onChange={e => setEndDate(e.target.value)} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
           <select value={staffFilter} onChange={e => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}><option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStaff}</option>{staffList.filter(s => s.isActive).map(s => <option key={s.id} value={s.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{s.name} {s.surname}</option>)}</select>
         </>)}
         <div className="relative ml-auto"><svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg><input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.search} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-11 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none w-48`} /></div>

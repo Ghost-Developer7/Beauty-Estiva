@@ -7,6 +7,7 @@ import { staffScheduleService } from "@/services/staffScheduleService";
 import { staffService, type StaffMember } from "@/services/staffService";
 import type { StaffUnavailabilityListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -172,13 +173,13 @@ export default function PersonnelReportScreen() {
         </div>
         <div className="space-y-1">
           <label className={`text-[10px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.startDate}</label>
-          <input type="date" value={startFilter} onChange={(e) => setStartFilter(e.target.value)}
-            className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
+          <LocaleDateInput value={startFilter} onChange={(e) => setStartFilter(e.target.value)}
+            className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
         </div>
         <div className="space-y-1">
           <label className={`text-[10px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.endDate}</label>
-          <input type="date" value={endFilter} onChange={(e) => setEndFilter(e.target.value)}
-            className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
+          <LocaleDateInput value={endFilter} onChange={(e) => setEndFilter(e.target.value)}
+            className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
         </div>
       </div>
 
@@ -231,15 +232,15 @@ export default function PersonnelReportScreen() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.startTime} *</label>
-              <input type="datetime-local" required value={form.startTime}
+              <LocaleDateInput type="datetime-local" required value={form.startTime}
                 onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} isDark={isDark} />
             </div>
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.endTime} *</label>
-              <input type="datetime-local" required value={form.endTime}
+              <LocaleDateInput type="datetime-local" required value={form.endTime}
                 onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} isDark={isDark} />
             </div>
           </div>
           <div className="space-y-1">

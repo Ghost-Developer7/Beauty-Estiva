@@ -7,6 +7,7 @@ import { packageSaleService } from "@/services/packageSaleService";
 import { customerService } from "@/services/customerService";
 import { treatmentService } from "@/services/treatmentService";
 import { staffService } from "@/services/staffService";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import type {
   PackageSaleListItem,
   PackageSaleStats,
@@ -972,18 +973,20 @@ export default function PackageSalesScreen() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.startDate}</label>
-              <input
-                type="date" value={createForm.startDate}
+              <LocaleDateInput
+                value={createForm.startDate}
                 onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })}
                 className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+                isDark={isDark}
               />
             </div>
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.endDate}</label>
-              <input
-                type="date" value={createForm.endDate}
+              <LocaleDateInput
+                value={createForm.endDate}
                 onChange={(e) => setCreateForm({ ...createForm, endDate: e.target.value })}
                 className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+                isDark={isDark}
               />
             </div>
           </div>
@@ -1171,10 +1174,11 @@ export default function PackageSalesScreen() {
         <form onSubmit={handleRecordUsage} className="space-y-4">
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.usageDate}</label>
-            <input
-              type="date" value={usageForm.usageDate}
+            <LocaleDateInput
+              value={usageForm.usageDate}
               onChange={(e) => setUsageForm({ ...usageForm, usageDate: e.target.value })}
               className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+              isDark={isDark}
             />
           </div>
           <div className="space-y-2">
@@ -1246,10 +1250,11 @@ export default function PackageSalesScreen() {
           </div>
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentDate}</label>
-            <input
-              type="date" value={paymentForm.paidAt}
+            <LocaleDateInput
+              value={paymentForm.paidAt}
               onChange={(e) => setPaymentForm({ ...paymentForm, paidAt: e.target.value })}
               className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+              isDark={isDark}
             />
           </div>
           <div className="space-y-2">

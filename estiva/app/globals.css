@@ -482,6 +482,21 @@ body.theme-light .estiva-dashboard .text-white\/25 {
   }
 }
 
+/* ─── LocaleDateInput: hide native date text, keep calendar icon ─── */
+
+.locale-date-input::-webkit-datetime-edit-fields-wrapper {
+  visibility: hidden;
+  width: 0;
+  padding: 0;
+}
+
+/* Firefox: hide native text via color */
+@-moz-document url-prefix() {
+  .locale-date-input {
+    color: transparent !important;
+  }
+}
+
 /* ─── Dark-theme date / datetime-local input styling ─── */
 
 .estiva-dashboard input[type="date"],
