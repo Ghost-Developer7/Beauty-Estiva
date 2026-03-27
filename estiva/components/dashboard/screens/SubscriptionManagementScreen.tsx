@@ -563,7 +563,7 @@ export default function SubscriptionManagementScreen() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
-                {t.monthlyPrice} (TRY)
+                {t.monthlyPrice} (₺)
               </label>
               <input
                 type="number"
@@ -575,7 +575,7 @@ export default function SubscriptionManagementScreen() {
             </div>
             <div className="space-y-1.5">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
-                {t.yearlyPrice} (TRY)
+                {t.yearlyPrice} (₺)
               </label>
               <input
                 type="number"

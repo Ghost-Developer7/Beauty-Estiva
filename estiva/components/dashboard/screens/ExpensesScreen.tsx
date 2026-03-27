@@ -383,7 +383,7 @@ export default function ExpensesScreen() {
           />
           <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-3 flex justify-between text-[10px] font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>
             <span>{text.recordCount}: {totalCount}</span>
-            <span>{text.totalAmount}: {formatCurrency(totalAmount)} TRY</span>
+            <span>{text.totalAmount}: {formatCurrency(totalAmount)} ₺</span>
           </div>
         </div>
       ) : (

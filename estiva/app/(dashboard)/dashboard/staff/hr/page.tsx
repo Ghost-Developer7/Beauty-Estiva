@@ -222,7 +222,7 @@ export default function StaffHRPage() {
 
       {/* Search */}
       <div className="relative">
-        <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        <svg className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-white/30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
         <input
           type="text"
           value={search}
@@ -432,7 +432,7 @@ export default function StaffHRPage() {
                     onChange={(e) => setEditData({ ...editData, salaryCurrency: e.target.value })}
                     className="w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20"
                   >
-                    <option value="TRY" className="bg-[#1a1a2e]">TRY</option>
+                    <option value="TRY" className="bg-[#1a1a2e]">₺ TL</option>
                     <option value="USD" className="bg-[#1a1a2e]">USD</option>
                     <option value="EUR" className="bg-[#1a1a2e]">EUR</option>
                     <option value="GBP" className="bg-[#1a1a2e]">GBP</option>

@@ -635,7 +635,7 @@ export default function PackageSalesScreen() {
         />
         <StatCard
           label={t.totalRevenue}
-          value={`${fmt(stats.totalRevenue)} TRY`}
+          value={`${fmt(stats.totalRevenue)} ₺`}
           icon={<svg className="text-emerald-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
           gradient="bg-emerald-500"
           isDark={isDark}
@@ -660,11 +660,11 @@ export default function PackageSalesScreen() {
       <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          <svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           <input
             type="text" value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder={t.search}
-            className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2 pl-10 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+            className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
           />
         </div>
 
@@ -772,14 +772,14 @@ export default function PackageSalesScreen() {
                     </div>
 
                     {/* Price */}
-                    <p className={`hidden lg:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} TRY</p>
+                    <p className={`hidden lg:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} ₺</p>
 
                     {/* Paid */}
-                    <p className="hidden lg:block text-sm text-emerald-400">{fmt(sale.paidAmount)} TRY</p>
+                    <p className="hidden lg:block text-sm text-emerald-400">{fmt(sale.paidAmount)} ₺</p>
 
                     {/* Remaining */}
                     <p className={`hidden lg:block text-sm font-medium ${sale.remainingPayment > 0 ? "text-amber-400" : "text-white/40"}`}>
-                      {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} TRY` : "-"}
+                      {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} ₺` : "-"}
                     </p>
 
                     {/* Status */}
@@ -792,7 +792,7 @@ export default function PackageSalesScreen() {
                     {/* Mobile info */}
                     <div className="flex items-center justify-between lg:hidden">
                       <div className="flex items-center gap-3">
-                        <span className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} TRY</span>
+                        <span className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} ₺</span>
                         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
                           {sale.statusDisplay}
                         </span>
@@ -826,7 +826,7 @@ export default function PackageSalesScreen() {
             />
             <div className={`flex items-center justify-between border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
               <span>{filtered.length} {t.total}</span>
-              <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} TRY</span>
+              <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} ₺</span>
             </div>
           </>
         )}
@@ -842,13 +842,13 @@ export default function PackageSalesScreen() {
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.selectCustomer}</label>
             <div className="relative">
-              <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="text" value={customerSearch}
                 onChange={(e) => { setCustomerSearch(e.target.value); setShowCustomerDd(true); }}
                 onFocus={() => setShowCustomerDd(true)}
                 placeholder={t.search}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
               />
               {showCustomerDd && (
                 <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
@@ -883,13 +883,13 @@ export default function PackageSalesScreen() {
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.selectTreatment}</label>
             <div className="relative">
-              <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="text" value={treatmentSearch}
                 onChange={(e) => { setTreatmentSearch(e.target.value); setShowTreatmentDd(true); }}
                 onFocus={() => setShowTreatmentDd(true)}
                 placeholder={t.search}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
               />
               {showTreatmentDd && (
                 <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
@@ -931,11 +931,11 @@ export default function PackageSalesScreen() {
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.packagePrice}</label>
               <div className="relative">
-                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>TRY</span>
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>₺</span>
                 <input
                   type="number" min={0} step={0.01} value={createForm.totalPrice || ""}
                   onChange={(e) => setCreateForm({ ...createForm, totalPrice: Number(e.target.value) })}
-                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-10 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
                 />
               </div>
             </div>
@@ -946,11 +946,11 @@ export default function PackageSalesScreen() {
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentAmount}</label>
               <div className="relative">
-                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>TRY</span>
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>₺</span>
                 <input
                   type="number" min={0} step={0.01} value={createForm.paidAmount || ""}
                   onChange={(e) => setCreateForm({ ...createForm, paidAmount: Number(e.target.value) })}
-                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-10 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
                 />
               </div>
             </div>
@@ -1052,16 +1052,16 @@ export default function PackageSalesScreen() {
                 </div>
                 <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.totalPrice}</p>
-                  <p className={`mt-1 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} TRY</p>
+                  <p className={`mt-1 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} ₺</p>
                 </div>
                 <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.paidAmount}</p>
-                  <p className="mt-1 text-xl font-bold text-emerald-400">{fmt(sale.paidAmount)} TRY</p>
+                  <p className="mt-1 text-xl font-bold text-emerald-400">{fmt(sale.paidAmount)} ₺</p>
                 </div>
                 <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.remainingPayment}</p>
                   <p className={`mt-1 text-xl font-bold ${sale.remainingPayment > 0 ? "text-amber-400" : "text-white/40"}`}>
-                    {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} TRY` : "-"}
+                    {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} ₺` : "-"}
                   </p>
                 </div>
               </div>
@@ -1119,7 +1119,7 @@ export default function PackageSalesScreen() {
                     {sale.payments.map((p) => (
                       <div key={p.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-emerald-400">{fmt(p.amount)} TRY</span>
+                          <span className="text-xs font-bold text-emerald-400">{fmt(p.amount)} ₺</span>
                           <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{p.paymentMethodDisplay}</span>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1224,11 +1224,11 @@ export default function PackageSalesScreen() {
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentAmountLabel}</label>
             <div className="relative">
-              <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>TRY</span>
+              <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>₺</span>
               <input
                 type="number" min={0.01} step={0.01} value={paymentForm.amount || ""}
                 onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-10 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               />
             </div>
           </div>

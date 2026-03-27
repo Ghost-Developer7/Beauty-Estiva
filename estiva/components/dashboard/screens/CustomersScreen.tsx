@@ -544,7 +544,7 @@ export default function CustomersScreen() {
 
       {/* ─── SEARCH ─── */}
       <div className="relative">
-        <svg className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        <svg className={`pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
         <input
           type="text"
           value={search}
@@ -885,7 +885,7 @@ export default function CustomersScreen() {
                           <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" className="mx-auto text-amber-400"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
                           <p className="text-[10px] font-semibold tracking-wider text-amber-400/60">{t.pointsBalance}</p>
                           <p className="text-4xl font-bold text-amber-400">{c.loyaltyPoints}</p>
-                          <p className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Her 100 TRY harcamada 1 puan" : "1 point per 100 TRY spent"}</p>
+                          <p className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Her 100 ₺ harcamada 1 puan" : "1 point per 100 ₺ spent"}</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
@@ -902,7 +902,7 @@ export default function CustomersScreen() {
                           <div className="flex items-center gap-3">
                             <SegmentBadge segment={c.segment} language={language} />
                             <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
-                              {c.segment === "VIP" && (language === "tr" ? "10+ ziyaret veya 5000+ TRY harcama" : "10+ visits or 5000+ TRY spent")}
+                              {c.segment === "VIP" && (language === "tr" ? "10+ ziyaret veya 5000+ ₺ harcama" : "10+ visits or 5000+ ₺ spent")}
                               {c.segment === "Regular" && (language === "tr" ? "3+ ziyaret" : "3+ visits")}
                               {c.segment === "New" && (language === "tr" ? "Yeni m\u00fc\u015fteri" : "New customer")}
                               {c.segment === "Lost" && (language === "tr" ? "90+ g\u00fcnd\u00fcr ziyaret yok" : "No visit in 90+ days")}

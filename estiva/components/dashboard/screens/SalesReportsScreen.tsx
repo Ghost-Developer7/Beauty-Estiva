@@ -152,13 +152,13 @@ export default function SalesReportsScreen() {
                             <tr>
                                 <td className={`py-4 ${isDark ? "text-white" : "text-gray-900"}`}>{text.table.footer}</td>
                                 <td></td>
-                                <td className="py-4 px-2">0 TRY</td>
-                                <td className="py-4 px-2">0 TRY</td>
-                                <td className="py-4 px-2">0 TRY</td>
-                                <td className="py-4 px-2">0 TRY</td>
-                                <td className="py-4 px-2">0 TRY</td>
-                                <td className="py-4 text-center px-4">0 TRY</td>
-                                <td className="py-4 text-right px-4">0 TRY</td>
+                                <td className="py-4 px-2">0 ₺</td>
+                                <td className="py-4 px-2">0 ₺</td>
+                                <td className="py-4 px-2">0 ₺</td>
+                                <td className="py-4 px-2">0 ₺</td>
+                                <td className="py-4 px-2">0 ₺</td>
+                                <td className="py-4 text-center px-4">0 ₺</td>
+                                <td className="py-4 text-right px-4">0 ₺</td>
                             </tr>
                         </tfoot>
                     </table>

@@ -153,7 +153,7 @@ const DEFAULT_WORKING_HOURS: WorkingHourDay[] = [
 ];
 
 const CURRENCIES = [
-  { code: "TRY", label: "TRY - Turk Lirasi" },
+  { code: "TRY", label: "₺ - Türk Lirası" },
   { code: "USD", label: "USD - US Dollar" },
   { code: "EUR", label: "EUR - Euro" },
   { code: "GBP", label: "GBP - British Pound" },

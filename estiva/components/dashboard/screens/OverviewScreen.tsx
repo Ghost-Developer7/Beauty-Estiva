@@ -165,7 +165,7 @@ function CustomTooltip({ active, payload, label, isDark }: any) {
       <p className={`mb-1 text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{label}</p>
       {payload.map((entry: any, i: number) => (
         <p key={i} className="text-sm font-semibold" style={{ color: entry.color }}>
-          {entry.name}: {formatCurrency(entry.value)} TRY
+          {entry.name}: {formatCurrency(entry.value)} ₺
         </p>
       ))}
     </div>
@@ -319,8 +319,8 @@ export default function OverviewScreen() {
     },
     {
       label: t.monthRevenue,
-      value: `${formatCurrency(data.thisMonthRevenue)} TRY`,
-      sub: `${t.thisWeek}: ${formatCurrency(data.thisWeekRevenue)} TRY`,
+      value: `${formatCurrency(data.thisMonthRevenue)} ₺`,
+      sub: `${t.thisWeek}: ${formatCurrency(data.thisWeekRevenue)} ₺`,
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -407,17 +407,17 @@ export default function OverviewScreen() {
           <div className="flex-1">
             <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.netProfit} ({t.thisMonth})</p>
             <p className={`mt-1 text-2xl font-bold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)} TRY
+              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)} ₺
             </p>
           </div>
           <div className="flex gap-8 text-sm">
             <div>
               <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.revenue}</p>
-              <p className="font-semibold text-emerald-400">{formatCurrency(data.thisMonthRevenue)} TRY</p>
+              <p className="font-semibold text-emerald-400">{formatCurrency(data.thisMonthRevenue)} ₺</p>
             </div>
             <div>
               <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.expense}</p>
-              <p className="font-semibold text-red-400">{formatCurrency(data.thisMonthExpense)} TRY</p>
+              <p className="font-semibold text-red-400">{formatCurrency(data.thisMonthExpense)} ₺</p>
             </div>
           </div>
         </div>
@@ -536,7 +536,7 @@ export default function OverviewScreen() {
                       color: isDark ? "#fff" : "#111",
                       fontSize: 13,
                     }}
-                    formatter={(value) => [`${formatCurrency(Number(value ?? 0))} TRY`, t.revenue]}
+                    formatter={(value) => [`${formatCurrency(Number(value ?? 0))} ₺`, t.revenue]}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {topServicesData.map((_, index) => (
@@ -637,7 +637,7 @@ export default function OverviewScreen() {
                       </span>
                       {staff.label}
                     </span>
-                    <span className={`font-semibold ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatCurrency(staff.amountInTry)} TRY</span>
+                    <span className={`font-semibold ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatCurrency(staff.amountInTry)} ₺</span>
                   </div>
                   <div className={`h-1.5 overflow-hidden rounded-full ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
                     <div

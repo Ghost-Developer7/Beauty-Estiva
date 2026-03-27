@@ -93,7 +93,7 @@ const copy = {
     appointmentDate: "Appointment Date",
     paidAt: "Paid At",
     originalAmount: "Original Amount",
-    tryAmount: "TRY Amount",
+    tryAmount: "₺ Amount",
     deletePayment: "Delete Payment",
     confirmDelete: "Delete this payment record?",
     // Quick appointment
@@ -153,7 +153,7 @@ const copy = {
     appointmentDate: "Randevu Tarihi",
     paidAt: "Ödeme Tarihi",
     originalAmount: "Orijinal Tutar",
-    tryAmount: "TRY Tutar",
+    tryAmount: "₺ Tutar",
     deletePayment: "Ödemeyi Sil",
     confirmDelete: "Bu ödeme kaydını silmek istiyor musunuz?",
     newAppointment: "Yeni Randevu",
@@ -635,13 +635,13 @@ export default function OrdersScreen() {
         </select>
 
         <div className="relative ml-auto">
-          <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          <svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.search}
-            className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-9 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 w-48`}
+            className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-11 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 w-48`}
           />
         </div>
       </div>
@@ -760,14 +760,14 @@ export default function OrdersScreen() {
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.appointment}</label>
             <div className="relative" ref={appointmentDropdownRef}>
-              <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="text"
                 value={appointmentSearch}
                 onChange={(e) => { setAppointmentSearch(e.target.value); setShowAppointmentDropdown(true); }}
                 onFocus={() => setShowAppointmentDropdown(true)}
                 placeholder={t.searchAppointment}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
               />
               {showAppointmentDropdown && (
                 <div className={`absolute left-0 right-0 z-20 mt-1 max-h-52 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
@@ -820,7 +820,7 @@ export default function OrdersScreen() {
                 onChange={(e) => handleCurrencyChange(Number(e.target.value))}
                 className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               >
-                {currencies.length === 0 && <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>₺ TRY</option>}
+                {currencies.length === 0 && <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>₺ Türk Lirası</option>}
                 {currencies.map((c) => (
                   <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>
                     {c.symbol} {c.code}
@@ -989,12 +989,12 @@ export default function OrdersScreen() {
             </div>
             {!apptForm.isNewCustomer ? (
               <div className="relative" ref={apptCustomerDropdownRef}>
-                <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                <svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                 <input type="text" value={apptCustomerSearch}
                   onChange={(e) => { setApptCustomerSearch(e.target.value); setShowApptCustomerDropdown(true); }}
                   onFocus={() => setShowApptCustomerDropdown(true)}
                   placeholder={t.searchCustomer}
-                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
                 {showApptCustomerDropdown && (
                   <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
                     {filteredApptCustomers.length === 0 ? (

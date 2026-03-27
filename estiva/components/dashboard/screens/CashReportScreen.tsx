@@ -112,16 +112,16 @@ export default function CashReportScreen() {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
               <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.revenue}</p>
-              <p className="mt-2 text-2xl font-semibold text-emerald-400">{fmt(revenue?.totalAmountInTry || 0)} TRY</p>
+              <p className="mt-2 text-2xl font-semibold text-emerald-400">{fmt(revenue?.totalAmountInTry || 0)} ₺</p>
             </div>
             <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
               <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.expenses}</p>
-              <p className="mt-2 text-2xl font-semibold text-red-400">{fmt(expense?.totalAmountInTry || 0)} TRY</p>
+              <p className="mt-2 text-2xl font-semibold text-red-400">{fmt(expense?.totalAmountInTry || 0)} ₺</p>
             </div>
             <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
               <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.netProfit}</p>
               <p className={`mt-2 text-2xl font-semibold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                {fmt(netProfit)} TRY
+                {fmt(netProfit)} ₺
               </p>
             </div>
           </div>
@@ -134,14 +134,14 @@ export default function CashReportScreen() {
                 <span className={`${isDark ? "text-white/60" : "text-gray-600"} transition-transform ${expanded.revenue ? "rotate-90" : ""}`}>›</span>
                 <span className="font-medium text-sm">{text.byPaymentMethod}</span>
               </div>
-              <span className="font-medium text-sm">{fmt(revenue?.totalAmountInTry || 0)} TRY</span>
+              <span className="font-medium text-sm">{fmt(revenue?.totalAmountInTry || 0)} ₺</span>
             </div>
             {expanded.revenue && revenue?.byPaymentMethod && (
               <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
                 {revenue.byPaymentMethod.length > 0 ? revenue.byPaymentMethod.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
-                    <span>{fmt(item.amountInTry)} TRY</span>
+                    <span>{fmt(item.amountInTry)} ₺</span>
                   </div>
                 )) : (
                   <div className={`py-4 pl-6 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.noData}</div>
@@ -164,7 +164,7 @@ export default function CashReportScreen() {
                 {revenue.byStaff.length > 0 ? revenue.byStaff.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
-                    <span>{fmt(item.amountInTry)} TRY</span>
+                    <span>{fmt(item.amountInTry)} ₺</span>
                   </div>
                 )) : (
                   <div className={`py-4 pl-6 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.noData}</div>
@@ -181,14 +181,14 @@ export default function CashReportScreen() {
                 <span className={`${isDark ? "text-white/60" : "text-gray-600"} transition-transform ${expanded.category ? "rotate-90" : ""}`}>›</span>
                 <span className="font-medium text-sm">{text.byCategory}</span>
               </div>
-              <span className="font-medium text-sm">{fmt(expense?.totalAmountInTry || 0)} TRY</span>
+              <span className="font-medium text-sm">{fmt(expense?.totalAmountInTry || 0)} ₺</span>
             </div>
             {expanded.category && expense?.byCategory && (
               <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
                 {expense.byCategory.length > 0 ? expense.byCategory.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
-                    <span>{fmt(item.amountInTry)} TRY</span>
+                    <span>{fmt(item.amountInTry)} ₺</span>
                   </div>
                 )) : (
                   <div className={`py-4 pl-6 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.noData}</div>
