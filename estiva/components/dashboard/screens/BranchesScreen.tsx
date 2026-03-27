@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { branchService } from "@/services/branchService";
 import { staffService } from "@/services/staffService";
@@ -225,6 +226,8 @@ function CloseIcon() {
 
 export default function BranchesScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const t = copy[language];
   const days = language === "tr" ? DAYS_TR : DAYS_EN;
@@ -476,19 +479,19 @@ export default function BranchesScreen() {
      ================================================================ */
 
   return (
-    <div className="space-y-5 text-white">
+    <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
 
       {/* ── HEADER ── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.subtitle}</p>
         </div>
         {canManage && (
           <button
             onClick={openCreate}
             disabled={limit !== null && !limit.canAdd}
-            className="flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
+            className={`flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             {t.newBranch}
@@ -498,19 +501,19 @@ export default function BranchesScreen() {
 
       {/* ── LIMIT BAR ── */}
       {canManage && limit && (
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
+        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold text-white/50 tracking-wider">{t.branchUsage}</span>
-            <span className="text-sm font-bold text-white">
+            <span className={`text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider`}>{t.branchUsage}</span>
+            <span className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
               {limit.maxCount === -1
                 ? `${limit.currentCount} (${t.unlimited})`
                 : `${limit.currentCount}/${limit.maxCount}`
               }
-              <span className="ml-1 text-white/40 font-normal text-xs">{t.branchesUsed}</span>
+              <span className={`ml-1 ${isDark ? "text-white/40" : "text-gray-400"} font-normal text-xs`}>{t.branchesUsed}</span>
             </span>
           </div>
           {limit.maxCount > 0 && (
-            <div className="h-2 rounded-full bg-white/[0.06] overflow-hidden">
+            <div className={`h-2 rounded-full ${isDark ? "bg-white/[0.06]" : "bg-white"} overflow-hidden`}>
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   limit.currentCount >= limit.maxCount
@@ -529,42 +532,42 @@ export default function BranchesScreen() {
 
       {/* ── STATS ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
-          <p className="text-[11px] text-white/40">{t.title}</p>
+        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+          <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.title}</p>
           <p className="mt-1 text-xl font-bold text-violet-400">{branches.length}</p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
-          <p className="text-[11px] text-white/40">{t.active}</p>
+        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+          <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.active}</p>
           <p className="mt-1 text-xl font-bold text-emerald-400">{activeCount}</p>
         </div>
-        <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
-          <p className="text-[11px] text-white/40">{t.staffCount}</p>
+        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+          <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.staffCount}</p>
           <p className="mt-1 text-xl font-bold text-blue-400">{branches.reduce((s, b) => s + b.staffCount, 0)}</p>
         </div>
       </div>
 
       {/* ── SEARCH ── */}
       <div className="relative">
-        <svg className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+        <svg className={`absolute left-4 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t.search}
-          className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] py-2.5 pl-11 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 transition"
+          className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
         />
       </div>
 
       {/* ── BRANCH CARDS ── */}
       {loading ? (
-        <div className="flex items-center justify-center gap-3 p-12 text-white/40">
+        <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
           {t.loading}
         </div>
       ) : filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-2 p-12 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
           <BuildingIcon />
-          <p className="text-sm font-medium text-white/40">{search ? t.noResult : t.noData}</p>
+          <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search ? t.noResult : t.noData}</p>
           {!search && <p className="text-xs text-white/25">{t.noDataSub}</p>}
         </div>
       ) : (
@@ -596,7 +599,7 @@ export default function BranchesScreen() {
                       <LocationIcon />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-white">{b.name}</h3>
+                      <h3 className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{b.name}</h3>
                       {b.isMainBranch && (
                         <span className="inline-flex items-center rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] font-bold text-violet-400 border border-violet-500/20">
                           {t.mainBranch}
@@ -615,13 +618,13 @@ export default function BranchesScreen() {
                 {/* Info */}
                 <div className="space-y-1.5 mb-4">
                   {b.address && (
-                    <div className="flex items-start gap-2 text-xs text-white/40">
+                    <div className={`flex items-start gap-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       <LocationIcon />
                       <span className="truncate">{b.address}</span>
                     </div>
                   )}
                   {b.phone && (
-                    <div className="flex items-center gap-2 text-xs text-white/40">
+                    <div className={`flex items-center gap-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       <PhoneIcon />
                       <span>{b.phone}</span>
                     </div>
@@ -630,7 +633,7 @@ export default function BranchesScreen() {
 
                 {/* Footer */}
                 <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
-                  <div className="flex items-center gap-1.5 text-xs text-white/40">
+                  <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="9" cy="8" r="3" /><path d="M13 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><path d="M17.5 8a2.5 2.5 0 010 5" /><path d="M21 21v-2a2.5 2.5 0 00-2-2.45" /></svg>
                     <span>{b.staffCount} {t.staffCount}</span>
                   </div>
@@ -638,7 +641,7 @@ export default function BranchesScreen() {
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => { e.stopPropagation(); openEdit(b); }}
-                        className="rounded-lg px-2.5 py-1 text-[11px] font-semibold text-white/60 hover:bg-white/10 hover:text-white transition"
+                        className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${isDark ? "text-white/60" : "text-gray-600"} ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white transition`}
                       >
                         {t.edit}
                       </button>
@@ -668,17 +671,17 @@ export default function BranchesScreen() {
           onClick={() => { setShowCreateModal(false); setShowEditModal(false); }}
         >
           <div
-            className="w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl custom-scrollbar"
+            className={`w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} p-6 shadow-2xl custom-scrollbar`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
                 {showCreateModal ? t.createTitle : t.editTitle}
               </h2>
               <button
                 onClick={() => { setShowCreateModal(false); setShowEditModal(false); }}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
               >
                 <CloseIcon />
               </button>
@@ -687,45 +690,45 @@ export default function BranchesScreen() {
             <div className="space-y-4">
               {/* Name */}
               <div>
-                <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.name}</label>
+                <label className={`block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider mb-1.5`}>{t.name}</label>
                 <input
                   type="text"
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder={t.namePlaceholder}
-                  className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 transition"
+                  className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
                 />
               </div>
 
               {/* Address */}
               <div>
-                <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.address}</label>
+                <label className={`block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider mb-1.5`}>{t.address}</label>
                 <input
                   type="text"
                   value={formAddress}
                   onChange={(e) => setFormAddress(e.target.value)}
-                  className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 transition"
+                  className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
                 />
               </div>
 
               {/* Phone & Email */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.phone}</label>
+                  <label className={`block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider mb-1.5`}>{t.phone}</label>
                   <input
                     type="text"
                     value={formPhone}
                     onChange={(e) => setFormPhone(e.target.value)}
-                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 transition"
+                    className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-semibold text-white/50 tracking-wider mb-1.5">{t.email}</label>
+                  <label className={`block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider mb-1.5`}>{t.email}</label>
                   <input
                     type="email"
                     value={formEmail}
                     onChange={(e) => setFormEmail(e.target.value)}
-                    className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 transition"
+                    className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
                   />
                 </div>
               </div>
@@ -737,9 +740,9 @@ export default function BranchesScreen() {
                     type="checkbox"
                     checked={formIsMain}
                     onChange={(e) => setFormIsMain(e.target.checked)}
-                    className="h-4 w-4 rounded border-white/20 bg-white/5 text-violet-500 focus:ring-violet-500/30"
+                    className={`h-4 w-4 rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-violet-500 focus:ring-violet-500/30`}
                   />
-                  <span className="text-sm text-white/70">{t.isMainBranch}</span>
+                  <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.isMainBranch}</span>
                 </label>
                 {showEditModal && (
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -747,20 +750,20 @@ export default function BranchesScreen() {
                       type="checkbox"
                       checked={formIsActive}
                       onChange={(e) => setFormIsActive(e.target.checked)}
-                      className="h-4 w-4 rounded border-white/20 bg-white/5 text-emerald-500 focus:ring-emerald-500/30"
+                      className={`h-4 w-4 rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-emerald-500 focus:ring-emerald-500/30`}
                     />
-                    <span className="text-sm text-white/70">{t.isActive}</span>
+                    <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.isActive}</span>
                   </label>
                 )}
               </div>
 
               {/* Working Hours */}
               <div>
-                <label className="block text-xs font-semibold text-white/50 tracking-wider mb-2">{t.workingHours}</label>
+                <label className={`block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider mb-2`}>{t.workingHours}</label>
                 <div className="space-y-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
                   {formWorkingHours.map((wh, idx) => (
                     <div key={wh.day} className="flex items-center gap-2">
-                      <span className="w-20 text-xs text-white/50 shrink-0">{days[idx]}</span>
+                      <span className={`w-20 text-xs ${isDark ? "text-white/50" : "text-gray-500"} shrink-0`}>{days[idx]}</span>
                       <label className="flex items-center gap-1 shrink-0">
                         <input
                           type="checkbox"
@@ -770,7 +773,7 @@ export default function BranchesScreen() {
                             updated[idx] = { ...wh, isClosed: !e.target.checked };
                             setFormWorkingHours(updated);
                           }}
-                          className="h-3.5 w-3.5 rounded border-white/20 bg-white/5 text-violet-500 focus:ring-0"
+                          className={`h-3.5 w-3.5 rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-violet-500 focus:ring-0`}
                         />
                       </label>
                       {wh.isClosed ? (
@@ -785,9 +788,9 @@ export default function BranchesScreen() {
                               updated[idx] = { ...wh, open: e.target.value };
                               setFormWorkingHours(updated);
                             }}
-                            className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-xs text-white focus:outline-none focus:border-white/20"
+                            className={`rounded-lg border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2 py-1 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
                           />
-                          <span className="text-white/30 text-xs">-</span>
+                          <span className={`${isDark ? "text-white/30" : "text-gray-300"} text-xs`}>-</span>
                           <input
                             type="time"
                             value={wh.close}
@@ -796,7 +799,7 @@ export default function BranchesScreen() {
                               updated[idx] = { ...wh, close: e.target.value };
                               setFormWorkingHours(updated);
                             }}
-                            className="rounded-lg border border-white/[0.08] bg-white/[0.03] px-2 py-1 text-xs text-white focus:outline-none focus:border-white/20"
+                            className={`rounded-lg border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2 py-1 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
                           />
                         </div>
                       )}
@@ -809,14 +812,14 @@ export default function BranchesScreen() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => { setShowCreateModal(false); setShowEditModal(false); }}
-                  className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.03] py-2.5 text-sm font-semibold text-white/60 transition hover:bg-white/[0.06] hover:text-white"
+                  className={`flex-1 rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 text-sm font-semibold ${isDark ? "text-white/60" : "text-gray-600"} transition hover:bg-white/[0.06] hover:text-white`}
                 >
                   {t.cancel}
                 </button>
                 <button
                   onClick={showCreateModal ? handleCreate : handleUpdate}
                   disabled={formSaving || !formName.trim()}
-                  className="flex-1 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className={`flex-1 rounded-xl bg-violet-600 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed`}
                 >
                   {formSaving
                     ? (showCreateModal ? t.creating : t.saving)
@@ -838,7 +841,7 @@ export default function BranchesScreen() {
           onClick={() => setShowDetailModal(false)}
         >
           <div
-            className="w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl custom-scrollbar"
+            className={`w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} p-6 shadow-2xl custom-scrollbar`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -852,7 +855,7 @@ export default function BranchesScreen() {
                   <LocationIcon />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-white">{selectedBranch.name}</h2>
+                  <h2 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{selectedBranch.name}</h2>
                   {selectedBranch.isMainBranch && (
                     <span className="inline-flex items-center rounded-full bg-violet-500/15 px-2 py-0.5 text-[10px] font-bold text-violet-400 border border-violet-500/20">
                       {t.mainBranch}
@@ -862,7 +865,7 @@ export default function BranchesScreen() {
               </div>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
               >
                 <CloseIcon />
               </button>
@@ -871,19 +874,19 @@ export default function BranchesScreen() {
             {/* Info Grid */}
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.address}</p>
-                <p className="text-sm text-white">{selectedBranch.address || "--"}</p>
+                <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.address}</p>
+                <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{selectedBranch.address || "--"}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.phone}</p>
-                <p className="text-sm text-white">{selectedBranch.phone || "--"}</p>
+                <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.phone}</p>
+                <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{selectedBranch.phone || "--"}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.email}</p>
-                <p className="text-sm text-white">{selectedBranch.email || "--"}</p>
+                <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.email}</p>
+                <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{selectedBranch.email || "--"}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.staffCount}</p>
+                <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.staffCount}</p>
                 <p className="text-sm font-bold text-blue-400">{selectedBranch.staffCount}</p>
               </div>
             </div>
@@ -894,15 +897,15 @@ export default function BranchesScreen() {
                 const wh: WorkingHour[] = JSON.parse(selectedBranch.workingHoursJson);
                 return (
                   <div className="mb-6">
-                    <p className="text-[10px] font-semibold tracking-wider text-white/30 mb-2">{t.workingHours}</p>
+                    <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"} mb-2`}>{t.workingHours}</p>
                     <div className="space-y-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
                       {wh.map((h, idx) => (
                         <div key={h.day} className="flex items-center justify-between text-xs">
-                          <span className="text-white/50">{days[idx]}</span>
+                          <span className={`${isDark ? "text-white/50" : "text-gray-500"}`}>{days[idx]}</span>
                           {h.isClosed ? (
                             <span className="text-red-400/60">{t.closed}</span>
                           ) : (
-                            <span className="text-white/70">{h.open} - {h.close}</span>
+                            <span className={`${isDark ? "text-white/70" : "text-gray-700"}`}>{h.open} - {h.close}</span>
                           )}
                         </div>
                       ))}
@@ -914,20 +917,20 @@ export default function BranchesScreen() {
 
             {/* Assigned Staff */}
             <div>
-              <p className="text-[10px] font-semibold tracking-wider text-white/30 mb-3">{t.assignedStaff}</p>
+              <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"} mb-3`}>{t.assignedStaff}</p>
 
               {selectedBranch.staff.length === 0 ? (
-                <p className="text-xs text-white/30 py-4 text-center">{t.noStaffAssigned}</p>
+                <p className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"} py-4 text-center`}>{t.noStaffAssigned}</p>
               ) : (
                 <div className="space-y-2 mb-4">
                   {selectedBranch.staff.map((s) => (
                     <div key={s.id} className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
                       <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500/30 to-purple-500/30 text-[10px] font-bold text-white">
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500/30 to-purple-500/30 text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                           {s.name.charAt(0)}{s.surname.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-white">{s.name} {s.surname}</p>
+                          <p className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{s.name} {s.surname}</p>
                           <div className="flex gap-1 mt-0.5">
                             {s.roles.map((r) => (
                               <span key={r} className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold ${getRoleBg(r)}`}>
@@ -956,11 +959,11 @@ export default function BranchesScreen() {
                   <select
                     value={staffToAssign}
                     onChange={(e) => setStaffToAssign(e.target.value ? parseInt(e.target.value) : "")}
-                    className="flex-1 rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 transition"
+                    className={`flex-1 rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 transition`}
                   >
-                    <option value="" className="bg-[#1a1a2e] text-white/50">{t.selectStaff}</option>
+                    <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"} ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.selectStaff}</option>
                     {unassignedStaff.map((s) => (
-                      <option key={s.id} value={s.id} className="bg-[#1a1a2e] text-white">
+                      <option key={s.id} value={s.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"} ${isDark ? "text-white" : "text-gray-900"}`}>
                         {s.name} {s.surname}
                       </option>
                     ))}
@@ -968,7 +971,7 @@ export default function BranchesScreen() {
                   <button
                     onClick={handleAssignStaff}
                     disabled={staffToAssign === "" || assignLoading}
-                    className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
+                    className={`rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
                     {assignLoading ? (
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />

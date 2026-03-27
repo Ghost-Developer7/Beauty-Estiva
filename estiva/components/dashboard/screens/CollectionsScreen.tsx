@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { debtService } from "@/services/debtService";
 import type { CollectionListItem } from "@/types/api";
 import Pagination from "@/components/ui/Pagination";
@@ -27,25 +28,27 @@ const copy = {
   },
   tr: {
     title: "Tahsilatlar",
-    placeholder: "Musteri adina gore ara...",
-    loading: "Yukleniyor...",
-    noData: "Tahsilat bulunamadi.",
-    cols: ["Musteri", "Aciklama", "Tur", "Tutar", "Odeme Yontemi", "Odeme Tarihi", "Kaynak", "Notlar"],
+    placeholder: "Müşteri adına göre ara...",
+    loading: "Yükleniyor...",
+    noData: "Tahsilat bulunamadı.",
+    cols: ["Müşteri", "Açıklama", "Tür", "Tutar", "Ödeme Yöntemi", "Ödeme Tarihi", "Kaynak", "Notlar"],
     totalCollected: "Toplam Tahsilat",
     thisMonth: "Bu Ay",
     filter: "Filtrele",
-    startDate: "Baslangic",
-    endDate: "Bitis",
-    allMethods: "Tum Yontemler",
-    error: "Tahsilatlar yuklenemedi.",
-    types: { Receivable: "Alacak", Debt: "Borc" },
-    methods: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diger" },
-    methodFilters: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diger" },
+    startDate: "Başlangıç",
+    endDate: "Bitiş",
+    allMethods: "Tüm Yöntemler",
+    error: "Tahsilatlar yüklenemedi.",
+    types: { Receivable: "Alacak", Debt: "Borç" },
+    methods: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diğer" },
+    methodFilters: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diğer" },
   },
 };
 
 export default function CollectionsScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
 
   // Data
@@ -109,7 +112,7 @@ export default function CollectionsScreen() {
     item.customerName || item.personName || "-";
 
   return (
-    <div className="space-y-6 text-white h-full flex flex-col">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"} h-full flex flex-col`}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{t.title}</h1>
@@ -117,43 +120,43 @@ export default function CollectionsScreen() {
 
       {/* Summary Card */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="text-xs text-white/50 mb-1">{t.totalCollected}</div>
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
+          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.totalCollected}</div>
           <div className="text-xl font-bold text-green-400">{formatCurrency(totalCollected)}</div>
-          <div className="text-[10px] text-white/30 mt-1">{totalCount} {language === "tr" ? "kayit" : "records"}</div>
+          <div className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} mt-1`}>{totalCount} {language === "tr" ? "kayit" : "records"}</div>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center gap-3">
+      <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4 flex flex-wrap items-center gap-3`}>
         <input
           type="text"
           placeholder={t.placeholder}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="w-full md:w-56 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/20"
+          className={`w-full md:w-56 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none focus:border-white/20`}
         />
         <div className="flex items-center gap-2">
           <input
             type="date"
             value={startDate}
             onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 [color-scheme:dark]"
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 [color-scheme:dark]`}
             placeholder={t.startDate}
           />
-          <span className="text-white/30 text-xs">-</span>
+          <span className={`${isDark ? "text-white/30" : "text-gray-300"} text-xs`}>-</span>
           <input
             type="date"
             value={endDate}
             onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 [color-scheme:dark]"
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 [color-scheme:dark]`}
             placeholder={t.endDate}
           />
         </div>
         <select
           value={methodFilter}
           onChange={(e) => { setMethodFilter(e.target.value); setPage(1); }}
-          className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20"
+          className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
         >
           <option value="" className="bg-[#1a1a1a]">{t.allMethods}</option>
           {Object.entries(t.methodFilters).map(([val, label]) => (
@@ -163,30 +166,30 @@ export default function CollectionsScreen() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 overflow-hidden flex flex-col">
+      <div className={`flex-1 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} overflow-hidden flex flex-col`}>
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-xs">
-            <thead className="bg-white/5 text-xs font-semibold text-white/60">
+            <thead className={`${isDark ? "bg-white/5" : "bg-gray-50"} text-xs font-semibold ${isDark ? "text-white/60" : "text-gray-600"}`}>
               <tr>
                 {t.cols.map((col, i) => (
                   <th key={i} className="px-4 py-3 whitespace-nowrap">{col}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
               {loading ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-white/40">{t.loading}</td>
+                  <td colSpan={8} className={`px-4 py-8 text-center ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.loading}</td>
                 </tr>
               ) : collections.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="px-4 py-8 text-center text-white/40">{t.noData}</td>
+                  <td colSpan={8} className={`px-4 py-8 text-center ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noData}</td>
                 </tr>
               ) : (
                 collections.map((item) => (
                   <tr key={item.id} className="hover:bg-white/[0.03] transition">
                     <td className="px-4 py-3 whitespace-nowrap font-medium">{getDisplayName(item)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-white/60 max-w-[200px] truncate">
+                    <td className={`px-4 py-3 whitespace-nowrap ${isDark ? "text-white/60" : "text-gray-600"} max-w-[200px] truncate`}>
                       {item.debtDescription || "-"}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -200,13 +203,13 @@ export default function CollectionsScreen() {
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap font-medium text-green-400">{formatCurrency(item.amount)}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
-                      <span className="inline-flex items-center rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] font-medium text-white/60">
+                      <span className={`inline-flex items-center rounded-full ${isDark ? "bg-white/5" : "bg-gray-50"} border ${isDark ? "border-white/10" : "border-gray-200"} px-2 py-0.5 text-[10px] font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>
                         {t.methods[item.paymentMethod as keyof typeof t.methods] || item.paymentMethod}
                       </span>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">{formatDate(item.paymentDate)}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-white/50">{item.source || "-"}</td>
-                    <td className="px-4 py-3 whitespace-nowrap text-white/40 max-w-[150px] truncate">{item.notes || "-"}</td>
+                    <td className={`px-4 py-3 whitespace-nowrap ${isDark ? "text-white/50" : "text-gray-500"}`}>{item.source || "-"}</td>
+                    <td className={`px-4 py-3 whitespace-nowrap ${isDark ? "text-white/40" : "text-gray-400"} max-w-[150px] truncate`}>{item.notes || "-"}</td>
                   </tr>
                 ))
               )}

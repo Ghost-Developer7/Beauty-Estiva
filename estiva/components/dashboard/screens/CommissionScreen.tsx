@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { commissionService } from "@/services/commissionService";
 import { staffService } from "@/services/staffService";
 import type {
@@ -141,6 +142,8 @@ const formatDate = (d: string) =>
 
 export default function CommissionScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
   const now = new Date();
 
@@ -420,7 +423,7 @@ export default function CommissionScreen() {
     "rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-purple-500/50 focus:outline-none transition";
 
   return (
-    <div className="space-y-5 text-white">
+    <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* ── Header ── */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
@@ -471,7 +474,7 @@ export default function CommissionScreen() {
             className={inputClass}
           >
             {t.months.map((m, i) => (
-              <option key={i} value={i + 1} className="bg-[#1a1a2e]">
+              <option key={i} value={i + 1} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>
                 {m}
               </option>
             ))}
@@ -482,7 +485,7 @@ export default function CommissionScreen() {
             className={inputClass}
           >
             {yearOptions.map((y) => (
-              <option key={y} value={y} className="bg-[#1a1a2e]">
+              <option key={y} value={y} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>
                 {y}
               </option>
             ))}
@@ -518,35 +521,32 @@ export default function CommissionScreen() {
               value={fmt(totalEarned)}
               currency={t.currency}
               color="text-amber-400"
-              bgGlow="from-amber-500/10"
-            />
+              bgGlow="from-amber-500/10" isDark={isDark} />
             <SummaryCard
               label={t.totalPaid}
               value={fmt(totalPaid)}
               currency={t.currency}
               color="text-green-400"
-              bgGlow="from-green-500/10"
-            />
+              bgGlow="from-green-500/10" isDark={isDark} />
             <SummaryCard
               label={t.remainingToPay}
               value={fmt(totalRemaining)}
               currency={t.currency}
               color="text-red-400"
-              bgGlow="from-red-500/10"
-            />
+              bgGlow="from-red-500/10" isDark={isDark} />
           </div>
 
           {/* Staff summary table */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_15px_40px_rgba(3,2,9,0.5)]">
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} shadow-[0_15px_40px_rgba(3,2,9,0.5)]`}>
             {summaryLoading ? (
-              <LoadingState text={t.loading} />
+              <LoadingState text={t.loading} isDark={isDark} />
             ) : summaries.length === 0 ? (
-              <EmptyState text={t.noData} />
+              <EmptyState text={t.noData} isDark={isDark} />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold tracking-wider text-white/50">
+                    <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-xs font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>
                       <th className="px-4 py-3">{t.staff}</th>
                       <th className="px-4 py-3 text-center">{t.servicesPerformed}</th>
                       <th className="px-4 py-3 text-right">{t.revenueGenerated}</th>
@@ -556,12 +556,12 @@ export default function CommissionScreen() {
                       <th className="px-4 py-3 text-center">{t.action}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                     {summaries.map((s) => (
                       <tr key={s.staffId} className="transition hover:bg-white/[0.04]">
                         <td className="px-4 py-3 font-medium">{s.staffFullName}</td>
-                        <td className="px-4 py-3 text-center text-white/60">{s.recordCount}</td>
-                        <td className="px-4 py-3 text-right text-white/60">
+                        <td className={`px-4 py-3 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>{s.recordCount}</td>
+                        <td className={`px-4 py-3 text-right ${isDark ? "text-white/60" : "text-gray-600"}`}>
                           {fmt(s.totalPaymentsInTry)} {t.currency}
                         </td>
                         <td className="px-4 py-3 text-right font-medium text-amber-400">
@@ -577,7 +577,7 @@ export default function CommissionScreen() {
                           {s.unpaidCommissionInTry > 0 && (
                             <button
                               onClick={() => handlePayAllForStaff(s.staffId)}
-                              className="rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30"
+                              className={`rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-3 py-1.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
                             >
                               {t.payBtn}
                             </button>
@@ -597,8 +597,8 @@ export default function CommissionScreen() {
       {activeTab === 1 && (
         <div className="space-y-4">
           {/* Quick set */}
-          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-            <span className="text-sm font-medium text-white/60">{t.quickSet}:</span>
+          <div className={`flex flex-wrap items-center gap-3 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
+            <span className={`text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.quickSet}:</span>
             <input
               type="number"
               min={0}
@@ -611,7 +611,7 @@ export default function CommissionScreen() {
             />
             <button
               onClick={handleQuickSetAll}
-              className="rounded-lg bg-purple-600/80 px-4 py-2 text-xs font-semibold text-white transition hover:bg-purple-600"
+              className={`rounded-lg bg-purple-600/80 px-4 py-2 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-purple-600`}
             >
               {t.applyAll}
             </button>
@@ -619,23 +619,23 @@ export default function CommissionScreen() {
             <button
               onClick={handleSaveRates}
               disabled={saving}
-              className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30 disabled:opacity-50"
+              className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30 disabled:opacity-50`}
             >
               {saving ? t.saving : t.save}
             </button>
           </div>
 
           {/* Rate matrix */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_15px_40px_rgba(3,2,9,0.5)]">
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} shadow-[0_15px_40px_rgba(3,2,9,0.5)]`}>
             {ratesLoading ? (
-              <LoadingState text={t.loading} />
+              <LoadingState text={t.loading} isDark={isDark} />
             ) : !allRates || allRates.staffRates.length === 0 ? (
-              <EmptyState text={t.noData} />
+              <EmptyState text={t.noData} isDark={isDark} />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold tracking-wider text-white/50">
+                    <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-xs font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>
                       <th className="sticky left-0 z-10 bg-[#0f0f1a] px-4 py-3">{t.staff}</th>
                       <th className="px-3 py-3 text-center">{t.defaultRate}</th>
                       {allRates.treatments.map((tr) => (
@@ -645,7 +645,7 @@ export default function CommissionScreen() {
                       ))}
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                     {allRates.staffRates.map((sr) => (
                       <tr key={sr.staffId} className="transition hover:bg-white/[0.04]">
                         <td className="sticky left-0 z-10 bg-[#0f0f1a] px-4 py-3 font-medium whitespace-nowrap">
@@ -659,7 +659,7 @@ export default function CommissionScreen() {
                             step={0.5}
                             value={editedRates[sr.staffId]?.defaultRate ?? 0}
                             onChange={(e) => setDefaultRate(sr.staffId, Number(e.target.value))}
-                            className="w-20 rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-center text-xs text-white focus:border-purple-500/50 focus:outline-none"
+                            className={`w-20 rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-2 py-1.5 text-center text-xs ${isDark ? "text-white" : "text-gray-900"} focus:border-purple-500/50 focus:outline-none`}
                           />
                         </td>
                         {allRates.treatments.map((tr) => (
@@ -673,7 +673,7 @@ export default function CommissionScreen() {
                               onChange={(e) =>
                                 setTreatmentRate(sr.staffId, tr.id, Number(e.target.value))
                               }
-                              className="w-20 rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-center text-xs text-white focus:border-purple-500/50 focus:outline-none"
+                              className={`w-20 rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-2 py-1.5 text-center text-xs ${isDark ? "text-white" : "text-gray-900"} focus:border-purple-500/50 focus:outline-none`}
                             />
                           </td>
                         ))}
@@ -697,11 +697,11 @@ export default function CommissionScreen() {
               onChange={(e) => setStaffFilter(e.target.value ? Number(e.target.value) : "")}
               className={inputClass}
             >
-              <option value="" className="bg-[#1a1a2e]">
+              <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>
                 {t.filterByStaff}
               </option>
               {staffList.map((s) => (
-                <option key={s.id} value={s.id} className="bg-[#1a1a2e]">
+                <option key={s.id} value={s.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>
                   {s.name} {s.surname}
                 </option>
               ))}
@@ -711,15 +711,15 @@ export default function CommissionScreen() {
               onChange={(e) => setStatusFilter(e.target.value as any)}
               className={inputClass}
             >
-              <option value="" className="bg-[#1a1a2e]">{t.filterByStatus}</option>
-              <option value="paid" className="bg-[#1a1a2e]">{t.paidFilter}</option>
-              <option value="unpaid" className="bg-[#1a1a2e]">{t.unpaidFilter}</option>
+              <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.filterByStatus}</option>
+              <option value="paid" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.paidFilter}</option>
+              <option value="unpaid" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.unpaidFilter}</option>
             </select>
 
             {selectedIds.size > 0 && (
               <button
                 onClick={handleBulkPay}
-                className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30"
+                className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
               >
                 {t.bulkPay} ({selectedIds.size})
               </button>
@@ -727,16 +727,16 @@ export default function CommissionScreen() {
           </div>
 
           {/* Records table */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_15px_40px_rgba(3,2,9,0.5)]">
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} shadow-[0_15px_40px_rgba(3,2,9,0.5)]`}>
             {recordsLoading ? (
-              <LoadingState text={t.loading} />
+              <LoadingState text={t.loading} isDark={isDark} />
             ) : records.length === 0 ? (
-              <EmptyState text={t.noData} />
+              <EmptyState text={t.noData} isDark={isDark} />
             ) : (
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 bg-white/5 text-xs font-semibold tracking-wider text-white/50">
+                    <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-xs font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>
                       <th className="px-3 py-3 text-center">
                         <input
                           type="checkbox"
@@ -759,7 +759,7 @@ export default function CommissionScreen() {
                       <th className="px-3 py-3 text-center">{t.action}</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-white/5">
+                  <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                     {records.map((r) => (
                       <tr key={r.id} className="transition hover:bg-white/[0.04]">
                         <td className="px-3 py-3 text-center">
@@ -772,16 +772,16 @@ export default function CommissionScreen() {
                             />
                           )}
                         </td>
-                        <td className="px-3 py-3 text-white/60 whitespace-nowrap">
+                        <td className={`px-3 py-3 ${isDark ? "text-white/60" : "text-gray-600"} whitespace-nowrap`}>
                           {formatDate(r.appointmentDate)}
                         </td>
                         <td className="px-3 py-3 font-medium">{r.staffFullName}</td>
-                        <td className="px-3 py-3 text-white/60">{r.treatmentName}</td>
-                        <td className="px-3 py-3 text-white/60">{r.customerFullName}</td>
-                        <td className="px-3 py-3 text-right text-white">
+                        <td className={`px-3 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>{r.treatmentName}</td>
+                        <td className={`px-3 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>{r.customerFullName}</td>
+                        <td className={`px-3 py-3 text-right ${isDark ? "text-white" : "text-gray-900"}`}>
                           {fmt(r.paymentAmountInTry)} {t.currency}
                         </td>
-                        <td className="px-3 py-3 text-center text-white/60">%{r.commissionRate}</td>
+                        <td className={`px-3 py-3 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>%{r.commissionRate}</td>
                         <td className="px-3 py-3 text-right font-medium text-amber-400">
                           {fmt(r.commissionAmountInTry)} {t.currency}
                         </td>
@@ -800,7 +800,7 @@ export default function CommissionScreen() {
                           {!r.isPaid && (
                             <button
                               onClick={() => handlePaySingle(r.id)}
-                              className="rounded-lg bg-green-600/80 px-3 py-1 text-xs font-semibold text-white transition hover:bg-green-600"
+                              className={`rounded-lg bg-green-600/80 px-3 py-1 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-green-600`}
                             >
                               {t.markPaid}
                             </button>
@@ -819,19 +819,19 @@ export default function CommissionScreen() {
       {/* ── Confirmation Modal ── */}
       {modal.show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold text-white">{t.confirmPayTitle}</h3>
-            <p className="mt-3 text-sm text-white/60">{modal.message}</p>
+          <div className={`w-full max-w-md rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} p-6 shadow-2xl`}>
+            <h3 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.confirmPayTitle}</h3>
+            <p className={`mt-3 text-sm ${isDark ? "text-white/60" : "text-gray-600"}`}>{modal.message}</p>
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setModal((p) => ({ ...p, show: false }))}
-                className="rounded-xl bg-white/10 px-5 py-2 text-sm font-medium text-white/70 transition hover:bg-white/20"
+                className={`rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-5 py-2 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} transition hover:bg-white/20`}
               >
                 {t.cancel}
               </button>
               <button
                 onClick={modal.onConfirm}
-                className="rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30"
+                className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-2 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
               >
                 {t.confirm}
               </button>
@@ -845,35 +845,31 @@ export default function CommissionScreen() {
 
 /* ────────────────────────────── Sub-components ────────────────────────────── */
 
-function SummaryCard({
-  label,
+function SummaryCard({ label,
   value,
   currency,
   color,
-  bgGlow,
-}: {
-  label: string;
+  bgGlow, isDark }: { label: string;
   value: string;
   currency: string;
   color: string;
-  bgGlow: string;
-}) {
+  bgGlow: string; isDark: boolean }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br ${bgGlow} to-transparent p-5`}
+      className={`relative overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-gradient-to-br ${bgGlow} to-transparent p-5`}
     >
-      <p className="text-xs font-medium tracking-wider text-white/50">{label}</p>
+      <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{label}</p>
       <p className={`mt-2 text-2xl font-bold ${color}`}>
-        {value} <span className="text-sm font-normal text-white/40">{currency}</span>
+        {value} <span className={`text-sm font-normal ${isDark ? "text-white/40" : "text-gray-400"}`}>{currency}</span>
       </p>
     </div>
   );
 }
 
-function LoadingState({ text }: { text: string }) {
-  return <div className="p-8 text-center text-white/50">{text}</div>;
+function LoadingState({ text, isDark }: { text: string; isDark: boolean }) {
+  return <div className={`p-8 text-center ${isDark ? "text-white/50" : "text-gray-500"}`}>{text}</div>;
 }
 
-function EmptyState({ text }: { text: string }) {
-  return <div className="p-8 text-center text-white/40">{text}</div>;
+function EmptyState({ text, isDark }: { text: string; isDark: boolean }) {
+  return <div className={`p-8 text-center ${isDark ? "text-white/40" : "text-gray-400"}`}>{text}</div>;
 }

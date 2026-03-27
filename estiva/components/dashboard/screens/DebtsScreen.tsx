@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { debtService } from "@/services/debtService";
 import { customerService } from "@/services/customerService";
 import type { CustomerDebtItem, CustomerListItem } from "@/types/api";
@@ -80,65 +81,65 @@ const copy = {
     statusLabels: { Pending: "Pending", PartiallyPaid: "Partially Paid", Paid: "Paid", Overdue: "Overdue", Cancelled: "Cancelled" },
   },
   tr: {
-    title: "Borclar",
-    newButton: "Yeni Borc",
-    placeholder: "Ad veya aciklama ile ara...",
-    loading: "Yukleniyor...",
-    noData: "Borc bulunamadi.",
-    cols: ["Kisi", "Tutar", "Odenen", "Kalan", "Vade Tarihi", "Durum", "Kaynak", "Olusturulma", ""],
+    title: "Borçlar",
+    newButton: "Yeni Borç",
+    placeholder: "Ad veya açıklama ile ara...",
+    loading: "Yükleniyor...",
+    noData: "Borç bulunamadı.",
+    cols: ["Kişi", "Tutar", "Ödenen", "Kalan", "Vade Tarihi", "Durum", "Kaynak", "Oluşturulma", ""],
     totalAmount: "Toplam",
-    paidAmount: "Odenen",
+    paidAmount: "Ödenen",
     remainingAmount: "Kalan",
-    all: "Tumunu",
+    all: "Tümünü",
     pending: "Bekleyen",
-    partiallyPaid: "Kismi Odenmis",
-    paid: "Odenmis",
-    overdue: "Vadesi Gecmis",
+    partiallyPaid: "Kısmi Ödenmiş",
+    paid: "Ödenmiş",
+    overdue: "Vadesi Geçmiş",
     modal: {
-      createTitle: "Yeni Borc",
-      editTitle: "Borc Duzenle",
-      customer: "Musteri",
-      selectCustomer: "Musteri secin (istege bagli)...",
-      person: "Kisi Adi",
-      personPh: "Kisi adi girin",
+      createTitle: "Yeni Borç",
+      editTitle: "Borç Düzenle",
+      customer: "Müşteri",
+      selectCustomer: "Müşteri seçin (isteğe bağlı)...",
+      person: "Kişi Adı",
+      personPh: "Kişi adı girin",
       amount: "Tutar",
       amountPh: "0.00",
       currency: "Para Birimi",
-      description: "Aciklama",
-      descriptionPh: "Borc aciklamasi...",
+      description: "Açıklama",
+      descriptionPh: "Borç açıklaması...",
       dueDate: "Vade Tarihi",
       notes: "Notlar",
-      notesPh: "Istege bagli notlar...",
+      notesPh: "İsteğe bağlı notlar...",
       source: "Kaynak",
       save: "Kaydet",
       saving: "Kaydediliyor...",
-      cancel: "Iptal",
-      success: "Borc basariyla kaydedildi.",
-      error: "Borc kaydedilemedi.",
+      cancel: "İptal",
+      success: "Borç başarıyla kaydedildi.",
+      error: "Borç kaydedilemedi.",
       deleteConfirm: "Bu borcu silmek istiyor musunuz?",
-      deleteSuccess: "Borc silindi.",
-      deleteError: "Borc silinemedi.",
+      deleteSuccess: "Borç silindi.",
+      deleteError: "Borç silinemedi.",
       amountRequired: "Tutar zorunludur.",
-      personRequired: "Kisi adi veya musteri secilmelidir.",
+      personRequired: "Kişi adı veya müşteri seçilmelidir.",
     },
     payment: {
-      title: "Odeme Ekle",
-      amount: "Odeme Tutari",
+      title: "Ödeme Ekle",
+      amount: "Ödeme Tutarı",
       amountPh: "0.00",
-      method: "Odeme Yontemi",
-      date: "Odeme Tarihi",
+      method: "Ödeme Yöntemi",
+      date: "Ödeme Tarihi",
       notes: "Notlar",
-      notesPh: "Istege bagli notlar...",
-      save: "Odemeyi Kaydet",
+      notesPh: "İsteğe bağlı notlar...",
+      save: "Ödemeyi Kaydet",
       saving: "Kaydediliyor...",
-      cancel: "Iptal",
-      success: "Odeme kaydedildi.",
-      error: "Odeme kaydedilemedi.",
+      cancel: "İptal",
+      success: "Ödeme kaydedildi.",
+      error: "Ödeme kaydedilemedi.",
       remaining: "Kalan",
     },
-    sources: { Manual: "Manuel", Appointment: "Randevu", PackageSale: "Paket", Product: "Urun" },
-    methods: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diger" },
-    statusLabels: { Pending: "Bekleyen", PartiallyPaid: "Kismi Odenmis", Paid: "Odenmis", Overdue: "Vadesi Gecmis", Cancelled: "Iptal" },
+    sources: { Manual: "Manuel", Appointment: "Randevu", PackageSale: "Paket", Product: "Ürün" },
+    methods: { Cash: "Nakit", Card: "Kart", BankTransfer: "Havale/EFT", Other: "Diğer" },
+    statusLabels: { Pending: "Bekleyen", PartiallyPaid: "Kısmi Ödenmiş", Paid: "Ödenmiş", Overdue: "Vadesi Geçmiş", Cancelled: "İptal" },
   },
 };
 
@@ -162,6 +163,8 @@ const EMPTY_PAYMENT = {
 
 export default function DebtsScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
 
   // Data
@@ -373,13 +376,13 @@ export default function DebtsScreen() {
     debt.customerName || debt.personName || "-";
 
   return (
-    <div className="space-y-6 text-white h-full flex flex-col">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"} h-full flex flex-col`}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{t.title}</h1>
         <button
           onClick={openCreate}
-          className="flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-green-500"
+          className={`flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium ${isDark ? "text-white" : "text-gray-900"} shadow-lg hover:bg-green-500`}
         >
           <span className="text-lg leading-none">+</span> {t.newButton}
         </button>
@@ -387,28 +390,28 @@ export default function DebtsScreen() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="text-xs text-white/50 mb-1">{t.totalAmount}</div>
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
+          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.totalAmount}</div>
           <div className="text-xl font-bold">{formatCurrency(summary.totalAmount)}</div>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="text-xs text-white/50 mb-1">{t.paidAmount}</div>
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
+          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.paidAmount}</div>
           <div className="text-xl font-bold text-green-400">{formatCurrency(summary.totalPaid)}</div>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
-          <div className="text-xs text-white/50 mb-1">{t.remainingAmount}</div>
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
+          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.remainingAmount}</div>
           <div className="text-xl font-bold text-red-400">{formatCurrency(summary.totalRemaining)}</div>
         </div>
       </div>
 
       {/* Toolbar */}
-      <div className="rounded-2xl border border-white/10 bg-white/5 p-4 flex flex-wrap items-center justify-between gap-4">
+      <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4 flex flex-wrap items-center justify-between gap-4`}>
         <input
           type="text"
           placeholder={t.placeholder}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="w-full md:w-64 rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm text-white placeholder-white/30 focus:outline-none focus:border-white/20"
+          className={`w-full md:w-64 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none focus:border-white/20`}
         />
         <div className="flex gap-2 flex-wrap">
           {[
@@ -434,24 +437,24 @@ export default function DebtsScreen() {
       </div>
 
       {/* Table */}
-      <div className="flex-1 rounded-2xl border border-white/10 bg-white/5 overflow-hidden flex flex-col">
+      <div className={`flex-1 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} overflow-hidden flex flex-col`}>
         <div className="overflow-x-auto flex-1">
           <table className="w-full text-left text-xs">
-            <thead className="bg-white/5 text-xs font-semibold text-white/60">
+            <thead className={`${isDark ? "bg-white/5" : "bg-gray-50"} text-xs font-semibold ${isDark ? "text-white/60" : "text-gray-600"}`}>
               <tr>
                 {t.cols.map((col, i) => (
                   <th key={i} className="px-4 py-3 whitespace-nowrap">{col}</th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
               {loading ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-white/40">{t.loading}</td>
+                  <td colSpan={9} className={`px-4 py-8 text-center ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.loading}</td>
                 </tr>
               ) : debts.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-8 text-center text-white/40">{t.noData}</td>
+                  <td colSpan={9} className={`px-4 py-8 text-center ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noData}</td>
                 </tr>
               ) : (
                 debts.map((debt) => (
@@ -459,7 +462,7 @@ export default function DebtsScreen() {
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="font-medium">{getDisplayName(debt)}</div>
                       {debt.customerPhone && (
-                        <div className="text-[10px] text-white/40">{debt.customerPhone}</div>
+                        <div className={`text-[10px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{debt.customerPhone}</div>
                       )}
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap font-medium">{formatCurrency(debt.amount)}</td>
@@ -471,10 +474,10 @@ export default function DebtsScreen() {
                         {t.statusLabels[debt.status as keyof typeof t.statusLabels] || debt.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-white/50">
+                    <td className={`px-4 py-3 whitespace-nowrap ${isDark ? "text-white/50" : "text-gray-500"}`}>
                       {t.sources[debt.source as keyof typeof t.sources] || debt.source}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-white/40">{formatDate(debt.cDate)}</td>
+                    <td className={`px-4 py-3 whitespace-nowrap ${isDark ? "text-white/40" : "text-gray-400"}`}>{formatDate(debt.cDate)}</td>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="flex items-center gap-1">
                         {debt.status !== "Paid" && debt.status !== "Cancelled" && (
@@ -489,7 +492,7 @@ export default function DebtsScreen() {
                           onClick={() => openEdit(debt)}
                           className="rounded-lg bg-blue-600/20 px-2 py-1 text-[10px] font-medium text-blue-400 hover:bg-blue-600/30"
                         >
-                          {language === "tr" ? "Duzenle" : "Edit"}
+                          {language === "tr" ? "Düzenle" : "Edit"}
                         </button>
                         <button
                           onClick={() => handleDelete(debt.id)}
@@ -524,11 +527,11 @@ export default function DebtsScreen() {
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{t.modal.customer}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.customer}</label>
             <select
               value={form.customerId}
               onChange={(e) => setForm({ ...form, customerId: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
             >
               <option value="" className="bg-[#1a1a1a]">{t.modal.selectCustomer}</option>
               {customers.map((c) => (
@@ -540,19 +543,19 @@ export default function DebtsScreen() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{t.modal.person}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.person}</label>
             <input
               type="text"
               value={form.personName}
               onChange={(e) => setForm({ ...form, personName: e.target.value })}
               placeholder={t.modal.personPh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{t.modal.amount} *</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.amount} *</label>
               <input
                 type="number"
                 required
@@ -561,15 +564,15 @@ export default function DebtsScreen() {
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 placeholder={t.modal.amountPh}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{t.modal.currency}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.currency}</label>
               <select
                 value={form.currency}
                 onChange={(e) => setForm({ ...form, currency: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
               >
                 {["TRY", "USD", "EUR", "GBP"].map((c) => (
                   <option key={c} value={c} className="bg-[#1a1a1a]">{c}</option>
@@ -579,32 +582,32 @@ export default function DebtsScreen() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{t.modal.description}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.description}</label>
             <input
               type="text"
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder={t.modal.descriptionPh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{t.modal.dueDate}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.dueDate}</label>
               <input
                 type="date"
                 value={form.dueDate}
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none [color-scheme:dark]"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none [color-scheme:dark]`}
               />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{t.modal.source}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.source}</label>
               <select
                 value={form.source}
                 onChange={(e) => setForm({ ...form, source: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
               >
                 {Object.entries(t.sources).map(([val, label]) => (
                   <option key={val} value={val} className="bg-[#1a1a1a]">{label}</option>
@@ -614,13 +617,13 @@ export default function DebtsScreen() {
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{t.modal.notes}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.modal.notes}</label>
             <textarea
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               rows={3}
               placeholder={t.modal.notesPh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none resize-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none resize-none`}
             />
           </div>
 
@@ -628,14 +631,14 @@ export default function DebtsScreen() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#008f45] disabled:opacity-50"
+              className={`flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} hover:bg-[#008f45] disabled:opacity-50`}
             >
               {saving ? t.modal.saving : t.modal.save}
             </button>
             <button
               type="button"
               onClick={() => { setShowModal(false); resetForm(); }}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5"
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}
             >
               {t.modal.cancel}
             </button>
@@ -651,8 +654,8 @@ export default function DebtsScreen() {
       >
         <form onSubmit={handlePayment} className="space-y-4">
           {paymentTarget && (
-            <div className="rounded-xl border border-white/10 bg-white/5 p-3 text-xs">
-              <div className="text-white/50">{getDisplayName(paymentTarget)}</div>
+            <div className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-3 text-xs`}>
+              <div className={`${isDark ? "text-white/50" : "text-gray-500"}`}>{getDisplayName(paymentTarget)}</div>
               <div className="mt-1 font-medium">
                 {t.payment.remaining}: <span className="text-red-400">{formatCurrency(paymentTarget.remainingAmount)}</span>
               </div>
@@ -660,7 +663,7 @@ export default function DebtsScreen() {
           )}
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{t.payment.amount} *</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.payment.amount} *</label>
             <input
               type="number"
               required
@@ -670,17 +673,17 @@ export default function DebtsScreen() {
               value={paymentForm.amount}
               onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
               placeholder={t.payment.amountPh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{t.payment.method}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.payment.method}</label>
               <select
                 value={paymentForm.paymentMethod}
                 onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
               >
                 {Object.entries(t.methods).map(([val, label]) => (
                   <option key={val} value={val} className="bg-[#1a1a1a]">{label}</option>
@@ -688,24 +691,24 @@ export default function DebtsScreen() {
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{t.payment.date}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.payment.date}</label>
               <input
                 type="date"
                 value={paymentForm.paymentDate}
                 onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none [color-scheme:dark]"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none [color-scheme:dark]`}
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{t.payment.notes}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{t.payment.notes}</label>
             <textarea
               value={paymentForm.notes}
               onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
               rows={2}
               placeholder={t.payment.notesPh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none resize-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none resize-none`}
             />
           </div>
 
@@ -713,14 +716,14 @@ export default function DebtsScreen() {
             <button
               type="submit"
               disabled={paymentSaving}
-              className="flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#008f45] disabled:opacity-50"
+              className={`flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} hover:bg-[#008f45] disabled:opacity-50`}
             >
               {paymentSaving ? t.payment.saving : t.payment.save}
             </button>
             <button
               type="button"
               onClick={() => setShowPaymentModal(false)}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5"
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}
             >
               {t.payment.cancel}
             </button>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { smsService } from "@/services/smsService";
 import { appointmentService } from "@/services/appointmentService";
@@ -89,81 +90,81 @@ const copy = {
     setupStep5: "Send a test SMS to verify everything works",
   },
   tr: {
-    title: "SMS Yonetimi",
-    subtitle: "ileti Merkezi SMS entegrasyonunuzu yonetin",
+    title: "SMS Yönetimi",
+    subtitle: "İleti Merkezi SMS entegrasyonunuzu yönetin",
     tabs: {
       settings: "Ayarlar",
       test: "Test SMS",
-      send: "Hizli Gonder",
-      reminder: "Randevu Hatirlatma",
+      send: "Hızlı Gönder",
+      reminder: "Randevu Hatırlatma",
     },
     // Settings
-    settingsTitle: "SMS Ayarlari",
-    settingsDesc: "ileti Merkezi API bilgilerinizi yapilandirin. SMS gondermek icin bir ileti Merkezi hesabiniz olmalidir.",
-    provider: "Saglayici",
+    settingsTitle: "SMS Ayarları",
+    settingsDesc: "İleti Merkezi API bilgilerinizi yapılandırın. SMS göndermek için bir İleti Merkezi hesabınız olmalıdır.",
+    provider: "Sağlayıcı",
     apiKey: "API Key",
-    apiKeyPlaceholder: "ileti Merkezi API Key giriniz",
+    apiKeyPlaceholder: "İleti Merkezi API Key giriniz",
     apiHash: "API Hash",
-    apiHashPlaceholder: "ileti Merkezi API Hash giriniz",
-    senderTitle: "Gonderici Basligi",
-    senderTitlePlaceholder: "Onayli gonderici adi (orn: SALONUM)",
-    senderTitleHint: "Bu, ileti Merkezi panelinizde onaylanmis bir baslik olmalidir.",
+    apiHashPlaceholder: "İleti Merkezi API Hash giriniz",
+    senderTitle: "Gönderici Başlığı",
+    senderTitlePlaceholder: "Onaylı gönderici adı (örn: SALONUM)",
+    senderTitleHint: "Bu, İleti Merkezi panelinizde onaylanmış bir başlık olmalıdır.",
     isActive: "SMS Entegrasyonu Aktif",
-    save: "Ayarlari Kaydet",
+    save: "Ayarları Kaydet",
     saving: "Kaydediliyor...",
-    saved: "SMS ayarlari basariyla kaydedildi.",
+    saved: "SMS ayarları başarıyla kaydedildi.",
     saveFailed: "Ayarlar kaydedilemedi.",
     // Balance
     balanceTitle: "SMS Kredi Bakiyesi",
     balance: "Kredi",
     refreshBalance: "Yenile",
     refreshing: "Kontrol ediliyor...",
-    balanceUpdated: "Bakiye guncellendi.",
-    balanceFailed: "Bakiye sorgulanamadi.",
-    lastUpdated: "Son guncelleme",
+    balanceUpdated: "Bakiye güncellendi.",
+    balanceFailed: "Bakiye sorgulanamadı.",
+    lastUpdated: "Son güncelleme",
     // Test SMS
-    testTitle: "Test SMS Gonder",
-    testDesc: "Yapilandirmanizin dogru calistigini dogrulamak icin bir test mesaji gonderin.",
-    testPhone: "Telefon Numarasi",
+    testTitle: "Test SMS Gönder",
+    testDesc: "Yapılandırmanızın doğru çalıştığını doğrulamak için bir test mesajı gönderin.",
+    testPhone: "Telefon Numarası",
     testPhonePlaceholder: "05XX XXX XX XX",
-    sendTest: "Test SMS Gonder",
-    sendingTest: "Gonderiliyor...",
-    testSuccess: "Test SMS'i basariyla gonderildi!",
-    testFailed: "Test SMS'i gonderilemedi.",
+    sendTest: "Test SMS Gönder",
+    sendingTest: "Gönderiliyor...",
+    testSuccess: "Test SMS'i başarıyla gönderildi!",
+    testFailed: "Test SMS'i gönderilemedi.",
     // Quick Send
-    sendTitle: "Hizli SMS Gonder",
-    sendDesc: "Herhangi bir telefon numarasina tek SMS gonderin.",
-    phone: "Telefon Numarasi",
+    sendTitle: "Hızlı SMS Gönder",
+    sendDesc: "Herhangi bir telefon numarasına tek SMS gönderin.",
+    phone: "Telefon Numarası",
     phonePlaceholder: "05XX XXX XX XX",
     message: "Mesaj",
-    messagePlaceholder: "Mesajinizi buraya yazin...",
+    messagePlaceholder: "Mesajınızı buraya yazın...",
     charCount: "karakter",
     smsCount: "SMS",
-    send: "SMS Gonder",
-    sending: "Gonderiliyor...",
-    sendSuccess: "SMS basariyla gonderildi!",
-    sendFailed: "SMS gonderilemedi.",
+    send: "SMS Gönder",
+    sending: "Gönderiliyor...",
+    sendSuccess: "SMS başarıyla gönderildi!",
+    sendFailed: "SMS gönderilemedi.",
     // Reminder
-    reminderTitle: "Randevu Hatirlatma",
-    reminderDesc: "Yaklasan randevulari icin musterilere SMS hatirlatmasi gonderin.",
-    selectAppointment: "Randevu Secin",
-    noUpcoming: "Yaklasan randevu bulunamadi.",
-    sendReminder: "Hatirlatma Gonder",
-    sendingReminder: "Gonderiliyor...",
-    reminderSuccess: "Hatirlatma basariyla gonderildi!",
-    reminderFailed: "Hatirlatma gonderilemedi.",
+    reminderTitle: "Randevu Hatırlatma",
+    reminderDesc: "Yaklaşan randevuları için müşterilere SMS hatırlatması gönderin.",
+    selectAppointment: "Randevu Seçin",
+    noUpcoming: "Yaklaşan randevu bulunamadı.",
+    sendReminder: "Hatırlatma Gönder",
+    sendingReminder: "Gönderiliyor...",
+    reminderSuccess: "Hatırlatma başarıyla gönderildi!",
+    reminderFailed: "Hatırlatma gönderilemedi.",
     // Common
-    loading: "Yukleniyor...",
-    unauthorized: "SMS ayarlarini yonetmek icin Owner veya Admin rolune sahip olmalisiniz.",
-    notConfigured: "SMS entegrasyonu henuz yapilandirilmadi. Lutfen once kimlik bilgilerinizi ayarlayin.",
-    legalWarning: "SMS gonderimlerinin tum yasal ve cezai yukumlulukleri size aittir. Ticari SMS gonderimleri icin onceden onay (IYS) alinmasi, Elektronik Ticaretin Duzenlenmesi Hakkinda Kanun geregi zorunludur.",
-    iletimerkezi: "ileti Merkezi",
+    loading: "Yükleniyor...",
+    unauthorized: "SMS ayarlarını yönetmek için Owner veya Admin rolüne sahip olmalısınız.",
+    notConfigured: "SMS entegrasyonu henüz yapılandırılmadı. Lütfen önce kimlik bilgilerinizi ayarlayın.",
+    legalWarning: "SMS gönderimlerinin tüm yasal ve cezai yükümlülükleri size aittir. Ticari SMS gönderimleri için önceden onay (İYS) alınması, Elektronik Ticaretin Düzenlenmesi Hakkında Kanun gereği zorunludur.",
+    iletimerkezi: "İleti Merkezi",
     setupGuide: "Kurulum Rehberi",
-    setupStep1: "iletimerkezi.com adresinden bir ileti Merkezi hesabi olusturun",
-    setupStep2: "Panelinizden API Key ve API Hash bilgilerinizi alin",
-    setupStep3: "Onayli bir gonderici basligi (baslik) kaydedin",
-    setupStep4: "Asagiya kimlik bilgilerinizi girin ve kaydedin",
-    setupStep5: "Her seyin calistigini dogrulamak icin test SMS'i gonderin",
+    setupStep1: "iletimerkezi.com adresinden bir İleti Merkezi hesabı oluşturun",
+    setupStep2: "Panelinizden API Key ve API Hash bilgilerinizi alın",
+    setupStep3: "Onaylı bir gönderici başlığı (başlık) kaydedin",
+    setupStep4: "Aşağıya kimlik bilgilerinizi girin ve kaydedin",
+    setupStep5: "Her şeyin çalıştığını doğrulamak için test SMS'i gönderin",
   },
 };
 
@@ -171,6 +172,8 @@ type TabKey = "settings" | "test" | "send" | "reminder";
 
 export default function EasySmsScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const t = copy[language];
 
@@ -362,7 +365,7 @@ export default function EasySmsScreen() {
 
   if (!isAdmin) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-white/60 text-sm">
+      <div className={`flex items-center justify-center min-h-[300px] ${isDark ? "text-white/60" : "text-gray-600"} text-sm`}>
         {t.unauthorized}
       </div>
     );
@@ -370,18 +373,18 @@ export default function EasySmsScreen() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[300px] text-white/60 text-sm">
+      <div className={`flex items-center justify-center min-h-[300px] ${isDark ? "text-white/60" : "text-gray-600"} text-sm`}>
         {t.loading}
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 text-white w-full">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"} w-full`}>
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold">{t.title}</h1>
-        <p className="text-sm text-white/50 mt-1">{t.subtitle}</p>
+        <p className={`text-sm ${isDark ? "text-white/50" : "text-gray-500"} mt-1`}>{t.subtitle}</p>
       </div>
 
       {/* Legal Warning */}
@@ -391,7 +394,7 @@ export default function EasySmsScreen() {
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl bg-white/5 p-1">
+      <div className={`flex gap-1 rounded-xl ${isDark ? "bg-white/5" : "bg-gray-50"} p-1`}>
         {(Object.keys(t.tabs) as TabKey[]).map((key) => (
           <button
             key={key}
@@ -411,9 +414,9 @@ export default function EasySmsScreen() {
       {activeTab === "settings" && (
         <div className="space-y-6">
           {/* Setup Guide */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+          <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 space-y-4`}>
             <h2 className="text-lg font-semibold">{t.setupGuide}</h2>
-            <ol className="space-y-2 text-sm text-white/60 list-decimal list-inside">
+            <ol className={`space-y-2 text-sm ${isDark ? "text-white/60" : "text-gray-600"} list-decimal list-inside`}>
               <li>{t.setupStep1}</li>
               <li>{t.setupStep2}</li>
               <li>{t.setupStep3}</li>
@@ -423,63 +426,63 @@ export default function EasySmsScreen() {
           </div>
 
           {/* Settings Form */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-5">
+          <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 space-y-5`}>
             <div>
               <h2 className="text-lg font-semibold">{t.settingsTitle}</h2>
-              <p className="text-xs text-white/40 mt-1">{t.settingsDesc}</p>
+              <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} mt-1`}>{t.settingsDesc}</p>
             </div>
 
             {/* Provider (read-only) */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-white/70">{t.provider}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.provider}</label>
               <input
                 type="text"
                 value={t.iletimerkezi}
                 disabled
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white/50 outline-none"
+                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white/50" : "text-gray-500"} outline-none`}
               />
             </div>
 
             {/* API Key */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-white/70">{t.apiKey}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.apiKey}</label>
               <input
                 type="password"
                 value={settings.apiKey ?? ""}
                 onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
                 placeholder={t.apiKeyPlaceholder}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/30 transition"
+                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
               />
             </div>
 
             {/* API Hash */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-white/70">{t.apiHash}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.apiHash}</label>
               <input
                 type="password"
                 value={settings.apiHash ?? ""}
                 onChange={(e) => setSettings({ ...settings, apiHash: e.target.value })}
                 placeholder={t.apiHashPlaceholder}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/30 transition"
+                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
               />
             </div>
 
             {/* Sender Title */}
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-white/70">{t.senderTitle}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.senderTitle}</label>
               <input
                 type="text"
                 value={settings.senderTitle ?? ""}
                 onChange={(e) => setSettings({ ...settings, senderTitle: e.target.value })}
                 placeholder={t.senderTitlePlaceholder}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/30 transition"
+                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
               />
-              <p className="text-[10px] text-white/30">{t.senderTitleHint}</p>
+              <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.senderTitleHint}</p>
             </div>
 
             {/* Active Toggle */}
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/70">{t.isActive}</span>
+              <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.isActive}</span>
               <button
                 type="button"
                 onClick={() => setSettings({ ...settings, isActive: !settings.isActive })}
@@ -506,13 +509,13 @@ export default function EasySmsScreen() {
           </div>
 
           {/* Credit Balance */}
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-4">
+          <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 space-y-4`}>
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold">{t.balanceTitle}</h2>
               <button
                 onClick={handleRefreshBalance}
                 disabled={refreshingBalance}
-                className="rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 disabled:opacity-50 px-3 py-1.5 text-xs font-medium transition"
+                className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} disabled:opacity-50 px-3 py-1.5 text-xs font-medium transition`}
               >
                 {refreshingBalance ? t.refreshing : t.refreshBalance}
               </button>
@@ -522,11 +525,11 @@ export default function EasySmsScreen() {
               <span className="text-4xl font-bold tabular-nums">
                 {balance?.balance ?? settings.creditBalance ?? 0}
               </span>
-              <span className="text-sm text-white/40">{t.balance}</span>
+              <span className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.balance}</span>
             </div>
 
             {settings.creditBalanceUpdatedAt && (
-              <p className="text-[10px] text-white/30">
+              <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>
                 {t.lastUpdated}:{" "}
                 {new Date(settings.creditBalanceUpdatedAt).toLocaleString(
                   language === "tr" ? "tr-TR" : "en-US"
@@ -539,10 +542,10 @@ export default function EasySmsScreen() {
 
       {/* ═══ Test SMS Tab ═══ */}
       {activeTab === "test" && (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-5">
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 space-y-5`}>
           <div>
             <h2 className="text-lg font-semibold">{t.testTitle}</h2>
-            <p className="text-xs text-white/40 mt-1">{t.testDesc}</p>
+            <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} mt-1`}>{t.testDesc}</p>
           </div>
 
           {!settings.isActive && (
@@ -552,13 +555,13 @@ export default function EasySmsScreen() {
           )}
 
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-white/70">{t.testPhone}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.testPhone}</label>
             <input
               type="tel"
               value={testPhone}
               onChange={(e) => setTestPhone(e.target.value)}
               placeholder={t.testPhonePlaceholder}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/30 transition"
+              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
             />
           </div>
 
@@ -574,10 +577,10 @@ export default function EasySmsScreen() {
 
       {/* ═══ Quick Send Tab ═══ */}
       {activeTab === "send" && (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-5">
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 space-y-5`}>
           <div>
             <h2 className="text-lg font-semibold">{t.sendTitle}</h2>
-            <p className="text-xs text-white/40 mt-1">{t.sendDesc}</p>
+            <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} mt-1`}>{t.sendDesc}</p>
           </div>
 
           {!settings.isActive && (
@@ -588,27 +591,27 @@ export default function EasySmsScreen() {
 
           {/* Phone */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-white/70">{t.phone}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.phone}</label>
             <input
               type="tel"
               value={sendPhone}
               onChange={(e) => setSendPhone(e.target.value)}
               placeholder={t.phonePlaceholder}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/30 transition"
+              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
             />
           </div>
 
           {/* Message */}
           <div className="space-y-1.5">
-            <label className="text-xs font-medium text-white/70">{t.message}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.message}</label>
             <textarea
               value={sendMessage}
               onChange={(e) => setSendMessage(e.target.value)}
               placeholder={t.messagePlaceholder}
               rows={4}
-              className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 outline-none focus:border-white/30 transition resize-none"
+              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition resize-none`}
             />
-            <div className="flex justify-end gap-3 text-[10px] text-white/30">
+            <div className={`flex justify-end gap-3 text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>
                 {messageLength} {t.charCount}
               </span>
@@ -635,10 +638,10 @@ export default function EasySmsScreen() {
 
       {/* ═══ Appointment Reminder Tab ═══ */}
       {activeTab === "reminder" && (
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-5">
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 space-y-5`}>
           <div>
             <h2 className="text-lg font-semibold">{t.reminderTitle}</h2>
-            <p className="text-xs text-white/40 mt-1">{t.reminderDesc}</p>
+            <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} mt-1`}>{t.reminderDesc}</p>
           </div>
 
           {!settings.isActive && (
@@ -648,12 +651,12 @@ export default function EasySmsScreen() {
           )}
 
           {loadingAppointments ? (
-            <p className="text-sm text-white/40">{t.loading}</p>
+            <p className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.loading}</p>
           ) : appointments.length === 0 ? (
-            <p className="text-sm text-white/40">{t.noUpcoming}</p>
+            <p className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noUpcoming}</p>
           ) : (
             <div className="space-y-1.5">
-              <label className="text-xs font-medium text-white/70">
+              <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>
                 {t.selectAppointment}
               </label>
               <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
@@ -683,22 +686,22 @@ export default function EasySmsScreen() {
                         <span className="text-sm font-medium">
                           {appt.customerFullName}
                         </span>
-                        <span className="text-xs text-white/40">
+                        <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                           {dateStr} {timeStr}
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-white/50">
+                        <span className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>
                           {appt.treatmentName}
                         </span>
-                        <span className="text-[10px] text-white/30">|</span>
-                        <span className="text-xs text-white/50">
+                        <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>|</span>
+                        <span className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>
                           {appt.staffFullName}
                         </span>
                         {appt.customerPhone && (
                           <>
-                            <span className="text-[10px] text-white/30">|</span>
-                            <span className="text-xs text-white/30">
+                            <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>|</span>
+                            <span className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>
                               {appt.customerPhone}
                             </span>
                           </>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { expenseService } from "@/services/expenseService";
 import { currencyService } from "@/services/currencyService";
 import { expenseSchema, getValidationMessage } from "@/lib/validations";
@@ -81,6 +82,8 @@ const copy = {
 
 export default function ExpensesScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const text = copy[language];
   const [activeTab, setActiveTab] = useState(0);
 
@@ -273,7 +276,7 @@ export default function ExpensesScreen() {
   const formatDate = (d: string) => new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
 
   return (
-    <div className="space-y-6 text-white">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{text.title}</h1>
@@ -295,31 +298,31 @@ export default function ExpensesScreen() {
             pdfTitle={language === "tr" ? "Masraf Listesi" : "Expenses List"}
           />
           <button onClick={() => { setCatForm({ name: "", description: "" }); setShowCatModal(true); }}
-            className="rounded-xl border border-white/10 px-4 py-1.5 text-xs font-medium text-white/70 hover:bg-white/5">
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-1.5 text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"} ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
             + {text.newCategory}
           </button>
           <button onClick={openCreateExpense}
-            className="flex items-center gap-2 rounded-xl bg-[#00a651] px-4 py-1.5 text-xs font-semibold text-white shadow-lg shadow-green-900/20 hover:bg-[#008f45]">
+            className={`flex items-center gap-2 rounded-xl bg-[#00a651] px-4 py-1.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/20 hover:bg-[#008f45]`}>
             + {text.new}
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-3">
+      <div className={`flex flex-wrap items-center gap-3 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-3`}>
         <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none" />
+          className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
         <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-          className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none" />
+          className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
         <select value={catFilter} onChange={(e) => setCatFilter(e.target.value === "" ? "" : Number(e.target.value))}
-          className="rounded-lg border border-white/10 bg-transparent px-3 py-1.5 text-xs text-white focus:outline-none">
-          <option value="" className="bg-[#1a1a2e]">{text.selectCategory}</option>
-          {categories.map((c) => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.name}</option>)}
+          className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}>
+          <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{text.selectCategory}</option>
+          {categories.map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.name}</option>)}
         </select>
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 border-b border-white/10">
+      <div className={`flex gap-1 border-b ${isDark ? "border-white/10" : "border-gray-200"}`}>
         {text.tabs.map((tab, i) => (
           <button key={i} onClick={() => setActiveTab(i)}
             className={`px-4 py-2 text-sm font-medium border-b-2 transition ${activeTab === i ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/70"}`}>
@@ -330,36 +333,36 @@ export default function ExpensesScreen() {
 
       {activeTab === 0 ? (
         /* Expense List */
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+        <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
           {loading ? (
-            <div className="p-8 text-center text-white/60">{text.loading}</div>
+            <div className={`p-8 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.loading}</div>
           ) : expenses.length === 0 ? (
-            <div className="p-8 text-center text-white/60">{text.noData}</div>
+            <div className={`p-8 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.noData}</div>
           ) : (
             <div className="overflow-x-auto">
             <table className="w-full min-w-[700px] text-left text-[10px] md:text-sm">
               <thead>
-                <tr className="border-b border-white/10 bg-white/5 font-semibold text-white/50">
+                <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>
                   {text.headers.map((h, i) => <th key={i} className="px-4 py-3 whitespace-nowrap">{h}</th>)}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                 {expenses.map((exp) => (
-                  <tr key={exp.id} className="transition hover:bg-white/5">
-                    <td className="px-4 py-3 text-white/80">{exp.categoryName}</td>
-                    <td className="px-4 py-3 text-white/60 max-w-[200px] truncate">{exp.description || "—"}</td>
-                    <td className="px-4 py-3 font-medium text-white">{formatCurrency(exp.amount)} {exp.currencySymbol}</td>
-                    <td className="px-4 py-3 text-white/60">{formatDate(exp.expenseDate)}</td>
-                    <td className="px-4 py-3 text-white/60">{exp.receiptNumber || "—"}</td>
-                    <td className="px-4 py-3 text-white/60 max-w-[150px] truncate">{exp.notes || "—"}</td>
+                  <tr key={exp.id} className={`transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
+                    <td className={`px-4 py-3 ${isDark ? "text-white/80" : "text-gray-800"}`}>{exp.categoryName}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"} max-w-[200px] truncate`}>{exp.description || "—"}</td>
+                    <td className={`px-4 py-3 font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{formatCurrency(exp.amount)} {exp.currencySymbol}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatDate(exp.expenseDate)}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>{exp.receiptNumber || "—"}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"} max-w-[150px] truncate`}>{exp.notes || "—"}</td>
                     <td className="px-4 py-3">
                       <div className="flex gap-2">
                         <button onClick={() => openEditExpense(exp)}
-                          className="flex h-7 w-7 items-center justify-center rounded bg-[#f59e0b] text-white shadow hover:bg-[#d97706]">
+                          className={`flex h-7 w-7 items-center justify-center rounded bg-[#f59e0b] ${isDark ? "text-white" : "text-gray-900"} shadow hover:bg-[#d97706]`}>
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
                         <button onClick={() => handleDeleteExpense(exp.id)}
-                          className="flex h-7 w-7 items-center justify-center rounded bg-[#ef4444] text-white shadow hover:bg-[#dc2626]">
+                          className={`flex h-7 w-7 items-center justify-center rounded bg-[#ef4444] ${isDark ? "text-white" : "text-gray-900"} shadow hover:bg-[#dc2626]`}>
                           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                         </button>
                       </div>
@@ -378,33 +381,33 @@ export default function ExpensesScreen() {
             onPageChange={(p) => setPage(p)}
             onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
           />
-          <div className="border-t border-white/10 bg-white/5 p-3 flex justify-between text-[10px] font-medium text-white/60">
+          <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-3 flex justify-between text-[10px] font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>
             <span>{text.recordCount}: {totalCount}</span>
             <span>{text.totalAmount}: {formatCurrency(totalAmount)} TRY</span>
           </div>
         </div>
       ) : (
         /* Categories */
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+        <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
           {categories.length === 0 ? (
-            <div className="p-8 text-center text-white/60">{text.noData}</div>
+            <div className={`p-8 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.noData}</div>
           ) : (
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-white/10 bg-white/5 font-semibold text-white/50">
+                <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>
                   <th className="px-4 py-3">{text.categoryName}</th>
                   <th className="px-4 py-3">{text.categoryDesc}</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                 {categories.map((cat) => (
-                  <tr key={cat.id} className="transition hover:bg-white/5">
-                    <td className="px-4 py-3 font-medium text-white">{cat.name}</td>
-                    <td className="px-4 py-3 text-white/60">{cat.description || "—"}</td>
+                  <tr key={cat.id} className={`transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
+                    <td className={`px-4 py-3 font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{cat.name}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>{cat.description || "—"}</td>
                     <td className="px-4 py-3">
                       <button onClick={() => handleDeleteCategory(cat.id)}
-                        className="flex h-7 w-7 items-center justify-center rounded bg-[#ef4444] text-white shadow hover:bg-[#dc2626]">
+                        className={`flex h-7 w-7 items-center justify-center rounded bg-[#ef4444] ${isDark ? "text-white" : "text-gray-900"} shadow hover:bg-[#dc2626]`}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                       </button>
                     </td>
@@ -422,60 +425,60 @@ export default function ExpensesScreen() {
         <form onSubmit={handleExpenseSubmit} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{text.category} *</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.category} *</label>
               <select value={expForm.categoryId} onChange={(e) => setExpForm({ ...expForm, categoryId: Number(e.target.value) })}
-                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.categoryId ? "border-red-500" : "border-white/10 focus:border-white/30"}`}>
-                <option value={0} className="bg-[#1a1a2e]">{text.selectCategory}</option>
-                {categories.map((c) => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.name}</option>)}
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.categoryId ? "border-red-500" : "border-white/10 focus:border-white/30"}`}>
+                <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{text.selectCategory}</option>
+                {categories.map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.name}</option>)}
               </select>
               {fieldErrors.categoryId && <p className="text-xs text-red-500">{fieldErrors.categoryId}</p>}
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{text.expenseDate} *</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.expenseDate} *</label>
               <input type="date" value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })}
-                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.expenseDate ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.expenseDate ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
               {fieldErrors.expenseDate && <p className="text-xs text-red-500">{fieldErrors.expenseDate}</p>}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{text.amount} *</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.amount} *</label>
               <input type="number" min={0} step={0.01} value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: Number(e.target.value) })}
-                className={`w-full rounded-xl border bg-white/5 px-3 py-2 text-sm text-white focus:outline-none ${fieldErrors.amount ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.amount ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
               {fieldErrors.amount && <p className="text-xs text-red-500">{fieldErrors.amount}</p>}
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{text.currency}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.currency}</label>
               <select value={expForm.currencyId} onChange={(e) => setExpForm({ ...expForm, currencyId: Number(e.target.value) })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none">
-                {currencies.map((c) => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.code} ({c.symbol})</option>)}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}>
+                {currencies.map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.code} ({c.symbol})</option>)}
               </select>
             </div>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{text.description}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.description}</label>
             <input type="text" value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{text.receiptNumber}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.receiptNumber}</label>
               <input type="text" value={expForm.receiptNumber} onChange={(e) => setExpForm({ ...expForm, receiptNumber: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
             </div>
             <div className="space-y-1">
-              <label className="text-xs font-medium text-white/60">{text.notes}</label>
+              <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.notes}</label>
               <input type="text" value={expForm.notes} onChange={(e) => setExpForm({ ...expForm, notes: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={saving}
-              className="flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#008f45] disabled:opacity-50">
+              className={`flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} hover:bg-[#008f45] disabled:opacity-50`}>
               {saving ? text.saving : text.save}
             </button>
             <button type="button" onClick={() => setShowExpenseModal(false)}
-              className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5">
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
               {text.cancel}
             </button>
           </div>
@@ -486,18 +489,18 @@ export default function ExpensesScreen() {
       <Modal open={showCatModal} onClose={() => setShowCatModal(false)} title={text.modalCategory} maxWidth="max-w-sm">
         <form onSubmit={handleCategorySubmit} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{text.categoryName} *</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.categoryName} *</label>
             <input type="text" value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} required
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-medium text-white/60">{text.categoryDesc}</label>
+            <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.categoryDesc}</label>
             <input type="text" value={catForm.description} onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-white/30 focus:outline-none" />
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
           </div>
           <div className="flex gap-3 pt-2">
-            <button type="submit" className="flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#008f45]">{text.save}</button>
-            <button type="button" onClick={() => setShowCatModal(false)} className="rounded-xl border border-white/10 px-4 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5">{text.cancel}</button>
+            <button type="submit" className={`flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} hover:bg-[#008f45]`}>{text.save}</button>
+            <button type="button" onClick={() => setShowCatModal(false)} className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>{text.cancel}</button>
           </div>
         </form>
       </Modal>

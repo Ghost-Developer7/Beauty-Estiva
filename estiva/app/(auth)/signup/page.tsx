@@ -121,7 +121,7 @@ export default function SignupPage() {
           </div>
         </header>
 
-        <main className="container grid flex-1 items-start content-center gap-10 py-12 lg:grid-cols-2">
+        <main className="mx-auto w-full max-w-7xl grid flex-1 items-start content-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-2 lg:px-8">
           <section className="space-y-10">
             <div
               className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.3em] ${pillBorder} ${pillBg} ${isDark ? "text-white/80" : "text-[#5c478d]"
@@ -162,7 +162,7 @@ export default function SignupPage() {
           </section>
 
           <section
-            className={`w-full max-w-xl justify-self-center rounded-[32px] border ${cardBorder} ${cardBg} p-10 shadow-[0_30px_90px_rgba(6,5,18,0.3)] backdrop-blur-xl lg:justify-self-end sm:p-12`}
+            className={`w-full max-w-xl justify-self-center rounded-[32px] border ${cardBorder} ${cardBg} p-5 shadow-[0_30px_90px_rgba(6,5,18,0.3)] backdrop-blur-xl sm:p-10 lg:justify-self-end lg:p-12`}
           >
             <div className="mb-6 space-y-2 text-center">
               <p className={`text-xs font-semibold tracking-[0.4em] ${subtleText}`}>

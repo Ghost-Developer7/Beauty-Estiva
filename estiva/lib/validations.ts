@@ -68,6 +68,16 @@ export const treatmentSchema = z.object({
 });
 export type TreatmentFormData = z.infer<typeof treatmentSchema>;
 
+// ── Product ──
+export const productSchema = z.object({
+  name: z.string().min(1, "required"),
+  description: z.string().optional(),
+  barcode: z.string().optional(),
+  price: z.number().min(0, "required"),
+  stockQuantity: z.number().min(0, "minStock").optional(),
+});
+export type ProductFormData = z.infer<typeof productSchema>;
+
 // ── Expense ──
 export const expenseSchema = z.object({
   categoryId: z.number().min(1, "required"),
@@ -103,6 +113,7 @@ export const validationMessages: Record<string, Record<string, string>> = {
     passwordMismatch: "Passwords don't match",
     minDuration: "Duration must be at least 1 minute",
     minAmount: "Amount must be greater than 0",
+    minStock: "Stock cannot be negative",
   },
   tr: {
     required: "Bu alan zorunludur",
@@ -115,6 +126,7 @@ export const validationMessages: Record<string, Record<string, string>> = {
     passwordMismatch: "Şifreler uyuşmuyor",
     minDuration: "Süre en az 1 dakika olmalıdır",
     minAmount: "Tutar 0'dan büyük olmalıdır",
+    minStock: "Stok negatif olamaz",
   },
 };
 

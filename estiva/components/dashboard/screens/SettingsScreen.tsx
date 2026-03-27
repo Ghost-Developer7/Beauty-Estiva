@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { tenantService } from "@/services/tenantService";
 import { notificationService } from "@/services/notificationService";
@@ -228,6 +229,8 @@ const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 
 export default function SettingsScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const text = copy[language];
   const isOwner = user?.roles?.includes("Owner") || user?.roles?.includes("Admin");
@@ -469,7 +472,7 @@ export default function SettingsScreen() {
 
   if (!isOwner) {
     return (
-      <div className="flex items-center justify-center p-20 text-white/60">
+      <div className={`flex items-center justify-center p-20 ${isDark ? "text-white/60" : "text-gray-600"}`}>
         {text.unauthorized}
       </div>
     );
@@ -480,22 +483,22 @@ export default function SettingsScreen() {
       <div className="flex items-center justify-center p-20">
         <div className="flex flex-col items-center gap-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white/80" />
-          <span className="text-sm text-white/60">{text.loading}</span>
+          <span className={`text-sm ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.loading}</span>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6 text-white">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header */}
       <div>
         <h1 className="text-2xl font-semibold">{text.title}</h1>
-        <p className="mt-1 text-sm text-white/50">{text.subtitle}</p>
+        <p className={`mt-1 text-sm ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.subtitle}</p>
       </div>
 
       {/* Tabs */}
-      <div className="flex flex-wrap gap-1 rounded-2xl border border-white/10 bg-white/[0.02] p-1.5">
+      <div className={`flex flex-wrap gap-1 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-white/[0.02] p-1.5`}>
         {text.tabs.map((tab, i) => (
           <button
             key={i}
@@ -577,7 +580,7 @@ export default function SettingsScreen() {
                   className={inputClass}
                 >
                   {CURRENCIES.map(c => (
-                    <option key={c.code} value={c.code} className="bg-[#1a1a2e]">{c.label}</option>
+                    <option key={c.code} value={c.code} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.label}</option>
                   ))}
                 </select>
               </div>
@@ -589,7 +592,7 @@ export default function SettingsScreen() {
                   className={inputClass}
                 >
                   {TIMEZONES.map(tz => (
-                    <option key={tz.value} value={tz.value} className="bg-[#1a1a2e]">{tz.label}</option>
+                    <option key={tz.value} value={tz.value} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{tz.label}</option>
                   ))}
                 </select>
               </div>
@@ -608,7 +611,7 @@ export default function SettingsScreen() {
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.workingHoursTitle}</h3>
-              <p className="mt-1 text-sm text-white/40">{text.workingHoursDesc}</p>
+              <p className={`mt-1 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.workingHoursDesc}</p>
             </div>
 
             <div className="space-y-3">
@@ -616,7 +619,7 @@ export default function SettingsScreen() {
                 // Map dayOfWeek to display order: 1=Mon, 2=Tue, ... 6=Sat, 0=Sun
                 const dayLabel = day.dayOfWeek === 0 ? text.days[6] : text.days[day.dayOfWeek - 1];
                 return (
-                  <div key={i} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                  <div key={i} className={`rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
                     <div className="flex flex-wrap items-center gap-4">
                       {/* Day name and toggle */}
                       <div className="flex items-center gap-3 w-40">
@@ -629,22 +632,22 @@ export default function SettingsScreen() {
                       {day.isOpen && (
                         <div className="flex flex-wrap items-center gap-3 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-white/40">{text.openTime}</span>
+                            <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.openTime}</span>
                             <input
                               type="time"
                               value={day.openTime}
                               onChange={e => updateDay(i, "openTime", e.target.value)}
-                              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white focus:outline-none [color-scheme:dark]"
+                              className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
                             />
                           </div>
                           <span className="text-white/20">-</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs text-white/40">{text.closeTime}</span>
+                            <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.closeTime}</span>
                             <input
                               type="time"
                               value={day.closeTime}
                               onChange={e => updateDay(i, "closeTime", e.target.value)}
-                              className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white focus:outline-none [color-scheme:dark]"
+                              className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
                             />
                           </div>
                         </div>
@@ -661,22 +664,22 @@ export default function SettingsScreen() {
                         {day.lunchBreakStart ? (
                           <div className="flex flex-wrap items-center gap-3">
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/40">{text.lunchStart}</span>
+                              <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.lunchStart}</span>
                               <input
                                 type="time"
                                 value={day.lunchBreakStart || "12:00"}
                                 onChange={e => updateDay(i, "lunchBreakStart", e.target.value)}
-                                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white focus:outline-none [color-scheme:dark]"
+                                className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
                               />
                             </div>
                             <span className="text-white/20">-</span>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs text-white/40">{text.lunchEnd}</span>
+                              <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.lunchEnd}</span>
                               <input
                                 type="time"
                                 value={day.lunchBreakEnd || "13:00"}
                                 onChange={e => updateDay(i, "lunchBreakEnd", e.target.value)}
-                                className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm text-white focus:outline-none [color-scheme:dark]"
+                                className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
                               />
                             </div>
                             <button
@@ -691,7 +694,7 @@ export default function SettingsScreen() {
                           <button
                             type="button"
                             onClick={() => { updateDay(i, "lunchBreakStart", "12:00"); updateDay(i, "lunchBreakEnd", "13:00"); }}
-                            className="text-xs text-white/30 hover:text-white/60 transition"
+                            className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"} hover:text-white/60 transition`}
                           >
                             + {text.addLunch}
                           </button>
@@ -716,11 +719,11 @@ export default function SettingsScreen() {
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.holidaysTitle}</h3>
-              <p className="mt-1 text-sm text-white/40">{text.holidaysDesc}</p>
+              <p className={`mt-1 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.holidaysDesc}</p>
             </div>
 
             {/* Add new holiday */}
-            <div className="rounded-xl border border-dashed border-white/10 p-4">
+            <div className={`rounded-xl border border-dashed ${isDark ? "border-white/10" : "border-gray-200"} p-4`}>
               <div className="flex flex-wrap items-end gap-3">
                 <div className="space-y-1 flex-1 min-w-[140px]">
                   <label className={labelClass}>{text.date}</label>
@@ -742,12 +745,12 @@ export default function SettingsScreen() {
                   />
                 </div>
                 <div className="flex items-center gap-2 pb-0.5">
-                  <label className="flex items-center gap-2 text-xs text-white/50 cursor-pointer">
+                  <label className={`flex items-center gap-2 text-xs ${isDark ? "text-white/50" : "text-gray-500"} cursor-pointer`}>
                     <input
                       type="checkbox"
                       checked={newHoliday.isRecurring}
                       onChange={e => setNewHoliday({ ...newHoliday, isRecurring: e.target.checked })}
-                      className="rounded border-white/20 bg-white/5 text-[#f3a4ff] focus:ring-0"
+                      className={`rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-[#f3a4ff] focus:ring-0`}
                     />
                     {text.recurring}
                   </label>
@@ -756,7 +759,7 @@ export default function SettingsScreen() {
                   type="button"
                   onClick={handleAddHoliday}
                   disabled={!newHoliday.date}
-                  className="rounded-xl bg-white/10 px-4 py-2.5 text-sm font-medium text-white hover:bg-white/20 disabled:opacity-30 transition"
+                  className={`rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white" : "text-gray-900"} hover:bg-white/20 disabled:opacity-30 transition`}
                 >
                   {text.addHoliday}
                 </button>
@@ -765,18 +768,18 @@ export default function SettingsScreen() {
 
             {/* Holiday list */}
             {holidays.length === 0 ? (
-              <p className="text-sm text-white/30 text-center py-6">{text.noHolidays}</p>
+              <p className={`text-sm ${isDark ? "text-white/30" : "text-gray-300"} text-center py-6`}>{text.noHolidays}</p>
             ) : (
-              <div className="divide-y divide-white/5">
+              <div className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                 {holidays.map(h => (
                   <div key={h.id} className="flex items-center justify-between py-3 px-2">
                     <div className="flex items-center gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white/5 text-xs font-mono text-white/60">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${isDark ? "bg-white/5" : "bg-gray-50"} text-xs font-mono ${isDark ? "text-white/60" : "text-gray-600"}`}>
                         {new Date(h.date + "T00:00:00").toLocaleDateString(language === "tr" ? "tr-TR" : "en-US", { month: "short", day: "numeric" })}
                       </div>
                       <div>
                         <p className="text-sm font-medium">{h.description || "-"}</p>
-                        <p className="text-xs text-white/40">
+                        <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                           {h.isRecurring ? (language === "tr" ? "Her yıl tekrarlar" : "Repeats annually") : (language === "tr" ? "Tek seferlik" : "One-time")}
                         </p>
                       </div>
@@ -806,7 +809,7 @@ export default function SettingsScreen() {
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.appointmentTitle}</h3>
-              <p className="mt-1 text-sm text-white/40">{text.appointmentDesc}</p>
+              <p className={`mt-1 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.appointmentDesc}</p>
             </div>
 
             <div className="space-y-1">
@@ -829,10 +832,10 @@ export default function SettingsScreen() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
+            <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
               <div>
                 <p className="text-sm font-medium">{text.autoConfirm}</p>
-                <p className="text-xs text-white/40 mt-0.5">{text.autoConfirmDesc}</p>
+                <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} mt-0.5`}>{text.autoConfirmDesc}</p>
               </div>
               <Toggle
                 checked={appointmentForm.autoConfirmAppointments}
@@ -878,12 +881,12 @@ export default function SettingsScreen() {
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.notificationTitle}</h3>
-              <p className="mt-1 text-sm text-white/40">{text.notificationDesc}</p>
+              <p className={`mt-1 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.notificationDesc}</p>
             </div>
 
             {/* Channel toggles */}
             <div className="space-y-3">
-              <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
+              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
@@ -893,7 +896,7 @@ export default function SettingsScreen() {
                 <Toggle checked={notifForm.smsEnabled} onChange={v => setNotifForm({ ...notifForm, smsEnabled: v })} />
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
+              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
@@ -903,7 +906,7 @@ export default function SettingsScreen() {
                 <Toggle checked={notifForm.emailEnabled} onChange={v => setNotifForm({ ...notifForm, emailEnabled: v })} />
               </div>
 
-              <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/[0.02] p-4">
+              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/10 text-green-400">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>
@@ -932,7 +935,7 @@ export default function SettingsScreen() {
             <div className={cardClass}>
               <div>
                 <h3 className="text-lg font-semibold">{text.whatsappTitle}</h3>
-                <p className="mt-1 text-sm text-white/40">{text.whatsappDesc}</p>
+                <p className={`mt-1 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.whatsappDesc}</p>
               </div>
               <div className="space-y-1">
                 <label className={labelClass}>{text.apiToken}</label>

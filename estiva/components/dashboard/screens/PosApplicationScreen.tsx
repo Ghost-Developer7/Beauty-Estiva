@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const copy = {
     en: {
@@ -87,11 +88,13 @@ const copy = {
 
 export default function PosApplicationScreen() {
     const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
     const text = copy[language];
 
-    const CheckIcon = () => <span className="flex h-5 w-5 items-center justify-center rounded bg-green-500 text-xs text-white">✓</span>;
-    const CrossIcon = () => <span className="flex h-5 w-5 items-center justify-center rounded bg-red-500 text-xs text-white">✕</span>;
-    const ExclaimIcon = () => <span className="flex h-5 w-5 items-center justify-center rounded bg-yellow-500 text-xs text-white font-bold">!</span>;
+    const CheckIcon = () => <span className={`flex h-5 w-5 items-center justify-center rounded bg-green-500 text-xs ${isDark ? "text-white" : "text-gray-900"}`}>✓</span>;
+    const CrossIcon = () => <span className={`flex h-5 w-5 items-center justify-center rounded bg-red-500 text-xs ${isDark ? "text-white" : "text-gray-900"}`}>✕</span>;
+    const ExclaimIcon = () => <span className={`flex h-5 w-5 items-center justify-center rounded bg-yellow-500 text-xs ${isDark ? "text-white" : "text-gray-900"} font-bold`}>!</span>;
 
     const renderStatus = (status: boolean | string) => {
         if (status === true) return <div className="flex justify-center"><CheckIcon /></div>;
@@ -101,13 +104,13 @@ export default function PosApplicationScreen() {
     };
 
     return (
-        <div className="space-y-8 text-white">
+        <div className={`space-y-8 ${isDark ? "text-white" : "text-gray-900"}`}>
             {/* Header */}
             <h1 className="text-2xl font-semibold">{text.title}</h1>
 
             {/* Stepper */}
             <div className="w-full relative px-10">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/10 -z-10 -translate-y-[15px]"></div>
+                <div className={`absolute top-1/2 left-0 w-full h-0.5 ${isDark ? "bg-white/10" : "bg-gray-100"} -z-10 -translate-y-[15px]`}></div>
                 <div className="flex justify-between">
                     {text.steps.map((step, i) => (
                         <div key={i} className="flex flex-col items-center gap-2 bg-[#040309] px-4">
@@ -123,8 +126,8 @@ export default function PosApplicationScreen() {
             {/* Main Content Info */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
                 {/* Left Banner */}
-                <div className="lg:col-span-3 rounded-3xl bg-gradient-to-b from-[#db2777] to-[#be185d] p-6 text-white shadow-2xl relative overflow-hidden">
-                    <div className="absolute top-0 right-0 -mr-10 -mt-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+                <div className={`lg:col-span-3 rounded-3xl bg-gradient-to-b from-[#db2777] to-[#be185d] p-6 ${isDark ? "text-white" : "text-gray-900"} shadow-2xl relative overflow-hidden`}>
+                    <div className={`absolute top-0 right-0 -mr-10 -mt-10 h-40 w-40 rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} blur-3xl`}></div>
 
                     <div className="flex flex-col items-center text-center space-y-4 relative z-10">
                         <div className="rounded-xl bg-white px-4 py-2">
@@ -146,13 +149,13 @@ export default function PosApplicationScreen() {
                             ))}
                         </ul>
 
-                        <p className="text-[10px] text-white/60 mt-4">{text.banner.footnote}</p>
+                        <p className={`text-[10px] ${isDark ? "text-white/60" : "text-gray-600"} mt-4`}>{text.banner.footnote}</p>
                     </div>
                 </div>
 
                 {/* Right Comparison Table */}
                 <div className="lg:col-span-9 space-y-6">
-                    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 overflow-x-auto">
+                    <div className={`rounded-3xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 overflow-x-auto`}>
                         <div className="grid grid-cols-4 gap-4 text-center text-xs min-w-[500px]">
                             {/* Headers */}
                             <div className="col-span-1"></div> {/* Empty corner */}
@@ -168,16 +171,16 @@ export default function PosApplicationScreen() {
                             </div>
 
                             {/* Description Rows */}
-                            <div className="col-span-1 text-left py-4 text-white/60">Device Description</div>
-                            <div className="col-span-1 bg-red-500/5 p-4 text-[10px] text-white/60 border-x border-red-500/10">{text.table.types[0]}</div>
-                            <div className="col-span-1 bg-yellow-500/5 p-4 text-[10px] text-white/60 border-x border-yellow-500/10">{text.table.types[1]}</div>
-                            <div className="col-span-1 bg-green-500/10 p-4 text-[10px] text-white/80 font-medium border-x border-green-500/20">{text.table.types[2]}</div>
+                            <div className={`col-span-1 text-left py-4 ${isDark ? "text-white/60" : "text-gray-600"}`}>Device Description</div>
+                            <div className={`col-span-1 bg-red-500/5 p-4 text-[10px] ${isDark ? "text-white/60" : "text-gray-600"} border-x border-red-500/10`}>{text.table.types[0]}</div>
+                            <div className={`col-span-1 bg-yellow-500/5 p-4 text-[10px] ${isDark ? "text-white/60" : "text-gray-600"} border-x border-yellow-500/10`}>{text.table.types[1]}</div>
+                            <div className={`col-span-1 bg-green-500/10 p-4 text-[10px] ${isDark ? "text-white/80" : "text-gray-800"} font-medium border-x border-green-500/20`}>{text.table.types[2]}</div>
 
 
                             {/* Data Rows */}
                             {text.table.rows.map((row, i) => (
-                                <div key={i} className="col-span-4 grid grid-cols-4 border-t border-white/5 items-center">
-                                    <div className="col-span-1 text-left py-4 pr-4 font-medium text-white/80">{row[0]}</div>
+                                <div key={i} className={`col-span-4 grid grid-cols-4 border-t ${isDark ? "border-white/5" : "border-gray-100"} items-center`}>
+                                    <div className={`col-span-1 text-left py-4 pr-4 font-medium ${isDark ? "text-white/80" : "text-gray-800"}`}>{row[0]}</div>
                                     <div className="col-span-1 h-full py-4 flex items-center justify-center bg-red-500/5 border-x border-red-500/10">{renderStatus(row[1])}</div>
                                     <div className="col-span-1 h-full py-4 flex items-center justify-center bg-yellow-500/5 border-x border-yellow-500/10">{renderStatus(row[2])}</div>
                                     <div className="col-span-1 h-full py-4 flex items-center justify-center bg-green-500/10 border-x border-green-500/20">{renderStatus(row[3])}</div>
@@ -188,10 +191,10 @@ export default function PosApplicationScreen() {
 
                     {/* Action Buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <button className="flex items-center justify-center rounded-2xl bg-[#00a651] p-4 text-sm font-bold text-white shadow-lg shadow-green-900/20 hover:bg-[#008f45] transition transform hover:scale-[1.02]">
+                        <button className={`flex items-center justify-center rounded-2xl bg-[#00a651] p-4 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/20 hover:bg-[#008f45] transition transform hover:scale-[1.02]`}>
                             {text.buttons.physical}
                         </button>
-                        <button className="flex items-center justify-center rounded-2xl bg-[#3b82f6] p-4 text-sm font-bold text-white shadow-lg shadow-blue-900/20 hover:bg-[#2563eb] transition transform hover:scale-[1.02]">
+                        <button className={`flex items-center justify-center rounded-2xl bg-[#3b82f6] p-4 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-blue-900/20 hover:bg-[#2563eb] transition transform hover:scale-[1.02]`}>
                             {text.buttons.virtual}
                         </button>
                     </div>

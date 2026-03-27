@@ -113,7 +113,7 @@ const navItems = {
       icon: IconMenu,
       expandable: true,
       children: [
-        { label: "Easy SMS", href: "/dashboard/other/sms", icon: IconEnvelope },
+        { label: "SMS Management", href: "/dashboard/other/sms", icon: IconEnvelope },
         { label: "Commissions", href: "/dashboard/commission", icon: IconPercent },
         { label: "Expenses", href: "/dashboard/other/expenses", icon: IconUpload },
         { label: "Collections", href: "/dashboard/other/collections", icon: IconDownload },
@@ -163,7 +163,7 @@ const navItems = {
       icon: IconMenu,
       expandable: true,
       children: [
-        { label: "Kolay SMS", href: "/dashboard/other/sms", icon: IconEnvelope },
+        { label: "SMS Yönetimi", href: "/dashboard/other/sms", icon: IconEnvelope },
         { label: "Komisyonlar", href: "/dashboard/commission", icon: IconPercent },
         { label: "Masraflar", href: "/dashboard/other/expenses", icon: IconUpload },
         { label: "Tahsilatlar", href: "/dashboard/other/collections", icon: IconDownload },
@@ -312,7 +312,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden md:flex relative">
+      <div className="hidden md:flex relative z-10">
         {sidebarContent}
         {/* Floating Toggle Button - outside sidebar to avoid overflow clipping */}
         <button

@@ -303,6 +303,70 @@ body.theme-light .estiva-dashboard .bg-\[\#040309\] {
   background-color: rgb(255 255 255 / 0.92);
 }
 
+body.theme-light .estiva-dashboard .bg-\[\#0d0d1a\]\/90 {
+  background-color: rgb(255 255 255 / 0.92);
+}
+
+body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\] {
+  background-color: #ffffff;
+}
+
+body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]\/95 {
+  background-color: rgb(255 255 255 / 0.97);
+}
+
+/* Light theme: modal/overlay dark bg overrides */
+body.theme-light .estiva-dashboard .bg-white\/\[0\.06\] {
+  background-color: rgb(255 255 255 / 0.8);
+}
+
+body.theme-light .estiva-dashboard .border-white\/15 {
+  border-color: #dacfff;
+}
+
+body.theme-light .estiva-dashboard .border-white\/\[0\.15\] {
+  border-color: #dacfff;
+}
+
+/* Light theme: hover states for bg-white/15 and bg-white/[0.06] */
+body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.06\]:hover {
+  background-color: rgb(59 34 104 / 0.04);
+}
+
+body.theme-light .estiva-dashboard .bg-white\/15 {
+  background-color: rgb(255 255 255 / 0.9);
+}
+
+/* Light theme: ring colors */
+body.theme-light .estiva-dashboard .ring-white\/10 {
+  --tw-ring-color: rgb(31 18 51 / 0.1);
+}
+
+body.theme-light .estiva-dashboard .ring-white\/15 {
+  --tw-ring-color: rgb(31 18 51 / 0.15);
+}
+
+body.theme-light .estiva-dashboard .ring-white\/20 {
+  --tw-ring-color: rgb(31 18 51 / 0.2);
+}
+
+/* Light theme: orange/yellow info alerts */
+body.theme-light .estiva-dashboard .text-yellow-100 {
+  color: rgb(146 64 14 / 0.9);
+}
+
+body.theme-light .estiva-dashboard .text-orange-100 {
+  color: rgb(154 52 18 / 0.9);
+}
+
+body.theme-light .estiva-dashboard .border-yellow-500\/30 {
+  border-color: rgb(234 179 8 / 0.4);
+}
+
+body.theme-light .estiva-dashboard .border-orange-500\/30 {
+  border-color: rgb(249 115 22 / 0.4);
+}
+
 /* Keep white text on accent backgrounds */
 body.theme-light .estiva-dashboard [class*="bg-[#"].text-white {
   color: #ffffff;
@@ -314,6 +378,26 @@ body.theme-light .estiva-dashboard .bg-blue-600.text-white,
 body.theme-light .estiva-dashboard .bg-red-500.text-white,
 body.theme-light .estiva-dashboard .bg-yellow-500.text-white {
   color: #ffffff;
+}
+
+/* Light theme: keep white text on gradient buttons */
+body.theme-light .estiva-dashboard .bg-gradient-to-r.text-white,
+body.theme-light .estiva-dashboard [class*="bg-gradient-to-r"] .text-white {
+  color: #ffffff;
+}
+
+body.theme-light .estiva-dashboard button[class*="bg-gradient-to-r"] {
+  color: #ffffff;
+}
+
+body.theme-light .estiva-dashboard button.bg-blue-600,
+body.theme-light .estiva-dashboard button.bg-green-600 {
+  color: #ffffff;
+}
+
+/* Light theme: text-white/25 for subtle labels */
+body.theme-light .estiva-dashboard .text-white\/25 {
+  color: rgb(31 18 51 / 0.25);
 }
 
 /* Layout utility */

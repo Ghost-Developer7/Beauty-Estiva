@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { profileService } from "@/services/profileService";
 import toast from "react-hot-toast";
 import type { ProfileData } from "@/types/api";
@@ -97,6 +98,8 @@ interface ProfileScreenProps {
 export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
   const { user, updateUser } = useAuth();
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -298,9 +301,9 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
       />
 
       {/* Modal */}
-      <div className="relative z-10 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#0f0f1a] shadow-2xl shadow-purple-900/20">
+      <div className={`relative z-10 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-[#0f0f1a] shadow-2xl shadow-purple-900/20`}>
         {/* Header */}
-        <div className="sticky top-0 z-20 flex items-center justify-between border-b border-white/10 bg-[#0f0f1a]/95 backdrop-blur px-6 py-4">
+        <div className={`sticky top-0 z-20 flex items-center justify-between border-b ${isDark ? "border-white/10" : "border-gray-200"} bg-[#0f0f1a]/95 backdrop-blur px-6 py-4`}>
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-pink-500 to-purple-600">
               <svg
@@ -317,13 +320,13 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                 <circle cx="12" cy="7" r="4" />
               </svg>
             </div>
-            <h2 className="text-lg font-semibold text-white">
+            <h2 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>
               {t.title}
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/10 hover:text-white"
+            className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/40" : "text-gray-400"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
           >
             <svg
               width="18"
@@ -354,10 +357,10 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                   <img
                     src={getAvatarUrl()!}
                     alt="Profil"
-                    className="h-28 w-28 rounded-full object-cover border-4 border-white/10 shadow-lg shadow-purple-500/20"
+                    className={`h-28 w-28 rounded-full object-cover border-4 ${isDark ? "border-white/10" : "border-gray-200"} shadow-lg shadow-purple-500/20`}
                   />
                 ) : (
-                  <div className="flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-[#ffd1dc] to-[#f3a4ff] border-4 border-white/10 shadow-lg shadow-purple-500/20 text-2xl font-bold text-[#2e174e]">
+                  <div className={`flex h-28 w-28 items-center justify-center rounded-full bg-gradient-to-br from-[#ffd1dc] to-[#f3a4ff] border-4 ${isDark ? "border-white/10" : "border-gray-200"} shadow-lg shadow-purple-500/20 text-2xl font-bold text-[#2e174e]`}>
                     {getInitials()}
                   </div>
                 )}
@@ -378,7 +381,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={uploadingPicture}
-                  className="flex items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70 transition hover:bg-white/10 hover:text-white disabled:opacity-50"
+                  className={`flex items-center gap-1.5 rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white disabled:opacity-50`}
                 >
                   <svg
                     width="14"
@@ -426,7 +429,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
 
             {/* Profile Form */}
             <div className="space-y-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-white/50">
+              <div className={`flex items-center gap-2 text-sm font-medium ${isDark ? "text-white/50" : "text-gray-500"}`}>
                 <svg
                   width="16"
                   height="16"
@@ -446,28 +449,28 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Name */}
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-white/40">
+                  <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                     {t.firstName}
                   </label>
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
+                    className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
                     placeholder={t.firstName}
                   />
                 </div>
 
                 {/* Surname */}
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-white/40">
+                  <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                     {t.lastName}
                   </label>
                   <input
                     type="text"
                     value={surname}
                     onChange={(e) => setSurname(e.target.value)}
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
+                    className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
                     placeholder={t.lastName}
                   />
                 </div>
@@ -475,7 +478,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
 
               {/* Email (readonly) */}
               <div>
-                <label className="mb-1 block text-xs font-medium text-white/40">
+                <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                   <span className="flex items-center gap-1.5">
                     <svg
                       width="12"
@@ -497,13 +500,13 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                   type="email"
                   value={profile?.email ?? ""}
                   disabled
-                  className="w-full rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2 text-sm text-white/40 cursor-not-allowed"
+                  className={`w-full rounded-lg border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] px-3 py-2 text-sm ${isDark ? "text-white/40" : "text-gray-400"} cursor-not-allowed`}
                 />
               </div>
 
               {/* Phone */}
               <div>
-                <label className="mb-1 block text-xs font-medium text-white/40">
+                <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                   <span className="flex items-center gap-1.5">
                     <svg
                       width="12"
@@ -524,14 +527,14 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                   type="tel"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
+                  className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
                   placeholder="0 (5XX) XXX XX XX"
                 />
               </div>
 
               {/* Birth Date */}
               <div>
-                <label className="mb-1 block text-xs font-medium text-white/40">
+                <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                   <span className="flex items-center gap-1.5">
                     <svg
                       width="12"
@@ -555,7 +558,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                   type="date"
                   value={birthDate}
                   onChange={(e) => setBirthDate(e.target.value)}
-                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition [color-scheme:dark]"
+                  className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition [color-scheme:dark]`}
                 />
               </div>
 
@@ -563,7 +566,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:from-pink-600 hover:to-purple-700 hover:shadow-pink-500/30 disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-pink-500/20 transition hover:from-pink-600 hover:to-purple-700 hover:shadow-pink-500/30 disabled:opacity-50 disabled:cursor-not-allowed`}
               >
                 {saving ? (
                   <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
@@ -594,7 +597,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
             <div>
               <button
                 onClick={() => setShowPasswordSection(!showPasswordSection)}
-                className="flex w-full items-center justify-between rounded-xl border border-white/10 bg-white/[0.02] px-4 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white/80"
+                className={`flex w-full items-center justify-between rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-white/[0.02] px-4 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white/80`}
               >
                 <span className="flex items-center gap-2">
                   <svg
@@ -635,47 +638,47 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
               </button>
 
               {showPasswordSection && (
-                <div className="mt-3 space-y-3 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                <div className={`mt-3 space-y-3 rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-white/40">
+                    <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {t.currentPassword}
                     </label>
                     <input
                       type="password"
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
+                      className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
                       placeholder={t.currentPasswordPh}
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-white/40">
+                    <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {t.newPassword}
                     </label>
                     <input
                       type="password"
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
+                      className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
                       placeholder={t.newPasswordPh}
                     />
                   </div>
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-white/40">
+                    <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {t.confirmPassword}
                     </label>
                     <input
                       type="password"
                       value={confirmNewPassword}
                       onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition"
+                      className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
                       placeholder={t.confirmPasswordPh}
                     />
                   </div>
                   <button
                     onClick={handleChangePassword}
                     disabled={changingPassword}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-medium text-white/70 transition hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                    className={`w-full flex items-center justify-center gap-2 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {changingPassword ? (
                       <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />

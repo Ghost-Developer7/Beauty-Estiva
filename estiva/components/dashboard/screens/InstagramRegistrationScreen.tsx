@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const copy = {
     en: {
@@ -77,16 +78,18 @@ const copy = {
 
 export default function InstagramRegistrationScreen() {
     const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
     const text = copy[language];
 
     return (
-        <div className="space-y-8 text-white">
+        <div className={`space-y-8 ${isDark ? "text-white" : "text-gray-900"}`}>
             {/* Header */}
             <h1 className="text-2xl font-semibold">{text.title}</h1>
 
             {/* Stepper */}
             <div className="w-full relative px-4 md:px-10">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/10 -z-10 -translate-y-[15px]"></div>
+                <div className={`absolute top-1/2 left-0 w-full h-0.5 ${isDark ? "bg-white/10" : "bg-gray-100"} -z-10 -translate-y-[15px]`}></div>
                 <div className="flex justify-between">
                     {text.steps.map((step, i) => (
                         <div key={i} className="flex flex-col items-center gap-2 bg-[#040309] px-2 md:px-4">
@@ -101,33 +104,33 @@ export default function InstagramRegistrationScreen() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Left Content (Guide + Button) */}
-                <div className="flex flex-col justify-center items-center lg:items-start space-y-8 p-6 bg-white/5 rounded-3xl border border-white/10">
+                <div className={`flex flex-col justify-center items-center lg:items-start space-y-8 p-6 ${isDark ? "bg-white/5" : "bg-gray-50"} rounded-3xl border ${isDark ? "border-white/10" : "border-gray-200"}`}>
                     <div className="space-y-6 w-full">
                         {text.guideSteps.map((step) => (
                             <div key={step.id} className="flex gap-4 items-start group">
-                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f09433] via-[#dc2743] to-[#bc1888] font-bold text-white shadow-lg">
+                                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#f09433] via-[#dc2743] to-[#bc1888] font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg`}>
                                     {step.id}
                                 </div>
                                 <div className="space-y-1">
-                                    <h3 className="font-semibold text-white group-hover:text-pink-400 transition">{step.title}</h3>
-                                    <p className="text-sm text-white/60 leading-relaxed">{step.desc}</p>
+                                    <h3 className={`font-semibold ${isDark ? "text-white" : "text-gray-900"} group-hover:text-pink-400 transition`}>{step.title}</h3>
+                                    <p className={`text-sm ${isDark ? "text-white/60" : "text-gray-600"} leading-relaxed`}>{step.desc}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
 
                     <div className="w-full flex justify-center pt-4">
-                        <button className="rounded-xl bg-gradient-to-r from-[#f09433] via-[#dc2743] to-[#bc1888] px-8 py-3 text-sm font-bold text-white shadow-lg hover:opacity-90 transition transform hover:scale-105">
+                        <button className={`rounded-xl bg-gradient-to-r from-[#f09433] via-[#dc2743] to-[#bc1888] px-8 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg hover:opacity-90 transition transform hover:scale-105`}>
                             {text.button}
                         </button>
                     </div>
                 </div>
 
                 {/* Right Banner (Pink/Red Gradient) */}
-                <div className="rounded-3xl bg-gradient-to-br from-[#be185d] to-[#9d174d] p-8 text-white shadow-2xl relative overflow-hidden">
+                <div className={`rounded-3xl bg-gradient-to-br from-[#be185d] to-[#9d174d] p-8 ${isDark ? "text-white" : "text-gray-900"} shadow-2xl relative overflow-hidden`}>
                     {/* Decorative circles */}
-                    <div className="absolute top-0 right-0 -mr-10 -mt-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 -ml-10 -mb-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+                    <div className={`absolute top-0 right-0 -mr-10 -mt-10 h-40 w-40 rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} blur-3xl`}></div>
+                    <div className={`absolute bottom-0 left-0 -ml-10 -mb-10 h-40 w-40 rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} blur-3xl`}></div>
 
                     <div className="flex flex-col items-center text-center space-y-6 relative z-10">
                         <div className="flex items-center gap-2 text-3xl font-bold">
@@ -148,7 +151,7 @@ export default function InstagramRegistrationScreen() {
                         </ul>
 
                         <div className="mt-4 border-t border-white/20 pt-4 w-full">
-                            <p className="text-xs text-white/80 font-semibold">{text.banner.footnote}</p>
+                            <p className={`text-xs ${isDark ? "text-white/80" : "text-gray-800"} font-semibold`}>{text.banner.footnote}</p>
                         </div>
                     </div>
                 </div>

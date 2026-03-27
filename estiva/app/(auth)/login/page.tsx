@@ -190,7 +190,7 @@ export default function LoginPage() {
             </section>
 
             <section
-              className={`w-full max-w-xl justify-self-center rounded-[32px] ${cardBorder} ${cardBg} p-12 shadow-[0_30px_90px_rgba(6,5,18,0.3)] backdrop-blur-xl lg:justify-self-end`}
+              className={`w-full max-w-xl justify-self-center rounded-[32px] ${cardBorder} ${cardBg} p-6 sm:p-12 shadow-[0_30px_90px_rgba(6,5,18,0.3)] backdrop-blur-xl lg:justify-self-end`}
             >
               <div className="mb-6 space-y-2 text-center">
                 <p className={`text-xs font-semibold tracking-[0.4em] ${subtleText}`}>

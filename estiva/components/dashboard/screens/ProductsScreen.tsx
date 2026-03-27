@@ -3,9 +3,9 @@
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
-import { treatmentService } from "@/services/treatmentService";
-import { treatmentSchema, getValidationMessage } from "@/lib/validations";
-import type { TreatmentListItem } from "@/types/api";
+import { productService } from "@/services/productService";
+import { productSchema, getValidationMessage } from "@/lib/validations";
+import type { ProductListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
@@ -16,100 +16,98 @@ import toast from "react-hot-toast";
    CONSTANTS
    ═══════════════════════════════════════════ */
 
-const COLORS = [
-  "#ef4444", "#f59e0b", "#10b981", "#3b82f6", "#8b5cf6",
-  "#ec4899", "#06b6d4", "#84cc16", "#f97316", "#6366f1",
-  "#14b8a6", "#e879f9", "#fb923c", "#a3e635", "#f43f5e",
-];
-
-const DURATION_PRESETS = [15, 30, 45, 60, 90, 120];
-
 const copy = {
   en: {
-    title: "Treatments & Services",
-    newTreatment: "New Treatment",
+    title: "Products",
+    newProduct: "New Product",
     total: "total",
-    search: "Search treatments...",
+    search: "Search products...",
     loading: "Loading...",
-    noData: "No treatments yet.",
-    noDataSub: "Add your first treatment to start booking appointments.",
-    noResult: "No treatments match your search.",
+    noData: "No products yet.",
+    noDataSub: "Add your first product to start selling.",
+    noResult: "No products match your search.",
     // Stats
-    totalTreatments: "Total Treatments",
+    totalProducts: "Total Products",
     avgPrice: "Avg Price",
-    avgDuration: "Avg Duration",
-    priceRange: "Price Range",
-    min: "min",
+    lowStock: "Low Stock",
+    totalValue: "Total Stock Value",
     // Form
-    createTitle: "New Treatment",
-    editTitle: "Edit Treatment",
-    name: "Treatment Name",
-    namePlaceholder: "e.g. Hair Coloring, Manicure...",
+    createTitle: "New Product",
+    editTitle: "Edit Product",
+    name: "Product Name",
+    namePlaceholder: "e.g. Shampoo, Hair Serum...",
     description: "Description",
     descPlaceholder: "Optional description...",
-    duration: "Duration",
+    barcode: "Barcode",
+    barcodePlaceholder: "Optional barcode...",
     price: "Price",
-    color: "Calendar Color",
-    colorSub: "Used to identify this treatment in the calendar",
+    stock: "Stock Quantity",
     save: "Save",
     saving: "Saving...",
     cancel: "Cancel",
     // Detail
-    detailTitle: "Treatment Details",
+    detailTitle: "Product Details",
     edit: "Edit",
     delete: "Delete",
-    confirmDelete: "Are you sure you want to delete this treatment?",
+    confirmDelete: "Are you sure you want to delete this product?",
     // List
-    treatment: "Treatment",
-    durationCol: "Duration",
+    product: "Product",
+    barcodeCol: "Barcode",
     priceCol: "Price",
+    stockCol: "Stock",
+    items: "items",
+    inStock: "In Stock",
+    outOfStock: "Out of Stock",
   },
   tr: {
-    title: "Hizmetler",
-    newTreatment: "Yeni Hizmet",
+    title: "Ürünler",
+    newProduct: "Yeni Ürün",
     total: "toplam",
-    search: "Hizmet ara...",
+    search: "Ürün ara...",
     loading: "Yükleniyor...",
-    noData: "Henüz hizmet yok.",
-    noDataSub: "Randevu almaya başlamak için ilk hizmetinizi ekleyin.",
-    noResult: "Aramanızla eşleşen hizmet yok.",
-    totalTreatments: "Toplam Hizmet",
+    noData: "Henüz ürün yok.",
+    noDataSub: "Satış yapmaya başlamak için ilk ürününüzü ekleyin.",
+    noResult: "Aramanızla eşleşen ürün yok.",
+    totalProducts: "Toplam Ürün",
     avgPrice: "Ort. Fiyat",
-    avgDuration: "Ort. Süre",
-    priceRange: "Fiyat Aralığı",
-    min: "dk",
-    createTitle: "Yeni Hizmet",
-    editTitle: "Hizmet Düzenle",
-    name: "Hizmet Adı",
-    namePlaceholder: "örn. Saç Boyama, Manikür...",
+    lowStock: "Düşük Stok",
+    totalValue: "Toplam Stok Değeri",
+    createTitle: "Yeni Ürün",
+    editTitle: "Ürün Düzenle",
+    name: "Ürün Adı",
+    namePlaceholder: "örn. Şampuan, Saç Serumu...",
     description: "Açıklama",
     descPlaceholder: "İsteğe bağlı açıklama...",
-    duration: "Süre",
+    barcode: "Barkod",
+    barcodePlaceholder: "İsteğe bağlı barkod...",
     price: "Fiyat",
-    color: "Takvim Rengi",
-    colorSub: "Takvimde bu hizmeti ayırt etmek için kullanılır",
+    stock: "Stok Adedi",
     save: "Kaydet",
     saving: "Kaydediliyor...",
     cancel: "Vazgeç",
-    detailTitle: "Hizmet Detayı",
+    detailTitle: "Ürün Detayı",
     edit: "Düzenle",
     delete: "Sil",
-    confirmDelete: "Bu hizmeti silmek istediğinize emin misiniz?",
-    treatment: "Hizmet",
-    durationCol: "Süre",
+    confirmDelete: "Bu ürünü silmek istediğinize emin misiniz?",
+    product: "Ürün",
+    barcodeCol: "Barkod",
     priceCol: "Fiyat",
+    stockCol: "Stok",
+    items: "adet",
+    inStock: "Stokta",
+    outOfStock: "Tükendi",
   },
 };
 
 interface FormData {
   name: string;
   description: string;
-  durationMinutes: number;
+  barcode: string;
   price: number;
-  color: string;
+  stockQuantity: number;
 }
 
-const emptyForm: FormData = { name: "", description: "", durationMinutes: 30, price: 0, color: COLORS[0] };
+const emptyForm: FormData = { name: "", description: "", barcode: "", price: 0, stockQuantity: 0 };
 
 /* ═══════════════════════════════════════════
    HELPERS
@@ -131,18 +129,43 @@ function StatCard({ label, value, sub, color, isDark }: { label: string; value: 
   );
 }
 
+function StockBadge({ quantity, isDark, t }: { quantity: number; isDark: boolean; t: typeof copy.en }) {
+  if (quantity <= 0) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-semibold text-red-400 border border-red-500/20">
+        <span className="h-1.5 w-1.5 rounded-full bg-red-400" />
+        {t.outOfStock}
+      </span>
+    );
+  }
+  if (quantity <= 5) {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-400 border border-amber-500/20">
+        <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
+        {quantity} {t.items}
+      </span>
+    );
+  }
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold ${isDark ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-emerald-50 text-emerald-600 border border-emerald-200"}`}>
+      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+      {quantity} {t.items}
+    </span>
+  );
+}
+
 /* ═══════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════ */
 
-export default function TreatmentsScreen() {
+export default function ProductsScreen() {
   const { language } = useLanguage();
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const t = copy[language];
 
   /* ─── Data ─── */
-  const [treatments, setTreatments] = useState<TreatmentListItem[]>([]);
+  const [products, setProducts] = useState<ProductListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
 
@@ -162,50 +185,44 @@ export default function TreatmentsScreen() {
 
   /* ─── Detail Modal ─── */
   const [showDetail, setShowDetail] = useState(false);
-  const [selectedTreatment, setSelectedTreatment] = useState<TreatmentListItem | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductListItem | null>(null);
 
   /* ═══ DATA FETCHING ═══ */
 
-  const fetchTreatments = useCallback(async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const res = await treatmentService.listPaginated({ pageNumber: page, pageSize });
+      const res = await productService.list();
       if (res.data.success && res.data.data) {
-        const pg = res.data.data;
-        setTreatments(pg.items);
-        setTotalCount(pg.totalCount);
-        setTotalPages(pg.totalPages);
+        const all = res.data.data;
+        setProducts(all);
+        setTotalCount(all.length);
+        setTotalPages(Math.ceil(all.length / pageSize));
       }
     } catch {
-      try {
-        const res = await treatmentService.list();
-        if (res.data.success && res.data.data) {
-          setTreatments(res.data.data);
-          setTotalCount(res.data.data.length);
-          setTotalPages(1);
-        }
-      } catch {
-        toast.error(language === "tr" ? "Hizmetler yüklenemedi" : "Failed to load treatments");
-      }
+      toast.error(language === "tr" ? "Ürünler yüklenemedi" : "Failed to load products");
     } finally {
       setLoading(false);
     }
-  }, [page, pageSize, language]);
+  }, [pageSize, language]);
 
-  useEffect(() => { fetchTreatments(); }, [fetchTreatments]);
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
   /* ═══ FILTERED & STATS ═══ */
 
-  const filtered = treatments.filter((tr) => {
+  const filtered = products.filter((p) => {
     if (!search) return true;
-    return tr.name.toLowerCase().includes(search.toLowerCase()) ||
-      tr.description?.toLowerCase().includes(search.toLowerCase());
+    const q = search.toLowerCase();
+    return p.name.toLowerCase().includes(q) ||
+      p.description?.toLowerCase().includes(q) ||
+      p.barcode?.toLowerCase().includes(q);
   });
 
-  const avgPrice = treatments.length > 0 ? treatments.reduce((s, tr) => s + (tr.price ?? 0), 0) / treatments.length : 0;
-  const avgDuration = treatments.length > 0 ? treatments.reduce((s, tr) => s + tr.durationMinutes, 0) / treatments.length : 0;
-  const minPrice = treatments.length > 0 ? Math.min(...treatments.map(tr => tr.price ?? 0)) : 0;
-  const maxPrice = treatments.length > 0 ? Math.max(...treatments.map(tr => tr.price ?? 0)) : 0;
+  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
+
+  const avgPrice = products.length > 0 ? products.reduce((s, p) => s + p.price, 0) / products.length : 0;
+  const lowStockCount = products.filter((p) => p.stockQuantity <= 5).length;
+  const totalValue = products.reduce((s, p) => s + p.price * p.stockQuantity, 0);
 
   /* ═══ ACTIONS ═══ */
 
@@ -217,13 +234,13 @@ export default function TreatmentsScreen() {
     setShowForm(true);
   };
 
-  const openEdit = (item: TreatmentListItem) => {
+  const openEdit = (item: ProductListItem) => {
     setForm({
       name: item.name,
       description: item.description || "",
-      durationMinutes: item.durationMinutes,
-      price: item.price ?? 0,
-      color: item.color || COLORS[0],
+      barcode: item.barcode || "",
+      price: item.price,
+      stockQuantity: item.stockQuantity,
     });
     setEditingId(item.id);
     setFormMode("edit");
@@ -231,14 +248,19 @@ export default function TreatmentsScreen() {
     setShowForm(true);
   };
 
-  const openDetail = (item: TreatmentListItem) => {
-    setSelectedTreatment(item);
+  const openDetail = (item: ProductListItem) => {
+    setSelectedProduct(item);
     setShowDetail(true);
   };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    const result = treatmentSchema.safeParse(form);
+    const result = productSchema.safeParse({
+      ...form,
+      description: form.description || undefined,
+      barcode: form.barcode || undefined,
+      stockQuantity: form.stockQuantity || undefined,
+    });
     if (!result.success) {
       const errs: Record<string, string> = {};
       result.error.issues.forEach((issue) => {
@@ -253,19 +275,19 @@ export default function TreatmentsScreen() {
       const payload = {
         name: form.name,
         description: form.description || undefined,
-        durationMinutes: form.durationMinutes,
+        barcode: form.barcode || undefined,
         price: form.price,
-        color: form.color || undefined,
+        stockQuantity: form.stockQuantity,
       };
       if (formMode === "edit" && editingId) {
-        await treatmentService.update(editingId, payload);
-        toast.success(language === "tr" ? "Hizmet güncellendi" : "Treatment updated");
+        await productService.update(editingId, payload);
+        toast.success(language === "tr" ? "Ürün güncellendi" : "Product updated");
       } else {
-        await treatmentService.create(payload);
-        toast.success(language === "tr" ? "Hizmet oluşturuldu" : "Treatment created");
+        await productService.create(payload);
+        toast.success(language === "tr" ? "Ürün oluşturuldu" : "Product created");
       }
       setShowForm(false);
-      fetchTreatments();
+      fetchProducts();
     } catch {
       toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
     } finally {
@@ -276,10 +298,10 @@ export default function TreatmentsScreen() {
   const handleDelete = async (id: number) => {
     if (!confirm(t.confirmDelete)) return;
     try {
-      await treatmentService.delete(id);
-      toast.success(language === "tr" ? "Hizmet silindi" : "Treatment deleted");
+      await productService.delete(id);
+      toast.success(language === "tr" ? "Ürün silindi" : "Product deleted");
       setShowDetail(false);
-      fetchTreatments();
+      fetchProducts();
     } catch {
       toast.error(language === "tr" ? "Silme başarısız" : "Delete failed");
     }
@@ -296,7 +318,7 @@ export default function TreatmentsScreen() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{treatments.length} {t.total}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{products.length} {t.total}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -304,31 +326,32 @@ export default function TreatmentsScreen() {
             columns={((): ExportColumn[] => {
               const isTr = language === "tr";
               return [
-                { header: isTr ? "Hizmet Adı" : "Treatment Name", key: "name" },
+                { header: isTr ? "Ürün Adı" : "Product Name", key: "name" },
                 { header: isTr ? "Açıklama" : "Description", key: "description" },
-                { header: isTr ? "Süre (dk)" : "Duration (min)", key: "durationMinutes", format: "number" },
+                { header: isTr ? "Barkod" : "Barcode", key: "barcode" },
                 { header: isTr ? "Fiyat" : "Price", key: "price", format: "currency" },
+                { header: isTr ? "Stok" : "Stock", key: "stockQuantity", format: "number" },
               ];
             })()}
-            filenamePrefix={language === "tr" ? "Hizmetler" : "Treatments"}
-            pdfTitle={language === "tr" ? "Hizmet Listesi" : "Treatments List"}
+            filenamePrefix={language === "tr" ? "Urunler" : "Products"}
+            pdfTitle={language === "tr" ? "Ürün Listesi" : "Products List"}
           />
           <button
             onClick={openCreate}
             className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-            {t.newTreatment}
+            {t.newProduct}
           </button>
         </div>
       </div>
 
       {/* ─── STATS ─── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t.totalTreatments} value={String(treatments.length)} color="#a78bfa" isDark={isDark} />
+        <StatCard label={t.totalProducts} value={String(products.length)} color="#a78bfa" isDark={isDark} />
         <StatCard label={t.avgPrice} value={`₺${fmt(avgPrice)}`} color="#22c55e" isDark={isDark} />
-        <StatCard label={t.avgDuration} value={`${Math.round(avgDuration)} ${t.min}`} color="#60a5fa" isDark={isDark} />
-        <StatCard label={t.priceRange} value={treatments.length > 0 ? `₺${fmt(minPrice)} — ₺${fmt(maxPrice)}` : "—"} color="#fbbf24" isDark={isDark} />
+        <StatCard label={t.lowStock} value={String(lowStockCount)} sub={`≤ 5 ${t.items}`} color="#f59e0b" isDark={isDark} />
+        <StatCard label={t.totalValue} value={`₺${fmt(totalValue)}`} color="#60a5fa" isDark={isDark} />
       </div>
 
       {/* ─── SEARCH ─── */}
@@ -337,13 +360,13 @@ export default function TreatmentsScreen() {
         <input
           type="text"
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder={t.search}
           className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
         />
       </div>
 
-      {/* ─── TREATMENT LIST ─── */}
+      {/* ─── PRODUCT LIST ─── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
         {loading ? (
           <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
@@ -352,83 +375,80 @@ export default function TreatmentsScreen() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
-            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" /></svg>
+            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
             <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search ? t.noResult : t.noData}</p>
             {!search && <p className="text-xs text-white/25">{t.noDataSub}</p>}
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
-              <span>{t.treatment}</span>
-              <span>{t.durationCol}</span>
+            <div className={`hidden md:grid grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+              <span>{t.product}</span>
+              <span>{t.barcodeCol}</span>
               <span>{t.priceCol}</span>
+              <span>{t.stockCol}</span>
               <span />
             </div>
 
             {/* Rows */}
             <div className="divide-y divide-white/[0.04]">
-              {filtered.map((item) => {
-                const color = item.color || "#a78bfa";
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => openDetail(item)}
-                    className="group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
-                  >
-                    {/* Treatment name + color + description */}
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="h-10 w-1.5 shrink-0 rounded-full"
-                        style={{ backgroundColor: color }}
-                      />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{item.name}</p>
-                        </div>
-                        {item.description && (
-                          <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{item.description}</p>
-                        )}
-                      </div>
+              {paged.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => openDetail(item)}
+                  className="group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                >
+                  {/* Product name + description */}
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>
                     </div>
-
-                    {/* Duration */}
-                    <div className="hidden md:flex items-center gap-1.5">
-                      <svg className="text-white/20" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                      <span className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{item.durationMinutes} {t.min}</span>
-                    </div>
-
-                    {/* Price */}
-                    <p className={`hidden md:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(item.price ?? 0)}</p>
-
-                    {/* Actions */}
-                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        onClick={() => openEdit(item)}
-                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
-                        title={t.edit}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item.id)}
-                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}
-                        title={t.delete}
-                      >
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
-                      </button>
+                    <div className="min-w-0">
+                      <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{item.name}</p>
+                      {item.description && (
+                        <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{item.description}</p>
+                      )}
                     </div>
                   </div>
-                );
-              })}
+
+                  {/* Barcode */}
+                  <p className={`hidden md:block text-xs ${isDark ? "text-white/40" : "text-gray-400"} font-mono`}>{item.barcode || "—"}</p>
+
+                  {/* Price */}
+                  <p className={`hidden md:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(item.price)}</p>
+
+                  {/* Stock */}
+                  <div className="hidden md:block">
+                    <StockBadge quantity={item.stockQuantity} isDark={isDark} t={t} />
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                    <button
+                      onClick={() => openEdit(item)}
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
+                      title={t.edit}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                    </button>
+                    <button
+                      onClick={() => handleDelete(item.id)}
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}
+                      title={t.delete}
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+                    </button>
+                  </div>
+                </div>
+              ))}
             </div>
 
             {/* Pagination */}
             <Pagination
               pageNumber={page}
               pageSize={pageSize}
-              totalCount={totalCount}
-              totalPages={totalPages}
+              totalCount={filtered.length}
+              totalPages={Math.ceil(filtered.length / pageSize)}
               onPageChange={(p) => setPage(p)}
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
@@ -467,79 +487,59 @@ export default function TreatmentsScreen() {
             />
           </div>
 
-          {/* Duration */}
+          {/* Barcode */}
           <div className="space-y-2">
-            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.duration}</label>
-            <div className="flex flex-wrap gap-2">
-              {DURATION_PRESETS.map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setForm({ ...form, durationMinutes: d })}
-                  className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
-                    form.durationMinutes === d
-                      ? "border-white/20 bg-white/10 text-white ring-1 ring-white/20"
-                      : "border-white/[0.06] bg-white/[0.02] text-white/40 hover:bg-white/5 hover:text-white/60"
-                  }`}
-                >
-                  {d} {t.min}
-                </button>
-              ))}
-              <input
-                type="number"
-                min={5}
-                step={5}
-                value={form.durationMinutes}
-                onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
-                className={`w-20 rounded-lg border ${isDark ? "bg-white/5" : "bg-gray-50"} px-2.5 py-2 text-center text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.durationMinutes ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
-              />
-            </div>
-            {fieldErrors.durationMinutes && <p className="text-[11px] text-red-400">{fieldErrors.durationMinutes}</p>}
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.barcode}</label>
+            <input
+              type="text"
+              value={form.barcode}
+              onChange={(e) => setForm({ ...form, barcode: e.target.value })}
+              placeholder={t.barcodePlaceholder}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 font-mono`}
+            />
           </div>
 
-          {/* Price */}
-          <div className="space-y-2">
-            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.price}</label>
-            <div className="relative">
-              <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>₺</span>
+          {/* Price + Stock */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.price}</label>
+              <div className="relative">
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>₺</span>
+                <input
+                  type="number"
+                  min={0}
+                  step={0.01}
+                  value={form.price || ""}
+                  onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                  placeholder="0"
+                  className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-8 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.price ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+                />
+              </div>
+              {fieldErrors.price && <p className="text-[11px] text-red-400">{fieldErrors.price}</p>}
+            </div>
+            <div className="space-y-2">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.stock}</label>
               <input
                 type="number"
                 min={0}
-                step={0.01}
-                value={form.price || ""}
-                onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
+                step={1}
+                value={form.stockQuantity || ""}
+                onChange={(e) => setForm({ ...form, stockQuantity: Number(e.target.value) })}
                 placeholder="0"
-                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-8 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.price ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.stockQuantity ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
               />
-            </div>
-            {fieldErrors.price && <p className="text-[11px] text-red-400">{fieldErrors.price}</p>}
-          </div>
-
-          {/* Color */}
-          <div className="space-y-2">
-            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.color}</label>
-            <p className="text-[10px] text-white/25">{t.colorSub}</p>
-            <div className="flex flex-wrap gap-2">
-              {COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setForm({ ...form, color: c })}
-                  className={`h-8 w-8 rounded-full transition-all duration-150 ${
-                    form.color === c ? "ring-2 ring-white ring-offset-2 ring-offset-[#1a1a2e] scale-110" : "hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
+              {fieldErrors.stockQuantity && <p className="text-[11px] text-red-400">{fieldErrors.stockQuantity}</p>}
             </div>
           </div>
 
           {/* Preview */}
           <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-            <div className="h-8 w-1.5 rounded-full" style={{ backgroundColor: form.color }} />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>
+            </div>
             <div>
               <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{form.name || t.namePlaceholder}</p>
-              <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{form.durationMinutes} {t.min} • ₺{form.price || 0}</p>
+              <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>₺{form.price || 0} • {form.stockQuantity || 0} {t.items}</p>
             </div>
           </div>
 
@@ -567,18 +567,14 @@ export default function TreatmentsScreen() {
          DETAIL MODAL
          ═══════════════════════════════════════════ */}
       <Modal open={showDetail} onClose={() => setShowDetail(false)} title={t.detailTitle} maxWidth="max-w-md">
-        {selectedTreatment && (() => {
-          const item = selectedTreatment;
-          const color = item.color || "#a78bfa";
+        {selectedProduct && (() => {
+          const item = selectedProduct;
           return (
             <div className="space-y-5">
               {/* Hero */}
               <div className="flex items-center gap-4">
-                <div
-                  className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-xl"
-                  style={{ backgroundColor: `${color}20`, color }}
-                >
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" /></svg>
+                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-violet-500/10 text-violet-400">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>
                 </div>
                 <div>
                   <p className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{item.name}</p>
@@ -589,17 +585,17 @@ export default function TreatmentsScreen() {
               {/* Info cards */}
               <div className="grid grid-cols-3 gap-3">
                 <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
-                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.durationCol}</p>
-                  <p className={`mt-1 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{item.durationMinutes}</p>
-                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.min}</p>
-                </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.priceCol}</p>
-                  <p className="mt-1 text-lg font-bold text-emerald-400">₺{fmt(item.price ?? 0)}</p>
+                  <p className="mt-1 text-lg font-bold text-emerald-400">₺{fmt(item.price)}</p>
                 </div>
                 <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
-                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.color}</p>
-                  <div className="mt-2 mx-auto h-6 w-6 rounded-full" style={{ backgroundColor: color }} />
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.stockCol}</p>
+                  <p className={`mt-1 text-lg font-bold ${item.stockQuantity <= 0 ? "text-red-400" : item.stockQuantity <= 5 ? "text-amber-400" : isDark ? "text-white" : "text-gray-900"}`}>{item.stockQuantity}</p>
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.items}</p>
+                </div>
+                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.barcodeCol}</p>
+                  <p className={`mt-1 text-sm font-mono ${isDark ? "text-white/60" : "text-gray-600"} truncate`}>{item.barcode || "—"}</p>
                 </div>
               </div>
 

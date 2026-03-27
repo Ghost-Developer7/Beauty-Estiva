@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { packageSaleService } from "@/services/packageSaleService";
 import { customerService } from "@/services/customerService";
 import { treatmentService } from "@/services/treatmentService";
@@ -244,11 +245,9 @@ const statusColor = (status: number) => {
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
 
-function StatCard({ label, value, sub, icon, gradient }: {
-  label: string; value: string; sub?: string; icon: React.ReactNode; gradient: string;
-}) {
+function StatCard({ label, value, sub, icon, gradient, isDark }: { label: string; value: string; sub?: string; icon: React.ReactNode; gradient: string; isDark: boolean }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition-all duration-300 hover:border-white/[0.15] hover:bg-white/[0.06] hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5">
+    <div className={`group relative overflow-hidden rounded-2xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 transition-all duration-300 hover:border-white/[0.15] hover:bg-white/[0.06] hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5`}>
       {/* Animated background glow */}
       <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-20 blur-2xl transition-all duration-500 group-hover:opacity-40 group-hover:h-32 group-hover:w-32 ${gradient}`} />
       {/* Shimmer overlay */}
@@ -258,27 +257,27 @@ function StatCard({ label, value, sub, icon, gradient }: {
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-[11px] font-medium text-white/40">{label}</p>
-          <p className="mt-0.5 text-xl font-bold text-white">{value}</p>
-          {sub && <p className="text-[10px] text-white/30">{sub}</p>}
+          <p className={`text-[11px] font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
+          <p className={`mt-0.5 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{value}</p>
+          {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
         </div>
       </div>
     </div>
   );
 }
 
-function ProgressBar({ used, total }: { used: number; total: number }) {
+function ProgressBar({ used, total, isDark }: { used: number; total: number; isDark: boolean }) {
   const pct = total > 0 ? Math.min((used / total) * 100, 100) : 0;
   const isComplete = used >= total;
   return (
     <div className="flex items-center gap-2">
-      <div className="h-2 flex-1 rounded-full bg-white/10 overflow-hidden">
+      <div className={`h-2 flex-1 rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} overflow-hidden`}>
         <div
           className={`h-full rounded-full transition-all duration-500 ${isComplete ? "bg-blue-500" : "bg-gradient-to-r from-purple-500 to-pink-500"}`}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <span className="text-[10px] text-white/40 tabular-nums">{Math.round(pct)}%</span>
+      <span className={`text-[10px] ${isDark ? "text-white/40" : "text-gray-400"} tabular-nums`}>{Math.round(pct)}%</span>
     </div>
   );
 }
@@ -289,6 +288,8 @@ function ProgressBar({ used, total }: { used: number; total: number }) {
 
 export default function PackageSalesScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
 
   /* ─── Data ─── */
@@ -582,13 +583,13 @@ export default function PackageSalesScreen() {
      ═══════════════════════════════════════════ */
 
   return (
-    <div className="space-y-5 text-white">
+    <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
 
       {/* ─── HEADER ─── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className="mt-0.5 text-sm text-white/40">{sales.length} {t.total}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{sales.length} {t.total}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -615,7 +616,7 @@ export default function PackageSalesScreen() {
           />
           <button
             onClick={openCreate}
-            className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
+            className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             {t.newSale}
@@ -630,24 +631,28 @@ export default function PackageSalesScreen() {
           value={String(stats.totalSales)}
           icon={<svg className="text-purple-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4h-4z"/></svg>}
           gradient="bg-purple-500"
+          isDark={isDark}
         />
         <StatCard
           label={t.totalRevenue}
           value={`${fmt(stats.totalRevenue)} TRY`}
           icon={<svg className="text-emerald-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
           gradient="bg-emerald-500"
+          isDark={isDark}
         />
         <StatCard
           label={t.activePackages}
           value={String(stats.activePackages)}
           icon={<svg className="text-blue-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
           gradient="bg-blue-500"
+          isDark={isDark}
         />
         <StatCard
           label={t.completedPackages}
           value={String(stats.completedPackages)}
           icon={<svg className="text-pink-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
           gradient="bg-pink-500"
+          isDark={isDark}
         />
       </div>
 
@@ -655,45 +660,45 @@ export default function PackageSalesScreen() {
       <div className="flex flex-wrap items-center gap-3">
         {/* Search */}
         <div className="relative flex-1 min-w-[200px]">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           <input
             type="text" value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder={t.search}
-            className="w-full rounded-xl border border-white/[0.08] bg-white/[0.03] py-2 pl-10 pr-4 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 transition"
+            className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2 pl-10 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
           />
         </div>
 
         {/* Date filter */}
         <select
           value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs text-white focus:outline-none appearance-none cursor-pointer"
+          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer`}
         >
-          <option value="all" className="bg-[#1a1a2e]">{t.allTime}</option>
-          <option value="this-month" className="bg-[#1a1a2e]">{t.thisMonth}</option>
-          <option value="last-month" className="bg-[#1a1a2e]">{t.lastMonth}</option>
-          <option value="last-3-months" className="bg-[#1a1a2e]">{t.last3Months}</option>
+          <option value="all" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allTime}</option>
+          <option value="this-month" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.thisMonth}</option>
+          <option value="last-month" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.lastMonth}</option>
+          <option value="last-3-months" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.last3Months}</option>
         </select>
 
         {/* Status filter */}
         <select
           value={statusFilter ?? ""} onChange={(e) => setStatusFilter(e.target.value ? Number(e.target.value) : null)}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs text-white focus:outline-none appearance-none cursor-pointer"
+          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer`}
         >
-          <option value="" className="bg-[#1a1a2e]">{t.allStatuses}</option>
-          <option value="1" className="bg-[#1a1a2e]">{t.active}</option>
-          <option value="2" className="bg-[#1a1a2e]">{t.completed}</option>
-          <option value="3" className="bg-[#1a1a2e]">{t.expired}</option>
-          <option value="4" className="bg-[#1a1a2e]">{t.cancelled}</option>
+          <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStatuses}</option>
+          <option value="1" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.active}</option>
+          <option value="2" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.completed}</option>
+          <option value="3" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.expired}</option>
+          <option value="4" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.cancelled}</option>
         </select>
 
         {/* Treatment filter */}
         <select
           value={treatmentFilter ?? ""} onChange={(e) => setTreatmentFilter(e.target.value ? Number(e.target.value) : null)}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-2 text-xs text-white focus:outline-none appearance-none cursor-pointer max-w-[200px]"
+          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer max-w-[200px]`}
         >
-          <option value="" className="bg-[#1a1a2e]">{t.allTreatments}</option>
+          <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allTreatments}</option>
           {treatments.map((tr) => (
-            <option key={tr.id} value={tr.id} className="bg-[#1a1a2e]">{tr.name}</option>
+            <option key={tr.id} value={tr.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{tr.name}</option>
           ))}
         </select>
       </div>
@@ -701,20 +706,20 @@ export default function PackageSalesScreen() {
       {/* ─── TABLE ─── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-12 text-white/40">
+          <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
             {t.loading}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
             <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
-            <p className="text-sm font-medium text-white/40">{search || statusFilter || treatmentFilter ? t.noResult : t.noData}</p>
+            <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search || statusFilter || treatmentFilter ? t.noResult : t.noData}</p>
             {!search && !statusFilter && !treatmentFilter && <p className="text-xs text-white/25">{t.noDataSub}</p>}
           </div>
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div className="hidden lg:grid grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 border-b border-white/[0.06] bg-white/[0.03] px-4 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
+            <div className={`hidden lg:grid grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.customer}</span>
               <span>{t.treatment}</span>
               <span>{t.sessions}</span>
@@ -738,36 +743,36 @@ export default function PackageSalesScreen() {
                   >
                     {/* Customer */}
                     <div className="flex items-center gap-2.5">
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-[11px] font-bold text-white/70">
+                      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-[11px] font-bold ${isDark ? "text-white/70" : "text-gray-700"}`}>
                         {sale.customerFullName.charAt(0).toUpperCase()}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{sale.customerFullName}</p>
-                        <p className="text-[10px] text-white/30 lg:hidden">{sale.treatmentName}</p>
+                        <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{sale.customerFullName}</p>
+                        <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} lg:hidden`}>{sale.treatmentName}</p>
                       </div>
                     </div>
 
                     {/* Treatment */}
                     <div className="hidden lg:block">
-                      <p className="text-sm text-white/80 truncate">{sale.treatmentName}</p>
-                      <p className="text-[10px] text-white/30">{fmtDate(sale.startDate)}</p>
+                      <p className={`text-sm ${isDark ? "text-white/80" : "text-gray-800"} truncate`}>{sale.treatmentName}</p>
+                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{fmtDate(sale.startDate)}</p>
                     </div>
 
                     {/* Sessions */}
                     <div className="hidden lg:block">
-                      <span className="text-sm font-medium text-white">
+                      <span className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-900"}`}>
                         {sale.usedSessions}{t.of}{sale.totalSessions}
                       </span>
-                      <span className="ml-1 text-[10px] text-white/30">{t.session}</span>
+                      <span className={`ml-1 text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.session}</span>
                     </div>
 
                     {/* Progress */}
                     <div className="hidden lg:block">
-                      <ProgressBar used={sale.usedSessions} total={sale.totalSessions} />
+                      <ProgressBar used={sale.usedSessions} total={sale.totalSessions} isDark={isDark} />
                     </div>
 
                     {/* Price */}
-                    <p className="hidden lg:block text-sm font-bold text-white">{fmt(sale.totalPrice)} TRY</p>
+                    <p className={`hidden lg:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} TRY</p>
 
                     {/* Paid */}
                     <p className="hidden lg:block text-sm text-emerald-400">{fmt(sale.paidAmount)} TRY</p>
@@ -787,19 +792,19 @@ export default function PackageSalesScreen() {
                     {/* Mobile info */}
                     <div className="flex items-center justify-between lg:hidden">
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-bold text-white">{fmt(sale.totalPrice)} TRY</span>
+                        <span className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} TRY</span>
                         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
                           {sale.statusDisplay}
                         </span>
                       </div>
-                      <span className="text-xs text-white/40">{sale.usedSessions}/{sale.totalSessions} {t.session}</span>
+                      <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{sale.usedSessions}/{sale.totalSessions} {t.session}</span>
                     </div>
 
                     {/* Actions */}
                     <div className="hidden lg:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => openDetail(sale)}
-                        className="flex h-7 w-7 items-center justify-center rounded-lg text-white/30 transition hover:bg-white/10 hover:text-white"
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
                         title={t.edit}
                       >
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
@@ -819,7 +824,7 @@ export default function PackageSalesScreen() {
               onPageChange={(p) => setPage(p)}
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
-            <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-4 py-2 text-xs text-white/40">
+            <div className={`flex items-center justify-between border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
               <span>{filtered.length} {t.total}</span>
               <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} TRY</span>
             </div>
@@ -835,33 +840,33 @@ export default function PackageSalesScreen() {
 
           {/* Customer selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.selectCustomer}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.selectCustomer}</label>
             <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="text" value={customerSearch}
                 onChange={(e) => { setCustomerSearch(e.target.value); setShowCustomerDd(true); }}
                 onFocus={() => setShowCustomerDd(true)}
                 placeholder={t.search}
-                className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
               />
               {showCustomerDd && (
-                <div className="absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
+                <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
                   {filteredCustomers.length === 0 ? (
-                    <div className="px-4 py-3 text-xs text-white/30">{language === "tr" ? "Müşteri bulunamadı" : "No customers found"}</div>
+                    <div className={`px-4 py-3 text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Müşteri bulunamadı" : "No customers found"}</div>
                   ) : (
                     filteredCustomers.slice(0, 10).map((c) => (
                       <button
                         key={c.id} type="button"
                         onClick={() => { setCreateForm({ ...createForm, customerId: c.id }); setCustomerSearch(`${c.name} ${c.surname}`); setShowCustomerDd(false); }}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-white/5 ${createForm.customerId === c.id ? "bg-white/5" : ""}`}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${createForm.customerId === c.id ? "bg-white/5" : ""}`}
                       >
-                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold text-white/70">
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold ${isDark ? "text-white/70" : "text-gray-700"}`}>
                           {c.name[0]}{c.surname[0]}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm text-white truncate">{c.name} {c.surname}</p>
-                          {c.phone && <p className="text-[11px] text-white/30">{c.phone}</p>}
+                          <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"} truncate`}>{c.name} {c.surname}</p>
+                          {c.phone && <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{c.phone}</p>}
                         </div>
                         {createForm.customerId === c.id && (
                           <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
@@ -876,31 +881,31 @@ export default function PackageSalesScreen() {
 
           {/* Treatment selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.selectTreatment}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.selectTreatment}</label>
             <div className="relative">
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="text" value={treatmentSearch}
                 onChange={(e) => { setTreatmentSearch(e.target.value); setShowTreatmentDd(true); }}
                 onFocus={() => setShowTreatmentDd(true)}
                 placeholder={t.search}
-                className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
               />
               {showTreatmentDd && (
-                <div className="absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
+                <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
                   {filteredTreatments.length === 0 ? (
-                    <div className="px-4 py-3 text-xs text-white/30">{language === "tr" ? "Hizmet bulunamadı" : "No treatments found"}</div>
+                    <div className={`px-4 py-3 text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Hizmet bulunamadı" : "No treatments found"}</div>
                   ) : (
                     filteredTreatments.slice(0, 10).map((tr) => (
                       <button
                         key={tr.id} type="button"
                         onClick={() => { setCreateForm({ ...createForm, treatmentId: tr.id }); setTreatmentSearch(tr.name); setShowTreatmentDd(false); }}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-white/5 ${createForm.treatmentId === tr.id ? "bg-white/5" : ""}`}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${createForm.treatmentId === tr.id ? "bg-white/5" : ""}`}
                       >
                         <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tr.color || "#a78bfa" }} />
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm text-white truncate">{tr.name}</p>
-                          <p className="text-[10px] text-white/30">{tr.durationMinutes} {language === "tr" ? "dk" : "min"} • ₺{fmt(tr.price ?? 0)}</p>
+                          <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"} truncate`}>{tr.name}</p>
+                          <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{tr.durationMinutes} {language === "tr" ? "dk" : "min"} • ₺{fmt(tr.price ?? 0)}</p>
                         </div>
                         {createForm.treatmentId === tr.id && (
                           <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
@@ -916,21 +921,21 @@ export default function PackageSalesScreen() {
           {/* Sessions + Price row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.sessionCount}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.sessionCount}</label>
               <input
                 type="number" min={1} value={createForm.totalSessions}
                 onChange={(e) => setCreateForm({ ...createForm, totalSessions: Number(e.target.value) })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.packagePrice}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.packagePrice}</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TRY</span>
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>TRY</span>
                 <input
                   type="number" min={0} step={0.01} value={createForm.totalPrice || ""}
                   onChange={(e) => setCreateForm({ ...createForm, totalPrice: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-white/25"
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-10 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
                 />
               </div>
             </div>
@@ -939,25 +944,25 @@ export default function PackageSalesScreen() {
           {/* Payment row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentAmount}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentAmount}</label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TRY</span>
+                <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>TRY</span>
                 <input
                   type="number" min={0} step={0.01} value={createForm.paidAmount || ""}
                   onChange={(e) => setCreateForm({ ...createForm, paidAmount: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-white/25"
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-10 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
                 />
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentMethod}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentMethod}</label>
               <select
                 value={createForm.paymentMethod}
                 onChange={(e) => setCreateForm({ ...createForm, paymentMethod: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none appearance-none"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none`}
               >
                 {paymentMethods.map((pm) => (
-                  <option key={pm.value} value={pm.value} className="bg-[#1a1a2e]">{pm.label}</option>
+                  <option key={pm.value} value={pm.value} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{pm.label}</option>
                 ))}
               </select>
             </div>
@@ -966,31 +971,31 @@ export default function PackageSalesScreen() {
           {/* Dates */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.startDate}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.startDate}</label>
               <input
                 type="date" value={createForm.startDate}
                 onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25 [color-scheme:dark]"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.endDate}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.endDate}</label>
               <input
                 type="date" value={createForm.endDate}
                 onChange={(e) => setCreateForm({ ...createForm, endDate: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25 [color-scheme:dark]"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
               />
             </div>
           </div>
 
           {/* Notes */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.notes}</label>
             <textarea
               value={createForm.notes}
               onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })}
               rows={2} placeholder={t.notesPlaceholder}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
             />
           </div>
 
@@ -998,13 +1003,13 @@ export default function PackageSalesScreen() {
           <div className="flex gap-3 pt-1">
             <button
               type="submit" disabled={saving}
-              className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition hover:shadow-green-900/50 disabled:opacity-50"
+              className={`flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition hover:shadow-green-900/50 disabled:opacity-50`}
             >
               {saving ? t.saving : t.save}
             </button>
             <button
               type="button" onClick={() => setShowCreate(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}
             >
               {t.cancel}
             </button>
@@ -1025,12 +1030,12 @@ export default function PackageSalesScreen() {
               {/* Hero */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-lg font-bold text-white/70">
+                  <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500/30 to-pink-500/30 text-lg font-bold ${isDark ? "text-white/70" : "text-gray-700"}`}>
                     {sale.customerFullName.charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-white">{sale.customerFullName}</p>
-                    <p className="text-xs text-white/40">{sale.treatmentName}</p>
+                    <p className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{sale.customerFullName}</p>
+                    <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{sale.treatmentName}</p>
                   </div>
                 </div>
                 <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
@@ -1040,21 +1045,21 @@ export default function PackageSalesScreen() {
 
               {/* Info Cards */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
-                  <p className="text-[10px] text-white/30">{t.sessions}</p>
-                  <p className="mt-1 text-xl font-bold text-white">{sale.usedSessions}{t.of}{sale.totalSessions}</p>
-                  <ProgressBar used={sale.usedSessions} total={sale.totalSessions} />
+                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.sessions}</p>
+                  <p className={`mt-1 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{sale.usedSessions}{t.of}{sale.totalSessions}</p>
+                  <ProgressBar used={sale.usedSessions} total={sale.totalSessions} isDark={isDark} />
                 </div>
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
-                  <p className="text-[10px] text-white/30">{t.totalPrice}</p>
-                  <p className="mt-1 text-xl font-bold text-white">{fmt(sale.totalPrice)} TRY</p>
+                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.totalPrice}</p>
+                  <p className={`mt-1 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} TRY</p>
                 </div>
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
-                  <p className="text-[10px] text-white/30">{t.paidAmount}</p>
+                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.paidAmount}</p>
                   <p className="mt-1 text-xl font-bold text-emerald-400">{fmt(sale.paidAmount)} TRY</p>
                 </div>
-                <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-3 text-center">
-                  <p className="text-[10px] text-white/30">{t.remainingPayment}</p>
+                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.remainingPayment}</p>
                   <p className={`mt-1 text-xl font-bold ${sale.remainingPayment > 0 ? "text-amber-400" : "text-white/40"}`}>
                     {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} TRY` : "-"}
                   </p>
@@ -1062,17 +1067,17 @@ export default function PackageSalesScreen() {
               </div>
 
               {/* Meta */}
-              <div className="flex flex-wrap gap-4 text-xs text-white/40">
-                <span>{t.seller}: <span className="text-white/60">{sale.staffFullName}</span></span>
-                <span>{t.validUntil}: <span className="text-white/60">{fmtDate(sale.endDate)}</span></span>
-                <span>{t.createdAt}: <span className="text-white/60">{fmtDate(sale.createdAt)}</span></span>
+              <div className={`flex flex-wrap gap-4 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                <span>{t.seller}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{sale.staffFullName}</span></span>
+                <span>{t.validUntil}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(sale.endDate)}</span></span>
+                <span>{t.createdAt}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(sale.createdAt)}</span></span>
               </div>
-              {sale.notes && <p className="text-xs text-white/40 italic">{sale.notes}</p>}
+              {sale.notes && <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} italic`}>{sale.notes}</p>}
 
               {/* Usage History */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-white/70">{t.usageHistory}</h3>
+                  <h3 className={`text-sm font-semibold ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.usageHistory}</h3>
                   {sale.statusValue === 1 && sale.remainingSessions > 0 && (
                     <button onClick={openUsage} className="text-xs font-semibold text-purple-400 hover:text-purple-300 transition">
                       + {t.recordUsage}
@@ -1087,22 +1092,22 @@ export default function PackageSalesScreen() {
                           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500/20 text-[10px] font-bold text-purple-400">
                             {sale.usages!.length - i}
                           </span>
-                          <span className="text-xs text-white/60">{fmtDate(u.usageDate)}</span>
-                          {u.staffFullName && <span className="text-[10px] text-white/30">- {u.staffFullName}</span>}
+                          <span className={`text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(u.usageDate)}</span>
+                          {u.staffFullName && <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>- {u.staffFullName}</span>}
                         </div>
-                        {u.notes && <span className="text-[10px] text-white/30 truncate max-w-[150px]">{u.notes}</span>}
+                        {u.notes && <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} truncate max-w-[150px]`}>{u.notes}</span>}
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-white/30 italic">{t.noUsage}</p>
+                  <p className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"} italic`}>{t.noUsage}</p>
                 )}
               </div>
 
               {/* Payment History */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-sm font-semibold text-white/70">{t.paymentHistory}</h3>
+                  <h3 className={`text-sm font-semibold ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.paymentHistory}</h3>
                   {sale.remainingPayment > 0 && (
                     <button onClick={openPayment} className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition">
                       + {t.addPayment}
@@ -1115,17 +1120,17 @@ export default function PackageSalesScreen() {
                       <div key={p.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-emerald-400">{fmt(p.amount)} TRY</span>
-                          <span className="text-[10px] text-white/30">{p.paymentMethodDisplay}</span>
+                          <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{p.paymentMethodDisplay}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs text-white/40">{fmtDate(p.paidAt)}</span>
-                          {p.notes && <span className="text-[10px] text-white/30 truncate max-w-[100px]">{p.notes}</span>}
+                          <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{fmtDate(p.paidAt)}</span>
+                          {p.notes && <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} truncate max-w-[100px]`}>{p.notes}</span>}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <p className="text-xs text-white/30 italic">{t.noPayments}</p>
+                  <p className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"} italic`}>{t.noPayments}</p>
                 )}
               </div>
 
@@ -1134,7 +1139,7 @@ export default function PackageSalesScreen() {
                 {sale.statusValue === 1 && sale.remainingSessions > 0 && (
                   <button
                     onClick={openUsage}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2.5 text-xs font-semibold text-white transition hover:opacity-90"
+                    className={`flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:opacity-90`}
                   >
                     {t.recordUsage}
                   </button>
@@ -1165,45 +1170,45 @@ export default function PackageSalesScreen() {
       <Modal open={showUsage} onClose={() => setShowUsage(false)} title={t.usageTitle} maxWidth="max-w-md">
         <form onSubmit={handleRecordUsage} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.usageDate}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.usageDate}</label>
             <input
               type="date" value={usageForm.usageDate}
               onChange={(e) => setUsageForm({ ...usageForm, usageDate: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25 [color-scheme:dark]"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.usageStaff}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.usageStaff}</label>
             <select
               value={usageForm.staffId}
               onChange={(e) => setUsageForm({ ...usageForm, staffId: Number(e.target.value) })}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none appearance-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none`}
             >
-              <option value={0} className="bg-[#1a1a2e]">{t.selectStaff}</option>
+              <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.selectStaff}</option>
               {staffList.map((s) => (
-                <option key={s.id} value={s.id} className="bg-[#1a1a2e]">{s.name} {s.surname}</option>
+                <option key={s.id} value={s.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{s.name} {s.surname}</option>
               ))}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.usageNotes}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.usageNotes}</label>
             <textarea
               value={usageForm.notes}
               onChange={(e) => setUsageForm({ ...usageForm, notes: e.target.value })}
               rows={2} placeholder={t.notesPlaceholder}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
             />
           </div>
           <div className="flex gap-3 pt-1">
             <button
               type="submit" disabled={recordingUsage}
-              className="flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-50"
+              className={`flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg transition hover:opacity-90 disabled:opacity-50`}
             >
               {recordingUsage ? t.recording : t.record}
             </button>
             <button
               type="button" onClick={() => setShowUsage(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5"
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}
             >
               {t.cancel}
             </button>
@@ -1217,55 +1222,55 @@ export default function PackageSalesScreen() {
       <Modal open={showPayment} onClose={() => setShowPayment(false)} title={t.paymentTitle} maxWidth="max-w-md">
         <form onSubmit={handleAddPayment} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentAmountLabel}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentAmountLabel}</label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">TRY</span>
+              <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>TRY</span>
               <input
                 type="number" min={0.01} step={0.01} value={paymentForm.amount || ""}
                 onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-10 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentMethod}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentMethod}</label>
             <select
               value={paymentForm.paymentMethod}
               onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none appearance-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none`}
             >
               {paymentMethods.map((pm) => (
-                <option key={pm.value} value={pm.value} className="bg-[#1a1a2e]">{pm.label}</option>
+                <option key={pm.value} value={pm.value} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{pm.label}</option>
               ))}
             </select>
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentDate}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentDate}</label>
             <input
               type="date" value={paymentForm.paidAt}
               onChange={(e) => setPaymentForm({ ...paymentForm, paidAt: e.target.value })}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25 [color-scheme:dark]"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
             />
           </div>
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.notes}</label>
             <textarea
               value={paymentForm.notes}
               onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
               rows={2} placeholder={t.notesPlaceholder}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
             />
           </div>
           <div className="flex gap-3 pt-1">
             <button
               type="submit" disabled={recordingPayment}
-              className="flex-1 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition hover:opacity-90 disabled:opacity-50"
+              className={`flex-1 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg transition hover:opacity-90 disabled:opacity-50`}
             >
               {recordingPayment ? t.saving : t.save}
             </button>
             <button
               type="button" onClick={() => setShowPayment(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5"
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}
             >
               {t.cancel}
             </button>

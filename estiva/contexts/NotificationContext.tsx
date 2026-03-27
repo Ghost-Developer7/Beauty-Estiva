@@ -143,7 +143,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         accessTokenFactory: () => token,
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(signalR.LogLevel.Warning)
+      .configureLogging(signalR.LogLevel.None)
       .build();
 
     connection.on("ReceiveNotification", (notification: InAppNotification) => {

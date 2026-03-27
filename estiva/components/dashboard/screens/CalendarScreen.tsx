@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { appointmentService } from "@/services/appointmentService";
 import type { AppointmentListItem } from "@/types/api";
 import toast from "react-hot-toast";
@@ -48,6 +49,8 @@ function toDateStr(date: Date): string {
 
 export default function CalendarScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const text = copy[language];
 
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -136,35 +139,35 @@ export default function CalendarScreen() {
   const STAFF_COLORS = ["#ef4444", "#3b82f6", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"];
 
   return (
-    <div className="flex flex-col gap-4 text-white">
+    <div className={`flex flex-col gap-4 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-white/10 bg-white/5 p-2">
+      <div className={`flex flex-wrap items-center justify-between gap-2 rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-2`}>
         <div className="flex items-center gap-2">
           <button
             onClick={prevDay}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/10 bg-white/5 hover:bg-white/10"
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"}`}
           >
             {"<"}
           </button>
-          <div className="flex h-8 min-w-0 sm:min-w-[200px] items-center justify-center rounded border border-white/10 bg-white/5 px-2 sm:px-3 text-xs sm:text-sm font-medium truncate">
+          <div className={`flex h-8 min-w-0 sm:min-w-[200px] items-center justify-center rounded border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-2 sm:px-3 text-xs sm:text-sm font-medium truncate`}>
             {formatDateDisplay(currentDate, language)}
           </div>
           <button
             onClick={nextDay}
-            className="flex h-8 w-8 shrink-0 items-center justify-center rounded border border-white/10 bg-white/5 hover:bg-white/10"
+            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"}`}
           >
             {">"}
           </button>
           <button
             onClick={goToday}
-            className="h-8 shrink-0 rounded border border-white/10 bg-white/5 px-3 sm:px-4 text-xs sm:text-sm font-medium hover:bg-white/10"
+            className={`h-8 shrink-0 rounded border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 sm:px-4 text-xs sm:text-sm font-medium ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"}`}
           >
             {text.today}
           </button>
         </div>
         <button
           onClick={() => (window.location.href = "/dashboard/appointments")}
-          className="h-8 rounded bg-[#2ecc71] px-3 sm:px-4 text-xs sm:text-sm font-semibold text-white hover:bg-[#27ae60]"
+          className={`h-8 rounded bg-[#2ecc71] px-3 sm:px-4 text-xs sm:text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} hover:bg-[#27ae60]`}
         >
           + {text.newBooking}
         </button>
@@ -172,15 +175,15 @@ export default function CalendarScreen() {
 
       {/* Calendar Grid */}
       {loading ? (
-        <div className="rounded-lg border border-white/10 bg-white/5 p-8 text-center text-white/60">
+        <div className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-8 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>
           {text.loading}
         </div>
       ) : staffList.length === 0 ? (
-        <div className="rounded-lg border border-white/10 bg-white/5 p-8 text-center text-white/60">
+        <div className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-8 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>
           {text.noAppointments}
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-white/10 bg-[#0b0614]">
+        <div className={`overflow-x-auto rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#0b0614]" : "bg-gray-50"}`}>
           {/* Staff Headers */}
           <div
             className="grid"
@@ -188,13 +191,13 @@ export default function CalendarScreen() {
               gridTemplateColumns: `60px repeat(${staffList.length}, 1fr)`,
             }}
           >
-            <div className="border-b border-r border-white/10 bg-white/5 p-2 text-center text-xs text-white/40">
+            <div className={`border-b border-r ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-2 text-center text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
               {text.time}
             </div>
             {staffList.map((staff, i) => (
               <div
                 key={staff.name}
-                className="flex h-10 items-center justify-center text-sm font-bold text-white"
+                className={`flex h-10 items-center justify-center text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}
                 style={{ backgroundColor: STAFF_COLORS[i % STAFF_COLORS.length] }}
               >
                 {staff.name}
@@ -210,11 +213,11 @@ export default function CalendarScreen() {
             }}
           >
             {/* Time column */}
-            <div className="border-r border-white/10 bg-white/5 text-xs text-white/50">
+            <div className={`border-r ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>
               {HOURS.map((time) => (
                 <div
                   key={time}
-                  className="flex h-12 items-center justify-center border-b border-white/5"
+                  className={`flex h-12 items-center justify-center border-b ${isDark ? "border-white/5" : "border-gray-100"}`}
                 >
                   {time}
                 </div>
@@ -225,7 +228,7 @@ export default function CalendarScreen() {
             {staffList.map((staff, staffIdx) => (
               <div
                 key={staff.name}
-                className="relative border-r border-white/10"
+                className={`relative border-r ${isDark ? "border-white/10" : "border-gray-200"}`}
               >
                 {HOURS.map((time) => {
                   const slotKey = `${staff.name}-${time}`;
@@ -239,18 +242,18 @@ export default function CalendarScreen() {
                     return (
                       <div
                         key={time}
-                        className="border-b border-white/5 p-1"
+                        className={`border-b ${isDark ? "border-white/5" : "border-gray-100"} p-1`}
                         style={{ height: `${span * 48}px` }}
                       >
                         <div
-                          className="h-full rounded-lg px-2 py-1 text-xs text-white"
+                          className={`h-full rounded-lg px-2 py-1 text-xs ${isDark ? "text-white" : "text-gray-900"}`}
                           style={{ backgroundColor: color + "30", borderLeft: `3px solid ${color}` }}
                         >
                           <p className="font-semibold truncate">
                             {apt.customerFullName}
                           </p>
-                          <p className="text-white/60 truncate">{apt.treatmentName}</p>
-                          <p className="text-white/40">
+                          <p className={`${isDark ? "text-white/60" : "text-gray-600"} truncate`}>{apt.treatmentName}</p>
+                          <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>
                             {new Date(apt.startTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
                             {" - "}
                             {new Date(apt.endTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
@@ -262,7 +265,7 @@ export default function CalendarScreen() {
                   return (
                     <div
                       key={time}
-                      className="h-12 border-b border-dashed border-white/5"
+                      className={`h-12 border-b border-dashed ${isDark ? "border-white/5" : "border-gray-100"}`}
                     />
                   );
                 })}

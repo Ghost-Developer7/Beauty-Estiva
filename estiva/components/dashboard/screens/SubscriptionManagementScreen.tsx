@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { subscriptionService } from "@/services/subscriptionService";
 import type { SubscriptionPlan } from "@/types/api";
@@ -132,6 +133,8 @@ const fmt = (n: number) =>
 
 export default function SubscriptionManagementScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const router = useRouter();
   const t = copy[language];
@@ -279,7 +282,7 @@ export default function SubscriptionManagementScreen() {
 
   if (!isSuperAdmin) {
     return (
-      <div className="flex items-center justify-center p-16 text-white/40">
+      <div className={`flex items-center justify-center p-16 ${isDark ? "text-white/40" : "text-gray-400"}`}>
         {t.unauthorized}
       </div>
     );
@@ -287,7 +290,7 @@ export default function SubscriptionManagementScreen() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-3 p-16 text-white/40">
+      <div className={`flex items-center justify-center gap-3 p-16 ${isDark ? "text-white/40" : "text-gray-400"}`}>
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
         {t.loading}
       </div>
@@ -295,12 +298,12 @@ export default function SubscriptionManagementScreen() {
   }
 
   return (
-    <div className="space-y-6 text-white">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
 
       {/* --- HEADER --- */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-        <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
+        <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.subtitle}</p>
       </div>
 
       {/* --- PLANS GRID --- */}
@@ -310,7 +313,7 @@ export default function SubscriptionManagementScreen() {
             <rect x="2" y="4" width="20" height="16" rx="2" />
             <path d="M2 10h20" />
           </svg>
-          <p className="text-sm font-medium text-white/40">{t.noPlans}</p>
+          <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noPlans}</p>
         </div>
       ) : (
         <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
@@ -345,20 +348,20 @@ export default function SubscriptionManagementScreen() {
                 </div>
 
                 {plan.description && (
-                  <p className="mb-3 text-xs text-white/40">{plan.description}</p>
+                  <p className={`mb-3 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{plan.description}</p>
                 )}
 
                 {/* Pricing */}
                 <div className="mb-4 grid grid-cols-2 gap-3">
-                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                    <p className="text-[10px] text-white/30 tracking-wider">{t.monthlyPrice}</p>
-                    <p className="mt-0.5 text-lg font-bold text-white">
+                  <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} tracking-wider`}>{t.monthlyPrice}</p>
+                    <p className={`mt-0.5 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {"\u20BA"}{fmt(plan.monthlyPrice)}
                     </p>
                   </div>
-                  <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2.5">
-                    <p className="text-[10px] text-white/30 tracking-wider">{t.yearlyPrice}</p>
-                    <p className="mt-0.5 text-lg font-bold text-white">
+                  <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} tracking-wider`}>{t.yearlyPrice}</p>
+                    <p className={`mt-0.5 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {"\u20BA"}{fmt(plan.yearlyPrice)}
                     </p>
                   </div>
@@ -366,15 +369,15 @@ export default function SubscriptionManagementScreen() {
 
                 {/* Limits */}
                 <div className="mb-4 flex gap-3">
-                  <div className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
-                    <p className="text-[10px] text-white/30">{t.maxStaff}</p>
-                    <p className="text-sm font-bold text-white">
+                  <div className={`flex-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.maxStaff}</p>
+                    <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {plan.maxStaffCount <= 0 ? t.unlimited : plan.maxStaffCount}
                     </p>
                   </div>
-                  <div className="flex-1 rounded-xl border border-white/[0.06] bg-white/[0.03] px-3 py-2">
-                    <p className="text-[10px] text-white/30">{t.maxBranch}</p>
-                    <p className="text-sm font-bold text-white">
+                  <div className={`flex-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.maxBranch}</p>
+                    <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {plan.maxBranchCount <= 0 ? t.unlimited : plan.maxBranchCount}
                     </p>
                   </div>
@@ -391,13 +394,13 @@ export default function SubscriptionManagementScreen() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEdit(plan)}
-                    className="flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-900/20 transition-all hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]"
+                    className={`flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-2.5 text-xs font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-purple-900/20 transition-all hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
                   >
                     {t.edit}
                   </button>
                   <button
                     onClick={() => handleToggle(plan.id)}
-                    className={`rounded-xl border px-4 py-2.5 text-xs font-semibold transition hover:bg-white/5 ${
+                    className={`rounded-xl border px-4 py-2.5 text-xs font-semibold transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${
                       isActive
                         ? "border-red-500/20 text-red-400"
                         : "border-emerald-500/20 text-emerald-400"
@@ -415,16 +418,16 @@ export default function SubscriptionManagementScreen() {
       {/* --- TENANT PLAN ASSIGNMENT --- */}
       <div className="mt-8">
         <h2 className="text-lg font-bold">{t.tenantSection}</h2>
-        <p className="mt-0.5 text-sm text-white/40">{t.tenantSectionSub}</p>
+        <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.tenantSectionSub}</p>
 
         {/* Assign form */}
         <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
           <div className="flex-1 min-w-[200px] space-y-1">
-            <label className="text-xs font-semibold text-white/40">{t.storeName}</label>
+            <label className={`text-xs font-semibold ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.storeName}</label>
             <select
               value={assignTenantId}
               onChange={(e) => setAssignTenantId(Number(e.target.value))}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
             >
               <option value={0}>{t.selectStore}</option>
               {tenants.map((tn) => (
@@ -435,11 +438,11 @@ export default function SubscriptionManagementScreen() {
             </select>
           </div>
           <div className="flex-1 min-w-[200px] space-y-1">
-            <label className="text-xs font-semibold text-white/40">{t.assignPlan}</label>
+            <label className={`text-xs font-semibold ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.assignPlan}</label>
             <select
               value={assignPlanId}
               onChange={(e) => setAssignPlanId(Number(e.target.value))}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
             >
               <option value={0}>{t.selectPlan}</option>
               {plans.filter(p => p.isActive !== false).map((p) => (
@@ -448,7 +451,7 @@ export default function SubscriptionManagementScreen() {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-xs font-semibold text-white/40">&nbsp;</label>
+            <label className={`text-xs font-semibold ${isDark ? "text-white/40" : "text-gray-400"}`}>&nbsp;</label>
             <div className="flex items-center gap-2">
               <button
                 type="button"
@@ -464,7 +467,7 @@ export default function SubscriptionManagementScreen() {
               <button
                 onClick={handleAssignPlan}
                 disabled={!assignTenantId || !assignPlanId || assigning}
-                className="rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2.5 text-xs font-bold text-white shadow-lg disabled:opacity-40 transition-all hover:shadow-purple-900/40"
+                className={`rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2.5 text-xs font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg disabled:opacity-40 transition-all hover:shadow-purple-900/40`}
               >
                 {assigning ? t.assigning : t.assignBtn}
               </button>
@@ -474,13 +477,13 @@ export default function SubscriptionManagementScreen() {
 
         {/* Tenant list */}
         {tenantsLoading ? (
-          <p className="mt-4 text-sm text-white/30">{t.loadingTenants}</p>
+          <p className={`mt-4 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.loadingTenants}</p>
         ) : tenants.length === 0 ? (
-          <p className="mt-4 text-sm text-white/30">{t.noTenants}</p>
+          <p className={`mt-4 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noTenants}</p>
         ) : (
           <div className="mt-4 rounded-2xl border border-white/[0.06] overflow-hidden">
             <table className="w-full text-left text-sm">
-              <thead className="bg-white/[0.03] text-xs text-white/40">
+              <thead className={`${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 <tr>
                   <th className="px-4 py-3">ID</th>
                   <th className="px-4 py-3">{t.storeName}</th>
@@ -491,9 +494,9 @@ export default function SubscriptionManagementScreen() {
               <tbody className="divide-y divide-white/[0.04]">
                 {tenants.map((tn) => (
                   <tr key={tn.id} className="hover:bg-white/[0.02]">
-                    <td className="px-4 py-3 text-white/50">{tn.id}</td>
-                    <td className="px-4 py-3 font-medium text-white">{tn.companyName}</td>
-                    <td className="px-4 py-3 text-white/60">
+                    <td className={`px-4 py-3 ${isDark ? "text-white/50" : "text-gray-500"}`}>{tn.id}</td>
+                    <td className={`px-4 py-3 font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{tn.companyName}</td>
+                    <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>
                       {tn.activeSubscription
                         ? `${tn.activeSubscription.name}${tn.activeSubscription.isTrialPeriod ? ` (${t.trial})` : ""}`
                         : <span className="text-red-400">{t.noPlan}</span>
@@ -530,7 +533,7 @@ export default function SubscriptionManagementScreen() {
         <div className="space-y-5">
           {/* Name */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold tracking-wider text-white/40">
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
               {t.planName}
             </label>
             <input
@@ -538,13 +541,13 @@ export default function SubscriptionManagementScreen() {
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
               placeholder={t.namePh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
             />
           </div>
 
           {/* Description */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold tracking-wider text-white/40">
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
               {t.description}
             </label>
             <textarea
@@ -552,14 +555,14 @@ export default function SubscriptionManagementScreen() {
               onChange={(e) => setFormDescription(e.target.value)}
               rows={2}
               placeholder={t.descriptionPh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
             />
           </div>
 
           {/* Prices */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold tracking-wider text-white/40">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 {t.monthlyPrice} (TRY)
               </label>
               <input
@@ -567,11 +570,11 @@ export default function SubscriptionManagementScreen() {
                 value={formMonthlyPrice}
                 onChange={(e) => setFormMonthlyPrice(Number(e.target.value))}
                 min={0}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold tracking-wider text-white/40">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 {t.yearlyPrice} (TRY)
               </label>
               <input
@@ -579,7 +582,7 @@ export default function SubscriptionManagementScreen() {
                 value={formYearlyPrice}
                 onChange={(e) => setFormYearlyPrice(Number(e.target.value))}
                 min={0}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               />
             </div>
           </div>
@@ -587,7 +590,7 @@ export default function SubscriptionManagementScreen() {
           {/* Limits */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold tracking-wider text-white/40">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 {t.maxStaff}
               </label>
               <input
@@ -595,11 +598,11 @@ export default function SubscriptionManagementScreen() {
                 value={formMaxStaff}
                 onChange={(e) => setFormMaxStaff(Number(e.target.value))}
                 min={0}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold tracking-wider text-white/40">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 {t.maxBranch}
               </label>
               <input
@@ -607,14 +610,14 @@ export default function SubscriptionManagementScreen() {
                 value={formMaxBranch}
                 onChange={(e) => setFormMaxBranch(Number(e.target.value))}
                 min={0}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               />
             </div>
           </div>
 
           {/* Validity */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold tracking-wider text-white/40">
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
               {t.validityMonths}
             </label>
             <input
@@ -622,29 +625,32 @@ export default function SubscriptionManagementScreen() {
               value={formValidityMonths}
               onChange={(e) => setFormValidityMonths(Number(e.target.value))}
               min={1}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
             />
           </div>
 
           {/* Feature Checkboxes */}
           <div className="space-y-3">
-            <label className="text-xs font-semibold tracking-wider text-white/40">
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
               {t.features}
             </label>
             <ToggleRow
               label={t.sms}
               checked={formSms}
               onChange={setFormSms}
+              isDark={isDark}
             />
             <ToggleRow
               label={t.whatsapp}
               checked={formWhatsapp}
               onChange={setFormWhatsapp}
+              isDark={isDark}
             />
             <ToggleRow
               label={t.socialMedia}
               checked={formSocialMedia}
               onChange={setFormSocialMedia}
+              isDark={isDark}
             />
           </div>
 
@@ -653,13 +659,13 @@ export default function SubscriptionManagementScreen() {
             <button
               onClick={handleSave}
               disabled={saving || !formName.trim()}
-              className="flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-3 text-sm font-bold text-white shadow-lg shadow-purple-900/30 transition-all hover:shadow-purple-900/50 disabled:opacity-50"
+              className={`flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-purple-900/30 transition-all hover:shadow-purple-900/50 disabled:opacity-50`}
             >
               {saving ? t.saving : t.save}
             </button>
             <button
               onClick={() => setShowEditModal(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5"
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}
             >
               {t.cancel}
             </button>
@@ -701,14 +707,16 @@ function ToggleRow({
   label,
   checked,
   onChange,
+  isDark,
 }: {
   label: string;
   checked: boolean;
   onChange: (v: boolean) => void;
+  isDark: boolean;
 }) {
   return (
     <label className="flex cursor-pointer items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
-      <span className="text-sm text-white/70">{label}</span>
+      <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{label}</span>
       <button
         type="button"
         onClick={() => onChange(!checked)}

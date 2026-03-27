@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, FormEvent, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { paymentService } from "@/services/paymentService";
 import { appointmentService } from "@/services/appointmentService";
 import { customerService } from "@/services/customerService";
@@ -195,12 +196,12 @@ function getMethodColor(display: string) {
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
 
-function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
+function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
   return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
-      <p className="text-[11px] text-white/40">{label}</p>
+    <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+      <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
-      {sub && <p className="text-[10px] text-white/30">{sub}</p>}
+      {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
     </div>
   );
 }
@@ -230,6 +231,8 @@ function MethodBadge({ display, language }: { display: string; language: "en" | 
 
 export default function OrdersScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
 
   /* ─── Data ─── */
@@ -546,13 +549,13 @@ export default function OrdersScreen() {
      ═══════════════════════════════════════════ */
 
   return (
-    <div className="space-y-5 text-white">
+    <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
 
       {/* ─── HEADER ─── */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className="mt-0.5 text-sm text-white/40">{filtered.length} {t.total}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{filtered.length} {t.total}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -573,14 +576,14 @@ export default function OrdersScreen() {
           />
           <button
             onClick={openApptCreate}
-            className="group flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-white/10 active:scale-[0.98]"
+            className={`group flex items-center gap-2 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} transition-all ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} active:scale-[0.98]`}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
             {t.newAppointment}
           </button>
           <button
             onClick={openCreate}
-            className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-indigo-900/30 transition-all hover:shadow-indigo-900/50 hover:scale-[1.02] active:scale-[0.98]"
+            className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-indigo-900/30 transition-all hover:shadow-indigo-900/50 hover:scale-[1.02] active:scale-[0.98]`}
           >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
           {t.newPayment}
@@ -590,15 +593,14 @@ export default function OrdersScreen() {
 
       {/* ─── STATS ─── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" />
-        <StatCard label={t.avgPayment} value={`₺${fmt(avgPayment)}`} color="#6366f1" />
-        <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" />
+        <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} />
+        <StatCard label={t.avgPayment} value={`₺${fmt(avgPayment)}`} color="#6366f1" isDark={isDark} />
+        <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" isDark={isDark} />
         <StatCard
           label={t.topMethod}
           value={topMethod ? topMethod[0] : "—"}
           sub={topMethod ? `${topMethod[1]}x` : ""}
-          color="#f59e0b"
-        />
+          color="#f59e0b" isDark={isDark} />
       </div>
 
       {/* ─── FILTERS ─── */}
@@ -607,7 +609,7 @@ export default function OrdersScreen() {
           type="date"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none focus:border-white/20"
+          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
           title={t.startDate}
         />
         <span className="text-white/20">—</span>
@@ -615,31 +617,31 @@ export default function OrdersScreen() {
           type="date"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none focus:border-white/20"
+          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
           title={t.endDate}
         />
 
-        <div className="h-6 w-px bg-white/10" />
+        <div className={`h-6 w-px ${isDark ? "bg-white/10" : "bg-gray-100"}`} />
 
         <select
           value={staffFilter}
           onChange={(e) => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none"
+          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
         >
-          <option value="" className="bg-[#1a1a2e]">{t.allStaff}</option>
+          <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStaff}</option>
           {staffList.filter(s => s.isActive).map((s) => (
-            <option key={s.id} value={s.id} className="bg-[#1a1a2e]">{s.name} {s.surname}</option>
+            <option key={s.id} value={s.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{s.name} {s.surname}</option>
           ))}
         </select>
 
         <div className="relative ml-auto">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+          <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.search}
-            className="rounded-xl border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 w-48"
+            className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-9 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 w-48`}
           />
         </div>
       </div>
@@ -647,20 +649,20 @@ export default function OrdersScreen() {
       {/* ─── PAYMENT LIST ─── */}
       <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-12 text-white/40">
+          <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
             <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
             {t.loading}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
             <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
-            <p className="text-sm font-medium text-white/40">{t.noData}</p>
+            <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noData}</p>
             <p className="text-xs text-white/25">{t.noDataSub}</p>
           </div>
         ) : (
           <>
             {/* Table header */}
-            <div className="hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
+            <div className={`hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.customer}</span>
               <span>{t.treatment}</span>
               <span>{t.staffMember}</span>
@@ -682,34 +684,34 @@ export default function OrdersScreen() {
                   >
                     {/* Customer */}
                     <div className="flex items-center gap-3">
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold text-white/70">
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold ${isDark ? "text-white/70" : "text-gray-700"}`}>
                         {p.customerFullName?.split(" ").map(n => n[0]).join("").slice(0, 2) || "?"}
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-white truncate">{p.customerFullName || `#${p.appointmentId}`}</p>
-                        <p className="text-[10px] text-white/30 md:hidden">{p.treatmentName}</p>
+                        <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{p.customerFullName || `#${p.appointmentId}`}</p>
+                        <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} md:hidden`}>{p.treatmentName}</p>
                       </div>
                     </div>
 
                     {/* Treatment */}
-                    <p className="hidden md:block text-xs text-white/60 truncate">{p.treatmentName}</p>
+                    <p className={`hidden md:block text-xs ${isDark ? "text-white/60" : "text-gray-600"} truncate`}>{p.treatmentName}</p>
 
                     {/* Staff */}
-                    <p className="hidden md:block text-xs text-white/50 truncate">{p.staffFullName}</p>
+                    <p className={`hidden md:block text-xs ${isDark ? "text-white/50" : "text-gray-500"} truncate`}>{p.staffFullName}</p>
 
                     {/* Date */}
                     <div className="hidden md:block">
-                      <p className="text-xs text-white/60">{formatDate(p.paidAt)}</p>
-                      <p className="text-[10px] text-white/30">{formatTime(p.paidAt)}</p>
+                      <p className={`text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatDate(p.paidAt)}</p>
+                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{formatTime(p.paidAt)}</p>
                     </div>
 
                     {/* Amount */}
                     <div>
-                      <p className="text-sm font-bold text-white">
+                      <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                         {p.currencySymbol}{fmt(p.amount)}
                       </p>
                       {p.currencyCode !== "TRY" && (
-                        <p className="text-[10px] text-white/30">₺{fmt(p.amountInTry)}</p>
+                        <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>₺{fmt(p.amountInTry)}</p>
                       )}
                     </div>
 
@@ -720,7 +722,7 @@ export default function OrdersScreen() {
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => handleDelete(p.id)}
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 transition hover:bg-red-500/20 hover:text-red-400"
+                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}
                         title={t.deletePayment}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
@@ -740,8 +742,8 @@ export default function OrdersScreen() {
               onPageChange={(p) => setPage(p)}
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
-            <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-5 py-3">
-              <span className="text-xs text-white/40">{filtered.length} {t.total}</span>
+            <div className={`flex items-center justify-between border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3`}>
+              <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{filtered.length} {t.total}</span>
               <span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span>
             </div>
           </>
@@ -756,35 +758,35 @@ export default function OrdersScreen() {
 
           {/* Appointment Selection */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.appointment}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.appointment}</label>
             <div className="relative" ref={appointmentDropdownRef}>
-              <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
               <input
                 type="text"
                 value={appointmentSearch}
                 onChange={(e) => { setAppointmentSearch(e.target.value); setShowAppointmentDropdown(true); }}
                 onFocus={() => setShowAppointmentDropdown(true)}
                 placeholder={t.searchAppointment}
-                className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
               />
               {showAppointmentDropdown && (
-                <div className="absolute left-0 right-0 z-20 mt-1 max-h-52 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
+                <div className={`absolute left-0 right-0 z-20 mt-1 max-h-52 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
                   {filteredAppointments.length === 0 ? (
-                    <div className="px-4 py-3 text-xs text-white/30">{t.noAppointments}</div>
+                    <div className={`px-4 py-3 text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noAppointments}</div>
                   ) : (
                     filteredAppointments.map((a) => (
                       <button
                         key={a.id}
                         type="button"
                         onClick={() => selectAppointment(a)}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-white/5 ${form.appointmentId === a.id ? "bg-white/5" : ""}`}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${form.appointmentId === a.id ? "bg-white/5" : ""}`}
                       >
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-[10px] font-bold text-white/60">
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-[10px] font-bold ${isDark ? "text-white/60" : "text-gray-600"}`}>
                           #{a.id}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <p className="text-sm text-white truncate">{a.customerFullName}</p>
-                          <p className="text-[10px] text-white/30">{a.treatmentName} • {formatDateTime(a.startTime)}</p>
+                          <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"} truncate`}>{a.customerFullName}</p>
+                          <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{a.treatmentName} • {formatDateTime(a.startTime)}</p>
                         </div>
                         {form.appointmentId === a.id && (
                           <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
@@ -800,27 +802,27 @@ export default function OrdersScreen() {
           {/* Amount + Currency */}
           <div className={`grid grid-cols-1 gap-3 ${(() => { const curr = currencies.find(c => c.id === form.currencyId); return curr && curr.code !== "TRY" ? "sm:grid-cols-3" : "sm:grid-cols-2"; })()}`}>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentAmount}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentAmount}</label>
               <input
                 type="number"
                 min={0}
                 step={0.01}
                 value={form.amount || ""}
                 onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
                 placeholder="0.00"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.currency}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.currency}</label>
               <select
                 value={form.currencyId}
                 onChange={(e) => handleCurrencyChange(Number(e.target.value))}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
               >
-                {currencies.length === 0 && <option value={0} className="bg-[#1a1a2e]">₺ TRY</option>}
+                {currencies.length === 0 && <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>₺ TRY</option>}
                 {currencies.map((c) => (
-                  <option key={c.id} value={c.id} className="bg-[#1a1a2e]">
+                  <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>
                     {c.symbol} {c.code}
                   </option>
                 ))}
@@ -828,17 +830,17 @@ export default function OrdersScreen() {
             </div>
             {(() => { const curr = currencies.find(c => c.id === form.currencyId); return curr && curr.code !== "TRY"; })() && (
               <div className="space-y-2">
-                <label className="text-xs font-semibold tracking-wider text-white/40">{t.exchangeRate}</label>
+                <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.exchangeRate}</label>
                 <input
                   type="number"
                   min={0}
                   step={0.0001}
                   value={form.exchangeRateToTry}
                   onChange={(e) => setForm({ ...form, exchangeRateToTry: Number(e.target.value) })}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25"
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
                 />
                 {form.amount > 0 && form.exchangeRateToTry > 0 && (
-                  <p className="text-[10px] text-white/30">= ₺{fmt(form.amount * form.exchangeRateToTry)}</p>
+                  <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>= ₺{fmt(form.amount * form.exchangeRateToTry)}</p>
                 )}
               </div>
             )}
@@ -846,7 +848,7 @@ export default function OrdersScreen() {
 
           {/* Payment Method */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentMethod}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentMethod}</label>
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
               {PAYMENT_METHODS.map((m) => (
                 <button
@@ -860,7 +862,7 @@ export default function OrdersScreen() {
                   }`}
                 >
                   <span className="text-lg">{m.icon}</span>
-                  <span className="text-[10px] font-medium text-white/60">{language === "tr" ? m.tr : m.en}</span>
+                  <span className={`text-[10px] font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{language === "tr" ? m.tr : m.en}</span>
                 </button>
               ))}
             </div>
@@ -868,13 +870,13 @@ export default function OrdersScreen() {
 
           {/* Notes */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.notes}</label>
             <input
               type="text"
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               placeholder={t.notesPlaceholder}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
             />
           </div>
 
@@ -883,14 +885,14 @@ export default function OrdersScreen() {
             <button
               type="submit"
               disabled={saving}
-              className="flex-1 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-indigo-900/30 transition hover:shadow-indigo-900/50 disabled:opacity-50"
+              className={`flex-1 rounded-xl bg-gradient-to-r from-[#6366f1] to-[#8b5cf6] px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-indigo-900/30 transition hover:shadow-indigo-900/50 disabled:opacity-50`}
             >
               {saving ? t.saving : t.save}
             </button>
             <button
               type="button"
               onClick={() => setShowCreate(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white"
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}
             >
               {t.cancel}
             </button>
@@ -908,10 +910,10 @@ export default function OrdersScreen() {
           return (
             <div className="space-y-5">
               {/* Amount hero */}
-              <div className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-5">
-                <p className="text-3xl font-bold text-white">{p.currencySymbol}{fmt(p.amount)}</p>
+              <div className={`flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-5`}>
+                <p className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{p.currencySymbol}{fmt(p.amount)}</p>
                 {p.currencyCode !== "TRY" && (
-                  <p className="text-sm text-white/40">₺{fmt(p.amountInTry)}</p>
+                  <p className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>₺{fmt(p.amountInTry)}</p>
                 )}
                 <MethodBadge display={p.paymentMethodDisplay} language={language} />
               </div>
@@ -919,35 +921,35 @@ export default function OrdersScreen() {
               {/* Info grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.customer}</p>
-                  <p className="text-sm text-white">{p.customerFullName}</p>
+                  <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.customer}</p>
+                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{p.customerFullName}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.treatment}</p>
-                  <p className="text-sm text-white">{p.treatmentName}</p>
+                  <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.treatment}</p>
+                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{p.treatmentName}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.staffMember}</p>
-                  <p className="text-sm text-white">{p.staffFullName}</p>
+                  <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.staffMember}</p>
+                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{p.staffFullName}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.appointmentDate}</p>
-                  <p className="text-sm text-white">{formatDateTime(p.appointmentStartTime)}</p>
+                  <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.appointmentDate}</p>
+                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDateTime(p.appointmentStartTime)}</p>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.paidAt}</p>
-                  <p className="text-sm text-white">{formatDateTime(p.paidAt)}</p>
+                  <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.paidAt}</p>
+                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDateTime(p.paidAt)}</p>
                 </div>
                 {p.currencyCode !== "TRY" && (
                   <div className="space-y-1">
-                    <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.exchangeRate}</p>
-                    <p className="text-sm text-white">1 {p.currencyCode} = ₺{fmt(p.exchangeRateToTry)}</p>
+                    <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.exchangeRate}</p>
+                    <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>1 {p.currencyCode} = ₺{fmt(p.exchangeRateToTry)}</p>
                   </div>
                 )}
                 {p.notes && (
                   <div className="col-span-2 space-y-1">
-                    <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.notes}</p>
-                    <p className="text-sm text-white/70">{p.notes}</p>
+                    <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.notes}</p>
+                    <p className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{p.notes}</p>
                   </div>
                 )}
               </div>
@@ -974,7 +976,7 @@ export default function OrdersScreen() {
 
           {/* Customer */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptCustomer}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptCustomer}</label>
             <div className="flex gap-2 mb-2">
               <button type="button" onClick={() => setApptForm({ ...apptForm, isNewCustomer: false })}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${!apptForm.isNewCustomer ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}>
@@ -987,26 +989,26 @@ export default function OrdersScreen() {
             </div>
             {!apptForm.isNewCustomer ? (
               <div className="relative" ref={apptCustomerDropdownRef}>
-                <svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+                <svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
                 <input type="text" value={apptCustomerSearch}
                   onChange={(e) => { setApptCustomerSearch(e.target.value); setShowApptCustomerDropdown(true); }}
                   onFocus={() => setShowApptCustomerDropdown(true)}
                   placeholder={t.searchCustomer}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-9 pr-3 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-9 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
                 {showApptCustomerDropdown && (
-                  <div className="absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
+                  <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
                     {filteredApptCustomers.length === 0 ? (
-                      <div className="px-4 py-3 text-xs text-white/30">{t.noAppointments}</div>
+                      <div className={`px-4 py-3 text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noAppointments}</div>
                     ) : filteredApptCustomers.map((c) => (
                       <button key={c.id} type="button"
                         onClick={() => { setApptForm({ ...apptForm, customerId: c.id, isNewCustomer: false }); setApptCustomerSearch(`${c.name} ${c.surname}`); setShowApptCustomerDropdown(false); }}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition hover:bg-white/5 ${apptForm.customerId === c.id ? "bg-white/5" : ""}`}>
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold text-white/70">
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${apptForm.customerId === c.id ? "bg-white/5" : ""}`}>
+                        <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold ${isDark ? "text-white/70" : "text-gray-700"}`}>
                           {c.name[0]}{c.surname[0]}
                         </div>
                         <div>
-                          <p className="text-sm text-white">{c.name} {c.surname}</p>
-                          {c.phone && <p className="text-[11px] text-white/30">{c.phone}</p>}
+                          <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{c.name} {c.surname}</p>
+                          {c.phone && <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{c.phone}</p>}
                         </div>
                       </button>
                     ))}
@@ -1016,11 +1018,11 @@ export default function OrdersScreen() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input type="text" value={apptForm.newName} onChange={(e) => setApptForm({ ...apptForm, newName: e.target.value })} placeholder={t.customerName + " *"}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
+                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
                 <input type="text" value={apptForm.newSurname} onChange={(e) => setApptForm({ ...apptForm, newSurname: e.target.value })} placeholder={t.customerSurname + " *"}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
+                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
                 <input type="text" value={apptForm.newPhone} onChange={(e) => setApptForm({ ...apptForm, newPhone: e.target.value })} placeholder={t.customerPhone}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
+                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
               </div>
             )}
           </div>
@@ -1028,15 +1030,15 @@ export default function OrdersScreen() {
           {/* Treatment + Staff */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptTreatment}</label>
-              <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptTreatment}</label>
+              <div className={`space-y-1.5 max-h-40 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-2`}>
                 {treatments.map((tr) => (
                   <button key={tr.id} type="button" onClick={() => setApptForm({ ...apptForm, treatmentId: tr.id })}
                     className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.treatmentId === tr.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}>
                     <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tr.color || "#a78bfa" }} />
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-medium text-white truncate">{tr.name}</p>
-                      <p className="text-[10px] text-white/30">{tr.durationMinutes} {t.min} • ₺{tr.price}</p>
+                      <p className={`text-xs font-medium ${isDark ? "text-white" : "text-gray-900"} truncate`}>{tr.name}</p>
+                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{tr.durationMinutes} {t.min} • ₺{tr.price}</p>
                     </div>
                     {apptForm.treatmentId === tr.id && (
                       <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
@@ -1046,20 +1048,20 @@ export default function OrdersScreen() {
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptStaff}</label>
-              <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptStaff}</label>
+              <div className={`space-y-1.5 max-h-40 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-2`}>
                 <button type="button" onClick={() => setApptForm({ ...apptForm, staffId: 0 })}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.staffId === 0 ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}>
-                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-[10px] text-white/50">?</span>
-                  <p className="text-xs text-white/50">{t.anyStaff}</p>
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} text-[10px] ${isDark ? "text-white/50" : "text-gray-500"}`}>?</span>
+                  <p className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.anyStaff}</p>
                 </button>
                 {staffList.filter(s => s.isActive).map((s) => (
                   <button key={s.id} type="button" onClick={() => setApptForm({ ...apptForm, staffId: s.id })}
                     className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.staffId === s.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}>
-                    <span className="flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: getStaffColor(s.id) }}>
+                    <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`} style={{ backgroundColor: getStaffColor(s.id) }}>
                       {s.name[0]}{s.surname[0]}
                     </span>
-                    <p className="text-xs font-medium text-white">{s.name} {s.surname}</p>
+                    <p className={`text-xs font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{s.name} {s.surname}</p>
                     {apptForm.staffId === s.id && (
                       <svg className="ml-auto shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
                     )}
@@ -1072,25 +1074,25 @@ export default function OrdersScreen() {
           {/* Date + Notes */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptDateTime}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptDateTime}</label>
               <input type="datetime-local" value={apptForm.startTime} onChange={(e) => setApptForm({ ...apptForm, startTime: e.target.value })}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25" />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} />
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.apptNotes}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptNotes}</label>
               <input type="text" value={apptForm.notes} onChange={(e) => setApptForm({ ...apptForm, notes: e.target.value })} placeholder={t.notesPlaceholder}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
             </div>
           </div>
 
           {/* Submit */}
           <div className="flex gap-3 pt-1">
             <button type="submit" disabled={apptSaving}
-              className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition hover:shadow-green-900/50 disabled:opacity-50">
+              className={`flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition hover:shadow-green-900/50 disabled:opacity-50`}>
               {apptSaving ? t.creatingAppointment : t.createAppointment}
             </button>
             <button type="button" onClick={() => setShowApptCreate(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5 hover:text-white">
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}>
               {t.cancel}
             </button>
           </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { dashboardService } from "@/services/dashboardService";
 import { tenantService } from "@/services/tenantService";
@@ -117,29 +118,29 @@ const STATUS_TR: Record<string, string> = {
 };
 
 // ─── Skeleton ────────────────────────────────────────────────────────────────
-function Skeleton({ className = "" }: { className?: string }) {
+function Skeleton({ className = "", isDark }: { className?: string; isDark: boolean }) {
   return (
     <div
-      className={`animate-pulse rounded-2xl bg-white/5 ${className}`}
+      className={`animate-pulse rounded-2xl ${isDark ? "bg-white/5" : "bg-gray-50"} ${className}`}
     />
   );
 }
 
-function CardSkeleton() {
+function CardSkeleton({ isDark }: { isDark: boolean }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-      <Skeleton className="mb-3 h-4 w-24" />
-      <Skeleton className="h-8 w-32" />
-      <Skeleton className="mt-2 h-3 w-20" />
+    <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 backdrop-blur-sm`}>
+      <Skeleton className="mb-3 h-4 w-24" isDark={isDark} />
+      <Skeleton className="h-8 w-32" isDark={isDark} />
+      <Skeleton className="mt-2 h-3 w-20" isDark={isDark} />
     </div>
   );
 }
 
-function ChartSkeleton({ className = "" }: { className?: string }) {
+function ChartSkeleton({ className = "", isDark }: { className?: string; isDark: boolean }) {
   return (
-    <div className={`rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm ${className}`}>
-      <Skeleton className="mb-6 h-5 w-48" />
-      <Skeleton className="h-[280px] w-full" />
+    <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 backdrop-blur-sm ${className}`}>
+      <Skeleton className="mb-6 h-5 w-48" isDark={isDark} />
+      <Skeleton className="h-[280px] w-full" isDark={isDark} />
     </div>
   );
 }
@@ -157,11 +158,11 @@ function formatMonthLabel(monthStr: string, monthNames: string[]): string {
 }
 
 // ─── Custom Tooltip ──────────────────────────────────────────────────────────
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label, isDark }: any) {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl border border-white/10 bg-[#1a1a2e]/95 px-4 py-3 shadow-xl backdrop-blur-md">
-      <p className="mb-1 text-xs font-medium text-white/60">{label}</p>
+    <div className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]/95" : "bg-white/95"} px-4 py-3 shadow-xl backdrop-blur-md`}>
+      <p className={`mb-1 text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{label}</p>
       {payload.map((entry: any, i: number) => (
         <p key={i} className="text-sm font-semibold" style={{ color: entry.color }}>
           {entry.name}: {formatCurrency(entry.value)} TRY
@@ -177,6 +178,8 @@ function CustomTooltip({ active, payload, label }: any) {
 
 export default function OverviewScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const t = copy[language];
 
@@ -265,28 +268,28 @@ export default function OverviewScreen() {
   // ── Loading state ───────────────────────────────────────────────────────
   if (loading) {
     return (
-      <div className="space-y-6 text-white">
+      <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
         {/* Welcome skeleton */}
         <div>
-          <Skeleton className="h-4 w-48" />
-          <Skeleton className="mt-2 h-8 w-72" />
+          <Skeleton className="h-4 w-48" isDark={isDark} />
+          <Skeleton className="mt-2 h-8 w-72" isDark={isDark} />
         </div>
         {/* Stat cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
-          <CardSkeleton />
+          <CardSkeleton  isDark={isDark} />
+          <CardSkeleton  isDark={isDark} />
+          <CardSkeleton  isDark={isDark} />
+          <CardSkeleton  isDark={isDark} />
         </div>
         {/* Charts row 1 */}
         <div className="grid gap-4 lg:grid-cols-3">
-          <ChartSkeleton className="lg:col-span-2" />
-          <ChartSkeleton />
+          <ChartSkeleton className="lg:col-span-2" isDark={isDark} />
+          <ChartSkeleton  isDark={isDark} />
         </div>
         {/* Charts row 2 */}
         <div className="grid gap-4 md:grid-cols-2">
-          <ChartSkeleton />
-          <ChartSkeleton />
+          <ChartSkeleton  isDark={isDark} />
+          <ChartSkeleton  isDark={isDark} />
         </div>
       </div>
     );
@@ -294,7 +297,7 @@ export default function OverviewScreen() {
 
   if (!data) {
     return (
-      <div className="flex h-64 items-center justify-center text-white/60">
+      <div className={`flex h-64 items-center justify-center ${isDark ? "text-white/60" : "text-gray-600"}`}>
         {t.noData}
       </div>
     );
@@ -356,7 +359,7 @@ export default function OverviewScreen() {
   const netProfit = data.thisMonthRevenue - data.thisMonthExpense;
 
   return (
-    <div className="space-y-6 text-white">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* ── Row 0: Welcome ──────────────────────────────────────────────── */}
       <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -365,12 +368,12 @@ export default function OverviewScreen() {
               {tenantInfo.companyName}
             </p>
           )}
-          <p className="text-sm text-white/50">{t.welcome},</p>
+          <p className={`text-sm ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.welcome},</p>
           <h1 className="text-2xl font-bold sm:text-3xl">
             {user?.name} {user?.surname}
           </h1>
         </div>
-        <p className="text-sm text-white/40">{todayStr}</p>
+        <p className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{todayStr}</p>
       </div>
 
       {/* ── Row 1: Stat Cards ───────────────────────────────────────────── */}
@@ -378,20 +381,20 @@ export default function OverviewScreen() {
         {statCards.map((card) => (
           <div
             key={card.label}
-            className={`group relative overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm transition-all hover:border-white/20 hover:bg-white/[0.07]`}
+            className={`group relative overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5 backdrop-blur-sm transition-all ${isDark ? "hover:border-white/20" : "hover:border-gray-300"} ${isDark ? "hover:bg-white/[0.07]" : "hover:bg-gray-100"}`}
           >
             {/* gradient glow */}
             <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
             <div className="relative">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium tracking-wider text-white/50">
+                <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>
                   {card.label}
                 </p>
                 <span className={`${card.iconColor}`}>{card.icon}</span>
               </div>
               <p className="mt-3 text-2xl font-bold">{card.value}</p>
               {card.sub && (
-                <p className="mt-1 text-xs text-white/40">{card.sub}</p>
+                <p className={`mt-1 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{card.sub}</p>
               )}
             </div>
           </div>
@@ -400,20 +403,20 @@ export default function OverviewScreen() {
 
       {/* ── Net Profit banner (owner/admin only) ────────────────────────── */}
       {isOwnerOrAdmin && (
-        <div className="flex flex-wrap items-center gap-6 rounded-2xl border border-white/10 bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-cyan-500/10 px-6 py-4 backdrop-blur-sm">
+        <div className={`flex flex-wrap items-center gap-6 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-cyan-500/10 px-6 py-4 backdrop-blur-sm`}>
           <div className="flex-1">
-            <p className="text-xs font-medium tracking-wider text-white/50">{t.netProfit} ({t.thisMonth})</p>
+            <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.netProfit} ({t.thisMonth})</p>
             <p className={`mt-1 text-2xl font-bold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
               {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)} TRY
             </p>
           </div>
           <div className="flex gap-8 text-sm">
             <div>
-              <p className="text-white/40">{t.revenue}</p>
+              <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.revenue}</p>
               <p className="font-semibold text-emerald-400">{formatCurrency(data.thisMonthRevenue)} TRY</p>
             </div>
             <div>
-              <p className="text-white/40">{t.expense}</p>
+              <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.expense}</p>
               <p className="font-semibold text-red-400">{formatCurrency(data.thisMonthExpense)} TRY</p>
             </div>
           </div>
@@ -424,31 +427,31 @@ export default function OverviewScreen() {
       <section className="grid gap-4 lg:grid-cols-3">
         {/* Revenue/Expense Line Chart */}
         {isOwnerOrAdmin && (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm lg:col-span-2">
-            <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
+          <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 backdrop-blur-sm lg:col-span-2`}>
+            <h2 className={`mb-4 text-sm font-semibold tracking-wider ${isDark ? "text-white/70" : "text-gray-700"}`}>
               {t.revenueExpenseTrend}
             </h2>
             {trendData.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={trendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis dataKey="name" tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Legend wrapperStyle={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }} />
+                  <XAxis dataKey="name" tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <Tooltip content={<CustomTooltip  isDark={isDark} />} />
+                  <Legend wrapperStyle={{ color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", fontSize: 12 }} />
                   <Line type="monotone" dataKey={t.revenue} stroke="#ec4899" strokeWidth={2.5} dot={{ fill: "#ec4899", r: 4 }} activeDot={{ r: 6, fill: "#ec4899" }} />
                   <Line type="monotone" dataKey={t.expense} stroke="#8b5cf6" strokeWidth={2.5} dot={{ fill: "#8b5cf6", r: 4 }} activeDot={{ r: 6, fill: "#8b5cf6" }} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex h-[280px] items-center justify-center text-white/30">{t.noData}</div>
+              <div className={`flex h-[280px] items-center justify-center ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noData}</div>
             )}
           </div>
         )}
 
         {/* Appointment Status Pie/Donut Chart */}
-        <div className={`rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm ${!isOwnerOrAdmin ? "lg:col-span-3" : ""}`}>
-          <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 backdrop-blur-sm ${!isOwnerOrAdmin ? "lg:col-span-3" : ""}`}>
+          <h2 className={`mb-4 text-sm font-semibold tracking-wider ${isDark ? "text-white/70" : "text-gray-700"}`}>
             {t.appointmentStatus}
           </h2>
           {pieData.length > 0 ? (
@@ -470,21 +473,21 @@ export default function OverviewScreen() {
                 </Pie>
                 <Tooltip
                   contentStyle={{
-                    backgroundColor: "rgba(26,26,46,0.95)",
-                    border: "1px solid rgba(255,255,255,0.1)",
+                    backgroundColor: isDark ? "rgba(26,26,46,0.95)" : "rgba(255,255,255,0.95)",
+                    border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
                     borderRadius: "12px",
-                    color: "#fff",
+                    color: isDark ? "#fff" : "#111",
                     fontSize: 13,
                   }}
                 />
                 <Legend
-                  wrapperStyle={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}
-                  formatter={(value: string) => <span className="text-white/60">{value}</span>}
+                  wrapperStyle={{ fontSize: 12, color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)" }}
+                  formatter={(value: string) => <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{value}</span>}
                 />
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[280px] items-center justify-center text-white/30">{t.noData}</div>
+            <div className={`flex h-[280px] items-center justify-center ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noData}</div>
           )}
         </div>
       </section>
@@ -492,45 +495,45 @@ export default function OverviewScreen() {
       {/* ── Row 3: Customer Growth + Top Services ───────────────────────── */}
       <section className="grid gap-4 md:grid-cols-2">
         {/* Customer Growth Bar Chart */}
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-          <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
+        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 backdrop-blur-sm`}>
+          <h2 className={`mb-4 text-sm font-semibold tracking-wider ${isDark ? "text-white/70" : "text-gray-700"}`}>
             {t.customerGrowth}
           </h2>
           {customerData.length > 0 ? (
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={customerData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                <XAxis dataKey="name" tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} />
-                <Legend wrapperStyle={{ color: "rgba(255,255,255,0.6)", fontSize: 12 }} />
+                <XAxis dataKey="name" tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
+                <Tooltip content={<CustomTooltip  isDark={isDark} />} />
+                <Legend wrapperStyle={{ color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", fontSize: 12 }} />
                 <Bar dataKey={t.newCustomers} fill="#ec4899" radius={[4, 4, 0, 0]} />
                 <Bar dataKey={t.totalCust} fill="#8b5cf6" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="flex h-[280px] items-center justify-center text-white/30">{t.noData}</div>
+            <div className={`flex h-[280px] items-center justify-center ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noData}</div>
           )}
         </div>
 
         {/* Top Services Horizontal Bar */}
         {isOwnerOrAdmin && (
-          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-            <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
+          <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 backdrop-blur-sm`}>
+            <h2 className={`mb-4 text-sm font-semibold tracking-wider ${isDark ? "text-white/70" : "text-gray-700"}`}>
               {t.topServicesRevenue}
             </h2>
             {topServicesData.length > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={topServicesData} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
-                  <XAxis type="number" tick={{ fill: "rgba(255,255,255,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <YAxis dataKey="name" type="category" tick={{ fill: "rgba(255,255,255,0.5)", fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
+                  <XAxis type="number" tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
+                  <YAxis dataKey="name" type="category" tick={{ fill: isDark ? "rgba(255,255,255,0.5)" : "rgba(0,0,0,0.5)", fontSize: 11 }} axisLine={false} tickLine={false} width={100} />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: "rgba(26,26,46,0.95)",
-                      border: "1px solid rgba(255,255,255,0.1)",
+                      backgroundColor: isDark ? "rgba(26,26,46,0.95)" : "rgba(255,255,255,0.95)",
+                      border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid rgba(0,0,0,0.1)",
                       borderRadius: "12px",
-                      color: "#fff",
+                      color: isDark ? "#fff" : "#111",
                       fontSize: 13,
                     }}
                     formatter={(value) => [`${formatCurrency(Number(value ?? 0))} TRY`, t.revenue]}
@@ -543,16 +546,16 @@ export default function OverviewScreen() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex h-[280px] items-center justify-center text-white/30">{t.noData}</div>
+              <div className={`flex h-[280px] items-center justify-center ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noData}</div>
             )}
           </div>
         )}
       </section>
 
       {/* ── Row 4: Today's Schedule Table ───────────────────────────────── */}
-      <section className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm">
-        <div className="border-b border-white/10 px-6 py-4">
-          <h2 className="text-sm font-semibold tracking-wider text-white/70">
+      <section className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} backdrop-blur-sm`}>
+        <div className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-4`}>
+          <h2 className={`text-sm font-semibold tracking-wider ${isDark ? "text-white/70" : "text-gray-700"}`}>
             {t.todaySchedule}
           </h2>
         </div>
@@ -560,7 +563,7 @@ export default function OverviewScreen() {
           <div className="overflow-x-auto">
             <table className="w-full min-w-[640px] text-left text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-xs font-semibold tracking-wider text-white/40">
+                <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
                   <th className="px-6 py-3">{t.time}</th>
                   <th className="px-6 py-3">{t.customer}</th>
                   <th className="px-6 py-3">{t.treatment}</th>
@@ -568,15 +571,15 @@ export default function OverviewScreen() {
                   <th className="px-6 py-3">{t.status}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                 {data.todaySchedule.map((apt) => {
                   const statusColor = STATUS_COLORS[apt.status] || "#6b7280";
                   const statusLabel = language === "tr" ? (STATUS_TR[apt.status] || apt.status) : apt.status;
                   return (
-                    <tr key={apt.id} className="transition hover:bg-white/5">
-                      <td className="px-6 py-3.5 font-mono text-sm text-white/80">{apt.time}</td>
-                      <td className="px-6 py-3.5 font-medium text-white">{apt.customerName}</td>
-                      <td className="px-6 py-3.5 text-white/60">
+                    <tr key={apt.id} className={`transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
+                      <td className={`px-6 py-3.5 font-mono text-sm ${isDark ? "text-white/80" : "text-gray-800"}`}>{apt.time}</td>
+                      <td className={`px-6 py-3.5 font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{apt.customerName}</td>
+                      <td className={`px-6 py-3.5 ${isDark ? "text-white/60" : "text-gray-600"}`}>
                         <span className="flex items-center gap-2">
                           {apt.treatmentColor && (
                             <span
@@ -587,7 +590,7 @@ export default function OverviewScreen() {
                           {apt.treatmentName}
                         </span>
                       </td>
-                      <td className="px-6 py-3.5 text-white/60">{apt.staffName}</td>
+                      <td className={`px-6 py-3.5 ${isDark ? "text-white/60" : "text-gray-600"}`}>{apt.staffName}</td>
                       <td className="px-6 py-3.5">
                         <span
                           className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold"
@@ -606,7 +609,7 @@ export default function OverviewScreen() {
             </table>
           </div>
         ) : (
-          <div className="flex h-32 items-center justify-center text-white/30">
+          <div className={`flex h-32 items-center justify-center ${isDark ? "text-white/30" : "text-gray-300"}`}>
             {t.noData}
           </div>
         )}
@@ -614,8 +617,8 @@ export default function OverviewScreen() {
 
       {/* ── Row 5: Top Staff (owner/admin only) ─────────────────────────── */}
       {isOwnerOrAdmin && data.topStaff.length > 0 && (
-        <section className="rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-          <h2 className="mb-4 text-sm font-semibold tracking-wider text-white/70">
+        <section className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6 backdrop-blur-sm`}>
+          <h2 className={`mb-4 text-sm font-semibold tracking-wider ${isDark ? "text-white/70" : "text-gray-700"}`}>
             {t.topStaff}
           </h2>
           <div className="space-y-3">
@@ -625,18 +628,18 @@ export default function OverviewScreen() {
               return (
                 <div key={staff.label} className="group">
                   <div className="mb-1 flex items-center justify-between text-sm">
-                    <span className="flex items-center gap-2 text-white/80">
+                    <span className={`flex items-center gap-2 ${isDark ? "text-white/80" : "text-gray-800"}`}>
                       <span
-                        className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                        className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
                         style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
                       >
                         {index + 1}
                       </span>
                       {staff.label}
                     </span>
-                    <span className="font-semibold text-white/60">{formatCurrency(staff.amountInTry)} TRY</span>
+                    <span className={`font-semibold ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatCurrency(staff.amountInTry)} TRY</span>
                   </div>
-                  <div className="h-1.5 overflow-hidden rounded-full bg-white/5">
+                  <div className={`h-1.5 overflow-hidden rounded-full ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{

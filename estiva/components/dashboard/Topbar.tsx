@@ -78,7 +78,7 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
   return (
     <>
-      <header className="flex flex-col gap-4 border-b border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 text-white backdrop-blur">
+      <header className="relative z-50 flex flex-col gap-4 border-b border-white/10 bg-white/5 px-3 sm:px-6 py-3 sm:py-4 text-white backdrop-blur">
         <div className="flex items-center gap-2 sm:gap-4">
           {/* Hamburger button - mobile only */}
           <button

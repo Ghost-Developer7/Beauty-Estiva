@@ -152,7 +152,7 @@ function StaffRegisterContent() {
           <ThemeToggle />
         </div>
 
-        <div className={`w-full max-w-lg rounded-3xl ${cardBorder} ${cardBg} p-10 shadow-2xl`}>
+        <div className={`w-full max-w-lg rounded-3xl ${cardBorder} ${cardBg} p-5 sm:p-10 shadow-2xl`}>
           {/* Header */}
           <div className="mb-8 text-center">
             <p className={`text-xs font-semibold tracking-[0.4em] ${subtleText}`}>
@@ -178,7 +178,7 @@ function StaffRegisterContent() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className={labelClass}>{text.name} *</label>
                 <input type="text" required value={form.name} onChange={(e) => update("name", e.target.value)}
@@ -198,7 +198,7 @@ function StaffRegisterContent() {
                 className={`${inputClass} ${emailFromUrl ? "opacity-70 cursor-not-allowed" : ""}`} />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className={labelClass}>{text.password} *</label>
                 <input type="password" required value={form.password} onChange={(e) => update("password", e.target.value)}
@@ -213,7 +213,7 @@ function StaffRegisterContent() {
 
             <div className="space-y-1">
               <label className={labelClass}>{text.birthDate}</label>
-              <input type="date" value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)}
+              <input type="date" lang={language === "tr" ? "tr" : "en"} value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)}
                 disabled={submitting} className={inputClass} />
             </div>
 

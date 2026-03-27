@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { financialReportService } from "@/services/financialReportService";
 import type { RevenueSummary, ExpenseSummary } from "@/types/api";
 import toast from "react-hot-toast";
@@ -39,6 +40,8 @@ const copy = {
 
 export default function CashReportScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const text = copy[language];
 
   const [loading, setLoading] = useState(true);
@@ -89,34 +92,34 @@ export default function CashReportScreen() {
   const netProfit = (revenue?.totalAmountInTry || 0) - (expense?.totalAmountInTry || 0);
 
   return (
-    <div className="space-y-6 text-white">
+    <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-semibold">{text.title}</h1>
         <div className="flex items-center gap-3">
           <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none" />
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
           <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:outline-none" />
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
         </div>
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-white/60">{text.loading}</div>
+        <div className={`p-8 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.loading}</div>
       ) : (
         <div className="space-y-4">
           {/* Summary cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs tracking-wider text-white/50">{text.revenue}</p>
+            <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
+              <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.revenue}</p>
               <p className="mt-2 text-2xl font-semibold text-emerald-400">{fmt(revenue?.totalAmountInTry || 0)} TRY</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs tracking-wider text-white/50">{text.expenses}</p>
+            <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
+              <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.expenses}</p>
               <p className="mt-2 text-2xl font-semibold text-red-400">{fmt(expense?.totalAmountInTry || 0)} TRY</p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-5">
-              <p className="text-xs tracking-wider text-white/50">{text.netProfit}</p>
+            <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
+              <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.netProfit}</p>
               <p className={`mt-2 text-2xl font-semibold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                 {fmt(netProfit)} TRY
               </p>
@@ -124,71 +127,71 @@ export default function CashReportScreen() {
           </div>
 
           {/* Revenue by payment method */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
             <div onClick={() => toggle("revenue")}
-              className="flex cursor-pointer items-center justify-between px-6 py-4 transition hover:bg-white/5">
+              className={`flex cursor-pointer items-center justify-between px-6 py-4 transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
               <div className="flex items-center gap-4">
-                <span className={`text-white/60 transition-transform ${expanded.revenue ? "rotate-90" : ""}`}>›</span>
+                <span className={`${isDark ? "text-white/60" : "text-gray-600"} transition-transform ${expanded.revenue ? "rotate-90" : ""}`}>›</span>
                 <span className="font-medium text-sm">{text.byPaymentMethod}</span>
               </div>
               <span className="font-medium text-sm">{fmt(revenue?.totalAmountInTry || 0)} TRY</span>
             </div>
             {expanded.revenue && revenue?.byPaymentMethod && (
-              <div className="border-t border-white/10 px-8 py-2 bg-white/[0.02]">
+              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
                 {revenue.byPaymentMethod.length > 0 ? revenue.byPaymentMethod.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-3 pl-6 border-b border-white/5 last:border-0 text-xs text-white/60">
+                  <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
                     <span>{fmt(item.amountInTry)} TRY</span>
                   </div>
                 )) : (
-                  <div className="py-4 pl-6 text-xs text-white/40">{text.noData}</div>
+                  <div className={`py-4 pl-6 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.noData}</div>
                 )}
               </div>
             )}
           </div>
 
           {/* Revenue by staff */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
             <div onClick={() => toggle("staff")}
-              className="flex cursor-pointer items-center justify-between px-6 py-4 transition hover:bg-white/5">
+              className={`flex cursor-pointer items-center justify-between px-6 py-4 transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
               <div className="flex items-center gap-4">
-                <span className={`text-white/60 transition-transform ${expanded.staff ? "rotate-90" : ""}`}>›</span>
+                <span className={`${isDark ? "text-white/60" : "text-gray-600"} transition-transform ${expanded.staff ? "rotate-90" : ""}`}>›</span>
                 <span className="font-medium text-sm">{text.byStaff}</span>
               </div>
             </div>
             {expanded.staff && revenue?.byStaff && (
-              <div className="border-t border-white/10 px-8 py-2 bg-white/[0.02]">
+              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
                 {revenue.byStaff.length > 0 ? revenue.byStaff.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-3 pl-6 border-b border-white/5 last:border-0 text-xs text-white/60">
+                  <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
                     <span>{fmt(item.amountInTry)} TRY</span>
                   </div>
                 )) : (
-                  <div className="py-4 pl-6 text-xs text-white/40">{text.noData}</div>
+                  <div className={`py-4 pl-6 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.noData}</div>
                 )}
               </div>
             )}
           </div>
 
           {/* Expenses by category */}
-          <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/5">
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
             <div onClick={() => toggle("category")}
-              className="flex cursor-pointer items-center justify-between px-6 py-4 transition hover:bg-white/5">
+              className={`flex cursor-pointer items-center justify-between px-6 py-4 transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
               <div className="flex items-center gap-4">
-                <span className={`text-white/60 transition-transform ${expanded.category ? "rotate-90" : ""}`}>›</span>
+                <span className={`${isDark ? "text-white/60" : "text-gray-600"} transition-transform ${expanded.category ? "rotate-90" : ""}`}>›</span>
                 <span className="font-medium text-sm">{text.byCategory}</span>
               </div>
               <span className="font-medium text-sm">{fmt(expense?.totalAmountInTry || 0)} TRY</span>
             </div>
             {expanded.category && expense?.byCategory && (
-              <div className="border-t border-white/10 px-8 py-2 bg-white/[0.02]">
+              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
                 {expense.byCategory.length > 0 ? expense.byCategory.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between py-3 pl-6 border-b border-white/5 last:border-0 text-xs text-white/60">
+                  <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
                     <span>{fmt(item.amountInTry)} TRY</span>
                   </div>
                 )) : (
-                  <div className="py-4 pl-6 text-xs text-white/40">{text.noData}</div>
+                  <div className={`py-4 pl-6 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.noData}</div>
                 )}
               </div>
             )}

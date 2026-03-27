@@ -20,9 +20,9 @@ export default function DashboardLayout({
           mobileOpen={mobileMenuOpen}
           onMobileClose={() => setMobileMenuOpen(false)}
         />
-        <div className="estiva-dashboard-panel flex flex-1 flex-col min-w-0">
+        <div className="estiva-dashboard-panel relative z-0 flex flex-1 flex-col min-w-0">
           <Topbar onMenuToggle={() => setMobileMenuOpen((prev) => !prev)} />
-          <div className="flex-1 overflow-y-auto px-3 sm:px-6 py-6 sm:py-10">
+          <div className="relative z-0 flex-1 overflow-y-auto px-3 sm:px-6 py-6 sm:py-10">
             <SubscriptionGuard>{children}</SubscriptionGuard>
           </div>
         </div>

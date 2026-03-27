@@ -1,6 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const copy = {
     en: {
@@ -79,16 +80,18 @@ const copy = {
 
 export default function WhatsappRegistrationScreen() {
     const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
     const text = copy[language];
 
     return (
-        <div className="space-y-8 text-white">
+        <div className={`space-y-8 ${isDark ? "text-white" : "text-gray-900"}`}>
             {/* Header */}
             <h1 className="text-2xl font-semibold">{text.title}</h1>
 
             {/* Stepper */}
             <div className="w-full relative px-4 md:px-10">
-                <div className="absolute top-1/2 left-0 w-full h-0.5 bg-white/10 -z-10 -translate-y-[15px]"></div>
+                <div className={`absolute top-1/2 left-0 w-full h-0.5 ${isDark ? "bg-white/10" : "bg-gray-100"} -z-10 -translate-y-[15px]`}></div>
                 <div className="flex justify-between">
                     {text.steps.map((step, i) => (
                         <div key={i} className="flex flex-col items-center gap-2 bg-[#040309] px-2 md:px-4">
@@ -108,25 +111,25 @@ export default function WhatsappRegistrationScreen() {
                         <div key={i} className="space-y-2">
                             <h3 className="font-semibold text-sm md:text-base text-white/90">{item.q}</h3>
                             {Array.isArray(item.a) ? (
-                                <ul className="list-disc pl-5 space-y-1 text-xs md:text-sm text-white/60">
+                                <ul className={`list-disc pl-5 space-y-1 text-xs md:text-sm ${isDark ? "text-white/60" : "text-gray-600"}`}>
                                     {item.a.map((li, j) => <li key={j}>{li}</li>)}
                                 </ul>
                             ) : (
-                                <p className="text-xs md:text-sm text-white/60 leading-relaxed">{item.a}</p>
+                                <p className={`text-xs md:text-sm ${isDark ? "text-white/60" : "text-gray-600"} leading-relaxed`}>{item.a}</p>
                             )}
                         </div>
                     ))}
 
-                    <button className="rounded-full bg-[#00a651] px-12 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/40 hover:bg-[#008f45] transition transform hover:scale-105">
+                    <button className={`rounded-full bg-[#00a651] px-12 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/40 hover:bg-[#008f45] transition transform hover:scale-105`}>
                         {text.button}
                     </button>
                 </div>
 
                 {/* Right Banner (Green) */}
-                <div className="rounded-3xl bg-[#00a651] p-8 text-white shadow-2xl relative overflow-hidden">
+                <div className={`rounded-3xl bg-[#00a651] p-8 ${isDark ? "text-white" : "text-gray-900"} shadow-2xl relative overflow-hidden`}>
                     {/* Decorative circles */}
-                    <div className="absolute top-0 right-0 -mr-10 -mt-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
-                    <div className="absolute bottom-0 left-0 -ml-10 -mb-10 h-40 w-40 rounded-full bg-white/10 blur-3xl"></div>
+                    <div className={`absolute top-0 right-0 -mr-10 -mt-10 h-40 w-40 rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} blur-3xl`}></div>
+                    <div className={`absolute bottom-0 left-0 -ml-10 -mb-10 h-40 w-40 rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} blur-3xl`}></div>
 
                     <div className="flex flex-col items-center text-center space-y-6 relative z-10">
                         <div className="flex items-center gap-2 text-2xl font-bold">

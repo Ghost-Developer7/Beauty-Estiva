@@ -90,7 +90,7 @@ export default function NotificationBell() {
   };
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative z-[9999]" ref={ref}>
       {/* Bell Button */}
       <button
         type="button"
@@ -120,7 +120,7 @@ export default function NotificationBell() {
       {/* Dropdown Panel */}
       {open && (
         <div
-          className={`absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-xl border shadow-2xl z-50 max-h-[70vh] flex flex-col ${
+          className={`absolute right-0 top-full mt-2 w-80 sm:w-96 rounded-xl border shadow-2xl z-[9999] max-h-[70vh] flex flex-col ${
             isDark
               ? "border-white/10 bg-[#1a1a2e]"
               : "border-gray-200 bg-white"

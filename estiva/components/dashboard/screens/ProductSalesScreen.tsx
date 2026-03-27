@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { productService } from "@/services/productService";
 import { customerService } from "@/services/customerService";
 import { currencyService } from "@/services/currencyService";
@@ -67,13 +68,15 @@ function MethodBadge({ display, language }: { display: string; language: "en" | 
   return (<span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-medium border" style={{ backgroundColor: `${color}12`, color, borderColor: `${color}30` }}><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />{label}</span>);
 }
 
-function StatCard({ label, value, sub, color }: { label: string; value: string; sub?: string; color: string }) {
-  return (<div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3"><p className="text-[11px] text-white/40">{label}</p><p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>{sub && <p className="text-[10px] text-white/30">{sub}</p>}</div>);
+function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
+  return (<div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}><p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p><p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>{sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}</div>);
 }
 
 /* ═══ MAIN ═══ */
 export default function ProductSalesScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
 
   const [sales, setSales] = useState<ProductSaleListItem[]>([]);
@@ -171,10 +174,10 @@ export default function ProductSalesScreen() {
   const filteredCust = customers.filter(c => { if (!customerSearch) return true; const q = customerSearch.toLowerCase(); return `${c.name} ${c.surname}`.toLowerCase().includes(q) || c.phone?.includes(q); });
 
   return (
-    <div className="space-y-5 text-white">
+    <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* HEADER */}
       <div className="flex flex-wrap items-start justify-between gap-4">
-        <div><h1 className="text-2xl font-bold tracking-tight">{t.title}</h1><p className="mt-0.5 text-sm text-white/40">{tab === "sales" ? filteredSales.length : filteredProducts.length} {t.total}</p></div>
+        <div><h1 className="text-2xl font-bold tracking-tight">{t.title}</h1><p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{tab === "sales" ? filteredSales.length : filteredProducts.length} {t.total}</p></div>
         <div className="flex items-center gap-3">
           {tab === "sales" && (
             <ExportButtons
@@ -192,59 +195,59 @@ export default function ProductSalesScreen() {
                   { header: isTr ? "Tarih" : "Date", key: "saleDate", format: "datetime" },
                 ];
               })()}
-              filenamePrefix={language === "tr" ? "Urun_Satislari" : "Product_Sales"}
+              filenamePrefix={language === "tr" ? "Ürün_Satışları" : "Product_Sales"}
               pdfTitle={language === "tr" ? "Ürün Satış Listesi" : "Product Sales List"}
             />
           )}
-          {tab === "products" && <button onClick={openProductCreate} className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 active:scale-[0.98]"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newProduct}</button>}
-          <button onClick={openSaleForm} className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newSale}</button>
+          {tab === "products" && <button onClick={openProductCreate} className={`flex items-center gap-2 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} active:scale-[0.98]`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newProduct}</button>}
+          <button onClick={openSaleForm} className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]`}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newSale}</button>
         </div>
       </div>
 
       {/* STATS */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" />
-        <StatCard label={t.totalSales} value={fmtInt(sales.length)} color="#6366f1" />
-        <StatCard label={t.totalProducts} value={fmtInt(products.length)} color="#60a5fa" />
-        <StatCard label={t.lowStock} value={fmtInt(lowStockCount)} sub="≤ 5" color={lowStockCount > 0 ? "#f59e0b" : "#22c55e"} />
+        <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} />
+        <StatCard label={t.totalSales} value={fmtInt(sales.length)} color="#6366f1" isDark={isDark} />
+        <StatCard label={t.totalProducts} value={fmtInt(products.length)} color="#60a5fa" isDark={isDark} />
+        <StatCard label={t.lowStock} value={fmtInt(lowStockCount)} sub="≤ 5" color={lowStockCount > 0 ? "#f59e0b" : "#22c55e"} isDark={isDark} />
       </div>
 
       {/* TABS + FILTERS */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">
+        <div className={`flex rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
           {(["sales", "products"] as TabMode[]).map(m => (<button key={m} onClick={() => { setTab(m); setSearch(""); }} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === m ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"}`}>{m === "sales" ? t.salesTab : t.productsTab}</button>))}
         </div>
         {tab === "sales" && (<>
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none" />
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
           <span className="text-white/20">—</span>
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none" />
-          <select value={staffFilter} onChange={e => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))} className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-3 py-1.5 text-xs text-white focus:outline-none"><option value="" className="bg-[#1a1a2e]">{t.allStaff}</option>{staffList.filter(s => s.isActive).map(s => <option key={s.id} value={s.id} className="bg-[#1a1a2e]">{s.name} {s.surname}</option>)}</select>
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} />
+          <select value={staffFilter} onChange={e => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}><option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStaff}</option>{staffList.filter(s => s.isActive).map(s => <option key={s.id} value={s.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{s.name} {s.surname}</option>)}</select>
         </>)}
-        <div className="relative ml-auto"><svg className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg><input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.search} className="rounded-xl border border-white/[0.08] bg-white/[0.03] py-1.5 pl-9 pr-3 text-xs text-white placeholder:text-white/30 focus:outline-none w-48" /></div>
+        <div className="relative ml-auto"><svg className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg><input type="text" value={search} onChange={e => setSearch(e.target.value)} placeholder={t.search} className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-9 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none w-48`} /></div>
       </div>
 
       {/* SALES TAB */}
       {tab === "sales" && (
         <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-          {loading ? (<div className="flex items-center justify-center gap-3 p-12 text-white/40"><div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />{t.loading}</div>
-          ) : filteredSales.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg><p className="text-sm font-medium text-white/40">{t.noSales}</p><p className="text-xs text-white/25">{t.noSalesSub}</p></div>
+          {loading ? (<div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}><div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />{t.loading}</div>
+          ) : filteredSales.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg><p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noSales}</p><p className="text-xs text-white/25">{t.noSalesSub}</p></div>
           ) : (<>
-            <div className="hidden md:grid grid-cols-[1fr_0.8fr_0.4fr_0.6fr_0.6fr_0.5fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30"><span>{t.productCol}</span><span>{t.customerCol}</span><span>{t.qtyCol}</span><span>{t.amountCol}</span><span>{t.methodCol}</span><span>{t.dateCol}</span><span /></div>
+            <div className={`hidden md:grid grid-cols-[1fr_0.8fr_0.4fr_0.6fr_0.6fr_0.5fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}><span>{t.productCol}</span><span>{t.customerCol}</span><span>{t.qtyCol}</span><span>{t.amountCol}</span><span>{t.methodCol}</span><span>{t.dateCol}</span><span /></div>
             <div className="divide-y divide-white/[0.04]">
               {filteredSales.map(s => (
                 <div key={s.id} onClick={() => { setSelectedSale(s); setShowSaleDetail(true); }} className="group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.4fr_0.6fr_0.6fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer">
-                  <div className="min-w-0"><p className="text-sm font-semibold text-white truncate">{s.productName}</p><p className="text-[10px] text-white/30">{s.staffFullName}</p></div>
-                  <p className="hidden md:block text-xs text-white/50 truncate">{s.customerFullName || "—"}</p>
-                  <p className="hidden md:block text-xs text-white/50">{s.quantity}x</p>
-                  <div><p className="text-sm font-bold text-white">{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className="text-[10px] text-white/30">₺{fmt(s.amountInTry)}</p>}</div>
+                  <div className="min-w-0"><p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{s.productName}</p><p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{s.staffFullName}</p></div>
+                  <p className={`hidden md:block text-xs ${isDark ? "text-white/50" : "text-gray-500"} truncate`}>{s.customerFullName || "—"}</p>
+                  <p className={`hidden md:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{s.quantity}x</p>
+                  <div><p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>₺{fmt(s.amountInTry)}</p>}</div>
                   <MethodBadge display={s.paymentMethodDisplay} language={language} />
-                  <p className="hidden md:block text-xs text-white/40">{formatDate(s.saleDate)}</p>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}><button onClick={() => handleDeleteSale(s.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 transition hover:bg-red-500/20 hover:text-red-400"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button></div>
+                  <p className={`hidden md:block text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{formatDate(s.saleDate)}</p>
+                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}><button onClick={() => handleDeleteSale(s.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button></div>
                 </div>
               ))}
             </div>
             <Pagination pageNumber={page} pageSize={pageSize} totalCount={totalCount} totalPages={totalPages} onPageChange={(p) => setPage(p)} onPageSizeChange={(s) => { setPageSize(s); setPage(1); }} />
-            <div className="flex items-center justify-between border-t border-white/[0.06] bg-white/[0.03] px-5 py-3"><span className="text-xs text-white/40">{filteredSales.length} {t.total}</span><span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span></div>
+            <div className={`flex items-center justify-between border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3`}><span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{filteredSales.length} {t.total}</span><span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span></div>
           </>)}
         </div>
       )}
@@ -252,23 +255,23 @@ export default function ProductSalesScreen() {
       {/* PRODUCTS TAB */}
       {tab === "products" && (
         <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
-          {products.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg><p className="text-sm font-medium text-white/40">{t.noProducts}</p><p className="text-xs text-white/25">{t.noProductsSub}</p></div>
+          {products.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg><p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noProducts}</p><p className="text-xs text-white/25">{t.noProductsSub}</p></div>
           ) : (<>
-            <div className="hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30"><span>{t.productCol}</span><span>{t.priceCol}</span><span>{t.stockCol}</span><span /></div>
+            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}><span>{t.productCol}</span><span>{t.priceCol}</span><span>{t.stockCol}</span><span /></div>
             <div className="divide-y divide-white/[0.04]">
               {filteredProducts.map(p => (
                 <div key={p.id} className="group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04]">
-                  <div className="min-w-0"><p className="text-sm font-semibold text-white truncate">{p.name}</p>{p.description && <p className="text-[11px] text-white/30 truncate">{p.description}</p>}{p.barcode && <p className="text-[10px] text-white/20 font-mono">{p.barcode}</p>}</div>
-                  <p className="text-sm font-bold text-white">₺{fmt(p.price)}</p>
+                  <div className="min-w-0"><p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{p.name}</p>{p.description && <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{p.description}</p>}{p.barcode && <p className="text-[10px] text-white/20 font-mono">{p.barcode}</p>}</div>
+                  <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(p.price)}</p>
                   <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold w-fit ${p.stockQuantity <= 5 ? "bg-amber-500/15 text-amber-400" : "bg-emerald-500/15 text-emerald-400"}`}>{p.stockQuantity} {t.pcs}</span>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => openProductEdit(p)} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 transition hover:bg-white/10 hover:text-white"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg></button>
-                    <button onClick={() => handleDeleteProduct(p.id)} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/30 transition hover:bg-red-500/20 hover:text-red-400"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button>
+                    <button onClick={() => openProductEdit(p)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg></button>
+                    <button onClick={() => handleDeleteProduct(p.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button>
                   </div>
                 </div>
               ))}
             </div>
-            <div className="border-t border-white/[0.06] bg-white/[0.03] px-5 py-3 text-xs text-white/40">{filteredProducts.length} {t.total}</div>
+            <div className={`border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{filteredProducts.length} {t.total}</div>
           </>)}
         </div>
       )}
@@ -277,44 +280,44 @@ export default function ProductSalesScreen() {
       <Modal open={showSaleForm} onClose={() => setShowSaleForm(false)} title={t.createSaleTitle} maxWidth="max-w-xl">
         <form onSubmit={handleSaleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.product}</label>
-            <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-white/[0.03] p-2">
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.product}</label>
+            <div className={`space-y-1.5 max-h-40 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-2`}>
               {products.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-4 text-center">
-                  <p className="text-xs text-white/40">{language === "tr" ? "Ürün bulunamadı" : "No products found"}</p>
+                  <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{language === "tr" ? "Ürün bulunamadı" : "No products found"}</p>
                   <p className="mt-1 text-[10px] text-white/25">{language === "tr" ? "Önce \"Ürünler\" sekmesinden ürün ekleyin" : "Add products from the \"Products\" tab first"}</p>
                 </div>
               ) : (
-                products.map(p => (<button key={p.id} type="button" onClick={() => setSaleForm({ ...saleForm, productId: p.id })} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition ${saleForm.productId === p.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}><div><p className="text-xs font-medium text-white">{p.name}</p><p className="text-[10px] text-white/30">₺{fmt(p.price)} • {p.stockQuantity} {t.pcs}</p></div>{saleForm.productId === p.id && <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}</button>))
+                products.map(p => (<button key={p.id} type="button" onClick={() => setSaleForm({ ...saleForm, productId: p.id })} className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left transition ${saleForm.productId === p.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}><div><p className={`text-xs font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{p.name}</p><p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>₺{fmt(p.price)} • {p.stockQuantity} {t.pcs}</p></div>{saleForm.productId === p.id && <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}</button>))
               )}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.customer}</label>
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.customer}</label>
               <div className="relative" ref={customerDdRef}>
-                <input type="text" value={customerSearch} onChange={e => { setCustomerSearch(e.target.value); setShowCustomerDd(true); }} onFocus={() => setShowCustomerDd(true)} placeholder={t.searchCustomer} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" />
-                {showCustomerDd && (<div className="absolute left-0 right-0 z-20 mt-1 max-h-40 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a2e] shadow-xl">
-                  <button type="button" onClick={() => { setSaleForm({ ...saleForm, customerId: null }); setCustomerSearch(""); setShowCustomerDd(false); }} className="flex w-full px-3 py-2 text-xs text-white/40 hover:bg-white/5">— {language === "tr" ? "Müşteri yok" : "No customer"}</button>
-                  {filteredCust.map(c => (<button key={c.id} type="button" onClick={() => { setSaleForm({ ...saleForm, customerId: c.id }); setCustomerSearch(`${c.name} ${c.surname}`); setShowCustomerDd(false); }} className="flex w-full px-3 py-2 text-xs text-white text-left hover:bg-white/5">{c.name} {c.surname}</button>))}
+                <input type="text" value={customerSearch} onChange={e => { setCustomerSearch(e.target.value); setShowCustomerDd(true); }} onFocus={() => setShowCustomerDd(true)} placeholder={t.searchCustomer} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
+                {showCustomerDd && (<div className={`absolute left-0 right-0 z-20 mt-1 max-h-40 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
+                  <button type="button" onClick={() => { setSaleForm({ ...saleForm, customerId: null }); setCustomerSearch(""); setShowCustomerDd(false); }} className={`flex w-full px-3 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"} ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>— {language === "tr" ? "Müşteri yok" : "No customer"}</button>
+                  {filteredCust.map(c => (<button key={c.id} type="button" onClick={() => { setSaleForm({ ...saleForm, customerId: c.id }); setCustomerSearch(`${c.name} ${c.surname}`); setShowCustomerDd(false); }} className={`flex w-full px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} text-left ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>{c.name} {c.surname}</button>))}
                 </div>)}
               </div>
             </div>
             <div className="space-y-2">
-              <label className="text-xs font-semibold tracking-wider text-white/40">{t.quantity}</label>
-              <input type="number" min={1} value={saleForm.quantity} onChange={e => setSaleForm({ ...saleForm, quantity: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-white/25" />
-              {selectedProduct && <p className="text-[10px] text-white/30">{t.totalAmount}: ₺{fmt(selectedProduct.price * saleForm.quantity)}</p>}
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.quantity}</label>
+              <input type="number" min={1} value={saleForm.quantity} onChange={e => setSaleForm({ ...saleForm, quantity: Number(e.target.value) })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} />
+              {selectedProduct && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.totalAmount}: ₺{fmt(selectedProduct.price * saleForm.quantity)}</p>}
             </div>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.currency}</label><select value={saleForm.currencyId} onChange={e => handleCurrencyChange(Number(e.target.value))} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none">{currencies.map(c => <option key={c.id} value={c.id} className="bg-[#1a1a2e]">{c.symbol} {c.code}</option>)}</select></div>
-            <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.exchangeRate}</label><input type="number" min={0} step={0.0001} value={saleForm.exchangeRateToTry} onChange={e => setSaleForm({ ...saleForm, exchangeRateToTry: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none" /></div>
-            <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.paymentMethod}</label><select value={saleForm.paymentMethod} onChange={e => setSaleForm({ ...saleForm, paymentMethod: e.target.value })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none">{PAYMENT_METHODS.map(m => <option key={m.value} value={m.value} className="bg-[#1a1a2e]">{language === "tr" ? m.tr : m.en}</option>)}</select></div>
+            <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.currency}</label><select value={saleForm.currencyId} onChange={e => handleCurrencyChange(Number(e.target.value))} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}>{currencies.map(c => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.symbol} {c.code}</option>)}</select></div>
+            <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.exchangeRate}</label><input type="number" min={0} step={0.0001} value={saleForm.exchangeRateToTry} onChange={e => setSaleForm({ ...saleForm, exchangeRateToTry: Number(e.target.value) })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} /></div>
+            <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentMethod}</label><select value={saleForm.paymentMethod} onChange={e => setSaleForm({ ...saleForm, paymentMethod: e.target.value })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}>{PAYMENT_METHODS.map(m => <option key={m.value} value={m.value} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{language === "tr" ? m.tr : m.en}</option>)}</select></div>
           </div>
-          <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.notes}</label><input type="text" value={saleForm.notes} onChange={e => setSaleForm({ ...saleForm, notes: e.target.value })} placeholder={t.notesPlaceholder} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" /></div>
+          <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.notes}</label><input type="text" value={saleForm.notes} onChange={e => setSaleForm({ ...saleForm, notes: e.target.value })} placeholder={t.notesPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} /></div>
           <div className="flex gap-3 pt-1">
-            <button type="submit" disabled={saleSaving} className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition disabled:opacity-50">{saleSaving ? t.recording : t.recordSale}</button>
-            <button type="button" onClick={() => setShowSaleForm(false)} className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
+            <button type="submit" disabled={saleSaving} className={`flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition disabled:opacity-50`}>{saleSaving ? t.recording : t.recordSale}</button>
+            <button type="button" onClick={() => setShowSaleForm(false)} className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>{t.cancel}</button>
           </div>
         </form>
       </Modal>
@@ -322,16 +325,16 @@ export default function ProductSalesScreen() {
       {/* PRODUCT CREATE/EDIT MODAL */}
       <Modal open={showProductForm} onClose={() => setShowProductForm(false)} title={productFormMode === "create" ? t.createProductTitle : t.editProductTitle} maxWidth="max-w-md">
         <form onSubmit={handleProductSubmit} className="space-y-5">
-          <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.productName}</label><input type="text" value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} placeholder={t.productNamePh} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" /></div>
-          <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.description}</label><input type="text" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} placeholder={t.descPh} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25" /></div>
+          <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.productName}</label><input type="text" value={productForm.name} onChange={e => setProductForm({ ...productForm, name: e.target.value })} placeholder={t.productNamePh} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} /></div>
+          <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.description}</label><input type="text" value={productForm.description} onChange={e => setProductForm({ ...productForm, description: e.target.value })} placeholder={t.descPh} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} /></div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.barcode}</label><input type="text" value={productForm.barcode} onChange={e => setProductForm({ ...productForm, barcode: e.target.value })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none font-mono" /></div>
-            <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.price}</label><div className="relative"><span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-white/30">₺</span><input type="number" min={0} step={0.01} value={productForm.price || ""} onChange={e => setProductForm({ ...productForm, price: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 py-2.5 pl-8 pr-3 text-sm text-white focus:outline-none" /></div></div>
-            <div className="space-y-2"><label className="text-xs font-semibold tracking-wider text-white/40">{t.stockQty}</label><input type="number" min={0} value={productForm.stockQuantity} onChange={e => setProductForm({ ...productForm, stockQuantity: Number(e.target.value) })} className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none" /></div>
+            <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.barcode}</label><input type="text" value={productForm.barcode} onChange={e => setProductForm({ ...productForm, barcode: e.target.value })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none font-mono`} /></div>
+            <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.price}</label><div className="relative"><span className={`absolute left-3 top-1/2 -translate-y-1/2 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>₺</span><input type="number" min={0} step={0.01} value={productForm.price || ""} onChange={e => setProductForm({ ...productForm, price: Number(e.target.value) })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-8 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} /></div></div>
+            <div className="space-y-2"><label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.stockQty}</label><input type="number" min={0} value={productForm.stockQuantity} onChange={e => setProductForm({ ...productForm, stockQuantity: Number(e.target.value) })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} /></div>
           </div>
           <div className="flex gap-3 pt-1">
-            <button type="submit" disabled={productSaving} className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-green-900/30 transition disabled:opacity-50">{productSaving ? t.saving : t.save}</button>
-            <button type="button" onClick={() => setShowProductForm(false)} className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
+            <button type="submit" disabled={productSaving} className={`flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition disabled:opacity-50`}>{productSaving ? t.saving : t.save}</button>
+            <button type="button" onClick={() => setShowProductForm(false)} className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>{t.cancel}</button>
           </div>
         </form>
       </Modal>
@@ -340,14 +343,14 @@ export default function ProductSalesScreen() {
       <Modal open={showSaleDetail} onClose={() => setShowSaleDetail(false)} title={t.saleDetailTitle} maxWidth="max-w-md">
         {selectedSale && (() => { const s = selectedSale; return (
           <div className="space-y-5">
-            <div className="flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] bg-white/[0.03] py-5"><p className="text-3xl font-bold text-white">{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className="text-sm text-white/40">₺{fmt(s.amountInTry)}</p>}<MethodBadge display={s.paymentMethodDisplay} language={language} /></div>
+            <div className={`flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-5`}><p className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>₺{fmt(s.amountInTry)}</p>}<MethodBadge display={s.paymentMethodDisplay} language={language} /></div>
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1"><p className="text-[10px] font-semibold tracking-wider text-white/30">{t.productCol}</p><p className="text-sm text-white">{s.productName}</p></div>
-              <div className="space-y-1"><p className="text-[10px] font-semibold tracking-wider text-white/30">{t.qtyCol}</p><p className="text-sm text-white">{s.quantity}x @ ₺{fmt(s.unitPrice)}</p></div>
-              <div className="space-y-1"><p className="text-[10px] font-semibold tracking-wider text-white/30">{t.customerCol}</p><p className="text-sm text-white">{s.customerFullName || "—"}</p></div>
-              <div className="space-y-1"><p className="text-[10px] font-semibold tracking-wider text-white/30">{t.seller}</p><p className="text-sm text-white">{s.staffFullName}</p></div>
-              <div className="space-y-1"><p className="text-[10px] font-semibold tracking-wider text-white/30">{t.saleDate}</p><p className="text-sm text-white">{formatDate(s.saleDate)} {formatTime(s.saleDate)}</p></div>
-              {s.notes && <div className="col-span-2 space-y-1"><p className="text-[10px] font-semibold tracking-wider text-white/30">{t.notes}</p><p className="text-sm text-white/70">{s.notes}</p></div>}
+              <div className="space-y-1"><p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.productCol}</p><p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{s.productName}</p></div>
+              <div className="space-y-1"><p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.qtyCol}</p><p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{s.quantity}x @ ₺{fmt(s.unitPrice)}</p></div>
+              <div className="space-y-1"><p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.customerCol}</p><p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{s.customerFullName || "—"}</p></div>
+              <div className="space-y-1"><p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.seller}</p><p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{s.staffFullName}</p></div>
+              <div className="space-y-1"><p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.saleDate}</p><p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(s.saleDate)} {formatTime(s.saleDate)}</p></div>
+              {s.notes && <div className="col-span-2 space-y-1"><p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.notes}</p><p className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{s.notes}</p></div>}
             </div>
             <button onClick={() => handleDeleteSale(s.id)} className="w-full rounded-xl bg-red-500/10 px-4 py-2.5 text-xs font-semibold text-red-400 border border-red-500/20 transition hover:bg-red-500/20">{t.delete}</button>
           </div>

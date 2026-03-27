@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { subscriptionService } from "@/services/subscriptionService";
 import type { SubscriptionPlan, CurrentSubscription } from "@/types/api";
 import Modal from "@/components/ui/Modal";
@@ -154,6 +155,8 @@ function getDaysLeft(dateStr: string | null): number {
 
 export default function SubscriptionScreen() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const t = copy[language];
 
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
@@ -257,7 +260,7 @@ export default function SubscriptionScreen() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center gap-3 p-16 text-white/40">
+      <div className={`flex items-center justify-center gap-3 p-16 ${isDark ? "text-white/40" : "text-gray-400"}`}>
         <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
         {t.loading}
       </div>
@@ -267,12 +270,12 @@ export default function SubscriptionScreen() {
   const daysLeft = current ? getDaysLeft(current.isTrialPeriod ? current.trialEndDate : current.endDate) : 0;
 
   return (
-    <div className="space-y-8 text-white">
+    <div className={`space-y-8 ${isDark ? "text-white" : "text-gray-900"}`}>
 
       {/* ─── HEADER ─── */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-        <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
+        <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.subtitle}</p>
       </div>
 
       {/* ─── CURRENT PLAN CARD ─── */}
@@ -281,7 +284,7 @@ export default function SubscriptionScreen() {
           <div className="p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="text-[10px] font-semibold tracking-wider text-white/30">{t.currentPlan}</p>
+                <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.currentPlan}</p>
                 <p className="mt-1 text-2xl font-bold">{current.planName}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {/* Status badge */}
@@ -298,18 +301,18 @@ export default function SubscriptionScreen() {
 
                   {/* Days left */}
                   {!current.isCancelled && (
-                    <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2.5 py-1 text-[11px] text-white/50">
+                    <span className={`rounded-full border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2.5 py-1 text-[11px] ${isDark ? "text-white/50" : "text-gray-500"}`}>
                       {daysLeft} {t.daysLeft}
                     </span>
                   )}
 
                   {/* Date */}
-                  <span className="text-xs text-white/30">
+                  <span className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>
                     {current.isTrialPeriod ? t.trialEndsOn : t.expiresOn}: {formatDate(current.isTrialPeriod ? current.trialEndDate : current.endDate)}
                   </span>
                 </div>
                 {current.priceSold > 0 && (
-                  <p className="mt-2 text-sm text-white/40">₺{fmt(current.priceSold)}</p>
+                  <p className={`mt-2 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>₺{fmt(current.priceSold)}</p>
                 )}
               </div>
 
@@ -326,7 +329,7 @@ export default function SubscriptionScreen() {
             {/* Progress bar for days */}
             {!current.isCancelled && (
               <div className="mt-4">
-                <div className="h-1.5 w-full rounded-full bg-white/[0.06]">
+                <div className={`h-1.5 w-full rounded-full ${isDark ? "bg-white/[0.06]" : "bg-white"}`}>
                   <div
                     className={`h-full rounded-full transition-all ${current.isTrialPeriod ? "bg-blue-500" : "bg-emerald-500"}`}
                     style={{ width: `${Math.max(5, Math.min(100, (daysLeft / (current.isTrialPeriod ? 3 : 30)) * 100))}%` }}
@@ -341,12 +344,12 @@ export default function SubscriptionScreen() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500/20 to-indigo-500/20">
               <svg className="text-blue-400" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
             </div>
-            <p className="text-lg font-semibold text-white">{t.noPlan}</p>
-            <p className="mt-1 text-sm text-white/40">{t.noPlanDesc}</p>
+            <p className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.noPlan}</p>
+            <p className={`mt-1 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noPlanDesc}</p>
             <button
               onClick={handleStartTrial}
               disabled={startingTrial}
-              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-900/30 transition-all hover:shadow-blue-900/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50"
+              className={`mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-blue-900/30 transition-all hover:shadow-blue-900/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50`}
             >
               {startingTrial ? (
                 <><div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t.startingTrial}</>
@@ -398,33 +401,33 @@ export default function SubscriptionScreen() {
             >
               {/* Badges */}
               {isCurrent && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-0.5 text-[10px] font-bold text-white shadow">
+                <span className={`absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-emerald-500 px-3 py-0.5 text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"} shadow`}>
                   {t.currentBadge}
                 </span>
               )}
               {isMiddle && !isCurrent && (
-                <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-0.5 text-[10px] font-bold text-white shadow">
+                <span className={`absolute -top-2.5 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 px-3 py-0.5 text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"} shadow`}>
                   {t.popular}
                 </span>
               )}
 
               {/* Plan name */}
               <h3 className="text-lg font-bold">{plan.name}</h3>
-              {plan.description && <p className="mt-1 text-xs text-white/40">{plan.description}</p>}
+              {plan.description && <p className={`mt-1 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{plan.description}</p>}
 
               {/* Price */}
               <div className="mt-4">
                 <span className="text-4xl font-extrabold">₺{fmt(price)}</span>
-                <span className="text-sm text-white/40">{isYearly ? t.perYear : t.perMonth}</span>
+                <span className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{isYearly ? t.perYear : t.perMonth}</span>
               </div>
 
               {/* Features */}
               <div className="mt-6 flex-1 space-y-3">
-                <FeatureRow label={t.maxStaff} value={plan.maxStaffCount === 0 ? t.unlimited : String(plan.maxStaffCount)} enabled />
-                <FeatureRow label={t.maxBranch} value={plan.maxBranchCount === 0 ? t.unlimited : String(plan.maxBranchCount)} enabled />
-                <FeatureRow label={t.sms} value={plan.hasSmsIntegration ? (idx === 0 ? t.free_tag : t.yes) : t.no} enabled={plan.hasSmsIntegration} />
-                <FeatureRow label={t.whatsapp} value={plan.hasWhatsappIntegration ? t.yes : t.no} enabled={plan.hasWhatsappIntegration} />
-                <FeatureRow label={t.socialMedia} value={plan.hasSocialMediaIntegration ? t.yes : t.no} enabled={plan.hasSocialMediaIntegration} />
+                <FeatureRow label={t.maxStaff} value={plan.maxStaffCount === 0 ? t.unlimited : String(plan.maxStaffCount)} enabled isDark={isDark} />
+                <FeatureRow label={t.maxBranch} value={plan.maxBranchCount === 0 ? t.unlimited : String(plan.maxBranchCount)} enabled isDark={isDark} />
+                <FeatureRow label={t.sms} value={plan.hasSmsIntegration ? (idx === 0 ? t.free_tag : t.yes) : t.no} enabled={plan.hasSmsIntegration} isDark={isDark} />
+                <FeatureRow label={t.whatsapp} value={plan.hasWhatsappIntegration ? t.yes : t.no} enabled={plan.hasWhatsappIntegration} isDark={isDark} />
+                <FeatureRow label={t.socialMedia} value={plan.hasSocialMediaIntegration ? t.yes : t.no} enabled={plan.hasSocialMediaIntegration} isDark={isDark} />
               </div>
 
               {/* CTA */}
@@ -454,32 +457,32 @@ export default function SubscriptionScreen() {
             if (!plan) return null;
             const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
             return (
-              <div className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] p-4">
+              <div className={`flex items-center justify-between rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
                 <div>
-                  <p className="text-sm font-semibold text-white">{plan.name}</p>
-                  <p className="text-xs text-white/40">{isYearly ? t.yearly : t.monthly}</p>
+                  <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{plan.name}</p>
+                  <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{isYearly ? t.yearly : t.monthly}</p>
                 </div>
-                <p className="text-2xl font-bold text-white">₺{fmt(price)}</p>
+                <p className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(price)}</p>
               </div>
             );
           })()}
 
           {/* Coupon */}
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.couponCode}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.couponCode}</label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={couponCode}
                 onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponResult(null); }}
                 placeholder={t.couponPlaceholder}
-                className="flex-1 rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white font-mono tracking-wider placeholder:text-white/30 focus:outline-none focus:border-white/25"
+                className={`flex-1 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} font-mono tracking-wider ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
               />
               <button
                 type="button"
                 onClick={handleValidateCoupon}
                 disabled={!couponCode.trim() || validatingCoupon}
-                className="shrink-0 rounded-xl bg-white/10 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-white/15 disabled:opacity-40"
+                className={`shrink-0 rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-4 py-2.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-white/15 disabled:opacity-40`}
               >
                 {validatingCoupon ? t.validating : t.applyCoupon}
               </button>
@@ -510,8 +513,8 @@ export default function SubscriptionScreen() {
             const discount = couponResult.discountAmount || 0;
             const final_ = Math.max(0, price - discount);
             return (
-              <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 space-y-2">
-                <div className="flex justify-between text-xs text-white/40">
+              <div className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-2`}>
+                <div className={`flex justify-between text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                   <span>{plan.name} ({isYearly ? t.yearly : t.monthly})</span>
                   <span>₺{fmt(price)}</span>
                 </div>
@@ -520,7 +523,7 @@ export default function SubscriptionScreen() {
                   <span>-₺{fmt(discount)}</span>
                 </div>
                 <div className="border-t border-white/[0.08] pt-2 flex justify-between">
-                  <span className="text-sm font-semibold text-white">{t.finalPrice}</span>
+                  <span className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.finalPrice}</span>
                   <span className={`text-lg font-bold ${final_ <= 0 ? "text-emerald-400" : "text-white"}`}>
                     {final_ <= 0 ? t.free : `₺${fmt(final_)}`}
                   </span>
@@ -539,7 +542,7 @@ export default function SubscriptionScreen() {
 
               return (
                 <button onClick={handlePurchase} disabled={purchasing}
-                  className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold text-white shadow-lg transition disabled:opacity-50 ${
+                  className={`flex-1 rounded-xl px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg transition disabled:opacity-50 ${
                     isFree
                       ? "bg-gradient-to-r from-emerald-600 to-green-600 shadow-emerald-900/30"
                       : "bg-gradient-to-r from-[#00a651] to-[#00c853] shadow-green-900/30"
@@ -549,7 +552,7 @@ export default function SubscriptionScreen() {
               );
             })()}
             <button onClick={() => setShowPurchaseModal(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>{t.cancel}</button>
           </div>
         </div>
       </Modal>
@@ -557,13 +560,13 @@ export default function SubscriptionScreen() {
       {/* ═══ PAYMENT IFRAME MODAL ═══ */}
       <Modal open={showPaymentModal} onClose={() => { setShowPaymentModal(false); setIframeUrl(null); fetchData(); }} title={t.paymentModal} maxWidth="max-w-2xl">
         <div className="space-y-4">
-          <p className="text-sm text-white/50">{t.paymentProcessing}</p>
+          <p className={`text-sm ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.paymentProcessing}</p>
           {iframeUrl ? (
-            <div className="overflow-hidden rounded-xl border border-white/10">
+            <div className={`overflow-hidden rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"}`}>
               <iframe src={iframeUrl} width="100%" height="460" frameBorder="0" className="bg-white" allow="payment" />
             </div>
           ) : (
-            <div className="flex h-[460px] items-center justify-center gap-3 text-white/40">
+            <div className={`flex h-[460px] items-center justify-center gap-3 ${isDark ? "text-white/40" : "text-gray-400"}`}>
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
               {t.paymentLoading}
             </div>
@@ -580,13 +583,13 @@ export default function SubscriptionScreen() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-semibold tracking-wider text-white/40">{t.cancelReason}</label>
+            <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.cancelReason}</label>
             <textarea
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
               rows={3}
               placeholder={t.cancelReasonPh}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 resize-none"
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
             />
           </div>
 
@@ -595,16 +598,16 @@ export default function SubscriptionScreen() {
               {requestRefund && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
             </div>
             <input type="checkbox" checked={requestRefund} onChange={(e) => setRequestRefund(e.target.checked)} className="hidden" />
-            <span className="text-sm text-white/70">{t.requestRefund}</span>
+            <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.requestRefund}</span>
           </label>
 
           <div className="flex gap-3 pt-1">
             <button onClick={handleCancel}
-              className="flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-red-500">
+              className={`flex-1 rounded-xl bg-red-600 px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-red-500`}>
               {t.cancelConfirm}
             </button>
             <button onClick={() => setShowCancelModal(false)}
-              className="rounded-xl border border-white/10 px-6 py-3 text-sm font-medium text-white/60 transition hover:bg-white/5">{t.cancel}</button>
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>{t.cancel}</button>
           </div>
         </div>
       </Modal>
@@ -613,14 +616,14 @@ export default function SubscriptionScreen() {
 }
 
 /* ═══ Feature Row ═══ */
-function FeatureRow({ label, value, enabled }: { label: string; value: string; enabled: boolean }) {
+function FeatureRow({ label, value, enabled, isDark }: { label: string; value: string; enabled: boolean; isDark: boolean }) {
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
         <svg className={enabled ? "text-emerald-400" : "text-white/15"} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           {enabled ? <polyline points="20 6 9 17 4 12" /> : <line x1="18" y1="6" x2="6" y2="18" />}
         </svg>
-        <span className="text-xs text-white/50">{label}</span>
+        <span className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{label}</span>
       </div>
       <span className={`text-xs font-semibold ${enabled ? "text-white" : "text-white/20"}`}>{value}</span>
     </div>
