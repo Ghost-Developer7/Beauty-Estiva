@@ -36,6 +36,13 @@ export function LanguageProvider({ children }: ProviderProps) {
     setMounted(true);
   }, []);
 
+  // Keep <html lang="..."> in sync so native date inputs show the correct locale format
+  useEffect(() => {
+    if (mounted) {
+      document.documentElement.lang = language;
+    }
+  }, [language, mounted]);
+
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
     localStorage.setItem(STORAGE_KEY, lang);
