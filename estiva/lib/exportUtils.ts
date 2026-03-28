@@ -1,5 +1,6 @@
 /* ═══════════════════════════════════════════
    Export Utilities — Excel & PDF
+   Full Turkish Unicode support via embedded font
    ═══════════════════════════════════════════ */
 
 export interface ExportColumn {
@@ -9,7 +10,8 @@ export interface ExportColumn {
   format?: "currency" | "date" | "datetime" | "percent" | "number";
 }
 
-/* ─── Currency formatter ─── */
+/* ─── Formatters ─── */
+
 const fmtCurrency = (n: number): string =>
   n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " ₺";
 
@@ -29,18 +31,12 @@ const fmtPercent = (n: number): string => `%${n.toLocaleString("tr-TR")}`;
 function formatCellValue(value: unknown, format?: ExportColumn["format"]): string | number {
   if (value === null || value === undefined) return "—";
   switch (format) {
-    case "currency":
-      return fmtCurrency(Number(value));
-    case "date":
-      return fmtDate(String(value));
-    case "datetime":
-      return fmtDateTime(String(value));
-    case "percent":
-      return fmtPercent(Number(value));
-    case "number":
-      return Number(value).toLocaleString("tr-TR");
-    default:
-      return String(value);
+    case "currency": return fmtCurrency(Number(value));
+    case "date": return fmtDate(String(value));
+    case "datetime": return fmtDateTime(String(value));
+    case "percent": return fmtPercent(Number(value));
+    case "number": return Number(value).toLocaleString("tr-TR");
+    default: return String(value);
   }
 }
 
@@ -52,7 +48,54 @@ function getNestedValue(obj: Record<string, unknown>, key: string): unknown {
 }
 
 /* ═══════════════════════════════════════════
-   EXCEL EXPORT — Styled
+   FONT LOADING — Roboto with full Turkish support
+   ═══════════════════════════════════════════ */
+
+// CDN URLs for Roboto (fontsource via jsDelivr — stable, versioned)
+const FONT_URLS = {
+  regular: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-ext-400-normal.woff",
+  bold: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-ext-700-normal.woff",
+};
+
+// In-memory font cache so we only fetch once per session
+let fontCache: { regular?: string; bold?: string } = {};
+
+async function fetchFontAsBase64(url: string): Promise<string> {
+  const res = await fetch(url);
+  const buf = await res.arrayBuffer();
+  const bytes = new Uint8Array(buf);
+  let binary = "";
+  for (let i = 0; i < bytes.length; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+async function loadFonts(): Promise<{ regular: string; bold: string }> {
+  if (fontCache.regular && fontCache.bold) {
+    return fontCache as { regular: string; bold: string };
+  }
+
+  const [regular, bold] = await Promise.all([
+    fetchFontAsBase64(FONT_URLS.regular),
+    fetchFontAsBase64(FONT_URLS.bold),
+  ]);
+
+  fontCache = { regular, bold };
+  return { regular, bold };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function registerFonts(doc: any, fonts: { regular: string; bold: string }) {
+  doc.addFileToVFS("Roboto-Regular.woff", fonts.regular);
+  doc.addFont("Roboto-Regular.woff", "Roboto", "normal");
+
+  doc.addFileToVFS("Roboto-Bold.woff", fonts.bold);
+  doc.addFont("Roboto-Bold.woff", "Roboto", "bold");
+}
+
+/* ═══════════════════════════════════════════
+   EXCEL EXPORT
    ═══════════════════════════════════════════ */
 
 export async function exportToExcel(
@@ -63,15 +106,15 @@ export async function exportToExcel(
   const xlsxModule = await import("xlsx");
   const XLSX = xlsxModule.default ?? xlsxModule;
 
-  // Title row
-  const titleRow = [filename];
-  const dateRow = [new Date().toLocaleDateString("tr-TR") + " " + new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })];
-  const emptyRow: string[] = [];
+  const now = new Date();
+  const dateStr = `${now.toLocaleDateString("tr-TR")} ${now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}`;
 
-  // Headers
+  // Title + date + empty + headers + data + empty + summary
+  const titleRow = [filename];
+  const dateRow = [dateStr];
+  const emptyRow: string[] = [];
   const headers = columns.map((c) => c.header);
 
-  // Data rows
   const rows = data.map((item) =>
     columns.map((col) => {
       const raw = getNestedValue(item, col.key);
@@ -79,30 +122,22 @@ export async function exportToExcel(
     }),
   );
 
-  // Summary row
-  const summaryRow = [`${data.length} kayıt`];
+  const summaryRow = [`Toplam: ${data.length} kayıt`];
 
   const ws = XLSX.utils.aoa_to_sheet([
-    titleRow,
-    dateRow,
-    emptyRow,
+    titleRow, dateRow, emptyRow,
     headers,
     ...rows,
-    emptyRow,
-    summaryRow,
+    emptyRow, summaryRow,
   ]);
 
   // Column widths
-  const colWidths = columns.map((col, i) => {
-    const maxLen = Math.max(
-      col.header.length,
-      ...rows.map((r) => String(r[i] ?? "").length),
-    );
+  ws["!cols"] = columns.map((col, i) => {
+    const maxLen = Math.max(col.header.length, ...rows.map((r) => String(r[i] ?? "").length));
     return { wch: Math.min(maxLen + 4, 50) };
   });
-  ws["!cols"] = colWidths;
 
-  // Merge title row across all columns
+  // Merge title/date rows
   if (columns.length > 1) {
     ws["!merges"] = [
       { s: { r: 0, c: 0 }, e: { r: 0, c: columns.length - 1 } },
@@ -112,29 +147,12 @@ export async function exportToExcel(
 
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Data");
-
   XLSX.writeFile(wb, `${filename}.xlsx`);
 }
 
 /* ═══════════════════════════════════════════
-   PDF EXPORT — Turkish Unicode + Professional Template
+   PDF EXPORT — Professional Template + Turkish Unicode
    ═══════════════════════════════════════════ */
-
-/**
- * Replace Turkish special characters with ASCII equivalents
- * for jsPDF compatibility (default fonts don't support Unicode)
- */
-function turkishToAscii(text: string): string {
-  const map: Record<string, string> = {
-    "ş": "s", "Ş": "S",
-    "ç": "c", "Ç": "C",
-    "ğ": "g", "Ğ": "G",
-    "ü": "u", "Ü": "U",
-    "ö": "o", "Ö": "O",
-    "ı": "i", "İ": "I",
-  };
-  return text.replace(/[şŞçÇğĞüÜöÖıİ]/g, (ch) => map[ch] || ch);
-}
 
 export async function exportToPDF(
   data: Record<string, unknown>[],
@@ -149,47 +167,73 @@ export async function exportToPDF(
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
 
+  // Load & register Turkish-supporting font
+  let fontFamily = "helvetica"; // fallback
+  try {
+    const fonts = await loadFonts();
+    registerFonts(doc, fonts);
+    fontFamily = "Roboto";
+  } catch {
+    // Font fetch failed — continue with helvetica (no Turkish chars)
+  }
+
   const now = new Date();
   const exportDate = `${now.toLocaleDateString("tr-TR")} ${now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}`;
 
-  // ─── Header band ───
+  // ─── HEADER BAND ───
+  // Dark gradient header
   doc.setFillColor(24, 14, 50);
-  doc.rect(0, 0, pageWidth, 28, "F");
+  doc.rect(0, 0, pageWidth, 30, "F");
 
-  // Accent line
-  doc.setFillColor(168, 85, 247);
-  doc.rect(0, 28, pageWidth, 1, "F");
+  // Purple accent line
+  const gradientSteps = 60;
+  for (let i = 0; i < gradientSteps; i++) {
+    const ratio = i / gradientSteps;
+    const r = Math.round(168 + (236 - 168) * ratio);
+    const g = Math.round(85 + (72 - 85) * ratio);
+    const b = Math.round(247 + (153 - 247) * ratio);
+    doc.setFillColor(r, g, b);
+    doc.rect((pageWidth / gradientSteps) * i, 30, pageWidth / gradientSteps + 0.5, 1.2, "F");
+  }
 
   // Brand name
-  doc.setFontSize(18);
-  doc.setFont("helvetica", "bold");
+  doc.setFont(fontFamily, "bold");
+  doc.setFontSize(20);
   doc.setTextColor(255, 255, 255);
-  doc.text(turkishToAscii("Beauty-Estiva"), 14, 13);
+  doc.text("Beauty-Estiva", 14, 14);
 
   // Document title
-  doc.setFontSize(10);
-  doc.setFont("helvetica", "normal");
+  doc.setFont(fontFamily, "normal");
+  doc.setFontSize(11);
   doc.setTextColor(200, 180, 255);
-  doc.text(turkishToAscii(title), 14, 21);
+  doc.text(title, 14, 23);
 
-  // Date - right aligned
-  doc.setFontSize(9);
-  doc.setTextColor(180, 170, 210);
-  doc.text(exportDate, pageWidth - 14, 13, { align: "right" });
+  // Date badge - right side
+  doc.setFillColor(255, 255, 255, 15);
+  doc.roundedRect(pageWidth - 60, 6, 46, 18, 3, 3, "F");
 
-  // Record count
+  doc.setFont(fontFamily, "normal");
   doc.setFontSize(8);
-  doc.setTextColor(160, 150, 200);
-  doc.text(`${data.length} ${turkishToAscii("kayit")}`, pageWidth - 14, 21, { align: "right" });
+  doc.setTextColor(200, 190, 230);
+  doc.text(exportDate, pageWidth - 37, 13, { align: "center" });
 
-  // ─── Table ───
-  const head = [columns.map((c) => turkishToAscii(c.header))];
+  doc.setFont(fontFamily, "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(255, 255, 255);
+  doc.text(`${data.length}`, pageWidth - 43, 21);
+
+  doc.setFont(fontFamily, "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(200, 190, 230);
+  doc.text("kayıt", pageWidth - 35, 21);
+
+  // ─── TABLE ───
+  const head = [columns.map((c) => c.header)];
 
   const body = data.map((item) =>
     columns.map((col) => {
       const raw = getNestedValue(item, col.key);
-      const formatted = String(formatCellValue(raw, col.format));
-      return turkishToAscii(formatted);
+      return String(formatCellValue(raw, col.format));
     }),
   );
 
@@ -202,54 +246,66 @@ export async function exportToPDF(
   });
 
   autoTable(doc, {
-    startY: 34,
+    startY: 36,
     head,
     body,
     columnStyles,
     styles: {
-      fontSize: 8,
-      cellPadding: 3,
-      lineColor: [230, 230, 240],
-      lineWidth: 0.1,
-      textColor: [40, 40, 60],
+      fontSize: 8.5,
+      cellPadding: 3.5,
+      lineColor: [225, 220, 240],
+      lineWidth: 0.15,
+      textColor: [35, 30, 55],
       overflow: "linebreak",
-      font: "helvetica",
+      font: fontFamily,
     },
     headStyles: {
       fillColor: [40, 25, 75],
       textColor: [255, 255, 255],
       fontStyle: "bold",
-      fontSize: 8,
+      fontSize: 8.5,
       cellPadding: 4,
     },
     alternateRowStyles: {
-      fillColor: [248, 246, 255],
+      fillColor: [248, 245, 255],
     },
     bodyStyles: {
       fillColor: [255, 255, 255],
     },
-    margin: { left: 14, right: 14, bottom: 20 },
+    margin: { left: 14, right: 14, bottom: 22 },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     didDrawPage: (hookData: any) => {
+      // ─── FOOTER ───
       // Footer line
-      doc.setDrawColor(200, 190, 230);
+      doc.setDrawColor(180, 170, 210);
       doc.setLineWidth(0.3);
-      doc.line(14, pageHeight - 14, pageWidth - 14, pageHeight - 14);
+      doc.line(14, pageHeight - 16, pageWidth - 14, pageHeight - 16);
 
-      // Footer text
+      doc.setFont(fontFamily, "normal");
       doc.setFontSize(7);
       doc.setTextColor(140, 130, 170);
+      doc.text(`Beauty-Estiva  ·  ${exportDate}`, 14, pageHeight - 10);
+
       doc.text(
-        `Beauty-Estiva  |  ${exportDate}`,
-        14,
-        pageHeight - 8,
-      );
-      doc.text(
-        `${turkishToAscii("Sayfa")} ${hookData.pageNumber}`,
+        `Sayfa ${hookData.pageNumber}`,
         pageWidth - 14,
-        pageHeight - 8,
+        pageHeight - 10,
         { align: "right" },
       );
+
+      // Re-draw header on subsequent pages
+      if (hookData.pageNumber > 1) {
+        doc.setFillColor(24, 14, 50);
+        doc.rect(0, 0, pageWidth, 10, "F");
+        doc.setFont(fontFamily, "bold");
+        doc.setFontSize(9);
+        doc.setTextColor(255, 255, 255);
+        doc.text("Beauty-Estiva", 14, 7);
+        doc.setFont(fontFamily, "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(200, 180, 255);
+        doc.text(title, pageWidth - 14, 7, { align: "right" });
+      }
     },
   });
 
