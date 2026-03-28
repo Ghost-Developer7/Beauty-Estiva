@@ -19,8 +19,8 @@ import toast from "react-hot-toast";
 
 const PAYMENT_METHODS: { value: string; en: string; tr: string; icon: string }[] = [
   { value: "Cash", en: "Cash", tr: "Nakit", icon: "💵" },
-  { value: "CreditCard", en: "Credit Card", tr: "Kredi Kartı", icon: "💳" },
-  { value: "BankTransfer", en: "Bank Transfer", tr: "Havale/EFT", icon: "🏦" },
+  { value: "CreditCard", en: "Credit Card", tr: "Kredi / Banka Kartı", icon: "💳" },
+  { value: "BankTransfer", en: "Bank Transfer", tr: "Havale / EFT", icon: "🏦" },
   { value: "Check", en: "Check", tr: "Çek", icon: "📄" },
   { value: "Other", en: "Other", tr: "Diğer", icon: "📋" },
 ];
@@ -62,10 +62,19 @@ const fmtInt = (n: number) => n.toLocaleString("tr-TR");
 const formatDate = (d: string) => new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
 const formatTime = (d: string) => new Date(d).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
 
+function translateMethodDisplay(display: string, lang: "en" | "tr"): string {
+  if (!display) return display;
+  const m = PAYMENT_METHODS.find(pm =>
+    pm.en.toLowerCase() === display.toLowerCase() ||
+    pm.tr.toLowerCase() === display.toLowerCase() ||
+    display.includes(pm.en) || display.includes(pm.tr)
+  );
+  return m ? (lang === "tr" ? m.tr : m.en) : display;
+}
+
 function MethodBadge({ display, language }: { display: string; language: "en" | "tr" }) {
   const color = METHOD_COLORS[display] || "#8b5cf6";
-  const method = PAYMENT_METHODS.find(m => display.includes(m.en) || display.includes(m.tr));
-  const label = method ? (language === "tr" ? method.tr : method.en) : display;
+  const label = translateMethodDisplay(display, language);
   return (<span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-medium border" style={{ backgroundColor: `${color}12`, color, borderColor: `${color}30` }}><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />{label}</span>);
 }
 
@@ -182,7 +191,7 @@ export default function ProductSalesScreen() {
         <div className="flex items-center gap-3">
           {tab === "sales" && (
             <ExportButtons
-              data={filteredSales as unknown as Record<string, unknown>[]}
+              data={filteredSales.map(s => ({ ...s, paymentMethodDisplay: translateMethodDisplay(s.paymentMethodDisplay, language) })) as unknown as Record<string, unknown>[]}
               columns={((): ExportColumn[] => {
                 const isTr = language === "tr";
                 return [

@@ -29,8 +29,8 @@ import toast from "react-hot-toast";
 
 const PAYMENT_METHODS: { value: string; enumValue: number; en: string; tr: string; icon: string }[] = [
   { value: "Cash", enumValue: 1, en: "Cash", tr: "Nakit", icon: "💵" },
-  { value: "CreditCard", enumValue: 2, en: "Credit Card", tr: "Kredi Kartı", icon: "💳" },
-  { value: "BankTransfer", enumValue: 3, en: "Bank Transfer", tr: "Havale/EFT", icon: "🏦" },
+  { value: "CreditCard", enumValue: 2, en: "Credit Card", tr: "Kredi / Banka Kartı", icon: "💳" },
+  { value: "BankTransfer", enumValue: 3, en: "Bank Transfer", tr: "Havale / EFT", icon: "🏦" },
   { value: "Check", enumValue: 4, en: "Check", tr: "Çek", icon: "📄" },
   { value: "Other", enumValue: 5, en: "Other", tr: "Diğer", icon: "📋" },
 ];
@@ -191,6 +191,16 @@ const formatDateTime = (d: string) => `${formatDate(d)} ${formatTime(d)}`;
 
 function getMethodColor(display: string) {
   return METHOD_COLORS[display] || "#8b5cf6";
+}
+
+/** Translate a paymentMethodDisplay string (which may arrive in Turkish from the API) */
+function translateMethodDisplay(display: string, lang: "en" | "tr"): string {
+  const m = PAYMENT_METHODS.find(
+    pm => pm.en.toLowerCase() === display.toLowerCase() ||
+          pm.tr.toLowerCase() === display.toLowerCase() ||
+          display.includes(pm.en) || display.includes(pm.tr)
+  );
+  return m ? (lang === "tr" ? m.tr : m.en) : display;
 }
 
 /* ═══════════════════════════════════════════
@@ -560,7 +570,7 @@ export default function OrdersScreen() {
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
-            data={filtered as unknown as Record<string, unknown>[]}
+            data={filtered.map(p => ({ ...p, paymentMethodDisplay: translateMethodDisplay(p.paymentMethodDisplay, language) })) as unknown as Record<string, unknown>[]}
             columns={((): ExportColumn[] => {
               const isTr = language === "tr";
               return [
@@ -599,7 +609,7 @@ export default function OrdersScreen() {
         <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" isDark={isDark} />
         <StatCard
           label={t.topMethod}
-          value={topMethod ? topMethod[0] : "—"}
+          value={topMethod ? translateMethodDisplay(topMethod[0], language) : "—"}
           sub={topMethod ? `${topMethod[1]}x` : ""}
           color="#f59e0b" isDark={isDark} />
       </div>
