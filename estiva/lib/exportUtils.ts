@@ -52,7 +52,7 @@ function getNestedValue(obj: Record<string, unknown>, key: string): unknown {
 }
 
 /* ═══════════════════════════════════════════
-   EXCEL EXPORT
+   EXCEL EXPORT — Styled
    ═══════════════════════════════════════════ */
 
 export async function exportToExcel(
@@ -63,10 +63,15 @@ export async function exportToExcel(
   const xlsxModule = await import("xlsx");
   const XLSX = xlsxModule.default ?? xlsxModule;
 
-  // Build header row
+  // Title row
+  const titleRow = [filename];
+  const dateRow = [new Date().toLocaleDateString("tr-TR") + " " + new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })];
+  const emptyRow: string[] = [];
+
+  // Headers
   const headers = columns.map((c) => c.header);
 
-  // Build data rows
+  // Data rows
   const rows = data.map((item) =>
     columns.map((col) => {
       const raw = getNestedValue(item, col.key);
@@ -74,9 +79,20 @@ export async function exportToExcel(
     }),
   );
 
-  const ws = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  // Summary row
+  const summaryRow = [`${data.length} kayıt`];
 
-  // Auto-width columns
+  const ws = XLSX.utils.aoa_to_sheet([
+    titleRow,
+    dateRow,
+    emptyRow,
+    headers,
+    ...rows,
+    emptyRow,
+    summaryRow,
+  ]);
+
+  // Column widths
   const colWidths = columns.map((col, i) => {
     const maxLen = Math.max(
       col.header.length,
@@ -86,6 +102,14 @@ export async function exportToExcel(
   });
   ws["!cols"] = colWidths;
 
+  // Merge title row across all columns
+  if (columns.length > 1) {
+    ws["!merges"] = [
+      { s: { r: 0, c: 0 }, e: { r: 0, c: columns.length - 1 } },
+      { s: { r: 1, c: 0 }, e: { r: 1, c: columns.length - 1 } },
+    ];
+  }
+
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "Data");
 
@@ -93,8 +117,24 @@ export async function exportToExcel(
 }
 
 /* ═══════════════════════════════════════════
-   PDF EXPORT
+   PDF EXPORT — Turkish Unicode + Professional Template
    ═══════════════════════════════════════════ */
+
+/**
+ * Replace Turkish special characters with ASCII equivalents
+ * for jsPDF compatibility (default fonts don't support Unicode)
+ */
+function turkishToAscii(text: string): string {
+  const map: Record<string, string> = {
+    "ş": "s", "Ş": "S",
+    "ç": "c", "Ç": "C",
+    "ğ": "g", "Ğ": "G",
+    "ü": "u", "Ü": "U",
+    "ö": "o", "Ö": "O",
+    "ı": "i", "İ": "I",
+  };
+  return text.replace(/[şŞçÇğĞüÜöÖıİ]/g, (ch) => map[ch] || ch);
+}
 
 export async function exportToPDF(
   data: Record<string, unknown>[],
@@ -106,34 +146,53 @@ export async function exportToPDF(
   const autoTable = (await import("jspdf-autotable")).default;
 
   const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
 
-  // Header
-  doc.setFontSize(16);
-  doc.setTextColor(40, 40, 40);
-  doc.text("Beauty-Estiva", 14, 15);
-
-  doc.setFontSize(12);
-  doc.setTextColor(80, 80, 80);
-  doc.text(title, 14, 23);
-
-  doc.setFontSize(8);
-  doc.setTextColor(140, 140, 140);
   const now = new Date();
   const exportDate = `${now.toLocaleDateString("tr-TR")} ${now.toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}`;
-  doc.text(exportDate, doc.internal.pageSize.width - 14, 15, { align: "right" });
 
-  // Table headers
-  const head = [columns.map((c) => c.header)];
+  // ─── Header band ───
+  doc.setFillColor(24, 14, 50);
+  doc.rect(0, 0, pageWidth, 28, "F");
 
-  // Table body
+  // Accent line
+  doc.setFillColor(168, 85, 247);
+  doc.rect(0, 28, pageWidth, 1, "F");
+
+  // Brand name
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(255, 255, 255);
+  doc.text(turkishToAscii("Beauty-Estiva"), 14, 13);
+
+  // Document title
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(200, 180, 255);
+  doc.text(turkishToAscii(title), 14, 21);
+
+  // Date - right aligned
+  doc.setFontSize(9);
+  doc.setTextColor(180, 170, 210);
+  doc.text(exportDate, pageWidth - 14, 13, { align: "right" });
+
+  // Record count
+  doc.setFontSize(8);
+  doc.setTextColor(160, 150, 200);
+  doc.text(`${data.length} ${turkishToAscii("kayit")}`, pageWidth - 14, 21, { align: "right" });
+
+  // ─── Table ───
+  const head = [columns.map((c) => turkishToAscii(c.header))];
+
   const body = data.map((item) =>
     columns.map((col) => {
       const raw = getNestedValue(item, col.key);
-      return String(formatCellValue(raw, col.format));
+      const formatted = String(formatCellValue(raw, col.format));
+      return turkishToAscii(formatted);
     }),
   );
 
-  // Column styles
   const columnStyles: Record<number, { cellWidth?: number; halign?: "left" | "center" | "right" }> = {};
   columns.forEach((col, i) => {
     if (col.width) columnStyles[i] = { cellWidth: col.width };
@@ -143,42 +202,50 @@ export async function exportToPDF(
   });
 
   autoTable(doc, {
-    startY: 28,
+    startY: 34,
     head,
     body,
     columnStyles,
     styles: {
       fontSize: 8,
-      cellPadding: 2,
-      lineColor: [220, 220, 220],
+      cellPadding: 3,
+      lineColor: [230, 230, 240],
       lineWidth: 0.1,
-      textColor: [50, 50, 50],
+      textColor: [40, 40, 60],
       overflow: "linebreak",
+      font: "helvetica",
     },
     headStyles: {
-      fillColor: [30, 30, 50],
+      fillColor: [40, 25, 75],
       textColor: [255, 255, 255],
       fontStyle: "bold",
       fontSize: 8,
+      cellPadding: 4,
     },
     alternateRowStyles: {
-      fillColor: [248, 248, 252],
+      fillColor: [248, 246, 255],
     },
-    margin: { left: 14, right: 14 },
+    bodyStyles: {
+      fillColor: [255, 255, 255],
+    },
+    margin: { left: 14, right: 14, bottom: 20 },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     didDrawPage: (hookData: any) => {
-      // Footer with page number
-      const pageHeight = doc.internal.pageSize.height;
-      const pageWidth = doc.internal.pageSize.width;
+      // Footer line
+      doc.setDrawColor(200, 190, 230);
+      doc.setLineWidth(0.3);
+      doc.line(14, pageHeight - 14, pageWidth - 14, pageHeight - 14);
+
+      // Footer text
       doc.setFontSize(7);
-      doc.setTextColor(160, 160, 160);
+      doc.setTextColor(140, 130, 170);
       doc.text(
-        `Beauty-Estiva | ${exportDate}`,
+        `Beauty-Estiva  |  ${exportDate}`,
         14,
         pageHeight - 8,
       );
       doc.text(
-        `${hookData.pageNumber}`,
+        `${turkishToAscii("Sayfa")} ${hookData.pageNumber}`,
         pageWidth - 14,
         pageHeight - 8,
         { align: "right" },
