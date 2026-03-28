@@ -218,13 +218,21 @@ const TabIcon = ({ type }: { type: string }) => {
 };
 
 // ─── Toggle Component ───
-const Toggle = ({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) => (
+const Toggle = ({ checked, onChange, isDark = true }: { checked: boolean; onChange: (v: boolean) => void; isDark?: boolean }) => (
   <button
     type="button"
     onClick={() => onChange(!checked)}
-    className={`relative h-7 w-14 rounded-full transition-colors duration-200 ${checked ? "bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc]" : "bg-white/20"}`}
+    className={`relative h-7 w-14 rounded-full border transition-colors duration-200 ${
+      checked
+        ? "bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] border-transparent"
+        : isDark
+          ? "bg-white/20 border-white/10"
+          : "bg-gray-200 border-gray-300"
+    }`}
   >
-    <div className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-all duration-200 ${checked ? "left-7" : "left-0.5"}`} />
+    <div className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-all duration-200 ${
+      checked ? "left-7" : "left-0.5"
+    }`} />
   </button>
 );
 
@@ -624,7 +632,7 @@ export default function SettingsScreen() {
                     <div className="flex flex-wrap items-center gap-4">
                       {/* Day name and toggle */}
                       <div className="flex items-center gap-3 w-40">
-                        <Toggle checked={day.isOpen} onChange={v => updateDay(i, "isOpen", v)} />
+                        <Toggle checked={day.isOpen} onChange={v => updateDay(i, "isOpen", v)} isDark={isDark} />
                         <span className={`text-sm font-medium ${day.isOpen ? "text-white" : "text-white/30"}`}>
                           {dayLabel}
                         </span>
@@ -841,6 +849,7 @@ export default function SettingsScreen() {
               <Toggle
                 checked={appointmentForm.autoConfirmAppointments}
                 onChange={v => setAppointmentForm({ ...appointmentForm, autoConfirmAppointments: v })}
+                isDark={isDark}
               />
             </div>
 
@@ -894,7 +903,7 @@ export default function SettingsScreen() {
                   </div>
                   <span className="text-sm font-medium">{text.smsEnabled}</span>
                 </div>
-                <Toggle checked={notifForm.smsEnabled} onChange={v => setNotifForm({ ...notifForm, smsEnabled: v })} />
+                <Toggle checked={notifForm.smsEnabled} onChange={v => setNotifForm({ ...notifForm, smsEnabled: v })} isDark={isDark} />
               </div>
 
               <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
@@ -904,7 +913,7 @@ export default function SettingsScreen() {
                   </div>
                   <span className="text-sm font-medium">{text.emailEnabled}</span>
                 </div>
-                <Toggle checked={notifForm.emailEnabled} onChange={v => setNotifForm({ ...notifForm, emailEnabled: v })} />
+                <Toggle checked={notifForm.emailEnabled} onChange={v => setNotifForm({ ...notifForm, emailEnabled: v })} isDark={isDark} />
               </div>
 
               <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
@@ -914,7 +923,7 @@ export default function SettingsScreen() {
                   </div>
                   <span className="text-sm font-medium">{text.whatsappEnabled}</span>
                 </div>
-                <Toggle checked={notifForm.whatsappEnabled} onChange={v => setNotifForm({ ...notifForm, whatsappEnabled: v })} />
+                <Toggle checked={notifForm.whatsappEnabled} onChange={v => setNotifForm({ ...notifForm, whatsappEnabled: v })} isDark={isDark} />
               </div>
             </div>
 
