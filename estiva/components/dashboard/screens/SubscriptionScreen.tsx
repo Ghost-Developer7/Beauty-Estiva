@@ -71,6 +71,16 @@ const copy = {
     saveYearly: "Save up to 20%",
     unlimited: "Unlimited",
     popular: "Popular",
+    /* plan name translations (API returns Turkish names) */
+    planNames: {
+      "Başlangıç": "Starter",
+      "Profesyonel": "Professional",
+      "Kurumsal": "Enterprise",
+      "Deneme": "Trial",
+      "Temel": "Basic",
+      "Premium": "Premium",
+      "İleri": "Advanced",
+    } as Record<string, string>,
   },
   tr: {
     title: "Abonelik",
@@ -130,6 +140,7 @@ const copy = {
     saveYearly: "%20'ye varan tasarruf",
     unlimited: "Sınırsız",
     popular: "Popüler",
+    planNames: {} as Record<string, string>, /* Turkish: no mapping needed, API already returns Turkish */
   },
 };
 
@@ -137,11 +148,16 @@ const copy = {
    HELPERS
    ═══════════════════════════════════════════ */
 
-const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-const formatDate = (d: string | null) => {
+const fmt = (n: number, lang: string) =>
+  n.toLocaleString(lang === "tr" ? "tr-TR" : "en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+const formatDate = (d: string | null, lang: string) => {
   if (!d) return "—";
-  return new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+  return new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
 };
+
+const translatePlanName = (name: string, planNames: Record<string, string>) =>
+  planNames[name] || name;
 
 function getDaysLeft(dateStr: string | null): number {
   if (!dateStr) return 0;
@@ -285,7 +301,7 @@ export default function SubscriptionScreen() {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.currentPlan}</p>
-                <p className="mt-1 text-2xl font-bold">{current.planName}</p>
+                <p className="mt-1 text-2xl font-bold">{translatePlanName(current.planName, t.planNames)}</p>
                 <div className="mt-3 flex flex-wrap items-center gap-2">
                   {/* Status badge */}
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
@@ -308,11 +324,11 @@ export default function SubscriptionScreen() {
 
                   {/* Date */}
                   <span className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"}`}>
-                    {current.isTrialPeriod ? t.trialEndsOn : t.expiresOn}: {formatDate(current.isTrialPeriod ? current.trialEndDate : current.endDate)}
+                    {current.isTrialPeriod ? t.trialEndsOn : t.expiresOn}: {formatDate(current.isTrialPeriod ? current.trialEndDate : current.endDate, language)}
                   </span>
                 </div>
                 {current.priceSold > 0 && (
-                  <p className={`mt-2 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>₺{fmt(current.priceSold)}</p>
+                  <p className={`mt-2 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>₺{fmt(current.priceSold, language)}</p>
                 )}
               </div>
 
@@ -412,12 +428,12 @@ export default function SubscriptionScreen() {
               )}
 
               {/* Plan name */}
-              <h3 className="text-lg font-bold">{plan.name}</h3>
+              <h3 className="text-lg font-bold">{translatePlanName(plan.name, t.planNames)}</h3>
               {plan.description && <p className={`mt-1 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{plan.description}</p>}
 
               {/* Price */}
               <div className="mt-4">
-                <span className="text-4xl font-extrabold">₺{fmt(price)}</span>
+                <span className="text-4xl font-extrabold">₺{fmt(price, language)}</span>
                 <span className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{isYearly ? t.perYear : t.perMonth}</span>
               </div>
 
@@ -459,10 +475,10 @@ export default function SubscriptionScreen() {
             return (
               <div className={`flex items-center justify-between rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
                 <div>
-                  <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{plan.name}</p>
+                  <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{translatePlanName(plan.name, t.planNames)}</p>
                   <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{isYearly ? t.yearly : t.monthly}</p>
                 </div>
-                <p className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(price)}</p>
+                <p className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(price, language)}</p>
               </div>
             );
           })()}
@@ -515,17 +531,17 @@ export default function SubscriptionScreen() {
             return (
               <div className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-2`}>
                 <div className={`flex justify-between text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
-                  <span>{plan.name} ({isYearly ? t.yearly : t.monthly})</span>
-                  <span>₺{fmt(price)}</span>
+                  <span>{translatePlanName(plan.name, t.planNames)} ({isYearly ? t.yearly : t.monthly})</span>
+                  <span>₺{fmt(price, language)}</span>
                 </div>
                 <div className="flex justify-between text-xs text-emerald-400">
                   <span>{t.discount}</span>
-                  <span>-₺{fmt(discount)}</span>
+                  <span>-₺{fmt(discount, language)}</span>
                 </div>
                 <div className="border-t border-white/[0.08] pt-2 flex justify-between">
                   <span className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.finalPrice}</span>
                   <span className={`text-lg font-bold ${final_ <= 0 ? "text-emerald-400" : "text-white"}`}>
-                    {final_ <= 0 ? t.free : `₺${fmt(final_)}`}
+                    {final_ <= 0 ? t.free : `₺${fmt(final_, language)}`}
                   </span>
                 </div>
               </div>

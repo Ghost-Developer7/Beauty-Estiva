@@ -572,12 +572,22 @@ export default function PackageSalesScreen() {
   });
 
   const paymentMethods = [
-    { value: "Cash", label: t.cash },
-    { value: "CreditCard", label: t.creditCard },
-    { value: "BankTransfer", label: t.bankTransfer },
-    { value: "Check", label: t.check },
-    { value: "Other", label: t.other },
+    { value: "Cash", label: t.cash, aliases: ["nakit", "cash"] },
+    { value: "CreditCard", label: t.creditCard, aliases: ["kredi", "credit", "kart", "card", "banka"] },
+    { value: "BankTransfer", label: t.bankTransfer, aliases: ["havale", "eft", "bank", "transfer"] },
+    { value: "Check", label: t.check, aliases: ["çek", "check"] },
+    { value: "Other", label: t.other, aliases: ["diğer", "other"] },
   ];
+
+  const translateMethod = (display: string): string => {
+    if (!display) return display;
+    const lower = display.toLowerCase();
+    const found = paymentMethods.find(pm =>
+      pm.value.toLowerCase() === lower ||
+      pm.aliases.some(a => lower.includes(a))
+    );
+    return found ? found.label : display;
+  };
 
   /* ═══════════════════════════════════════════
      RENDER
@@ -1123,7 +1133,7 @@ export default function PackageSalesScreen() {
                       <div key={p.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-emerald-400">{fmt(p.amount)} ₺</span>
-                          <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{p.paymentMethodDisplay}</span>
+                          <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{translateMethod(p.paymentMethodDisplay)}</span>
                         </div>
                         <div className="flex items-center gap-2">
                           <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{fmtDate(p.paidAt)}</span>
