@@ -155,13 +155,13 @@ export default function PersonnelReportScreen() {
       </div>
 
       {/* Filters */}
-      <div className={`flex flex-wrap items-end gap-4 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
+      <div className={`grid grid-cols-1 sm:grid-cols-3 gap-4 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
         <div className="space-y-1.5">
           <label className={`block text-[10px] font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.staffId}</label>
           <select
             value={staffIdFilter || ""}
             onChange={(e) => setStaffIdFilter(Number(e.target.value))}
-            className={`min-w-[200px] rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
+            className={`w-full h-[38px] rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
           >
             <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{text.selectStaff}</option>
             {staffList.filter(s => s.isActive).map((s) => (
@@ -174,12 +174,12 @@ export default function PersonnelReportScreen() {
         <div className="space-y-1.5">
           <label className={`block text-[10px] font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.startDate}</label>
           <LocaleDateInput value={startFilter} onChange={(e) => setStartFilter(e.target.value)}
-            className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
+            className={`w-full h-[38px] rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
         </div>
         <div className="space-y-1.5">
           <label className={`block text-[10px] font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.endDate}</label>
           <LocaleDateInput value={endFilter} onChange={(e) => setEndFilter(e.target.value)}
-            className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
+            className={`w-full h-[38px] rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
         </div>
       </div>
 
