@@ -194,8 +194,9 @@ export default function StaffHRPage() {
       setEditingStaffId(null);
       setDetailData(null);
       fetchData();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Error");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "İşlem başarısız" : "Operation failed"));
     } finally {
       setSaving(false);
     }

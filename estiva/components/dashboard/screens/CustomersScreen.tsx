@@ -219,15 +219,15 @@ type DetailTab = "history" | "purchases" | "preferences" | "loyalty";
    HELPERS
    ═══════════════════════════════════════════ */
 
-const formatDate = (d: string | null | undefined) => {
+const formatDate = (d: string | null | undefined, lang: "en" | "tr" = "tr") => {
   if (!d) return "\u2014";
   const date = new Date(d);
   if (isNaN(date.getTime()) || date.getFullYear() < 1900) return "\u2014";
-  return date.toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+  return date.toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
 };
 
-const formatDateTime = (d: string) =>
-  `${formatDate(d)} ${new Date(d).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}`;
+const formatDateTime = (d: string, lang: "en" | "tr" = "tr") =>
+  `${formatDate(d, lang)} ${new Date(d).toLocaleTimeString(lang === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" })}`;
 
 const formatCurrency = (amount: number) =>
   new Intl.NumberFormat("tr-TR", { style: "currency", currency: "TRY", minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
@@ -245,7 +245,7 @@ const getTagColor = (tag: string) => TAG_COLORS[Math.abs(tag.split("").reduce((a
 
 function StatCard({ label, value, color, isDark }: { label: string; value: string | number; color: string; isDark: boolean }) {
   return (
-    <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
       <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
     </div>
@@ -277,7 +277,7 @@ function TagPill({ tag, onRemove }: { tag: string; onRemove?: () => void }) {
 
 function DetailStatCard({ icon, label, value, isDark }: { icon: React.ReactNode; label: string; value: string | number; isDark: boolean }) {
   return (
-    <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
+    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
       <div className="flex items-center gap-2">
         <div className={`${isDark ? "text-white/30" : "text-gray-300"}`}>{icon}</div>
         <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
@@ -495,7 +495,7 @@ export default function CustomersScreen() {
      ═══════════════════════════════════════════ */
 
   const inputCls = (field: string) =>
-    `w-full rounded-xl border bg-white/5 px-3 py-2.5 text-sm text-white focus:outline-none ${fieldErrors[field] ? "border-red-500" : "border-white/10 focus:border-white/25"}`;
+    `w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors[field] ? "border-red-500" : `${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}`;
 
   return (
     <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
@@ -551,27 +551,27 @@ export default function CustomersScreen() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t.search}
-          className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+          className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
         />
       </div>
 
       {/* ─── CUSTOMER LIST ─── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} ${isDark ? "shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "shadow-sm"}`}>
         {loading ? (
           <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+            <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
             {t.loading}
           </div>
         ) : customers.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
-            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
+            <svg className={`${isDark ? "text-white/20" : "text-gray-300"}`} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></svg>
             <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search ? t.noResult : t.noData}</p>
-            {!search && <p className="text-xs text-white/25">{t.noDataSub}</p>}
+            {!search && <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>}
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden lg:grid grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden lg:grid grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.customer}</span>
               <span>{t.contact}</span>
               <span>{t.visits}</span>
@@ -581,12 +581,12 @@ export default function CustomersScreen() {
               <span />
             </div>
 
-            <div className="divide-y divide-white/[0.04]">
+            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
               {customers.map((c) => (
                 <div
                   key={c.id}
                   onClick={() => openDetail(c.id)}
-                  className="group grid grid-cols-1 lg:grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-2 lg:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                  className={`group grid grid-cols-1 lg:grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-2 lg:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                 >
                   {/* Customer */}
                   <div className="flex items-center gap-3">
@@ -621,7 +621,7 @@ export default function CustomersScreen() {
                   </div>
 
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                    <button onClick={() => openEdit(c.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`} title={t.edit}>
+                    <button onClick={() => openEdit(c.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-700"}`} title={t.edit}>
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                     </button>
                     <button onClick={() => handleDelete(c.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`} title={t.delete}>
@@ -632,7 +632,7 @@ export default function CustomersScreen() {
               ))}
             </div>
 
-            <div className={`border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
+            <div className={`border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
               {customers.length} {t.total}
             </div>
           </>
@@ -669,30 +669,30 @@ export default function CustomersScreen() {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.birthDate}</label>
-              <LocaleDateInput value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} isDark={isDark} />
+              <LocaleDateInput value={form.birthDate} onChange={(e) => setForm({ ...form, birthDate: e.target.value })} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} isDark={isDark} />
             </div>
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.referralSource}</label>
-              <input type="text" value={form.referralSource} onChange={(e) => setForm({ ...form, referralSource: e.target.value })} placeholder={t.referralPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:outline-none focus:border-white/25`} />
+              <input type="text" value={form.referralSource} onChange={(e) => setForm({ ...form, referralSource: e.target.value })} placeholder={t.referralPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
             </div>
           </div>
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.allergies}</label>
-            <input type="text" value={form.allergies} onChange={(e) => setForm({ ...form, allergies: e.target.value })} placeholder={t.allergiesPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:outline-none focus:border-white/25`} />
+            <input type="text" value={form.allergies} onChange={(e) => setForm({ ...form, allergies: e.target.value })} placeholder={t.allergiesPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
           </div>
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.preferences}</label>
-            <input type="text" value={form.preferences} onChange={(e) => setForm({ ...form, preferences: e.target.value })} placeholder={t.preferencesPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:outline-none focus:border-white/25`} />
+            <input type="text" value={form.preferences} onChange={(e) => setForm({ ...form, preferences: e.target.value })} placeholder={t.preferencesPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
           </div>
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.notes}</label>
-            <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} placeholder={t.notesPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`} />
+            <textarea value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} rows={3} placeholder={t.notesPlaceholder} className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`} />
           </div>
           <div className="flex gap-3 pt-1">
             <button type="submit" disabled={saving} className={`flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition hover:shadow-green-900/50 disabled:opacity-50`}>
               {saving ? t.saving : t.save}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}>
+            <button type="button" onClick={() => setShowForm(false)} className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}>
               {t.cancel}
             </button>
           </div>
@@ -723,7 +723,7 @@ export default function CustomersScreen() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button onClick={() => { setShowDetail(false); openEdit(c.id); }} className={`flex h-9 w-9 items-center justify-center rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "text-white/40" : "text-gray-400"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`} title={t.edit}>
+                  <button onClick={() => { setShowDetail(false); openEdit(c.id); }} className={`flex h-9 w-9 items-center justify-center rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "text-white/40" : "text-gray-400"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${isDark ? "hover:text-white" : "hover:text-gray-700"}`} title={t.edit}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                   </button>
                   <button onClick={() => handleDelete(c.id)} className="flex h-9 w-9 items-center justify-center rounded-lg border border-red-500/20 text-red-400/50 transition hover:bg-red-500/10 hover:text-red-400" title={t.delete}>
@@ -737,19 +737,19 @@ export default function CustomersScreen() {
                 <DetailStatCard icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>} label={t.totalVisits} value={c.totalVisits} isDark={isDark} />
                 <DetailStatCard icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" /></svg>} label={t.totalSpent} value={formatCurrency(c.totalSpent)} isDark={isDark} />
                 <DetailStatCard icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>} label={t.loyaltyPoints} value={c.loyaltyPoints} isDark={isDark} />
-                <DetailStatCard icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>} label={t.customerSince} value={formatDate(c.customerSince)} isDark={isDark} />
+                <DetailStatCard icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>} label={t.customerSince} value={formatDate(c.customerSince, language)} isDark={isDark} />
                 <DetailStatCard icon={<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2" /></svg>} label={t.avgSpendPerVisit} value={formatCurrency(c.averageSpendPerVisit)} isDark={isDark} />
               </div>
 
               {/* Tabs */}
-              <div className="flex gap-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-1">
+              <div className={`flex gap-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-1`}>
                 {([
                   { key: "history" as DetailTab, label: t.tabHistory },
                   { key: "purchases" as DetailTab, label: t.tabPurchases },
                   { key: "preferences" as DetailTab, label: t.tabPreferences },
                   { key: "loyalty" as DetailTab, label: t.tabLoyalty },
                 ]).map(tab => (
-                  <button key={tab.key} onClick={() => setDetailTab(tab.key)} className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${detailTab === tab.key ? "bg-white/10 text-white shadow-sm" : "text-white/40 hover:text-white/60"}`}>
+                  <button key={tab.key} onClick={() => setDetailTab(tab.key)} className={`flex-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${detailTab === tab.key ? (isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900") + " shadow-sm" : (isDark ? "text-white/40 hover:text-white/60" : "text-gray-400 hover:text-gray-600")}`}>
                     {tab.label}
                   </button>
                 ))}
@@ -759,7 +759,7 @@ export default function CustomersScreen() {
               <div className="min-h-[200px]">
                 {historyLoading ? (
                   <div className={`flex items-center justify-center gap-3 py-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+                    <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
                     {t.loading}
                   </div>
                 ) : (
@@ -777,13 +777,13 @@ export default function CustomersScreen() {
                                   <div className="absolute -left-6 top-3 h-[18px] w-[18px] rounded-full bg-purple-500/30 border-2 border-purple-500/60 flex items-center justify-center">
                                     <div className="h-2 w-2 rounded-full bg-purple-400" />
                                   </div>
-                                  <div className={`flex-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 transition hover:bg-white/[0.05]`}>
+                                  <div className={`flex-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 transition ${isDark ? "hover:bg-white/[0.05]" : "hover:bg-gray-100"}`}>
                                     <div className="flex items-center justify-between">
                                       <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{item.title}</p>
                                       <span className={`text-[10px] font-bold ${statusColor}`}>{STATUS_LABELS[item.status || ""]?.[language] || item.status}</span>
                                     </div>
                                     <div className={`flex flex-wrap gap-x-4 gap-y-1 mt-1 text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>
-                                      <span>{formatDateTime(item.date)}</span>
+                                      <span>{formatDateTime(item.date, language)}</span>
                                       {item.staffName && <span>{item.staffName}</span>}
                                       {item.durationMinutes && <span>{item.durationMinutes} dk</span>}
                                       {item.amount != null && item.amount > 0 && <span className="text-emerald-400 font-semibold">{formatCurrency(item.amount)}</span>}
@@ -794,7 +794,7 @@ export default function CustomersScreen() {
                             })}
                           </div>
                         ) : (
-                          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-8 text-center text-xs text-white/25">{t.noHistory}</div>
+                          <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-4 py-8 text-center text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noHistory}</div>
                         )}
                       </div>
                     )}
@@ -804,7 +804,7 @@ export default function CustomersScreen() {
                       <div className="space-y-3">
                         {history && history.timeline.filter(i => i.type === "product_purchase" || i.type === "package_purchase").length > 0 ? (
                           history.timeline.filter(i => i.type === "product_purchase" || i.type === "package_purchase").map((item, idx) => (
-                            <div key={`pur-${item.id}-${idx}`} className={`flex items-center gap-3 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 transition hover:bg-white/[0.05]`}>
+                            <div key={`pur-${item.id}-${idx}`} className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 transition ${isDark ? "hover:bg-white/[0.05]" : "hover:bg-gray-100"}`}>
                               <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.type === "package_purchase" ? "bg-blue-500/20" : "bg-pink-500/20"}`}>
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={item.type === "package_purchase" ? "text-blue-400" : "text-pink-400"}>
                                   {item.type === "package_purchase"
@@ -815,7 +815,7 @@ export default function CustomersScreen() {
                               <div className="flex-1 min-w-0">
                                 <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{item.title}</p>
                                 <div className={`flex gap-3 text-[11px] ${isDark ? "text-white/40" : "text-gray-400"} mt-0.5`}>
-                                  <span>{formatDate(item.date)}</span>
+                                  <span>{formatDate(item.date, language)}</span>
                                   {item.staffName && <span>{item.staffName}</span>}
                                   {item.status && <span className={STATUS_COLORS[item.status] || "text-white/40"}>{STATUS_LABELS[item.status || ""]?.[language] || item.status}</span>}
                                 </div>
@@ -824,7 +824,7 @@ export default function CustomersScreen() {
                             </div>
                           ))
                         ) : (
-                          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-8 text-center text-xs text-white/25">
+                          <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-4 py-8 text-center text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>
                             {language === "tr" ? "Hen\u00fcz sat\u0131n alma ge\u00e7mi\u015fi yok" : "No purchase history yet"}
                           </div>
                         )}
@@ -841,25 +841,25 @@ export default function CustomersScreen() {
                           { label: t.notes, value: c.notes },
                           { label: t.referralSource, value: c.referralSource },
                         ].map(({ label, value }) => (
-                          <div key={label} className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-1`}>
+                          <div key={label} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-1`}>
                             <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{label}</p>
                             <p className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{value || "\u2014"}</p>
                           </div>
                         ))}
 
                         {/* Tags Management */}
-                        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-3`}>
+                        <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-3`}>
                           <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.tags}</p>
                           <div className="flex flex-wrap gap-1.5">
                             {detailTags.map(tg => <TagPill key={tg} tag={tg} onRemove={() => handleRemoveTag(tg)} />)}
                           </div>
                           <div className="flex gap-2">
-                            <input type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())} placeholder={t.addTag} className={`flex-1 rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 focus:outline-none focus:border-white/25`} />
-                            <button onClick={handleAddTag} className={`rounded-lg ${isDark ? "bg-white/10" : "bg-gray-100"} px-3 py-2 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} hover:bg-white/15 transition`}>+</button>
+                            <input type="text" value={newTag} onChange={(e) => setNewTag(e.target.value)} onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleAddTag())} placeholder={t.addTag} className={`flex-1 rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
+                            <button onClick={handleAddTag} className={`rounded-lg ${isDark ? "bg-white/10" : "bg-gray-100"} px-3 py-2 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "hover:bg-white/15" : "hover:bg-gray-200"} transition`}>+</button>
                           </div>
                           <div className="flex flex-wrap gap-1.5">
                             {SUGGESTED_TAGS.filter(tg => !detailTags.includes(tg)).map(tg => (
-                              <button key={tg} onClick={() => setNewTag(tg)} className={`rounded-full border border-white/[0.08] bg-white/[0.02] px-2.5 py-0.5 text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white/60`}>
+                              <button key={tg} onClick={() => setNewTag(tg)} className={`rounded-full border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-2.5 py-0.5 text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white/60" : "hover:text-gray-600"}`}>
                                 + {tg}
                               </button>
                             ))}
@@ -867,13 +867,13 @@ export default function CustomersScreen() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                          <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-1`}>
+                          <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-1`}>
                             <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.birthDate}</p>
-                            <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(c.birthDate)}</p>
+                            <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(c.birthDate, language)}</p>
                           </div>
-                          <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-1`}>
+                          <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-1`}>
                             <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.registered}</p>
-                            <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(c.cDate)}</p>
+                            <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(c.cDate, language)}</p>
                           </div>
                         </div>
                       </div>
@@ -898,7 +898,7 @@ export default function CustomersScreen() {
                           </button>
                         </div>
 
-                        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-3`}>
+                        <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-3`}>
                           <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.tier}</p>
                           <div className="flex items-center gap-3">
                             <SegmentBadge segment={c.segment} language={language} />
@@ -913,27 +913,27 @@ export default function CustomersScreen() {
 
                         {stats && (
                           <div className="grid grid-cols-2 gap-3">
-                            <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
+                            <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
                               <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Ziyaret S\u0131kl\u0131\u011f\u0131" : "Visit Frequency"}</p>
                               <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{stats.visitFrequencyDays > 0 ? `${stats.visitFrequencyDays} ${language === "tr" ? "g\u00fcn" : "days"}` : "\u2014"}</p>
                             </div>
-                            <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
+                            <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
                               <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "En \u00c7ok Kullan\u0131lan" : "Most Used"}</p>
                               <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{stats.mostUsedTreatment || "\u2014"}{stats.mostUsedTreatmentCount > 0 && <span className={`${isDark ? "text-white/30" : "text-gray-300"} text-xs ml-1`}>({stats.mostUsedTreatmentCount}x)</span>}</p>
                             </div>
-                            <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
+                            <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
                               <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Son Ziyaret" : "Last Visit"}</p>
-                              <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(stats.lastVisitDate)}</p>
+                              <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(stats.lastVisitDate, language)}</p>
                             </div>
-                            <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
+                            <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-3 space-y-1`}>
                               <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Sonraki Randevu" : "Next Appointment"}</p>
-                              <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(stats.nextAppointmentDate)}</p>
+                              <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{formatDate(stats.nextAppointmentDate, language)}</p>
                             </div>
                           </div>
                         )}
 
                         {/* Tier progress */}
-                        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-3`}>
+                        <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-3`}>
                           <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{language === "tr" ? "Seviye \u0130lerlemesi" : "Tier Progress"}</p>
                           <div className="space-y-2">
                             <div className="space-y-1">
@@ -941,7 +941,7 @@ export default function CustomersScreen() {
                                 <span>{language === "tr" ? "Ziyaretler" : "Visits"}</span>
                                 <span>{c.totalVisits} / 10</span>
                               </div>
-                              <div className={`h-2 rounded-full ${isDark ? "bg-white/[0.06]" : "bg-white"} overflow-hidden`}>
+                              <div className={`h-2 rounded-full ${isDark ? "bg-white/[0.06]" : "bg-gray-200"} overflow-hidden`}>
                                 <div className="h-full rounded-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500" style={{ width: `${Math.min(100, (c.totalVisits / 10) * 100)}%` }} />
                               </div>
                             </div>
@@ -950,7 +950,7 @@ export default function CustomersScreen() {
                                 <span>{language === "tr" ? "Harcama" : "Spending"}</span>
                                 <span>{formatCurrency(c.totalSpent)} / {formatCurrency(5000)}</span>
                               </div>
-                              <div className={`h-2 rounded-full ${isDark ? "bg-white/[0.06]" : "bg-white"} overflow-hidden`}>
+                              <div className={`h-2 rounded-full ${isDark ? "bg-white/[0.06]" : "bg-gray-200"} overflow-hidden`}>
                                 <div className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all duration-500" style={{ width: `${Math.min(100, (c.totalSpent / 5000) * 100)}%` }} />
                               </div>
                             </div>

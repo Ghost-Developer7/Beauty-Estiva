@@ -121,7 +121,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0,
 
 function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
   return (
-    <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
       <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
       {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
@@ -362,27 +362,27 @@ export default function ProductsScreen() {
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
           placeholder={t.search}
-          className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+          className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
         />
       </div>
 
       {/* ─── PRODUCT LIST ─── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} ${isDark ? "shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "shadow-sm"}`}>
         {loading ? (
           <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+            <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
             {t.loading}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
-            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+            <svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
             <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search ? t.noResult : t.noData}</p>
-            {!search && <p className="text-xs text-white/25">{t.noDataSub}</p>}
+            {!search && <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>}
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden md:grid grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden md:grid grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.product}</span>
               <span>{t.barcodeCol}</span>
               <span>{t.priceCol}</span>
@@ -391,12 +391,12 @@ export default function ProductsScreen() {
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-white/[0.04]">
+            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
               {paged.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => openDetail(item)}
-                  className="group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                  className={`group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                 >
                   {/* Product name + description */}
                   <div className="flex items-center gap-3">
@@ -426,7 +426,7 @@ export default function ProductsScreen() {
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => openEdit(item)}
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-700"}`}
                       title={t.edit}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
@@ -470,7 +470,7 @@ export default function ProductsScreen() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder={t.namePlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${fieldErrors.name ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+              className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${fieldErrors.name ? "border-red-500" : isDark ? "border-white/10 focus:border-white/25" : "border-gray-200 focus:border-gray-400"}`}
             />
             {fieldErrors.name && <p className="text-[11px] text-red-400">{fieldErrors.name}</p>}
           </div>
@@ -483,7 +483,7 @@ export default function ProductsScreen() {
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={2}
               placeholder={t.descPlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
           </div>
 
@@ -495,7 +495,7 @@ export default function ProductsScreen() {
               value={form.barcode}
               onChange={(e) => setForm({ ...form, barcode: e.target.value })}
               placeholder={t.barcodePlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 font-mono`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} font-mono`}
             />
           </div>
 
@@ -512,7 +512,7 @@ export default function ProductsScreen() {
                   value={form.price || ""}
                   onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
                   placeholder="0"
-                  className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-8 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.price ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+                  className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-8 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.price ? "border-red-500" : isDark ? "border-white/10 focus:border-white/25" : "border-gray-200 focus:border-gray-400"}`}
                 />
               </div>
               {fieldErrors.price && <p className="text-[11px] text-red-400">{fieldErrors.price}</p>}
@@ -526,14 +526,14 @@ export default function ProductsScreen() {
                 value={form.stockQuantity || ""}
                 onChange={(e) => setForm({ ...form, stockQuantity: Number(e.target.value) })}
                 placeholder="0"
-                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.stockQuantity ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.stockQuantity ? "border-red-500" : isDark ? "border-white/10 focus:border-white/25" : "border-gray-200 focus:border-gray-400"}`}
               />
               {fieldErrors.stockQuantity && <p className="text-[11px] text-red-400">{fieldErrors.stockQuantity}</p>}
             </div>
           </div>
 
           {/* Preview */}
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+          <div className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-4 py-3`}>
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>
             </div>
@@ -555,7 +555,7 @@ export default function ProductsScreen() {
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
             >
               {t.cancel}
             </button>
@@ -584,16 +584,16 @@ export default function ProductsScreen() {
 
               {/* Info cards */}
               <div className="grid grid-cols-3 gap-3">
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.priceCol}</p>
                   <p className="mt-1 text-lg font-bold text-emerald-400">₺{fmt(item.price)}</p>
                 </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.stockCol}</p>
                   <p className={`mt-1 text-lg font-bold ${item.stockQuantity <= 0 ? "text-red-400" : item.stockQuantity <= 5 ? "text-amber-400" : isDark ? "text-white" : "text-gray-900"}`}>{item.stockQuantity}</p>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.items}</p>
                 </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.barcodeCol}</p>
                   <p className={`mt-1 text-sm font-mono ${isDark ? "text-white/60" : "text-gray-600"} truncate`}>{item.barcode || "—"}</p>
                 </div>

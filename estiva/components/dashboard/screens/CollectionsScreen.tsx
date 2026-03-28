@@ -135,13 +135,13 @@ export default function CollectionsScreen() {
           placeholder={t.placeholder}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className={`w-full md:w-56 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none focus:border-white/20`}
+          className={`w-full md:w-56 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"}`}
         />
         <div className="flex items-center gap-2">
           <LocaleDateInput
             value={startDate}
             onChange={(e) => { setStartDate(e.target.value); setPage(1); }}
-            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 [color-scheme:dark]`}
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} ${isDark ? "[color-scheme:dark]" : ""}`}
             placeholder={t.startDate}
             isDark={isDark}
           />
@@ -149,7 +149,7 @@ export default function CollectionsScreen() {
           <LocaleDateInput
             value={endDate}
             onChange={(e) => { setEndDate(e.target.value); setPage(1); }}
-            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 [color-scheme:dark]`}
+            className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} ${isDark ? "[color-scheme:dark]" : ""}`}
             placeholder={t.endDate}
             isDark={isDark}
           />
@@ -157,11 +157,11 @@ export default function CollectionsScreen() {
         <select
           value={methodFilter}
           onChange={(e) => { setMethodFilter(e.target.value); setPage(1); }}
-          className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
+          className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"}`}
         >
-          <option value="" className="bg-[#1a1a1a]">{t.allMethods}</option>
+          <option value="" className={isDark ? "bg-[#1a1a1a]" : "bg-white"}>{t.allMethods}</option>
           {Object.entries(t.methodFilters).map(([val, label]) => (
-            <option key={val} value={val} className="bg-[#1a1a1a]">{label}</option>
+            <option key={val} value={val} className={isDark ? "bg-[#1a1a1a]" : "bg-white"}>{label}</option>
           ))}
         </select>
       </div>
@@ -188,7 +188,7 @@ export default function CollectionsScreen() {
                 </tr>
               ) : (
                 collections.map((item) => (
-                  <tr key={item.id} className="hover:bg-white/[0.03] transition">
+                  <tr key={item.id} className={`${isDark ? "hover:bg-white/[0.03]" : "hover:bg-gray-50"} transition`}>
                     <td className="px-4 py-3 whitespace-nowrap font-medium">{getDisplayName(item)}</td>
                     <td className={`px-4 py-3 whitespace-nowrap ${isDark ? "text-white/60" : "text-gray-600"} max-w-[200px] truncate`}>
                       {item.debtDescription || "-"}

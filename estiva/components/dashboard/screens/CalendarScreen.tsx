@@ -254,9 +254,9 @@ export default function CalendarScreen() {
                           </p>
                           <p className={`${isDark ? "text-white/60" : "text-gray-600"} truncate`}>{apt.treatmentName}</p>
                           <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>
-                            {new Date(apt.startTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                            {new Date(apt.startTime).toLocaleTimeString(language === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" })}
                             {" - "}
-                            {new Date(apt.endTime).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" })}
+                            {new Date(apt.endTime).toLocaleTimeString(language === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" })}
                           </p>
                         </div>
                       </div>

@@ -195,8 +195,9 @@ export default function StaffPage() {
         fetchStaff();
         setShowDetail(false);
       }
-    } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || (language === "tr" ? "Rol değiştirilemedi" : "Failed to change role");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      const msg = axiosErr?.response?.data?.error?.message || (language === "tr" ? "Rol değiştirilemedi" : "Failed to change role");
       toast.error(msg);
     } finally {
       setRoleChanging(false);

@@ -206,9 +206,9 @@ const copy = {
 const fmt = (n: number) =>
   n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
-const fmtDate = (d: string) => {
+const fmtDate = (d: string, lang: "en" | "tr" = "tr") => {
   try {
-    return new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+    return new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
   } catch {
     return d;
   }
@@ -238,7 +238,7 @@ const statusColor = (status: number) => {
     case 2: return { bg: "bg-blue-500/15", text: "text-blue-400", border: "border-blue-500/30" };
     case 3: return { bg: "bg-amber-500/15", text: "text-amber-400", border: "border-amber-500/30" };
     case 4: return { bg: "bg-red-500/15", text: "text-red-400", border: "border-red-500/30" };
-    default: return { bg: "bg-white/10", text: "text-white/60", border: "border-white/20" };
+    default: return { bg: "bg-gray-500/15", text: "text-gray-400", border: "border-gray-500/30" };
   }
 };
 
@@ -248,7 +248,7 @@ const statusColor = (status: number) => {
 
 function StatCard({ label, value, sub, icon, gradient, isDark }: { label: string; value: string; sub?: string; icon: React.ReactNode; gradient: string; isDark: boolean }) {
   return (
-    <div className={`group relative overflow-hidden rounded-2xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 transition-all duration-300 hover:border-white/[0.15] hover:bg-white/[0.06] hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5`}>
+    <div className={`group relative overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 transition-all duration-300 ${isDark ? "hover:border-white/[0.15]" : "hover:border-gray-300"} ${isDark ? "hover:bg-white/[0.06]" : "hover:bg-gray-50"} hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5`}>
       {/* Animated background glow */}
       <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-20 blur-2xl transition-all duration-500 group-hover:opacity-40 group-hover:h-32 group-hover:w-32 ${gradient}`} />
       {/* Shimmer overlay */}
@@ -675,14 +675,14 @@ export default function PackageSalesScreen() {
           <input
             type="text" value={search} onChange={(e) => setSearch(e.target.value)}
             placeholder={t.search}
-            className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+            className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
           />
         </div>
 
         {/* Date filter */}
         <select
           value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer`}
+          className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer`}
         >
           <option value="all" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allTime}</option>
           <option value="this-month" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.thisMonth}</option>
@@ -693,7 +693,7 @@ export default function PackageSalesScreen() {
         {/* Status filter */}
         <select
           value={statusFilter ?? ""} onChange={(e) => setStatusFilter(e.target.value ? Number(e.target.value) : null)}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer`}
+          className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer`}
         >
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStatuses}</option>
           <option value="1" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.active}</option>
@@ -705,7 +705,7 @@ export default function PackageSalesScreen() {
         {/* Treatment filter */}
         <select
           value={treatmentFilter ?? ""} onChange={(e) => setTreatmentFilter(e.target.value ? Number(e.target.value) : null)}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer max-w-[200px]`}
+          className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none appearance-none cursor-pointer max-w-[200px]`}
         >
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allTreatments}</option>
           {treatments.map((tr) => (
@@ -715,22 +715,22 @@ export default function PackageSalesScreen() {
       </div>
 
       {/* ─── TABLE ─── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} ${isDark ? "shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "shadow-sm"}`}>
         {loading ? (
           <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+            <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-300 border-t-gray-600"}`} />
             {t.loading}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
-            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+            <svg className={`${isDark ? "text-white/20" : "text-gray-300"}`} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
             <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search || statusFilter || treatmentFilter ? t.noResult : t.noData}</p>
-            {!search && !statusFilter && !treatmentFilter && <p className="text-xs text-white/25">{t.noDataSub}</p>}
+            {!search && !statusFilter && !treatmentFilter && <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>}
           </div>
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div className={`hidden lg:grid grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden lg:grid grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.customer}</span>
               <span>{t.treatment}</span>
               <span>{t.sessions}</span>
@@ -743,14 +743,14 @@ export default function PackageSalesScreen() {
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-white/[0.04]">
+            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
               {filtered.map((sale) => {
                 const sc = statusColor(sale.statusValue);
                 return (
                   <div
                     key={sale.id}
                     onClick={() => openDetail(sale)}
-                    className="group grid grid-cols-1 lg:grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 items-center px-4 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                    className={`group grid grid-cols-1 lg:grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 items-center px-4 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
                     {/* Customer */}
                     <div className="flex items-center gap-2.5">
@@ -766,7 +766,7 @@ export default function PackageSalesScreen() {
                     {/* Treatment */}
                     <div className="hidden lg:block">
                       <p className={`text-sm ${isDark ? "text-white/80" : "text-gray-800"} truncate`}>{sale.treatmentName}</p>
-                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{fmtDate(sale.startDate)}</p>
+                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{fmtDate(sale.startDate, language)}</p>
                     </div>
 
                     {/* Sessions */}
@@ -789,7 +789,7 @@ export default function PackageSalesScreen() {
                     <p className="hidden lg:block text-sm text-emerald-400">{fmt(sale.paidAmount)} ₺</p>
 
                     {/* Remaining */}
-                    <p className={`hidden lg:block text-sm font-medium ${sale.remainingPayment > 0 ? "text-amber-400" : "text-white/40"}`}>
+                    <p className={`hidden lg:block text-sm font-medium ${sale.remainingPayment > 0 ? "text-amber-400" : isDark ? "text-white/40" : "text-gray-400"}`}>
                       {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} ₺` : "-"}
                     </p>
 
@@ -815,7 +815,7 @@ export default function PackageSalesScreen() {
                     <div className="hidden lg:flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => openDetail(sale)}
-                        className={`flex h-7 w-7 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
                         title={t.edit}
                       >
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
@@ -835,7 +835,7 @@ export default function PackageSalesScreen() {
               onPageChange={(p) => setPage(p)}
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
-            <div className={`flex items-center justify-between border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
+            <div className={`flex items-center justify-between border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
               <span>{filtered.length} {t.total}</span>
               <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} ₺</span>
             </div>
@@ -859,7 +859,7 @@ export default function PackageSalesScreen() {
                 onChange={(e) => { setCustomerSearch(e.target.value); setShowCustomerDd(true); }}
                 onFocus={() => setShowCustomerDd(true)}
                 placeholder={t.search}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
               {showCustomerDd && (
                 <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
@@ -870,7 +870,7 @@ export default function PackageSalesScreen() {
                       <button
                         key={c.id} type="button"
                         onClick={() => { setCreateForm({ ...createForm, customerId: c.id }); setCustomerSearch(`${c.name} ${c.surname}`); setShowCustomerDd(false); }}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${createForm.customerId === c.id ? "bg-white/5" : ""}`}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${createForm.customerId === c.id ? (isDark ? "bg-white/5" : "bg-gray-100") : ""}`}
                       >
                         <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold ${isDark ? "text-white/70" : "text-gray-700"}`}>
                           {c.name[0]}{c.surname[0]}
@@ -900,7 +900,7 @@ export default function PackageSalesScreen() {
                 onChange={(e) => { setTreatmentSearch(e.target.value); setShowTreatmentDd(true); }}
                 onFocus={() => setShowTreatmentDd(true)}
                 placeholder={t.search}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
               {showTreatmentDd && (
                 <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
@@ -911,7 +911,7 @@ export default function PackageSalesScreen() {
                       <button
                         key={tr.id} type="button"
                         onClick={() => { setCreateForm({ ...createForm, treatmentId: tr.id }); setTreatmentSearch(tr.name); setShowTreatmentDd(false); }}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${createForm.treatmentId === tr.id ? "bg-white/5" : ""}`}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${createForm.treatmentId === tr.id ? (isDark ? "bg-white/5" : "bg-gray-100") : ""}`}
                       >
                         <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tr.color || "#a78bfa" }} />
                         <div className="min-w-0 flex-1">
@@ -936,7 +936,7 @@ export default function PackageSalesScreen() {
               <input
                 type="number" min={1} value={createForm.totalSessions}
                 onChange={(e) => setCreateForm({ ...createForm, totalSessions: Number(e.target.value) })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
             </div>
             <div className="space-y-2">
@@ -946,7 +946,7 @@ export default function PackageSalesScreen() {
                 <input
                   type="number" min={0} step={0.01} value={createForm.totalPrice || ""}
                   onChange={(e) => setCreateForm({ ...createForm, totalPrice: Number(e.target.value) })}
-                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
                 />
               </div>
             </div>
@@ -961,7 +961,7 @@ export default function PackageSalesScreen() {
                 <input
                   type="number" min={0} step={0.01} value={createForm.paidAmount || ""}
                   onChange={(e) => setCreateForm({ ...createForm, paidAmount: Number(e.target.value) })}
-                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
                 />
               </div>
             </div>
@@ -986,7 +986,7 @@ export default function PackageSalesScreen() {
               <LocaleDateInput
                 value={createForm.startDate}
                 onChange={(e) => setCreateForm({ ...createForm, startDate: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} ${isDark ? "[color-scheme:dark]" : ""}`}
                 isDark={isDark}
               />
             </div>
@@ -995,7 +995,7 @@ export default function PackageSalesScreen() {
               <LocaleDateInput
                 value={createForm.endDate}
                 onChange={(e) => setCreateForm({ ...createForm, endDate: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} ${isDark ? "[color-scheme:dark]" : ""}`}
                 isDark={isDark}
               />
             </div>
@@ -1008,7 +1008,7 @@ export default function PackageSalesScreen() {
               value={createForm.notes}
               onChange={(e) => setCreateForm({ ...createForm, notes: e.target.value })}
               rows={2} placeholder={t.notesPlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
           </div>
 
@@ -1022,7 +1022,7 @@ export default function PackageSalesScreen() {
             </button>
             <button
               type="button" onClick={() => setShowCreate(false)}
-              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
             >
               {t.cancel}
             </button>
@@ -1058,22 +1058,22 @@ export default function PackageSalesScreen() {
 
               {/* Info Cards */}
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.sessions}</p>
                   <p className={`mt-1 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{sale.usedSessions}{t.of}{sale.totalSessions}</p>
                   <ProgressBar used={sale.usedSessions} total={sale.totalSessions} isDark={isDark} />
                 </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.totalPrice}</p>
                   <p className={`mt-1 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} ₺</p>
                 </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.paidAmount}</p>
                   <p className="mt-1 text-xl font-bold text-emerald-400">{fmt(sale.paidAmount)} ₺</p>
                 </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.remainingPayment}</p>
-                  <p className={`mt-1 text-xl font-bold ${sale.remainingPayment > 0 ? "text-amber-400" : "text-white/40"}`}>
+                  <p className={`mt-1 text-xl font-bold ${sale.remainingPayment > 0 ? "text-amber-400" : isDark ? "text-white/40" : "text-gray-400"}`}>
                     {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} ₺` : "-"}
                   </p>
                 </div>
@@ -1082,8 +1082,8 @@ export default function PackageSalesScreen() {
               {/* Meta */}
               <div className={`flex flex-wrap gap-4 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 <span>{t.seller}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{sale.staffFullName}</span></span>
-                <span>{t.validUntil}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(sale.endDate)}</span></span>
-                <span>{t.createdAt}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(sale.createdAt)}</span></span>
+                <span>{t.validUntil}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(sale.endDate, language)}</span></span>
+                <span>{t.createdAt}: <span className={`${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(sale.createdAt, language)}</span></span>
               </div>
               {sale.notes && <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} italic`}>{sale.notes}</p>}
 
@@ -1100,12 +1100,12 @@ export default function PackageSalesScreen() {
                 {sale.usages && sale.usages.length > 0 ? (
                   <div className="space-y-1.5">
                     {sale.usages.map((u, i) => (
-                      <div key={u.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
+                      <div key={u.id} className={`flex items-center justify-between rounded-lg border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-3 py-2`}>
                         <div className="flex items-center gap-2">
                           <span className="flex h-6 w-6 items-center justify-center rounded-full bg-purple-500/20 text-[10px] font-bold text-purple-400">
                             {sale.usages!.length - i}
                           </span>
-                          <span className={`text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(u.usageDate)}</span>
+                          <span className={`text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>{fmtDate(u.usageDate, language)}</span>
                           {u.staffFullName && <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>- {u.staffFullName}</span>}
                         </div>
                         {u.notes && <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} truncate max-w-[150px]`}>{u.notes}</span>}
@@ -1130,13 +1130,13 @@ export default function PackageSalesScreen() {
                 {sale.payments && sale.payments.length > 0 ? (
                   <div className="space-y-1.5">
                     {sale.payments.map((p) => (
-                      <div key={p.id} className="flex items-center justify-between rounded-lg border border-white/[0.06] bg-white/[0.02] px-3 py-2">
+                      <div key={p.id} className={`flex items-center justify-between rounded-lg border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-3 py-2`}>
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-emerald-400">{fmt(p.amount)} ₺</span>
                           <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{translateMethod(p.paymentMethodDisplay)}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{fmtDate(p.paidAt)}</span>
+                          <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{fmtDate(p.paidAt, language)}</span>
                           {p.notes && <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} truncate max-w-[100px]`}>{p.notes}</span>}
                         </div>
                       </div>
@@ -1187,7 +1187,7 @@ export default function PackageSalesScreen() {
             <LocaleDateInput
               value={usageForm.usageDate}
               onChange={(e) => setUsageForm({ ...usageForm, usageDate: e.target.value })}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} ${isDark ? "[color-scheme:dark]" : ""}`}
               isDark={isDark}
             />
           </div>
@@ -1210,7 +1210,7 @@ export default function PackageSalesScreen() {
               value={usageForm.notes}
               onChange={(e) => setUsageForm({ ...usageForm, notes: e.target.value })}
               rows={2} placeholder={t.notesPlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
           </div>
           <div className="flex gap-3 pt-1">
@@ -1242,7 +1242,7 @@ export default function PackageSalesScreen() {
               <input
                 type="number" min={0.01} step={0.01} value={paymentForm.amount || ""}
                 onChange={(e) => setPaymentForm({ ...paymentForm, amount: Number(e.target.value) })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
             </div>
           </div>
@@ -1263,7 +1263,7 @@ export default function PackageSalesScreen() {
             <LocaleDateInput
               value={paymentForm.paidAt}
               onChange={(e) => setPaymentForm({ ...paymentForm, paidAt: e.target.value })}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25 [color-scheme:dark]`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} ${isDark ? "[color-scheme:dark]" : ""}`}
               isDark={isDark}
             />
           </div>
@@ -1273,7 +1273,7 @@ export default function PackageSalesScreen() {
               value={paymentForm.notes}
               onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
               rows={2} placeholder={t.notesPlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
           </div>
           <div className="flex gap-3 pt-1">

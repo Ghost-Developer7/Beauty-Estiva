@@ -274,7 +274,7 @@ export default function ExpensesScreen() {
 
   const totalAmount = expenses.reduce((sum, e) => sum + e.amountInTry, 0);
   const formatCurrency = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2 });
-  const formatDate = (d: string) => new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+  const formatDate = (d: string) => new Date(d).toLocaleDateString(language === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
 
   return (
     <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
@@ -326,7 +326,7 @@ export default function ExpensesScreen() {
       <div className={`flex gap-1 border-b ${isDark ? "border-white/10" : "border-gray-200"}`}>
         {text.tabs.map((tab, i) => (
           <button key={i} onClick={() => setActiveTab(i)}
-            className={`px-4 py-2 text-sm font-medium border-b-2 transition ${activeTab === i ? "border-white text-white" : "border-transparent text-white/40 hover:text-white/70"}`}>
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition ${activeTab === i ? (isDark ? "border-white text-white" : "border-gray-900 text-gray-900") : (isDark ? "border-transparent text-white/40 hover:text-white/70" : "border-transparent text-gray-400 hover:text-gray-600")}`}>
             {tab}
           </button>
         ))}
@@ -428,7 +428,7 @@ export default function ExpensesScreen() {
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.category} *</label>
               <select value={expForm.categoryId} onChange={(e) => setExpForm({ ...expForm, categoryId: Number(e.target.value) })}
-                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.categoryId ? "border-red-500" : "border-white/10 focus:border-white/30"}`}>
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.categoryId ? "border-red-500" : (isDark ? "border-white/10 focus:border-white/30" : "border-gray-200 focus:border-gray-400")}`}>
                 <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{text.selectCategory}</option>
                 {categories.map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.name}</option>)}
               </select>
@@ -437,7 +437,7 @@ export default function ExpensesScreen() {
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.expenseDate} *</label>
               <LocaleDateInput value={expForm.expenseDate} onChange={(e) => setExpForm({ ...expForm, expenseDate: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.expenseDate ? "border-red-500" : "border-white/10 focus:border-white/30"}`} isDark={isDark} />
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.expenseDate ? "border-red-500" : (isDark ? "border-white/10 focus:border-white/30" : "border-gray-200 focus:border-gray-400")}`} isDark={isDark} />
               {fieldErrors.expenseDate && <p className="text-xs text-red-500">{fieldErrors.expenseDate}</p>}
             </div>
           </div>
@@ -445,13 +445,13 @@ export default function ExpensesScreen() {
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.amount} *</label>
               <input type="number" min={0} step={0.01} value={expForm.amount} onChange={(e) => setExpForm({ ...expForm, amount: Number(e.target.value) })}
-                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.amount ? "border-red-500" : "border-white/10 focus:border-white/30"}`} />
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.amount ? "border-red-500" : (isDark ? "border-white/10 focus:border-white/30" : "border-gray-200 focus:border-gray-400")}`} />
               {fieldErrors.amount && <p className="text-xs text-red-500">{fieldErrors.amount}</p>}
             </div>
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.currency}</label>
               <select value={expForm.currencyId} onChange={(e) => setExpForm({ ...expForm, currencyId: Number(e.target.value) })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}>
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}>
                 {currencies.map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.code} ({c.symbol})</option>)}
               </select>
             </div>
@@ -459,18 +459,18 @@ export default function ExpensesScreen() {
           <div className="space-y-1">
             <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.description}</label>
             <input type="text" value={expForm.description} onChange={(e) => setExpForm({ ...expForm, description: e.target.value })}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.receiptNumber}</label>
               <input type="text" value={expForm.receiptNumber} onChange={(e) => setExpForm({ ...expForm, receiptNumber: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`} />
             </div>
             <div className="space-y-1">
               <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.notes}</label>
               <input type="text" value={expForm.notes} onChange={(e) => setExpForm({ ...expForm, notes: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`} />
             </div>
           </div>
           <div className="flex gap-3 pt-2">
@@ -492,12 +492,12 @@ export default function ExpensesScreen() {
           <div className="space-y-1">
             <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.categoryName} *</label>
             <input type="text" value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} required
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`} />
           </div>
           <div className="space-y-1">
             <label className={`text-xs font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.categoryDesc}</label>
             <input type="text" value={catForm.description} onChange={(e) => setCatForm({ ...catForm, description: e.target.value })}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`} />
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`} />
           </div>
           <div className="flex gap-3 pt-2">
             <button type="submit" className={`flex-1 rounded-xl bg-[#00a651] px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} hover:bg-[#008f45]`}>{text.save}</button>

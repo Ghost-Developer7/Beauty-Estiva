@@ -66,14 +66,14 @@ export default function SalesReportsScreen() {
 
                 <div className="relative min-w-[120px]">
                     <select className={`w-full appearance-none rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}>
-                        <option className="bg-[#1a1a1a]">{text.datePlaceholder}</option>
+                        <option className={`${isDark ? "bg-[#1a1a1a]" : "bg-white"}`}>{text.datePlaceholder}</option>
                     </select>
                     <div className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] ${isDark ? "text-white/40" : "text-gray-400"}`}>v</div>
                 </div>
             </div>
 
             {/* Alert */}
-            <div className="flex items-start gap-3 rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4 text-xs text-yellow-200/80">
+            <div className={`flex items-start gap-3 rounded-xl border ${isDark ? "border-yellow-500/20" : "border-yellow-400/30"} ${isDark ? "bg-yellow-500/10" : "bg-yellow-50"} p-4 text-xs ${isDark ? "text-yellow-200/80" : "text-yellow-700"}`}>
                 <span className="text-lg">⚠</span>
                 <p>{text.alert}</p>
             </div>
@@ -85,7 +85,7 @@ export default function SalesReportsScreen() {
                         <button
                             key={i}
                             onClick={() => setActiveTab(i)}
-                            className={`whitespace-nowrap pb-3 text-sm font-medium transition-all ${activeTab === i ? 'text-white border-b-2 border-white' : 'text-white/40 hover:text-white'}`}
+                            className={`whitespace-nowrap pb-3 text-sm font-medium transition-all ${activeTab === i ? `${isDark ? "text-white border-b-2 border-white" : "text-gray-900 border-b-2 border-gray-900"}` : `${isDark ? "text-white/40 hover:text-white" : "text-gray-400 hover:text-gray-900"}`}`}
                         >
                             {tab}
                         </button>
@@ -97,7 +97,7 @@ export default function SalesReportsScreen() {
             <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-6`}>
                 <div className="flex items-center justify-between mb-6">
                     <h2 className="text-lg font-semibold">{text.table.title}</h2>
-                    <button className={`flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-2 text-xs font-medium ${isDark ? "text-white" : "text-gray-900"} shadow hover:bg-[#2563eb]`}>
+                    <button className={`flex items-center gap-2 rounded-lg bg-[#3b82f6] px-4 py-2 text-xs font-medium text-white shadow hover:bg-[#2563eb]`}>
                         📄 {text.download}
                     </button>
                 </div>
@@ -129,7 +129,7 @@ export default function SalesReportsScreen() {
                         </thead>
                         <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                             {/* Week Header */}
-                            <tr className="bg-white/[0.02]">
+                            <tr className={`${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                                 <td colSpan={10} className={`py-2 px-2 font-bold text-[10px] ${isDark ? "text-white/50" : "text-gray-500"} tracking-widest`}>
                                     {text.table.weekHeader}
                                 </td>

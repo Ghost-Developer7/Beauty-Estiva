@@ -138,7 +138,7 @@ export default function CashReportScreen() {
               <span className="font-medium text-sm">{fmt(revenue?.totalAmountInTry || 0)} ₺</span>
             </div>
             {expanded.revenue && revenue?.byPaymentMethod && (
-              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
+              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 ${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                 {revenue.byPaymentMethod.length > 0 ? revenue.byPaymentMethod.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
@@ -161,7 +161,7 @@ export default function CashReportScreen() {
               </div>
             </div>
             {expanded.staff && revenue?.byStaff && (
-              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
+              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 ${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                 {revenue.byStaff.length > 0 ? revenue.byStaff.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>
@@ -185,7 +185,7 @@ export default function CashReportScreen() {
               <span className="font-medium text-sm">{fmt(expense?.totalAmountInTry || 0)} ₺</span>
             </div>
             {expanded.category && expense?.byCategory && (
-              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 bg-white/[0.02]`}>
+              <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 ${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                 {expense.byCategory.length > 0 ? expense.byCategory.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
                     <span>{item.label}</span>

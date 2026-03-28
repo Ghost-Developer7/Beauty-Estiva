@@ -291,7 +291,7 @@ export default function SubscriptionManagementScreen() {
   if (loading) {
     return (
       <div className={`flex items-center justify-center gap-3 p-16 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+        <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-600"}`} />
         {t.loading}
       </div>
     );
@@ -308,8 +308,8 @@ export default function SubscriptionManagementScreen() {
 
       {/* --- PLANS GRID --- */}
       {plans.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-12">
-          <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+        <div className={`flex flex-col items-center justify-center gap-2 rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-12`}>
+          <svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
             <rect x="2" y="4" width="20" height="16" rx="2" />
             <path d="M2 10h20" />
           </svg>
@@ -324,7 +324,7 @@ export default function SubscriptionManagementScreen() {
                 key={plan.id}
                 className={`relative flex flex-col rounded-2xl border p-6 transition-all duration-200 ${
                   isActive
-                    ? "border-white/[0.08] bg-white/[0.02] hover:border-white/15"
+                    ? isDark ? "border-white/[0.08] bg-white/[0.02] hover:border-white/15" : "border-gray-200 bg-white hover:border-gray-300"
                     : "border-red-500/10 bg-red-500/[0.02] opacity-60"
                 }`}
               >
@@ -353,13 +353,13 @@ export default function SubscriptionManagementScreen() {
 
                 {/* Pricing */}
                 <div className="mb-4 grid grid-cols-2 gap-3">
-                  <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
+                  <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
                     <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} tracking-wider`}>{t.monthlyPrice}</p>
                     <p className={`mt-0.5 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {"\u20BA"}{fmt(plan.monthlyPrice)}
                     </p>
                   </div>
-                  <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
+                  <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
                     <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} tracking-wider`}>{t.yearlyPrice}</p>
                     <p className={`mt-0.5 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {"\u20BA"}{fmt(plan.yearlyPrice)}
@@ -369,13 +369,13 @@ export default function SubscriptionManagementScreen() {
 
                 {/* Limits */}
                 <div className="mb-4 flex gap-3">
-                  <div className={`flex-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
+                  <div className={`flex-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
                     <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.maxStaff}</p>
                     <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {plan.maxStaffCount <= 0 ? t.unlimited : plan.maxStaffCount}
                     </p>
                   </div>
-                  <div className={`flex-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
+                  <div className={`flex-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
                     <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.maxBranch}</p>
                     <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {plan.maxBranchCount <= 0 ? t.unlimited : plan.maxBranchCount}
@@ -421,13 +421,13 @@ export default function SubscriptionManagementScreen() {
         <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.tenantSectionSub}</p>
 
         {/* Assign form */}
-        <div className="mt-4 flex flex-wrap items-end gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5">
+        <div className={`mt-4 flex flex-wrap items-end gap-3 rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-5`}>
           <div className="flex-1 min-w-[200px] space-y-1">
             <label className={`text-xs font-semibold ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.storeName}</label>
             <select
               value={assignTenantId}
               onChange={(e) => setAssignTenantId(Number(e.target.value))}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
             >
               <option value={0}>{t.selectStore}</option>
               {tenants.map((tn) => (
@@ -442,7 +442,7 @@ export default function SubscriptionManagementScreen() {
             <select
               value={assignPlanId}
               onChange={(e) => setAssignPlanId(Number(e.target.value))}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
             >
               <option value={0}>{t.selectPlan}</option>
               {plans.filter(p => p.isActive !== false).map((p) => (
@@ -459,7 +459,7 @@ export default function SubscriptionManagementScreen() {
                 className={`rounded-lg border px-3 py-2.5 text-xs font-semibold transition ${
                   assignYearly
                     ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
-                    : "border-white/10 bg-white/5 text-white/50"
+                    : isDark ? "border-white/10 bg-white/5 text-white/50" : "border-gray-200 bg-gray-50 text-gray-500"
                 }`}
               >
                 {assignYearly ? t.yearly : t.monthly}
@@ -481,7 +481,7 @@ export default function SubscriptionManagementScreen() {
         ) : tenants.length === 0 ? (
           <p className={`mt-4 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noTenants}</p>
         ) : (
-          <div className="mt-4 rounded-2xl border border-white/[0.06] overflow-hidden">
+          <div className={`mt-4 rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} overflow-hidden`}>
             <table className="w-full text-left text-sm">
               <thead className={`${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                 <tr>
@@ -491,9 +491,9 @@ export default function SubscriptionManagementScreen() {
                   <th className="px-4 py-3">{t.status}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.04]">
+              <tbody className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
                 {tenants.map((tn) => (
-                  <tr key={tn.id} className="hover:bg-white/[0.02]">
+                  <tr key={tn.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-gray-50"}>
                     <td className={`px-4 py-3 ${isDark ? "text-white/50" : "text-gray-500"}`}>{tn.id}</td>
                     <td className={`px-4 py-3 font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{tn.companyName}</td>
                     <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>
@@ -541,7 +541,7 @@ export default function SubscriptionManagementScreen() {
               value={formName}
               onChange={(e) => setFormName(e.target.value)}
               placeholder={t.namePh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
             />
           </div>
 
@@ -555,7 +555,7 @@ export default function SubscriptionManagementScreen() {
               onChange={(e) => setFormDescription(e.target.value)}
               rows={2}
               placeholder={t.descriptionPh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
           </div>
 
@@ -570,7 +570,7 @@ export default function SubscriptionManagementScreen() {
                 value={formMonthlyPrice}
                 onChange={(e) => setFormMonthlyPrice(Number(e.target.value))}
                 min={0}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
             </div>
             <div className="space-y-1.5">
@@ -582,7 +582,7 @@ export default function SubscriptionManagementScreen() {
                 value={formYearlyPrice}
                 onChange={(e) => setFormYearlyPrice(Number(e.target.value))}
                 min={0}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
             </div>
           </div>
@@ -598,7 +598,7 @@ export default function SubscriptionManagementScreen() {
                 value={formMaxStaff}
                 onChange={(e) => setFormMaxStaff(Number(e.target.value))}
                 min={0}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
             </div>
             <div className="space-y-1.5">
@@ -610,7 +610,7 @@ export default function SubscriptionManagementScreen() {
                 value={formMaxBranch}
                 onChange={(e) => setFormMaxBranch(Number(e.target.value))}
                 min={0}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
             </div>
           </div>
@@ -625,7 +625,7 @@ export default function SubscriptionManagementScreen() {
               value={formValidityMonths}
               onChange={(e) => setFormValidityMonths(Number(e.target.value))}
               min={1}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
             />
           </div>
 
@@ -682,7 +682,7 @@ function FeatureItem({ label, enabled }: { label: string; enabled: boolean }) {
   return (
     <div className="flex items-center gap-2">
       <svg
-        className={enabled ? "text-emerald-400" : "text-white/15"}
+        className={enabled ? "text-emerald-400" : "text-gray-300"}
         width="14"
         height="14"
         viewBox="0 0 24 24"
@@ -696,7 +696,7 @@ function FeatureItem({ label, enabled }: { label: string; enabled: boolean }) {
           <line x1="18" y1="6" x2="6" y2="18" />
         )}
       </svg>
-      <span className={`text-xs ${enabled ? "text-white/60" : "text-white/20"}`}>
+      <span className={`text-xs ${enabled ? "text-gray-600 dark:text-white/60" : "text-gray-300 dark:text-white/20"}`}>
         {label}
       </span>
     </div>
@@ -715,13 +715,13 @@ function ToggleRow({
   isDark: boolean;
 }) {
   return (
-    <label className="flex cursor-pointer items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+    <label className={`flex cursor-pointer items-center justify-between rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-4 py-3`}>
       <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{label}</span>
       <button
         type="button"
         onClick={() => onChange(!checked)}
         className={`relative h-6 w-11 rounded-full transition-all ${
-          checked ? "bg-emerald-500" : "bg-white/15"
+          checked ? "bg-emerald-500" : isDark ? "bg-white/15" : "bg-gray-200"
         }`}
       >
         <div

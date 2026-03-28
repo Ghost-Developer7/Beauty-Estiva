@@ -36,7 +36,7 @@ export default function ReviewsScreen() {
 
                 <div className="relative min-w-[120px]">
                     <select className={`w-full appearance-none rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}>
-                        <option className="bg-[#1a1a1a]">Bu ay</option>
+                        <option className={`${isDark ? "bg-[#1a1a1a]" : "bg-white"}`}>Bu ay</option>
                     </select>
                     <div className={`pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[10px] ${isDark ? "text-white/40" : "text-gray-400"}`}>v</div>
                 </div>
@@ -47,14 +47,14 @@ export default function ReviewsScreen() {
                 <input
                     type="text"
                     placeholder={text.placeholder}
-                    className={`w-full md:w-64 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none focus:border-white/20`}
+                    className={`w-full md:w-64 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-300"}`}
                 />
 
                 <div className="flex gap-2">
-                    <button className={`flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] ${isDark ? "text-white" : "text-gray-900"} shadow-lg hover:bg-[#2563eb] text-sm`}>
+                    <button className={`flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] text-white shadow-lg hover:bg-[#2563eb] text-sm`}>
                         ⚙
                     </button>
-                    <button className={`flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] ${isDark ? "text-white" : "text-gray-900"} shadow-lg hover:bg-[#2563eb] text-xs`}>
+                    <button className={`flex h-9 w-9 items-center justify-center rounded-lg bg-[#3b82f6] text-white shadow-lg hover:bg-[#2563eb] text-xs`}>
                         ↻
                     </button>
                     <button className={`flex items-center gap-2 rounded-lg bg-[#3b82f6] px-6 py-2 text-sm font-medium ${isDark ? "text-white" : "text-gray-900"} shadow-lg  hover:bg-[#2563eb]`}>
@@ -71,7 +71,7 @@ export default function ReviewsScreen() {
                             <tr>
                                 {text.table.cols.map((col, i) => (
                                     <th key={i} className="px-6 py-4 whitespace-nowrap">
-                                        <div className="flex items-center gap-2 cursor-pointer hover:text-white">
+                                        <div className={`flex items-center gap-2 cursor-pointer ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}>
                                             {col}
                                             <span className="opacity-50 text-[10px]">▼</span>
                                         </div>
@@ -80,7 +80,7 @@ export default function ReviewsScreen() {
                             </tr>
                         </thead>
                         <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
-                            <tr className="bg-white/[0.02]">
+                            <tr className={`${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                                 <td colSpan={7} className={`px-6 py-4 font-bold ${isDark ? "text-white/60" : "text-gray-600"}`}>
                                     {text.table.empty}
                                 </td>

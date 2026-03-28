@@ -277,7 +277,7 @@ export default function SubscriptionScreen() {
   if (loading) {
     return (
       <div className={`flex items-center justify-center gap-3 p-16 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+        <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-600"}`} />
         {t.loading}
       </div>
     );
@@ -295,7 +295,7 @@ export default function SubscriptionScreen() {
       </div>
 
       {/* ─── CURRENT PLAN CARD ─── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} ${isDark ? "shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "shadow-sm"}`}>
         {current ? (
           <div className="p-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
@@ -317,7 +317,7 @@ export default function SubscriptionScreen() {
 
                   {/* Days left */}
                   {!current.isCancelled && (
-                    <span className={`rounded-full border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2.5 py-1 text-[11px] ${isDark ? "text-white/50" : "text-gray-500"}`}>
+                    <span className={`rounded-full border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2.5 py-1 text-[11px] ${isDark ? "text-white/50" : "text-gray-500"}`}>
                       {daysLeft} {t.daysLeft}
                     </span>
                   )}
@@ -345,7 +345,7 @@ export default function SubscriptionScreen() {
             {/* Progress bar for days */}
             {!current.isCancelled && (
               <div className="mt-4">
-                <div className={`h-1.5 w-full rounded-full ${isDark ? "bg-white/[0.06]" : "bg-white"}`}>
+                <div className={`h-1.5 w-full rounded-full ${isDark ? "bg-white/[0.06]" : "bg-gray-200"}`}>
                   <div
                     className={`h-full rounded-full transition-all ${current.isTrialPeriod ? "bg-blue-500" : "bg-emerald-500"}`}
                     style={{ width: `${Math.max(5, Math.min(100, (daysLeft / (current.isTrialPeriod ? 3 : 30)) * 100))}%` }}
@@ -368,26 +368,26 @@ export default function SubscriptionScreen() {
               className={`mt-5 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-blue-900/30 transition-all hover:shadow-blue-900/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50`}
             >
               {startingTrial ? (
-                <><div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />{t.startingTrial}</>
+                <><div className={`h-4 w-4 animate-spin rounded-full border-2 ${isDark ? "border-white/30 border-t-white" : "border-gray-300 border-t-gray-700"}`} />{t.startingTrial}</>
               ) : (
                 <><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="5 3 19 12 5 21 5 3" /></svg>{t.startTrial}</>
               )}
             </button>
-            <p className="mt-2 text-xs text-white/25">{t.trialDesc}</p>
+            <p className={`mt-2 text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.trialDesc}</p>
           </div>
         )}
       </div>
 
       {/* ─── BILLING TOGGLE ─── */}
       <div className="flex items-center justify-center gap-4">
-        <span className={`min-w-[60px] text-right text-sm font-medium transition ${!isYearly ? "text-white" : "text-white/30"}`}>{t.monthly}</span>
+        <span className={`min-w-[60px] text-right text-sm font-medium transition ${!isYearly ? (isDark ? "text-white" : "text-gray-900") : (isDark ? "text-white/30" : "text-gray-300")}`}>{t.monthly}</span>
         <button
           onClick={() => setIsYearly(!isYearly)}
-          className={`relative h-7 w-14 shrink-0 rounded-full transition-all ${isYearly ? "bg-emerald-500" : "bg-white/15"}`}
+          className={`relative h-7 w-14 shrink-0 rounded-full transition-all ${isYearly ? "bg-emerald-500" : isDark ? "bg-white/15" : "bg-gray-200"}`}
         >
           <div className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-md transition-all ${isYearly ? "left-7" : "left-0.5"}`} />
         </button>
-        <span className={`min-w-[60px] text-sm font-medium transition ${isYearly ? "text-white" : "text-white/30"}`}>
+        <span className={`min-w-[60px] text-sm font-medium transition ${isYearly ? (isDark ? "text-white" : "text-gray-900") : (isDark ? "text-white/30" : "text-gray-300")}`}>
           {t.yearly}
         </span>
       </div>
@@ -412,7 +412,7 @@ export default function SubscriptionScreen() {
                   ? "border-emerald-500/30 bg-emerald-500/[0.04] shadow-[0_0_30px_rgba(16,185,129,0.08)]"
                   : isMiddle
                     ? "border-purple-500/30 bg-purple-500/[0.03] shadow-[0_0_30px_rgba(139,92,246,0.08)]"
-                    : "border-white/[0.08] bg-white/[0.02] hover:border-white/15"
+                    : isDark ? "border-white/[0.08] bg-white/[0.02] hover:border-white/15" : "border-gray-200 bg-white hover:border-gray-300"
               }`}
             >
               {/* Badges */}
@@ -473,7 +473,7 @@ export default function SubscriptionScreen() {
             if (!plan) return null;
             const price = isYearly ? plan.yearlyPrice : plan.monthlyPrice;
             return (
-              <div className={`flex items-center justify-between rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
+              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
                 <div>
                   <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{translatePlanName(plan.name, t.planNames)}</p>
                   <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{isYearly ? t.yearly : t.monthly}</p>
@@ -492,13 +492,13 @@ export default function SubscriptionScreen() {
                 value={couponCode}
                 onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponResult(null); }}
                 placeholder={t.couponPlaceholder}
-                className={`flex-1 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} font-mono tracking-wider ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+                className={`flex-1 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} font-mono tracking-wider ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
               <button
                 type="button"
                 onClick={handleValidateCoupon}
                 disabled={!couponCode.trim() || validatingCoupon}
-                className={`shrink-0 rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-4 py-2.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-white/15 disabled:opacity-40`}
+                className={`shrink-0 rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-4 py-2.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition ${isDark ? "hover:bg-white/15" : "hover:bg-gray-200"} disabled:opacity-40`}
               >
                 {validatingCoupon ? t.validating : t.applyCoupon}
               </button>
@@ -529,7 +529,7 @@ export default function SubscriptionScreen() {
             const discount = couponResult.discountAmount || 0;
             const final_ = Math.max(0, price - discount);
             return (
-              <div className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-2`}>
+              <div className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 space-y-2`}>
                 <div className={`flex justify-between text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                   <span>{translatePlanName(plan.name, t.planNames)} ({isYearly ? t.yearly : t.monthly})</span>
                   <span>₺{fmt(price, language)}</span>
@@ -538,9 +538,9 @@ export default function SubscriptionScreen() {
                   <span>{t.discount}</span>
                   <span>-₺{fmt(discount, language)}</span>
                 </div>
-                <div className="border-t border-white/[0.08] pt-2 flex justify-between">
+                <div className={`border-t ${isDark ? "border-white/[0.08]" : "border-gray-200"} pt-2 flex justify-between`}>
                   <span className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.finalPrice}</span>
-                  <span className={`text-lg font-bold ${final_ <= 0 ? "text-emerald-400" : "text-white"}`}>
+                  <span className={`text-lg font-bold ${final_ <= 0 ? "text-emerald-400" : isDark ? "text-white" : "text-gray-900"}`}>
                     {final_ <= 0 ? t.free : `₺${fmt(final_, language)}`}
                   </span>
                 </div>
@@ -583,7 +583,7 @@ export default function SubscriptionScreen() {
             </div>
           ) : (
             <div className={`flex h-[460px] items-center justify-center gap-3 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+              <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-600"}`} />
               {t.paymentLoading}
             </div>
           )}
@@ -605,12 +605,12 @@ export default function SubscriptionScreen() {
               onChange={(e) => setCancelReason(e.target.value)}
               rows={3}
               placeholder={t.cancelReasonPh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
           </div>
 
           <label className="flex items-center gap-3 cursor-pointer">
-            <div className={`flex h-5 w-5 items-center justify-center rounded-md border transition ${requestRefund ? "border-red-500 bg-red-500" : "border-white/20 bg-white/5"}`}>
+            <div className={`flex h-5 w-5 items-center justify-center rounded-md border transition ${requestRefund ? "border-red-500 bg-red-500" : isDark ? "border-white/20 bg-white/5" : "border-gray-300 bg-gray-50"}`}>
               {requestRefund && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
             </div>
             <input type="checkbox" checked={requestRefund} onChange={(e) => setRequestRefund(e.target.checked)} className="hidden" />
@@ -636,12 +636,12 @@ function FeatureRow({ label, value, enabled, isDark }: { label: string; value: s
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-2">
-        <svg className={enabled ? "text-emerald-400" : "text-white/15"} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <svg className={enabled ? "text-emerald-400" : isDark ? "text-white/15" : "text-gray-300"} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           {enabled ? <polyline points="20 6 9 17 4 12" /> : <line x1="18" y1="6" x2="6" y2="18" />}
         </svg>
         <span className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{label}</span>
       </div>
-      <span className={`text-xs font-semibold ${enabled ? "text-white" : "text-white/20"}`}>{value}</span>
+      <span className={`text-xs font-semibold ${enabled ? (isDark ? "text-white" : "text-gray-900") : (isDark ? "text-white/20" : "text-gray-300")}`}>{value}</span>
     </div>
   );
 }

@@ -474,9 +474,9 @@ export default function SettingsScreen() {
   };
 
   // ─── Input Classes ───
-  const inputClass = "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/10 transition-all";
-  const labelClass = "text-xs font-medium tracking-wider text-white/50";
-  const cardClass = "rounded-2xl border border-white/10 bg-white/[0.03] p-6 space-y-5";
+  const inputClass = `w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none focus:ring-1 ${isDark ? "focus:ring-white/10" : "focus:ring-gray-200"} transition-all`;
+  const labelClass = `text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`;
+  const cardClass = `rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50"} p-6 space-y-5`;
   const btnClass = "rounded-xl bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] px-6 py-2.5 text-sm font-semibold text-[#1a1a2e] hover:opacity-90 disabled:opacity-50 transition-opacity";
 
   if (!isOwner) {
@@ -491,7 +491,7 @@ export default function SettingsScreen() {
     return (
       <div className="flex items-center justify-center p-20">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/20 border-t-white/80" />
+          <div className={`h-8 w-8 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/80" : "border-gray-200 border-t-gray-600"}`} />
           <span className={`text-sm ${isDark ? "text-white/60" : "text-gray-600"}`}>{text.loading}</span>
         </div>
       </div>
@@ -507,15 +507,15 @@ export default function SettingsScreen() {
       </div>
 
       {/* Tabs */}
-      <div className={`flex flex-wrap gap-1 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-white/[0.02] p-1.5`}>
+      <div className={`flex flex-wrap gap-1 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-1.5`}>
         {text.tabs.map((tab, i) => (
           <button
             key={i}
             onClick={() => setActiveTab(i)}
             className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
               activeTab === i
-                ? "bg-white/10 text-white shadow-lg shadow-white/5"
-                : "text-white/40 hover:bg-white/5 hover:text-white/70"
+                ? isDark ? "bg-white/10 text-white shadow-lg shadow-white/5" : "bg-gray-100 text-gray-900 shadow-sm"
+                : isDark ? "text-white/40 hover:bg-white/5 hover:text-white/70" : "text-gray-400 hover:bg-gray-50 hover:text-gray-700"
             }`}
           >
             <TabIcon type={tab.icon} />
@@ -628,12 +628,12 @@ export default function SettingsScreen() {
                 // Map dayOfWeek to display order: 1=Mon, 2=Tue, ... 6=Sat, 0=Sun
                 const dayLabel = day.dayOfWeek === 0 ? text.days[6] : text.days[day.dayOfWeek - 1];
                 return (
-                  <div key={i} className={`rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
+                  <div key={i} className={`rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-4`}>
                     <div className="flex flex-wrap items-center gap-4">
                       {/* Day name and toggle */}
                       <div className="flex items-center gap-3 w-40">
                         <Toggle checked={day.isOpen} onChange={v => updateDay(i, "isOpen", v)} isDark={isDark} />
-                        <span className={`text-sm font-medium ${day.isOpen ? "text-white" : "text-white/30"}`}>
+                        <span className={`text-sm font-medium ${day.isOpen ? (isDark ? "text-white" : "text-gray-900") : (isDark ? "text-white/30" : "text-gray-300")}`}>
                           {dayLabel}
                         </span>
                       </div>
@@ -646,24 +646,24 @@ export default function SettingsScreen() {
                               type="time"
                               value={day.openTime}
                               onChange={e => updateDay(i, "openTime", e.target.value)}
-                              className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
+                              className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "[color-scheme:dark]" : ""}`}
                             />
                           </div>
-                          <span className="text-white/20">-</span>
+                          <span className={isDark ? "text-white/20" : "text-gray-300"}>-</span>
                           <div className="flex items-center gap-2">
                             <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.closeTime}</span>
                             <input
                               type="time"
                               value={day.closeTime}
                               onChange={e => updateDay(i, "closeTime", e.target.value)}
-                              className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
+                              className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "[color-scheme:dark]" : ""}`}
                             />
                           </div>
                         </div>
                       )}
 
                       {!day.isOpen && (
-                        <span className="text-xs text-white/20 tracking-wider">{text.closed}</span>
+                        <span className={`text-xs ${isDark ? "text-white/20" : "text-gray-300"} tracking-wider`}>{text.closed}</span>
                       )}
                     </div>
 
@@ -678,17 +678,17 @@ export default function SettingsScreen() {
                                 type="time"
                                 value={day.lunchBreakStart || "12:00"}
                                 onChange={e => updateDay(i, "lunchBreakStart", e.target.value)}
-                                className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
+                                className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "[color-scheme:dark]" : ""}`}
                               />
                             </div>
-                            <span className="text-white/20">-</span>
+                            <span className={isDark ? "text-white/20" : "text-gray-300"}>-</span>
                             <div className="flex items-center gap-2">
                               <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{text.lunchEnd}</span>
                               <input
                                 type="time"
                                 value={day.lunchBreakEnd || "13:00"}
                                 onChange={e => updateDay(i, "lunchBreakEnd", e.target.value)}
-                                className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none [color-scheme:dark]`}
+                                className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-1.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "[color-scheme:dark]" : ""}`}
                               />
                             </div>
                             <button
@@ -703,7 +703,7 @@ export default function SettingsScreen() {
                           <button
                             type="button"
                             onClick={() => { updateDay(i, "lunchBreakStart", "12:00"); updateDay(i, "lunchBreakEnd", "13:00"); }}
-                            className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"} hover:text-white/60 transition`}
+                            className={`text-xs ${isDark ? "text-white/30" : "text-gray-300"} ${isDark ? "hover:text-white/60" : "hover:text-gray-600"} transition`}
                           >
                             + {text.addLunch}
                           </button>
@@ -739,7 +739,7 @@ export default function SettingsScreen() {
                   <LocaleDateInput
                     value={newHoliday.date}
                     onChange={e => setNewHoliday({ ...newHoliday, date: e.target.value })}
-                    className={`${inputClass} [color-scheme:dark]`}
+                    className={`${inputClass} ${isDark ? "[color-scheme:dark]" : ""}`}
                     isDark={isDark}
                   />
                 </div>
@@ -759,7 +759,7 @@ export default function SettingsScreen() {
                       type="checkbox"
                       checked={newHoliday.isRecurring}
                       onChange={e => setNewHoliday({ ...newHoliday, isRecurring: e.target.checked })}
-                      className={`rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-[#f3a4ff] focus:ring-0`}
+                      className={`rounded ${isDark ? "border-white/20" : "border-gray-300"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-[#f3a4ff] focus:ring-0`}
                     />
                     {text.recurring}
                   </label>
@@ -768,7 +768,7 @@ export default function SettingsScreen() {
                   type="button"
                   onClick={handleAddHoliday}
                   disabled={!newHoliday.date}
-                  className={`rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white" : "text-gray-900"} hover:bg-white/20 disabled:opacity-30 transition`}
+                  className={`rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "hover:bg-white/20" : "hover:bg-gray-200"} disabled:opacity-30 transition`}
                 >
                   {text.addHoliday}
                 </button>
@@ -832,7 +832,7 @@ export default function SettingsScreen() {
                     className={`rounded-xl px-5 py-2.5 text-sm font-medium transition-all ${
                       appointmentForm.appointmentSlotMinutes === opt
                         ? "bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] text-[#1a1a2e] shadow-lg"
-                        : "border border-white/10 bg-white/5 text-white/60 hover:bg-white/10"
+                        : isDark ? "border border-white/10 bg-white/5 text-white/60 hover:bg-white/10" : "border border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100"
                     }`}
                   >
                     {opt} min
@@ -841,7 +841,7 @@ export default function SettingsScreen() {
               </div>
             </div>
 
-            <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
+            <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-4`}>
               <div>
                 <p className="text-sm font-medium">{text.autoConfirm}</p>
                 <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"} mt-0.5`}>{text.autoConfirmDesc}</p>
@@ -896,7 +896,7 @@ export default function SettingsScreen() {
 
             {/* Channel toggles */}
             <div className="space-y-3">
-              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
+              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-4`}>
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-blue-500/10 text-blue-400">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
@@ -906,7 +906,7 @@ export default function SettingsScreen() {
                 <Toggle checked={notifForm.smsEnabled} onChange={v => setNotifForm({ ...notifForm, smsEnabled: v })} isDark={isDark} />
               </div>
 
-              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
+              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-4`}>
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-purple-500/10 text-purple-400">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" /><polyline points="22,6 12,13 2,6" /></svg>
@@ -916,7 +916,7 @@ export default function SettingsScreen() {
                 <Toggle checked={notifForm.emailEnabled} onChange={v => setNotifForm({ ...notifForm, emailEnabled: v })} isDark={isDark} />
               </div>
 
-              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} bg-white/[0.02] p-4`}>
+              <div className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-4`}>
                 <div className="flex items-center gap-3">
                   <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-green-500/10 text-green-400">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" /></svg>

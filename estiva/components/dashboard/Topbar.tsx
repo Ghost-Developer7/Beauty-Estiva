@@ -49,7 +49,7 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
       if (res.data.success && res.data.data) {
         setTenantInfo(res.data.data);
       }
-    }).catch(() => {});
+    }).catch(() => { /* tenant info is non-critical, safe to ignore */ });
   }, []);
 
   const displayName = user ? `${user.name} ${user.surname}` : "—";

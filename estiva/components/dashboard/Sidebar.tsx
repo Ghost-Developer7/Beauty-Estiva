@@ -216,7 +216,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
       if (res.data.success && res.data.data) {
         setTenantInfo(res.data.data);
       }
-    }).catch(() => {});
+    }).catch(() => { /* tenant info is non-critical, safe to ignore */ });
   }, []);
 
   // Reset submenus when sidebar collapses

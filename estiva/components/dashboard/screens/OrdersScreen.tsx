@@ -181,13 +181,13 @@ const copy = {
 
 const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+const formatDate = (d: string, lang: "en" | "tr" = "tr") =>
+  new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
 
-const formatTime = (d: string) =>
-  new Date(d).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+const formatTime = (d: string, lang: "en" | "tr" = "tr") =>
+  new Date(d).toLocaleTimeString(lang === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" });
 
-const formatDateTime = (d: string) => `${formatDate(d)} ${formatTime(d)}`;
+const formatDateTime = (d: string, lang: "en" | "tr" = "tr") => `${formatDate(d, lang)} ${formatTime(d, lang)}`;
 
 function getMethodColor(display: string) {
   return METHOD_COLORS[display] || "#8b5cf6";
@@ -209,7 +209,7 @@ function translateMethodDisplay(display: string, lang: "en" | "tr"): string {
 
 function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
   return (
-    <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
       <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
       {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
@@ -619,15 +619,15 @@ export default function OrdersScreen() {
         <LocaleDateInput
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
+          className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"}`}
           title={t.startDate}
           isDark={isDark}
         />
-        <span className="text-white/20">—</span>
+        <span className={`${isDark ? "text-white/20" : "text-gray-300"}`}>—</span>
         <LocaleDateInput
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
+          className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"}`}
           title={t.endDate}
           isDark={isDark}
         />
@@ -637,7 +637,7 @@ export default function OrdersScreen() {
         <select
           value={staffFilter}
           onChange={(e) => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
+          className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
         >
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStaff}</option>
           {staffList.filter(s => s.isActive).map((s) => (
@@ -652,28 +652,28 @@ export default function OrdersScreen() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t.search}
-            className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-11 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 w-48`}
+            className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-11 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} w-48`}
           />
         </div>
       </div>
 
       {/* ─── PAYMENT LIST ─── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} ${isDark ? "shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "shadow-sm"}`}>
         {loading ? (
           <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+            <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
             {t.loading}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
-            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+            <svg className={`${isDark ? "text-white/20" : "text-gray-300"}`} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
             <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noData}</p>
-            <p className="text-xs text-white/25">{t.noDataSub}</p>
+            <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>
           </div>
         ) : (
           <>
             {/* Table header */}
-            <div className={`hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.customer}</span>
               <span>{t.treatment}</span>
               <span>{t.staffMember}</span>
@@ -684,14 +684,14 @@ export default function OrdersScreen() {
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-white/[0.04]">
+            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
               {filtered.map((p) => {
                 const methodColor = getMethodColor(p.paymentMethodDisplay);
                 return (
                   <div
                     key={p.id}
                     onClick={() => openDetail(p)}
-                    className="group grid grid-cols-1 md:grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                    className={`group grid grid-cols-1 md:grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
                     {/* Customer */}
                     <div className="flex items-center gap-3">
@@ -712,8 +712,8 @@ export default function OrdersScreen() {
 
                     {/* Date */}
                     <div className="hidden md:block">
-                      <p className={`text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatDate(p.paidAt)}</p>
-                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{formatTime(p.paidAt)}</p>
+                      <p className={`text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatDate(p.paidAt, language)}</p>
+                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{formatTime(p.paidAt, language)}</p>
                     </div>
 
                     {/* Amount */}
@@ -753,7 +753,7 @@ export default function OrdersScreen() {
               onPageChange={(p) => setPage(p)}
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
-            <div className={`flex items-center justify-between border-t border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3`}>
+            <div className={`flex items-center justify-between border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3`}>
               <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{filtered.length} {t.total}</span>
               <span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span>
             </div>
@@ -778,7 +778,7 @@ export default function OrdersScreen() {
                 onChange={(e) => { setAppointmentSearch(e.target.value); setShowAppointmentDropdown(true); }}
                 onFocus={() => setShowAppointmentDropdown(true)}
                 placeholder={t.searchAppointment}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               />
               {showAppointmentDropdown && (
                 <div className={`absolute left-0 right-0 z-20 mt-1 max-h-52 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
@@ -790,14 +790,14 @@ export default function OrdersScreen() {
                         key={a.id}
                         type="button"
                         onClick={() => selectAppointment(a)}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${form.appointmentId === a.id ? "bg-white/5" : ""}`}
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${form.appointmentId === a.id ? (isDark ? "bg-white/5" : "bg-gray-100") : ""}`}
                       >
                         <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 text-[10px] font-bold ${isDark ? "text-white/60" : "text-gray-600"}`}>
                           #{a.id}
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"} truncate`}>{a.customerFullName}</p>
-                          <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{a.treatmentName} • {formatDateTime(a.startTime)}</p>
+                          <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{a.treatmentName} • {formatDateTime(a.startTime, language)}</p>
                         </div>
                         {form.appointmentId === a.id && (
                           <svg className="shrink-0 text-emerald-400" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
@@ -820,7 +820,7 @@ export default function OrdersScreen() {
                 step={0.01}
                 value={form.amount || ""}
                 onChange={(e) => setForm({ ...form, amount: Number(e.target.value) })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
                 placeholder="0.00"
               />
             </div>
@@ -829,7 +829,7 @@ export default function OrdersScreen() {
               <select
                 value={form.currencyId}
                 onChange={(e) => handleCurrencyChange(Number(e.target.value))}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
               >
                 {currencies.length === 0 && <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>₺ Türk Lirası</option>}
                 {currencies.map((c) => (
@@ -848,7 +848,7 @@ export default function OrdersScreen() {
                   step={0.0001}
                   value={form.exchangeRateToTry}
                   onChange={(e) => setForm({ ...form, exchangeRateToTry: Number(e.target.value) })}
-                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
                 />
                 {form.amount > 0 && form.exchangeRateToTry > 0 && (
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>= ₺{fmt(form.amount * form.exchangeRateToTry)}</p>
@@ -868,8 +868,8 @@ export default function OrdersScreen() {
                   onClick={() => setForm({ ...form, paymentMethod: m.value })}
                   className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 text-center transition ${
                     form.paymentMethod === m.value
-                      ? "border-white/20 bg-white/10 ring-1 ring-white/20"
-                      : "border-white/[0.06] bg-white/[0.02] hover:bg-white/5"
+                      ? isDark ? "border-white/20 bg-white/10 ring-1 ring-white/20" : "border-indigo-300 bg-indigo-50 ring-1 ring-indigo-200"
+                      : isDark ? "border-white/[0.06] bg-white/[0.02] hover:bg-white/5" : "border-gray-200 bg-white hover:bg-gray-50"
                   }`}
                 >
                   <span className="text-lg">{m.icon}</span>
@@ -887,7 +887,7 @@ export default function OrdersScreen() {
               value={form.notes}
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               placeholder={t.notesPlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`}
             />
           </div>
 
@@ -903,7 +903,7 @@ export default function OrdersScreen() {
             <button
               type="button"
               onClick={() => setShowCreate(false)}
-              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
             >
               {t.cancel}
             </button>
@@ -921,7 +921,7 @@ export default function OrdersScreen() {
           return (
             <div className="space-y-5">
               {/* Amount hero */}
-              <div className={`flex flex-col items-center gap-1 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-5`}>
+              <div className={`flex flex-col items-center gap-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-5`}>
                 <p className={`text-3xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{p.currencySymbol}{fmt(p.amount)}</p>
                 {p.currencyCode !== "TRY" && (
                   <p className={`text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>₺{fmt(p.amountInTry)}</p>
@@ -945,11 +945,11 @@ export default function OrdersScreen() {
                 </div>
                 <div className="space-y-1">
                   <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.appointmentDate}</p>
-                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDateTime(p.appointmentStartTime)}</p>
+                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDateTime(p.appointmentStartTime, language)}</p>
                 </div>
                 <div className="space-y-1">
                   <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.paidAt}</p>
-                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDateTime(p.paidAt)}</p>
+                  <p className={`text-sm ${isDark ? "text-white" : "text-gray-900"}`}>{formatDateTime(p.paidAt, language)}</p>
                 </div>
                 {p.currencyCode !== "TRY" && (
                   <div className="space-y-1">
@@ -990,11 +990,11 @@ export default function OrdersScreen() {
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptCustomer}</label>
             <div className="flex gap-2 mb-2">
               <button type="button" onClick={() => setApptForm({ ...apptForm, isNewCustomer: false })}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${!apptForm.isNewCustomer ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}>
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${!apptForm.isNewCustomer ? (isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900") : (isDark ? "text-white/40 hover:text-white/60" : "text-gray-400 hover:text-gray-600")}`}>
                 {t.searchCustomer.split("...")[0]}
               </button>
               <button type="button" onClick={() => setApptForm({ ...apptForm, isNewCustomer: true, customerId: 0 })}
-                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${apptForm.isNewCustomer ? "bg-white/10 text-white" : "text-white/40 hover:text-white/60"}`}>
+                className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${apptForm.isNewCustomer ? (isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900") : (isDark ? "text-white/40 hover:text-white/60" : "text-gray-400 hover:text-gray-600")}`}>
                 + {t.newCustomer}
               </button>
             </div>
@@ -1005,7 +1005,7 @@ export default function OrdersScreen() {
                   onChange={(e) => { setApptCustomerSearch(e.target.value); setShowApptCustomerDropdown(true); }}
                   onFocus={() => setShowApptCustomerDropdown(true)}
                   placeholder={t.searchCustomer}
-                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-11 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
                 {showApptCustomerDropdown && (
                   <div className={`absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#1a1a2e]" : "bg-white"} shadow-xl`}>
                     {filteredApptCustomers.length === 0 ? (
@@ -1013,7 +1013,7 @@ export default function OrdersScreen() {
                     ) : filteredApptCustomers.map((c) => (
                       <button key={c.id} type="button"
                         onClick={() => { setApptForm({ ...apptForm, customerId: c.id, isNewCustomer: false }); setApptCustomerSearch(`${c.name} ${c.surname}`); setShowApptCustomerDropdown(false); }}
-                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${apptForm.customerId === c.id ? "bg-white/5" : ""}`}>
+                        className={`flex w-full items-center gap-3 px-4 py-2.5 text-left transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${apptForm.customerId === c.id ? (isDark ? "bg-white/5" : "bg-gray-100") : ""}`}>
                         <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-pink-500/20 to-purple-500/20 text-[10px] font-bold ${isDark ? "text-white/70" : "text-gray-700"}`}>
                           {c.name[0]}{c.surname[0]}
                         </div>
@@ -1029,11 +1029,11 @@ export default function OrdersScreen() {
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input type="text" value={apptForm.newName} onChange={(e) => setApptForm({ ...apptForm, newName: e.target.value })} placeholder={t.customerName + " *"}
-                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
+                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
                 <input type="text" value={apptForm.newSurname} onChange={(e) => setApptForm({ ...apptForm, newSurname: e.target.value })} placeholder={t.customerSurname + " *"}
-                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
+                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
                 <input type="text" value={apptForm.newPhone} onChange={(e) => setApptForm({ ...apptForm, newPhone: e.target.value })} placeholder={t.customerPhone}
-                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
+                  className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
               </div>
             )}
           </div>
@@ -1045,7 +1045,7 @@ export default function OrdersScreen() {
               <div className={`space-y-1.5 max-h-40 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-2`}>
                 {treatments.map((tr) => (
                   <button key={tr.id} type="button" onClick={() => setApptForm({ ...apptForm, treatmentId: tr.id })}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.treatmentId === tr.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}>
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.treatmentId === tr.id ? (isDark ? "bg-white/10 ring-1 ring-white/20" : "bg-indigo-50 ring-1 ring-indigo-200") : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50")}`}>
                     <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: tr.color || "#a78bfa" }} />
                     <div className="min-w-0 flex-1">
                       <p className={`text-xs font-medium ${isDark ? "text-white" : "text-gray-900"} truncate`}>{tr.name}</p>
@@ -1062,13 +1062,13 @@ export default function OrdersScreen() {
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptStaff}</label>
               <div className={`space-y-1.5 max-h-40 overflow-y-auto rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-2`}>
                 <button type="button" onClick={() => setApptForm({ ...apptForm, staffId: 0 })}
-                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.staffId === 0 ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}>
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.staffId === 0 ? (isDark ? "bg-white/10 ring-1 ring-white/20" : "bg-indigo-50 ring-1 ring-indigo-200") : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50")}`}>
                   <span className={`flex h-7 w-7 items-center justify-center rounded-full ${isDark ? "bg-white/10" : "bg-gray-100"} text-[10px] ${isDark ? "text-white/50" : "text-gray-500"}`}>?</span>
                   <p className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.anyStaff}</p>
                 </button>
                 {staffList.filter(s => s.isActive).map((s) => (
                   <button key={s.id} type="button" onClick={() => setApptForm({ ...apptForm, staffId: s.id })}
-                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.staffId === s.id ? "bg-white/10 ring-1 ring-white/20" : "hover:bg-white/5"}`}>
+                    className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left transition ${apptForm.staffId === s.id ? (isDark ? "bg-white/10 ring-1 ring-white/20" : "bg-indigo-50 ring-1 ring-indigo-200") : (isDark ? "hover:bg-white/5" : "hover:bg-gray-50")}`}>
                     <span className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`} style={{ backgroundColor: getStaffColor(s.id) }}>
                       {s.name[0]}{s.surname[0]}
                     </span>
@@ -1087,12 +1087,12 @@ export default function OrdersScreen() {
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptDateTime}</label>
               <LocaleDateInput type="datetime-local" value={apptForm.startTime} onChange={(e) => setApptForm({ ...apptForm, startTime: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/25`} isDark={isDark} />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} isDark={isDark} />
             </div>
             <div className="space-y-2">
               <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.apptNotes}</label>
               <input type="text" value={apptForm.notes} onChange={(e) => setApptForm({ ...apptForm, notes: e.target.value })} placeholder={t.notesPlaceholder}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25`} />
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"}`} />
             </div>
           </div>
 
@@ -1103,7 +1103,7 @@ export default function OrdersScreen() {
               {apptSaving ? t.creatingAppointment : t.createAppointment}
             </button>
             <button type="button" onClick={() => setShowApptCreate(false)}
-              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}>
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}>
               {t.cancel}
             </button>
           </div>

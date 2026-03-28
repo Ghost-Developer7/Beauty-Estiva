@@ -123,7 +123,7 @@ const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0,
 
 function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
   return (
-    <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
       <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
       {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
@@ -339,27 +339,27 @@ export default function TreatmentsScreen() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t.search}
-          className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+          className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
         />
       </div>
 
       {/* ─── TREATMENT LIST ─── */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} ${isDark ? "shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "shadow-sm"}`}>
         {loading ? (
           <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+            <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
             {t.loading}
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
-            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" /></svg>
+            <svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M20.24 12.24a6 6 0 00-8.49-8.49L5 10.5V19h8.5z" /><line x1="16" y1="8" x2="2" y2="22" /><line x1="17.5" y1="15" x2="9" y2="15" /></svg>
             <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search ? t.noResult : t.noData}</p>
-            {!search && <p className="text-xs text-white/25">{t.noDataSub}</p>}
+            {!search && <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>}
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.treatment}</span>
               <span>{t.durationCol}</span>
               <span>{t.priceCol}</span>
@@ -367,14 +367,14 @@ export default function TreatmentsScreen() {
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-white/[0.04]">
+            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
               {filtered.map((item) => {
                 const color = item.color || "#a78bfa";
                 return (
                   <div
                     key={item.id}
                     onClick={() => openDetail(item)}
-                    className="group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                    className={`group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
                     {/* Treatment name + color + description */}
                     <div className="flex items-center gap-3">
@@ -394,7 +394,7 @@ export default function TreatmentsScreen() {
 
                     {/* Duration */}
                     <div className="hidden md:flex items-center gap-1.5">
-                      <svg className="text-white/20" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
+                      <svg className={isDark ? "text-white/20" : "text-gray-300"} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
                       <span className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{item.durationMinutes} {t.min}</span>
                     </div>
 
@@ -405,7 +405,7 @@ export default function TreatmentsScreen() {
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                       <button
                         onClick={() => openEdit(item)}
-                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
+                        className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-700"}`}
                         title={t.edit}
                       >
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
@@ -450,7 +450,7 @@ export default function TreatmentsScreen() {
               value={form.name}
               onChange={(e) => setForm({ ...form, name: e.target.value })}
               placeholder={t.namePlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${fieldErrors.name ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+              className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${fieldErrors.name ? "border-red-500" : isDark ? "border-white/10 focus:border-white/25" : "border-gray-200 focus:border-gray-400"}`}
             />
             {fieldErrors.name && <p className="text-[11px] text-red-400">{fieldErrors.name}</p>}
           </div>
@@ -463,7 +463,7 @@ export default function TreatmentsScreen() {
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               rows={2}
               placeholder={t.descPlaceholder}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/25 resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
           </div>
 
@@ -478,8 +478,8 @@ export default function TreatmentsScreen() {
                   onClick={() => setForm({ ...form, durationMinutes: d })}
                   className={`rounded-lg border px-3 py-2 text-xs font-medium transition ${
                     form.durationMinutes === d
-                      ? "border-white/20 bg-white/10 text-white ring-1 ring-white/20"
-                      : "border-white/[0.06] bg-white/[0.02] text-white/40 hover:bg-white/5 hover:text-white/60"
+                      ? isDark ? "border-white/20 bg-white/10 text-white ring-1 ring-white/20" : "border-gray-400 bg-gray-100 text-gray-900 ring-1 ring-gray-400"
+                      : isDark ? "border-white/[0.06] bg-white/[0.02] text-white/40 hover:bg-white/5 hover:text-white/60" : "border-gray-200 bg-white text-gray-400 hover:bg-gray-50 hover:text-gray-600"
                   }`}
                 >
                   {d} {t.min}
@@ -491,7 +491,7 @@ export default function TreatmentsScreen() {
                 step={5}
                 value={form.durationMinutes}
                 onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
-                className={`w-20 rounded-lg border ${isDark ? "bg-white/5" : "bg-gray-50"} px-2.5 py-2 text-center text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.durationMinutes ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+                className={`w-20 rounded-lg border ${isDark ? "bg-white/5" : "bg-gray-50"} px-2.5 py-2 text-center text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.durationMinutes ? "border-red-500" : isDark ? "border-white/10 focus:border-white/25" : "border-gray-200 focus:border-gray-400"}`}
               />
             </div>
             {fieldErrors.durationMinutes && <p className="text-[11px] text-red-400">{fieldErrors.durationMinutes}</p>}
@@ -509,7 +509,7 @@ export default function TreatmentsScreen() {
                 value={form.price || ""}
                 onChange={(e) => setForm({ ...form, price: Number(e.target.value) })}
                 placeholder="0"
-                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-8 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.price ? "border-red-500" : "border-white/10 focus:border-white/25"}`}
+                className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} py-2.5 pl-8 pr-3 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.price ? "border-red-500" : isDark ? "border-white/10 focus:border-white/25" : "border-gray-200 focus:border-gray-400"}`}
               />
             </div>
             {fieldErrors.price && <p className="text-[11px] text-red-400">{fieldErrors.price}</p>}
@@ -518,7 +518,7 @@ export default function TreatmentsScreen() {
           {/* Color */}
           <div className="space-y-2">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.color}</label>
-            <p className="text-[10px] text-white/25">{t.colorSub}</p>
+            <p className={`text-[10px] ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.colorSub}</p>
             <div className="flex flex-wrap gap-2">
               {COLORS.map((c) => (
                 <button
@@ -526,7 +526,7 @@ export default function TreatmentsScreen() {
                   type="button"
                   onClick={() => setForm({ ...form, color: c })}
                   className={`h-8 w-8 rounded-full transition-all duration-150 ${
-                    form.color === c ? "ring-2 ring-white ring-offset-2 ring-offset-[#1a1a2e] scale-110" : "hover:scale-105"
+                    form.color === c ? `ring-2 ring-white ring-offset-2 ${isDark ? "ring-offset-[#1a1a2e]" : "ring-offset-white"} scale-110` : "hover:scale-105"
                   }`}
                   style={{ backgroundColor: c }}
                 />
@@ -535,7 +535,7 @@ export default function TreatmentsScreen() {
           </div>
 
           {/* Preview */}
-          <div className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.02] px-4 py-3">
+          <div className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-4 py-3`}>
             <div className="h-8 w-1.5 rounded-full" style={{ backgroundColor: form.color }} />
             <div>
               <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{form.name || t.namePlaceholder}</p>
@@ -555,7 +555,7 @@ export default function TreatmentsScreen() {
             <button
               type="button"
               onClick={() => setShowForm(false)}
-              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} hover:text-white`}
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
             >
               {t.cancel}
             </button>
@@ -588,16 +588,16 @@ export default function TreatmentsScreen() {
 
               {/* Info cards */}
               <div className="grid grid-cols-3 gap-3">
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.durationCol}</p>
                   <p className={`mt-1 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{item.durationMinutes}</p>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.min}</p>
                 </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.priceCol}</p>
                   <p className="mt-1 text-lg font-bold text-emerald-400">₺{fmt(item.price ?? 0)}</p>
                 </div>
-                <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
+                <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-3 text-center`}>
                   <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.color}</p>
                   <div className="mt-2 mx-auto h-6 w-6 rounded-full" style={{ backgroundColor: color }} />
                 </div>

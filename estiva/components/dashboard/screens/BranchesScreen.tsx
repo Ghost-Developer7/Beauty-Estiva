@@ -166,13 +166,13 @@ const copy = {
    HELPERS
    ================================================================ */
 
-const formatDate = (d: string | null) => {
+const formatDate = (d: string | null, lang: "en" | "tr" = "tr") => {
   if (!d) return "--";
-  return new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+  return new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
 };
 
 function getRoleBg(role: string) {
-  return ROLE_LABELS[role]?.bg || "bg-white/10 text-white/60 border-white/10";
+  return ROLE_LABELS[role]?.bg || "bg-gray-100 text-gray-500 border-gray-200 dark:bg-white/10 dark:text-white/60 dark:border-white/10";
 }
 
 function getRoleDisplay(role: string, language: "en" | "tr") {
@@ -203,7 +203,7 @@ function PhoneIcon() {
 
 function BuildingIcon() {
   return (
-    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-white/10">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300 dark:text-white/10">
       <path d="M3 21h18" />
       <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
       <path d="M9 7h1M9 11h1M9 15h1M14 7h1M14 11h1M14 15h1" />
@@ -372,12 +372,13 @@ export default function BranchesScreen() {
         setShowCreateModal(false);
         fetchBranches();
       }
-    } catch (err: any) {
-      const code = err?.response?.data?.error?.errorCode;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string; errorCode?: string } } } };
+      const code = axiosErr?.response?.data?.error?.errorCode;
       if (code === "BRANCH_LIMIT_REACHED") {
         toast.error(t.limitReached);
       } else {
-        toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Şube oluşturulamadı" : "Failed to create branch"));
+        toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "Şube oluşturulamadı" : "Failed to create branch"));
       }
     } finally {
       setFormSaving(false);
@@ -403,8 +404,9 @@ export default function BranchesScreen() {
         setShowEditModal(false);
         fetchBranches();
       }
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Şube güncellenemedi" : "Failed to update branch"));
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "Şube güncellenemedi" : "Failed to update branch"));
     } finally {
       setFormSaving(false);
     }
@@ -422,12 +424,13 @@ export default function BranchesScreen() {
         toast.success(t.deactivateSuccess);
         fetchBranches();
       }
-    } catch (err: any) {
-      const code = err?.response?.data?.error?.errorCode;
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string; errorCode?: string } } } };
+      const code = axiosErr?.response?.data?.error?.errorCode;
       if (code === "CANNOT_DEACTIVATE_MAIN_BRANCH") {
         toast.error(t.cannotDeactivateMain);
       } else {
-        toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Şube silinemedi" : "Failed to deactivate branch"));
+        toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "Şube silinemedi" : "Failed to deactivate branch"));
       }
     }
   };
@@ -445,8 +448,9 @@ export default function BranchesScreen() {
         if (detailRes.data.success && detailRes.data.data) setSelectedBranch(detailRes.data.data);
         fetchBranches();
       }
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Personel atanamadı" : "Failed to assign staff"));
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "Personel atanamadı" : "Failed to assign staff"));
     } finally {
       setAssignLoading(false);
     }
@@ -463,8 +467,9 @@ export default function BranchesScreen() {
         if (detailRes.data.success && detailRes.data.data) setSelectedBranch(detailRes.data.data);
         fetchBranches();
       }
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || (language === "tr" ? "Personel çıkarılmadı" : "Failed to remove staff"));
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "Personel çıkarılmadı" : "Failed to remove staff"));
     }
   };
 
@@ -501,7 +506,7 @@ export default function BranchesScreen() {
 
       {/* ── LIMIT BAR ── */}
       {canManage && limit && (
-        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
+        <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4`}>
           <div className="flex items-center justify-between mb-2">
             <span className={`text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider`}>{t.branchUsage}</span>
             <span className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
@@ -532,15 +537,15 @@ export default function BranchesScreen() {
 
       {/* ── STATS ── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+        <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
           <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.title}</p>
           <p className="mt-1 text-xl font-bold text-violet-400">{branches.length}</p>
         </div>
-        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+        <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
           <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.active}</p>
           <p className="mt-1 text-xl font-bold text-emerald-400">{activeCount}</p>
         </div>
-        <div className={`rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+        <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
           <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.staffCount}</p>
           <p className="mt-1 text-xl font-bold text-blue-400">{branches.reduce((s, b) => s + b.staffCount, 0)}</p>
         </div>
@@ -554,21 +559,21 @@ export default function BranchesScreen() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder={t.search}
-          className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+          className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 pl-11 pr-4 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
         />
       </div>
 
       {/* ── BRANCH CARDS ── */}
       {loading ? (
         <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+          <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
           {t.loading}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="flex flex-col items-center justify-center gap-2 p-12 rounded-2xl border border-white/[0.06] bg-white/[0.02]">
+        <div className={`flex flex-col items-center justify-center gap-2 p-12 rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
           <BuildingIcon />
           <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{search ? t.noResult : t.noData}</p>
-          {!search && <p className="text-xs text-white/25">{t.noDataSub}</p>}
+          {!search && <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>}
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -576,10 +581,10 @@ export default function BranchesScreen() {
             <div
               key={b.id}
               onClick={() => openDetail(b)}
-              className={`group relative cursor-pointer rounded-2xl border bg-white/[0.02] p-5 transition-all duration-200 hover:bg-white/[0.04] hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] ${
+              className={`group relative cursor-pointer rounded-2xl border ${isDark ? "bg-white/[0.02]" : "bg-white"} p-5 transition-all duration-200 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} ${isDark ? "hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "hover:shadow-sm"} ${
                 b.isMainBranch
                   ? "border-violet-500/30 shadow-[0_0_20px_rgba(139,92,246,0.08)]"
-                  : "border-white/[0.06]"
+                  : isDark ? "border-white/[0.06]" : "border-gray-200"
               } ${!b.isActive ? "opacity-50" : ""}`}
             >
               {/* Main Branch Gradient Border Effect */}
@@ -594,7 +599,7 @@ export default function BranchesScreen() {
                     <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                       b.isMainBranch
                         ? "bg-gradient-to-br from-violet-500/30 to-purple-500/30"
-                        : "bg-white/[0.06]"
+                        : isDark ? "bg-white/[0.06]" : "bg-gray-100"
                     }`}>
                       <LocationIcon />
                     </div>
@@ -632,7 +637,7 @@ export default function BranchesScreen() {
                 </div>
 
                 {/* Footer */}
-                <div className="flex items-center justify-between pt-3 border-t border-white/[0.06]">
+                <div className={`flex items-center justify-between pt-3 border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"}`}>
                   <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="9" cy="8" r="3" /><path d="M13 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><path d="M17.5 8a2.5 2.5 0 010 5" /><path d="M21 21v-2a2.5 2.5 0 00-2-2.45" /></svg>
                     <span>{b.staffCount} {t.staffCount}</span>
@@ -641,7 +646,7 @@ export default function BranchesScreen() {
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                       <button
                         onClick={(e) => { e.stopPropagation(); openEdit(b); }}
-                        className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${isDark ? "text-white/60" : "text-gray-600"} ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white transition`}
+                        className={`rounded-lg px-2.5 py-1 text-[11px] font-semibold ${isDark ? "text-white/60" : "text-gray-600"} ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-900"} transition`}
                       >
                         {t.edit}
                       </button>
@@ -681,7 +686,7 @@ export default function BranchesScreen() {
               </h2>
               <button
                 onClick={() => { setShowCreateModal(false); setShowEditModal(false); }}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
+                className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
               >
                 <CloseIcon />
               </button>
@@ -696,7 +701,7 @@ export default function BranchesScreen() {
                   value={formName}
                   onChange={(e) => setFormName(e.target.value)}
                   placeholder={t.namePlaceholder}
-                  className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
                 />
               </div>
 
@@ -707,7 +712,7 @@ export default function BranchesScreen() {
                   type="text"
                   value={formAddress}
                   onChange={(e) => setFormAddress(e.target.value)}
-                  className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
                 />
               </div>
 
@@ -719,7 +724,7 @@ export default function BranchesScreen() {
                     type="text"
                     value={formPhone}
                     onChange={(e) => setFormPhone(e.target.value)}
-                    className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+                    className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
                   />
                 </div>
                 <div>
@@ -728,7 +733,7 @@ export default function BranchesScreen() {
                     type="email"
                     value={formEmail}
                     onChange={(e) => setFormEmail(e.target.value)}
-                    className={`w-full rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 transition`}
+                    className={`w-full rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
                   />
                 </div>
               </div>
@@ -740,7 +745,7 @@ export default function BranchesScreen() {
                     type="checkbox"
                     checked={formIsMain}
                     onChange={(e) => setFormIsMain(e.target.checked)}
-                    className={`h-4 w-4 rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-violet-500 focus:ring-violet-500/30`}
+                    className={`h-4 w-4 rounded ${isDark ? "border-white/20" : "border-gray-300"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-violet-500 focus:ring-violet-500/30`}
                   />
                   <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.isMainBranch}</span>
                 </label>
@@ -750,7 +755,7 @@ export default function BranchesScreen() {
                       type="checkbox"
                       checked={formIsActive}
                       onChange={(e) => setFormIsActive(e.target.checked)}
-                      className={`h-4 w-4 rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-emerald-500 focus:ring-emerald-500/30`}
+                      className={`h-4 w-4 rounded ${isDark ? "border-white/20" : "border-gray-300"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-emerald-500 focus:ring-emerald-500/30`}
                     />
                     <span className={`text-sm ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.isActive}</span>
                   </label>
@@ -760,7 +765,7 @@ export default function BranchesScreen() {
               {/* Working Hours */}
               <div>
                 <label className={`block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"} tracking-wider mb-2`}>{t.workingHours}</label>
-                <div className="space-y-2 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+                <div className={`space-y-2 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-3`}>
                   {formWorkingHours.map((wh, idx) => (
                     <div key={wh.day} className="flex items-center gap-2">
                       <span className={`w-20 text-xs ${isDark ? "text-white/50" : "text-gray-500"} shrink-0`}>{days[idx]}</span>
@@ -773,7 +778,7 @@ export default function BranchesScreen() {
                             updated[idx] = { ...wh, isClosed: !e.target.checked };
                             setFormWorkingHours(updated);
                           }}
-                          className={`h-3.5 w-3.5 rounded border-white/20 ${isDark ? "bg-white/5" : "bg-gray-50"} text-violet-500 focus:ring-0`}
+                          className={`h-3.5 w-3.5 rounded ${isDark ? "border-white/20" : "border-gray-300"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-violet-500 focus:ring-0`}
                         />
                       </label>
                       {wh.isClosed ? (
@@ -788,7 +793,7 @@ export default function BranchesScreen() {
                               updated[idx] = { ...wh, open: e.target.value };
                               setFormWorkingHours(updated);
                             }}
-                            className={`rounded-lg border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2 py-1 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
+                            className={`rounded-lg border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2 py-1 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"}`}
                           />
                           <span className={`${isDark ? "text-white/30" : "text-gray-300"} text-xs`}>-</span>
                           <input
@@ -799,7 +804,7 @@ export default function BranchesScreen() {
                               updated[idx] = { ...wh, close: e.target.value };
                               setFormWorkingHours(updated);
                             }}
-                            className={`rounded-lg border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2 py-1 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
+                            className={`rounded-lg border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-2 py-1 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"}`}
                           />
                         </div>
                       )}
@@ -812,7 +817,7 @@ export default function BranchesScreen() {
               <div className="flex gap-3 pt-2">
                 <button
                   onClick={() => { setShowCreateModal(false); setShowEditModal(false); }}
-                  className={`flex-1 rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 text-sm font-semibold ${isDark ? "text-white/60" : "text-gray-600"} transition hover:bg-white/[0.06] hover:text-white`}
+                  className={`flex-1 rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-2.5 text-sm font-semibold ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/[0.06]" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
                 >
                   {t.cancel}
                 </button>
@@ -850,7 +855,7 @@ export default function BranchesScreen() {
                 <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
                   selectedBranch.isMainBranch
                     ? "bg-gradient-to-br from-violet-500/30 to-purple-500/30"
-                    : "bg-white/[0.06]"
+                    : isDark ? "bg-white/[0.06]" : "bg-gray-100"
                 }`}>
                   <LocationIcon />
                 </div>
@@ -865,7 +870,7 @@ export default function BranchesScreen() {
               </div>
               <button
                 onClick={() => setShowDetailModal(false)}
-                className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}
+                className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-900"}`}
               >
                 <CloseIcon />
               </button>
@@ -898,7 +903,7 @@ export default function BranchesScreen() {
                 return (
                   <div className="mb-6">
                     <p className={`text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"} mb-2`}>{t.workingHours}</p>
-                    <div className="space-y-1 rounded-xl border border-white/[0.06] bg-white/[0.02] p-3">
+                    <div className={`space-y-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-3`}>
                       {wh.map((h, idx) => (
                         <div key={h.day} className="flex items-center justify-between text-xs">
                           <span className={`${isDark ? "text-white/50" : "text-gray-500"}`}>{days[idx]}</span>
@@ -924,7 +929,7 @@ export default function BranchesScreen() {
               ) : (
                 <div className="space-y-2 mb-4">
                   {selectedBranch.staff.map((s) => (
-                    <div key={s.id} className="flex items-center justify-between rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2.5">
+                    <div key={s.id} className={`flex items-center justify-between rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} px-3 py-2.5`}>
                       <div className="flex items-center gap-2">
                         <div className={`flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-violet-500/30 to-purple-500/30 text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                           {s.name.charAt(0)}{s.surname.charAt(0)}
@@ -959,7 +964,7 @@ export default function BranchesScreen() {
                   <select
                     value={staffToAssign}
                     onChange={(e) => setStaffToAssign(e.target.value ? parseInt(e.target.value) : "")}
-                    className={`flex-1 rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20 transition`}
+                    className={`flex-1 rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"} transition`}
                   >
                     <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"} ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.selectStaff}</option>
                     {unassignedStaff.map((s) => (
@@ -974,7 +979,7 @@ export default function BranchesScreen() {
                     className={`rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed`}
                   >
                     {assignLoading ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                      <div className={`h-4 w-4 animate-spin rounded-full border-2 ${isDark ? "border-white/30 border-t-white" : "border-gray-200 border-t-gray-500"}`} />
                     ) : (
                       t.assign
                     )}

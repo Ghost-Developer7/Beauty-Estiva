@@ -388,7 +388,7 @@ export default function EasySmsScreen() {
       </div>
 
       {/* Legal Warning */}
-      <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4 text-xs md:text-sm text-yellow-200/80 leading-relaxed flex gap-3">
+      <div className={`rounded-xl border border-yellow-500/20 bg-yellow-500/10 p-4 text-xs md:text-sm ${isDark ? "text-yellow-200/80" : "text-yellow-800"} leading-relaxed flex gap-3`}>
         <span className="text-xl mt-0.5">&#9888;</span>
         <p>{t.legalWarning}</p>
       </div>
@@ -401,8 +401,8 @@ export default function EasySmsScreen() {
             onClick={() => setActiveTab(key)}
             className={`flex-1 rounded-lg px-3 py-2 text-xs md:text-sm font-medium transition ${
               activeTab === key
-                ? "bg-white/10 text-white"
-                : "text-white/40 hover:text-white/60"
+                ? (isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900")
+                : (isDark ? "text-white/40 hover:text-white/60" : "text-gray-400 hover:text-gray-600")
             }`}
           >
             {t.tabs[key]}
@@ -451,7 +451,7 @@ export default function EasySmsScreen() {
                 value={settings.apiKey ?? ""}
                 onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
                 placeholder={t.apiKeyPlaceholder}
-                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
+                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition`}
               />
             </div>
 
@@ -463,7 +463,7 @@ export default function EasySmsScreen() {
                 value={settings.apiHash ?? ""}
                 onChange={(e) => setSettings({ ...settings, apiHash: e.target.value })}
                 placeholder={t.apiHashPlaceholder}
-                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
+                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition`}
               />
             </div>
 
@@ -475,7 +475,7 @@ export default function EasySmsScreen() {
                 value={settings.senderTitle ?? ""}
                 onChange={(e) => setSettings({ ...settings, senderTitle: e.target.value })}
                 placeholder={t.senderTitlePlaceholder}
-                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
+                className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition`}
               />
               <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.senderTitleHint}</p>
             </div>
@@ -487,7 +487,7 @@ export default function EasySmsScreen() {
                 type="button"
                 onClick={() => setSettings({ ...settings, isActive: !settings.isActive })}
                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition ${
-                  settings.isActive ? "bg-green-500" : "bg-white/10"
+                  settings.isActive ? "bg-green-500" : (isDark ? "bg-white/10" : "bg-gray-200")
                 }`}
               >
                 <span
@@ -549,7 +549,7 @@ export default function EasySmsScreen() {
           </div>
 
           {!settings.isActive && (
-            <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-3 text-xs text-orange-200/80">
+            <div className={`rounded-lg border border-orange-500/20 bg-orange-500/10 p-3 text-xs ${isDark ? "text-orange-200/80" : "text-orange-800"}`}>
               {t.notConfigured}
             </div>
           )}
@@ -561,7 +561,7 @@ export default function EasySmsScreen() {
               value={testPhone}
               onChange={(e) => setTestPhone(e.target.value)}
               placeholder={t.testPhonePlaceholder}
-              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
+              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition`}
             />
           </div>
 
@@ -584,7 +584,7 @@ export default function EasySmsScreen() {
           </div>
 
           {!settings.isActive && (
-            <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-3 text-xs text-orange-200/80">
+            <div className={`rounded-lg border border-orange-500/20 bg-orange-500/10 p-3 text-xs ${isDark ? "text-orange-200/80" : "text-orange-800"}`}>
               {t.notConfigured}
             </div>
           )}
@@ -597,7 +597,7 @@ export default function EasySmsScreen() {
               value={sendPhone}
               onChange={(e) => setSendPhone(e.target.value)}
               placeholder={t.phonePlaceholder}
-              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition`}
+              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition`}
             />
           </div>
 
@@ -609,7 +609,7 @@ export default function EasySmsScreen() {
               onChange={(e) => setSendMessage(e.target.value)}
               placeholder={t.messagePlaceholder}
               rows={4}
-              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-white/20 outline-none focus:border-white/30 transition resize-none`}
+              className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition resize-none`}
             />
             <div className={`flex justify-end gap-3 text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>
@@ -645,7 +645,7 @@ export default function EasySmsScreen() {
           </div>
 
           {!settings.isActive && (
-            <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-3 text-xs text-orange-200/80">
+            <div className={`rounded-lg border border-orange-500/20 bg-orange-500/10 p-3 text-xs ${isDark ? "text-orange-200/80" : "text-orange-800"}`}>
               {t.notConfigured}
             </div>
           )}
@@ -679,7 +679,7 @@ export default function EasySmsScreen() {
                       className={`w-full rounded-lg border p-3 text-left transition ${
                         isSelected
                           ? "border-blue-500/50 bg-blue-500/10"
-                          : "border-white/10 bg-white/5 hover:bg-white/10"
+                          : (isDark ? "border-white/10 bg-white/5 hover:bg-white/10" : "border-gray-200 bg-gray-50 hover:bg-gray-100")
                       }`}
                     >
                       <div className="flex items-center justify-between">

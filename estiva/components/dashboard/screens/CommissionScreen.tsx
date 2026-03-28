@@ -135,8 +135,8 @@ const copy = {
 const fmt = (n: number) =>
   n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short", year: "numeric" });
+const formatDate = (d: string, lang: "en" | "tr" = "tr") =>
+  new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
 
 /* ────────────────────────────── Component ────────────────────────────── */
 
@@ -419,8 +419,7 @@ export default function CommissionScreen() {
   // Year options
   const yearOptions = Array.from({ length: 5 }, (_, i) => now.getFullYear() - 2 + i);
 
-  const inputClass =
-    "rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-purple-500/50 focus:outline-none transition";
+  const inputClass = `rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-purple-500/50 focus:outline-none transition`;
 
   return (
     <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
@@ -503,7 +502,7 @@ export default function CommissionScreen() {
             className={`rounded-xl px-5 py-2 text-xs font-semibold transition-all duration-200 ${
               activeTab === i
                 ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/20"
-                : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                : isDark ? "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white" : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-900"
             }`}
           >
             {tab}
@@ -537,7 +536,7 @@ export default function CommissionScreen() {
           </div>
 
           {/* Staff summary table */}
-          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} shadow-[0_15px_40px_rgba(3,2,9,0.5)]`}>
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} ${isDark ? "shadow-[0_15px_40px_rgba(3,2,9,0.5)]" : "shadow-lg"}`}>
             {summaryLoading ? (
               <LoadingState text={t.loading} isDark={isDark} />
             ) : summaries.length === 0 ? (
@@ -558,7 +557,7 @@ export default function CommissionScreen() {
                   </thead>
                   <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                     {summaries.map((s) => (
-                      <tr key={s.staffId} className="transition hover:bg-white/[0.04]">
+                      <tr key={s.staffId} className={`transition ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}>
                         <td className="px-4 py-3 font-medium">{s.staffFullName}</td>
                         <td className={`px-4 py-3 text-center ${isDark ? "text-white/60" : "text-gray-600"}`}>{s.recordCount}</td>
                         <td className={`px-4 py-3 text-right ${isDark ? "text-white/60" : "text-gray-600"}`}>
@@ -577,7 +576,7 @@ export default function CommissionScreen() {
                           {s.unpaidCommissionInTry > 0 && (
                             <button
                               onClick={() => handlePayAllForStaff(s.staffId)}
-                              className={`rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-3 py-1.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
+                              className={`rounded-lg bg-gradient-to-r from-green-600 to-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
                             >
                               {t.payBtn}
                             </button>
@@ -611,7 +610,7 @@ export default function CommissionScreen() {
             />
             <button
               onClick={handleQuickSetAll}
-              className={`rounded-lg bg-purple-600/80 px-4 py-2 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-purple-600`}
+              className={`rounded-lg bg-purple-600/80 px-4 py-2 text-xs font-semibold text-white transition hover:bg-purple-600`}
             >
               {t.applyAll}
             </button>
@@ -619,14 +618,14 @@ export default function CommissionScreen() {
             <button
               onClick={handleSaveRates}
               disabled={saving}
-              className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30 disabled:opacity-50`}
+              className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30 disabled:opacity-50`}
             >
               {saving ? t.saving : t.save}
             </button>
           </div>
 
           {/* Rate matrix */}
-          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} shadow-[0_15px_40px_rgba(3,2,9,0.5)]`}>
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} ${isDark ? "shadow-[0_15px_40px_rgba(3,2,9,0.5)]" : "shadow-lg"}`}>
             {ratesLoading ? (
               <LoadingState text={t.loading} isDark={isDark} />
             ) : !allRates || allRates.staffRates.length === 0 ? (
@@ -636,7 +635,7 @@ export default function CommissionScreen() {
                 <table className="w-full text-left text-sm">
                   <thead>
                     <tr className={`border-b ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} text-xs font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>
-                      <th className="sticky left-0 z-10 bg-[#0f0f1a] px-4 py-3">{t.staff}</th>
+                      <th className={`sticky left-0 z-10 ${isDark ? "bg-[#0f0f1a]" : "bg-white"} px-4 py-3`}>{t.staff}</th>
                       <th className="px-3 py-3 text-center">{t.defaultRate}</th>
                       {allRates.treatments.map((tr) => (
                         <th key={tr.id} className="px-3 py-3 text-center whitespace-nowrap">
@@ -647,8 +646,8 @@ export default function CommissionScreen() {
                   </thead>
                   <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                     {allRates.staffRates.map((sr) => (
-                      <tr key={sr.staffId} className="transition hover:bg-white/[0.04]">
-                        <td className="sticky left-0 z-10 bg-[#0f0f1a] px-4 py-3 font-medium whitespace-nowrap">
+                      <tr key={sr.staffId} className={`transition ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}>
+                        <td className={`sticky left-0 z-10 ${isDark ? "bg-[#0f0f1a]" : "bg-white"} px-4 py-3 font-medium whitespace-nowrap`}>
                           {sr.staffFullName}
                         </td>
                         <td className="px-3 py-2 text-center">
@@ -719,7 +718,7 @@ export default function CommissionScreen() {
             {selectedIds.size > 0 && (
               <button
                 onClick={handleBulkPay}
-                className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
+                className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
               >
                 {t.bulkPay} ({selectedIds.size})
               </button>
@@ -727,7 +726,7 @@ export default function CommissionScreen() {
           </div>
 
           {/* Records table */}
-          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} shadow-[0_15px_40px_rgba(3,2,9,0.5)]`}>
+          <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} ${isDark ? "shadow-[0_15px_40px_rgba(3,2,9,0.5)]" : "shadow-lg"}`}>
             {recordsLoading ? (
               <LoadingState text={t.loading} isDark={isDark} />
             ) : records.length === 0 ? (
@@ -761,7 +760,7 @@ export default function CommissionScreen() {
                   </thead>
                   <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
                     {records.map((r) => (
-                      <tr key={r.id} className="transition hover:bg-white/[0.04]">
+                      <tr key={r.id} className={`transition ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}>
                         <td className="px-3 py-3 text-center">
                           {!r.isPaid && (
                             <input
@@ -773,7 +772,7 @@ export default function CommissionScreen() {
                           )}
                         </td>
                         <td className={`px-3 py-3 ${isDark ? "text-white/60" : "text-gray-600"} whitespace-nowrap`}>
-                          {formatDate(r.appointmentDate)}
+                          {formatDate(r.appointmentDate, language)}
                         </td>
                         <td className="px-3 py-3 font-medium">{r.staffFullName}</td>
                         <td className={`px-3 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>{r.treatmentName}</td>
@@ -800,7 +799,7 @@ export default function CommissionScreen() {
                           {!r.isPaid && (
                             <button
                               onClick={() => handlePaySingle(r.id)}
-                              className={`rounded-lg bg-green-600/80 px-3 py-1 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} transition hover:bg-green-600`}
+                              className={`rounded-lg bg-green-600/80 px-3 py-1 text-xs font-semibold text-white transition hover:bg-green-600`}
                             >
                               {t.markPaid}
                             </button>
@@ -825,13 +824,13 @@ export default function CommissionScreen() {
             <div className="mt-6 flex justify-end gap-3">
               <button
                 onClick={() => setModal((p) => ({ ...p, show: false }))}
-                className={`rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-5 py-2 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} transition hover:bg-white/20`}
+                className={`rounded-xl ${isDark ? "bg-white/10" : "bg-gray-100"} px-5 py-2 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} transition ${isDark ? "hover:bg-white/20" : "hover:bg-gray-200"}`}
               >
                 {t.cancel}
               </button>
               <button
                 onClick={modal.onConfirm}
-                className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-2 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
+                className={`rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 px-5 py-2 text-sm font-semibold text-white shadow-lg shadow-green-500/20 transition hover:shadow-green-500/30`}
               >
                 {t.confirm}
               </button>

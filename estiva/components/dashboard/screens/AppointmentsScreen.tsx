@@ -207,14 +207,14 @@ const emptyForm: CreateForm = {
    HELPER FUNCTIONS
    ═══════════════════════════════════════════ */
 
-const formatDate = (d: string) =>
-  new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "long", year: "numeric" });
+const formatDate = (d: string, lang: "en" | "tr" = "tr") =>
+  new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "long", year: "numeric" });
 
-const formatDateShort = (d: string) =>
-  new Date(d).toLocaleDateString("tr-TR", { day: "2-digit", month: "short" });
+const formatDateShort = (d: string, lang: "en" | "tr" = "tr") =>
+  new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short" });
 
-const formatTime = (d: string) =>
-  new Date(d).toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
+const formatTime = (d: string, lang: "en" | "tr" = "tr") =>
+  new Date(d).toLocaleTimeString(lang === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" });
 
 const getStaffColor = (staffId: number) => STAFF_COLORS[staffId % STAFF_COLORS.length];
 
@@ -224,7 +224,7 @@ const getStaffColor = (staffId: number) => STAFF_COLORS[staffId % STAFF_COLORS.l
 
 function StatCard({ label, value, color, isDark }: { label: string; value: number; color: string; isDark: boolean }) {
   return (
-    <div className={`flex items-center gap-3 rounded-xl border border-white/[0.06] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
+    <div className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
       <div className={`h-2 w-2 rounded-full ${color}`} />
       <div>
         <p className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{value}</p>
@@ -652,7 +652,7 @@ export default function AppointmentsScreen() {
       {/* ─── DATE NAV + FILTERS ─── */}
       <div className="flex flex-wrap items-center gap-3">
         {/* Date navigation */}
-        <div className={`flex items-center gap-1 rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
+        <div className={`flex items-center gap-1 rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
           <button onClick={() => navigateDate(-1)} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
@@ -670,14 +670,14 @@ export default function AppointmentsScreen() {
         <LocaleDateInput
           value={dateFilter}
           onChange={(e) => setDateFilter(e.target.value)}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
+          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
           isDark={isDark}
         />
 
         <div className={`h-6 w-px ${isDark ? "bg-white/10" : "bg-gray-100"}`} />
 
         {/* View toggle */}
-        <div className={`flex rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
+        <div className={`flex rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
           {(["list", "timeline"] as ViewMode[]).map((mode) => (
             <button
               key={mode}
@@ -695,7 +695,7 @@ export default function AppointmentsScreen() {
         <select
           value={staffFilter}
           onChange={(e) => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
+          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
         >
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStaff}</option>
           {staffList.filter(s => s.isActive).map((s) => (
@@ -706,7 +706,7 @@ export default function AppointmentsScreen() {
         <select
           value={treatmentFilter}
           onChange={(e) => setTreatmentFilter(e.target.value === "" ? "" : Number(e.target.value))}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
+          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
         >
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allTreatments}</option>
           {treatments.map((tr) => (
@@ -717,7 +717,7 @@ export default function AppointmentsScreen() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
+          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
         >
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStatuses}</option>
           {Object.entries(STATUS_MAP).map(([key, val]) => (
@@ -733,7 +733,7 @@ export default function AppointmentsScreen() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t.search}
-              className={`rounded-xl border border-white/[0.08] ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-11 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 w-48`}
+              className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-11 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 w-48`}
             />
           </div>
         )}
@@ -741,38 +741,38 @@ export default function AppointmentsScreen() {
 
       {/* ─── DATE DISPLAY ─── */}
       <div className={`text-sm font-medium ${isDark ? "text-white/50" : "text-gray-500"}`}>
-        {formatDate(dateFilter + "T00:00:00")}
+        {formatDate(dateFilter + "T00:00:00", language)}
         {getDateLabel() && <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{getDateLabel()}</span>}
       </div>
 
       {/* ═══ LIST VIEW ═══ */}
       {viewMode === "list" && (
-        <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+        <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "border-gray-200 bg-white shadow-sm"}`}>
           {loading ? (
             <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+              <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
               {t.loading}
             </div>
           ) : filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center gap-2 p-12">
-              <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
+              <svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
               <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noData}</p>
-              <p className="text-xs text-white/25">{t.noDataSub}</p>
+              <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>
             </div>
           ) : (
             <>
-            <div className="divide-y divide-white/[0.04]">
+            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
               {filtered.map((apt) => {
                 return (
                   <div
                     key={apt.id}
                     onClick={() => openDetail(apt.id)}
-                    className="group flex items-center gap-4 px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04] cursor-pointer"
+                    className={`group flex items-center gap-4 px-5 py-3.5 transition-all duration-150 cursor-pointer ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}
                   >
                     {/* Time column */}
                     <div className="w-20 shrink-0 text-center">
-                      <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{formatTime(apt.startTime)}</p>
-                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{formatTime(apt.endTime)}</p>
+                      <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{formatTime(apt.startTime, language)}</p>
+                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{formatTime(apt.endTime, language)}</p>
                     </div>
 
                     {/* Color bar */}
@@ -856,10 +856,10 @@ export default function AppointmentsScreen() {
 
       {/* ═══ TIMELINE VIEW ═══ */}
       {viewMode === "timeline" && (
-        <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+        <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "border-gray-200 bg-white shadow-sm"}`}>
           {loading ? (
             <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
-              <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+              <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
               {t.loading}
             </div>
           ) : staffWithAppointments.length === 0 ? (
@@ -868,12 +868,12 @@ export default function AppointmentsScreen() {
             <div className="overflow-x-auto">
               <div className="min-w-[800px]">
                 {/* Staff header */}
-                <div className="sticky top-0 z-10 flex border-b border-white/[0.06] bg-[#0d0d1a]/90 backdrop-blur-sm">
-                  <div className={`w-16 shrink-0 border-r border-white/[0.06] px-2 py-3 text-[10px] font-medium ${isDark ? "text-white/30" : "text-gray-300"}`} />
+                <div className={`sticky top-0 z-10 flex border-b ${isDark ? "border-white/[0.06] bg-[#0d0d1a]/90" : "border-gray-200 bg-gray-50/90"} backdrop-blur-sm`}>
+                  <div className={`w-16 shrink-0 border-r ${isDark ? "border-white/[0.06]" : "border-gray-200"} px-2 py-3 text-[10px] font-medium ${isDark ? "text-white/30" : "text-gray-400"}`} />
                   {staffWithAppointments.map((s) => (
                     <div
                       key={s.id}
-                      className="flex-1 min-w-[160px] border-r border-white/[0.04] px-3 py-3"
+                      className={`flex-1 min-w-[160px] border-r ${isDark ? "border-white/[0.04]" : "border-gray-100"} px-3 py-3`}
                     >
                       <div className="flex items-center gap-2">
                         <div
@@ -894,10 +894,10 @@ export default function AppointmentsScreen() {
                 {/* Time grid */}
                 <div className="relative flex">
                   {/* Hours column */}
-                  <div className="w-16 shrink-0 border-r border-white/[0.06]">
+                  <div className={`w-16 shrink-0 border-r ${isDark ? "border-white/[0.06]" : "border-gray-200"}`}>
                     {hours.map((h) => (
                       <div key={h} className="relative" style={{ height: SLOT_HEIGHT * 2 }}>
-                        <span className="absolute -top-2 right-2 text-[10px] font-medium text-white/25">
+                        <span className={`absolute -top-2 right-2 text-[10px] font-medium ${isDark ? "text-white/25" : "text-gray-400"}`}>
                           {String(h).padStart(2, "0")}:00
                         </span>
                       </div>
@@ -906,11 +906,11 @@ export default function AppointmentsScreen() {
 
                   {/* Staff columns */}
                   {staffWithAppointments.map((s) => (
-                    <div key={s.id} className="relative flex-1 min-w-[160px] border-r border-white/[0.04]">
+                    <div key={s.id} className={`relative flex-1 min-w-[160px] border-r ${isDark ? "border-white/[0.04]" : "border-gray-100"}`}>
                       {/* Hour grid lines */}
                       {hours.map((h) => (
-                        <div key={h} style={{ height: SLOT_HEIGHT * 2 }} className="border-b border-white/[0.03]">
-                          <div className="h-1/2 border-b border-white/[0.015]" />
+                        <div key={h} style={{ height: SLOT_HEIGHT * 2 }} className={`border-b ${isDark ? "border-white/[0.03]" : "border-gray-100"}`}>
+                          <div className={`h-1/2 border-b ${isDark ? "border-white/[0.015]" : "border-gray-50"}`} />
                         </div>
                       ))}
 
@@ -939,7 +939,7 @@ export default function AppointmentsScreen() {
                               {apt.treatmentName}
                             </p>
                             <p className={`text-[9px] ${isDark ? "text-white/30" : "text-gray-300"}`}>
-                              {formatTime(apt.startTime)} - {formatTime(apt.endTime)}
+                              {formatTime(apt.startTime, language)} - {formatTime(apt.endTime, language)}
                             </p>
                           </div>
                         );
@@ -1128,9 +1128,9 @@ export default function AppointmentsScreen() {
           </div>
 
           {/* Recurring */}
-          <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-4">
+          <div className={`rounded-xl border ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-gray-50"} p-4`}>
             <label className="flex items-center gap-3 cursor-pointer">
-              <div className={`flex h-5 w-5 items-center justify-center rounded-md border transition ${form.isRecurring ? "border-emerald-500 bg-emerald-500" : "border-white/20 bg-white/5"}`}>
+              <div className={`flex h-5 w-5 items-center justify-center rounded-md border transition ${form.isRecurring ? "border-emerald-500 bg-emerald-500" : isDark ? "border-white/20 bg-white/5" : "border-gray-300 bg-white"}`}>
                 {form.isRecurring && <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>}
               </div>
               <input type="checkbox" checked={form.isRecurring} onChange={(e) => setForm({ ...form, isRecurring: e.target.checked })} className="hidden" />
@@ -1211,8 +1211,8 @@ export default function AppointmentsScreen() {
                 </DetailRow>
                 <DetailRow icon="users" label={t.staffInfo} value={apt.staffFullName} isDark={isDark} />
                 <DetailRow icon="clock" label={t.duration} value={`${apt.durationMinutes} ${t.min}`} isDark={isDark} />
-                <DetailRow icon="calendar" label={t.dateInfo} value={formatDate(apt.startTime)} isDark={isDark} />
-                <DetailRow icon="time" label={t.timeInfo} value={`${formatTime(apt.startTime)} - ${formatTime(apt.endTime)}`} isDark={isDark} />
+                <DetailRow icon="calendar" label={t.dateInfo} value={formatDate(apt.startTime, language)} isDark={isDark} />
+                <DetailRow icon="time" label={t.timeInfo} value={`${formatTime(apt.startTime, language)} - ${formatTime(apt.endTime, language)}`} isDark={isDark} />
                 {apt.notes && (
                   <div className="col-span-2">
                     <DetailRow icon="note" label={t.notes} value={apt.notes} isDark={isDark} />
@@ -1224,15 +1224,15 @@ export default function AppointmentsScreen() {
               {apt.seriesAppointments && apt.seriesAppointments.length > 1 && (
                 <div className="space-y-2">
                   <p className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.seriesTitle}</p>
-                  <div className="max-h-32 space-y-1 overflow-y-auto rounded-xl border border-white/[0.06] bg-white/[0.02] p-2">
+                  <div className={`max-h-32 space-y-1 overflow-y-auto rounded-xl border ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-gray-50"} p-2`}>
                     {apt.seriesAppointments.map((sa) => {
                       const ss = STATUS_MAP[sa.status] || STATUS_MAP["Scheduled"];
                       return (
-                        <div key={sa.id} className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs ${sa.id === apt.id ? "bg-white/10" : ""}`}>
+                        <div key={sa.id} className={`flex items-center gap-3 rounded-lg px-3 py-1.5 text-xs ${sa.id === apt.id ? (isDark ? "bg-white/10" : "bg-gray-200") : ""}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${ss.dot}`} />
                           <span className={`${isDark ? "text-white/50" : "text-gray-500"}`}>{t.session} {sa.sessionNumber}</span>
-                          <span className={`${isDark ? "text-white" : "text-gray-900"}`}>{formatDateShort(sa.startTime)}</span>
-                          <span className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{formatTime(sa.startTime)}</span>
+                          <span className={`${isDark ? "text-white" : "text-gray-900"}`}>{formatDateShort(sa.startTime, language)}</span>
+                          <span className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{formatTime(sa.startTime, language)}</span>
                           <span className={`ml-auto text-[10px] ${ss.color}`}>{language === "tr" ? ss.tr : ss.en}</span>
                         </div>
                       );
@@ -1279,12 +1279,12 @@ export default function AppointmentsScreen() {
                   onClick={() => setNewStatus(key)}
                   className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left transition ${
                     newStatus === key
-                      ? `${val.bg} ring-1 ring-white/20`
-                      : "border-white/[0.06] hover:bg-white/5"
+                      ? `${val.bg} ring-1 ${isDark ? "ring-white/20" : "ring-gray-300"}`
+                      : isDark ? "border-white/[0.06] hover:bg-white/5" : "border-gray-200 hover:bg-gray-50"
                   }`}
                 >
                   <span className={`h-2.5 w-2.5 rounded-full ${val.dot}`} />
-                  <span className={`text-sm font-medium ${newStatus === key ? "" : "text-white/50"}`}>
+                  <span className={`text-sm font-medium ${newStatus === key ? "" : isDark ? "text-white/50" : "text-gray-500"}`}>
                     {language === "tr" ? val.tr : val.en}
                   </span>
                   {newStatus === key && (

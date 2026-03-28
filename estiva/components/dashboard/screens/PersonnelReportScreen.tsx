@@ -107,7 +107,7 @@ export default function PersonnelReportScreen() {
   useEffect(() => {
     staffService.list().then((res) => {
       if (res.data.success && res.data.data) setStaffList(res.data.data);
-    }).catch(() => {});
+    }).catch(() => { /* staff list fetch is non-critical for initial render */ });
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -142,7 +142,7 @@ export default function PersonnelReportScreen() {
   };
 
   const formatDateTime = (d: string) =>
-    new Date(d).toLocaleString("tr-TR", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    new Date(d).toLocaleString(language === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
 
   return (
     <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>

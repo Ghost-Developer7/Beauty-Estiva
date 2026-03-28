@@ -180,8 +180,9 @@ export default function StaffLeavesPage() {
       await staffLeaveService.approve(id);
       toast.success(t.approved);
       fetchData();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Error");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "İşlem başarısız" : "Operation failed"));
     }
   };
 
@@ -191,8 +192,9 @@ export default function StaffLeavesPage() {
       await staffLeaveService.reject(id);
       toast.success(t.rejected);
       fetchData();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Error");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "İşlem başarısız" : "Operation failed"));
     }
   };
 
@@ -202,8 +204,9 @@ export default function StaffLeavesPage() {
       await staffLeaveService.delete(id);
       toast.success(t.deleted);
       fetchData();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Error");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "İşlem başarısız" : "Operation failed"));
     }
   };
 
@@ -222,8 +225,9 @@ export default function StaffLeavesPage() {
       setShowModal(false);
       resetForm();
       fetchData();
-    } catch (err: any) {
-      toast.error(err?.response?.data?.error?.message || "Error");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      toast.error(axiosErr?.response?.data?.error?.message || (language === "tr" ? "İşlem başarısız" : "Operation failed"));
     } finally {
       setCreating(false);
     }

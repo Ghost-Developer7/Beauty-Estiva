@@ -412,7 +412,7 @@ export default function DebtsScreen() {
           placeholder={t.placeholder}
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className={`w-full md:w-64 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none focus:border-white/20`}
+          className={`w-full md:w-64 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder-white/30" : "placeholder-gray-400"} focus:outline-none ${isDark ? "focus:border-white/20" : "focus:border-gray-400"}`}
         />
         <div className="flex gap-2 flex-wrap">
           {[
@@ -427,8 +427,8 @@ export default function DebtsScreen() {
               onClick={() => { setStatusFilter(f.value); setPage(1); }}
               className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                 statusFilter === f.value
-                  ? "bg-white/15 text-white"
-                  : "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70"
+                  ? (isDark ? "bg-white/15 text-white" : "bg-gray-200 text-gray-900")
+                  : (isDark ? "bg-white/5 text-white/50 hover:bg-white/10 hover:text-white/70" : "bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700")
               }`}
             >
               {f.label}
@@ -459,7 +459,7 @@ export default function DebtsScreen() {
                 </tr>
               ) : (
                 debts.map((debt) => (
-                  <tr key={debt.id} className="hover:bg-white/[0.03] transition">
+                  <tr key={debt.id} className={`${isDark ? "hover:bg-white/[0.03]" : "hover:bg-gray-50"} transition`}>
                     <td className="px-4 py-3 whitespace-nowrap">
                       <div className="font-medium">{getDisplayName(debt)}</div>
                       {debt.customerPhone && (
@@ -532,11 +532,11 @@ export default function DebtsScreen() {
             <select
               value={form.customerId}
               onChange={(e) => setForm({ ...form, customerId: e.target.value })}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
             >
-              <option value="" className="bg-[#1a1a1a]">{t.modal.selectCustomer}</option>
+              <option value="" className={isDark ? "bg-[#1a1a1a]" : "bg-white"}>{t.modal.selectCustomer}</option>
               {customers.map((c) => (
-                <option key={c.id} value={c.id} className="bg-[#1a1a1a]">
+                <option key={c.id} value={c.id} className={isDark ? "bg-[#1a1a1a]" : "bg-white"}>
                   {c.name} {c.surname} {c.phone ? `(${c.phone})` : ""}
                 </option>
               ))}
@@ -550,7 +550,7 @@ export default function DebtsScreen() {
               value={form.personName}
               onChange={(e) => setForm({ ...form, personName: e.target.value })}
               placeholder={t.modal.personPh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
             />
           </div>
 
@@ -565,7 +565,7 @@ export default function DebtsScreen() {
                 value={form.amount}
                 onChange={(e) => setForm({ ...form, amount: e.target.value })}
                 placeholder={t.modal.amountPh}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
               />
             </div>
             <div className="space-y-1">
@@ -573,10 +573,10 @@ export default function DebtsScreen() {
               <select
                 value={form.currency}
                 onChange={(e) => setForm({ ...form, currency: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
               >
                 {["TRY", "USD", "EUR", "GBP"].map((c) => (
-                  <option key={c} value={c} className="bg-[#1a1a1a]">{c}</option>
+                  <option key={c} value={c} className={isDark ? "bg-[#1a1a1a]" : "bg-white"}>{c}</option>
                 ))}
               </select>
             </div>
@@ -589,7 +589,7 @@ export default function DebtsScreen() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
               placeholder={t.modal.descriptionPh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
             />
           </div>
 
@@ -599,7 +599,7 @@ export default function DebtsScreen() {
               <LocaleDateInput
                 value={form.dueDate}
                 onChange={(e) => setForm({ ...form, dueDate: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none [color-scheme:dark]`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none ${isDark ? "[color-scheme:dark]" : ""}`}
                 isDark={isDark}
               />
             </div>
@@ -608,10 +608,10 @@ export default function DebtsScreen() {
               <select
                 value={form.source}
                 onChange={(e) => setForm({ ...form, source: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
               >
                 {Object.entries(t.sources).map(([val, label]) => (
-                  <option key={val} value={val} className="bg-[#1a1a1a]">{label}</option>
+                  <option key={val} value={val} className={isDark ? "bg-[#1a1a1a]" : "bg-white"}>{label}</option>
                 ))}
               </select>
             </div>
@@ -624,7 +624,7 @@ export default function DebtsScreen() {
               onChange={(e) => setForm({ ...form, notes: e.target.value })}
               rows={3}
               placeholder={t.modal.notesPh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none resize-none`}
             />
           </div>
 
@@ -674,7 +674,7 @@ export default function DebtsScreen() {
               value={paymentForm.amount}
               onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
               placeholder={t.payment.amountPh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
             />
           </div>
 
@@ -684,10 +684,10 @@ export default function DebtsScreen() {
               <select
                 value={paymentForm.paymentMethod}
                 onChange={(e) => setPaymentForm({ ...paymentForm, paymentMethod: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none`}
               >
                 {Object.entries(t.methods).map(([val, label]) => (
-                  <option key={val} value={val} className="bg-[#1a1a1a]">{label}</option>
+                  <option key={val} value={val} className={isDark ? "bg-[#1a1a1a]" : "bg-white"}>{label}</option>
                 ))}
               </select>
             </div>
@@ -696,7 +696,7 @@ export default function DebtsScreen() {
               <LocaleDateInput
                 value={paymentForm.paymentDate}
                 onChange={(e) => setPaymentForm({ ...paymentForm, paymentDate: e.target.value })}
-                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:border-white/30 focus:outline-none [color-scheme:dark]`}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none ${isDark ? "[color-scheme:dark]" : ""}`}
                 isDark={isDark}
               />
             </div>
@@ -709,7 +709,7 @@ export default function DebtsScreen() {
               onChange={(e) => setPaymentForm({ ...paymentForm, notes: e.target.value })}
               rows={2}
               placeholder={t.payment.notesPh}
-              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:border-white/30 focus:outline-none resize-none`}
+              className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none resize-none`}
             />
           </div>
 

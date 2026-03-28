@@ -58,7 +58,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         setUnreadCount(res.data.data);
       }
     } catch {
-      // silent
+      /* unread count is non-critical, UI falls back to 0 */
     }
   }, []);
 
@@ -78,7 +78,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         setTotalPages(d.totalPages);
       }
     } catch {
-      // silent
+      /* notification list fetch failure is non-critical, panel shows empty state */
     }
   }, []);
 
@@ -94,7 +94,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
       } catch {
-        // silent
+        /* mark-as-read failure is non-critical, local state already updated optimistically */
       }
     },
     []
@@ -109,7 +109,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       );
       setUnreadCount(0);
     } catch {
-      // silent
+      /* mark-all-as-read failure is non-critical, local state already updated optimistically */
     }
   }, []);
 
@@ -120,7 +120,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       setTotalCount((prev) => prev - 1);
     } catch {
-      // silent
+      /* delete failure is non-critical, local state already updated optimistically */
     }
   }, []);
 
@@ -203,6 +203,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         fetchNotifications(1);
       })
       .catch(() => {
+        /* SignalR connection failure is non-critical, app works without real-time notifications */
         setIsConnected(false);
       });
 

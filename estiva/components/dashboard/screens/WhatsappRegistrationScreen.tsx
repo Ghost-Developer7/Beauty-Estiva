@@ -94,11 +94,11 @@ export default function WhatsappRegistrationScreen() {
                 <div className={`absolute top-1/2 left-0 w-full h-0.5 ${isDark ? "bg-white/10" : "bg-gray-100"} -z-10 -translate-y-[15px]`}></div>
                 <div className="flex justify-between">
                     {text.steps.map((step, i) => (
-                        <div key={i} className="flex flex-col items-center gap-2 bg-[#040309] px-2 md:px-4">
-                            <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${i === 0 ? 'bg-green-500 text-white' : 'bg-white/10 text-white/40'}`}>
+                        <div key={i} className={`flex flex-col items-center gap-2 ${isDark ? "bg-[#040309]" : "bg-white"} px-2 md:px-4`}>
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-lg text-sm font-bold ${i === 0 ? 'bg-green-500 text-white' : (isDark ? 'bg-white/10 text-white/40' : 'bg-gray-100 text-gray-400')}`}>
                                 {i + 1}
                             </div>
-                            <span className={`text-[10px] md:text-xs ${i === 0 ? 'text-white' : 'text-white/40'}`}>{step}</span>
+                            <span className={`text-[10px] md:text-xs ${i === 0 ? (isDark ? 'text-white' : 'text-gray-900') : (isDark ? 'text-white/40' : 'text-gray-400')}`}>{step}</span>
                         </div>
                     ))}
                 </div>
@@ -109,7 +109,7 @@ export default function WhatsappRegistrationScreen() {
                 <div className="space-y-8">
                     {text.faq.map((item, i) => (
                         <div key={i} className="space-y-2">
-                            <h3 className="font-semibold text-sm md:text-base text-white/90">{item.q}</h3>
+                            <h3 className={`font-semibold text-sm md:text-base ${isDark ? "text-white/90" : "text-gray-900"}`}>{item.q}</h3>
                             {Array.isArray(item.a) ? (
                                 <ul className={`list-disc pl-5 space-y-1 text-xs md:text-sm ${isDark ? "text-white/60" : "text-gray-600"}`}>
                                     {item.a.map((li, j) => <li key={j}>{li}</li>)}
