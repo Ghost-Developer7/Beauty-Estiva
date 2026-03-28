@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import ProfileScreen from "@/components/dashboard/screens/ProfileScreen";
 import NotificationBell from "@/components/dashboard/NotificationBell";
+import GlobalSearch from "@/components/dashboard/GlobalSearch";
 import { tenantService } from "@/services/tenantService";
 import type { TenantInfo } from "@/services/tenantService";
 
@@ -17,12 +18,10 @@ const API_BASE =
 
 const copy = {
   en: {
-    search: "Search clients, rituals, or invoices...",
     profile: "Profile",
     logout: "Sign out",
   },
   tr: {
-    search: "Müşteri, ritüel veya fatura ara...",
     profile: "Profil Bilgileri",
     logout: "Çıkış yap",
   },
@@ -33,7 +32,6 @@ interface TopbarProps {
 }
 
 export default function Topbar({ onMenuToggle }: TopbarProps) {
-  const [search, setSearch] = useState("");
   const [showMenu, setShowMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
@@ -105,15 +103,9 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
             </div>
           )}
 
-          {/* Search bar - hidden on mobile, shown via toggle */}
-          <div className="hidden sm:flex flex-1 items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80">
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={text.search}
-              className="w-full bg-transparent text-white placeholder:text-white/40 focus:outline-none"
-            />
+          {/* Global Search - hidden on mobile, shown via toggle */}
+          <div className="hidden sm:block flex-1">
+            <GlobalSearch />
           </div>
 
           {/* Mobile search toggle */}
@@ -220,23 +212,8 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
         {/* Mobile search bar - expandable */}
         {showMobileSearch && (
-          <div className="flex sm:hidden items-center rounded-full border border-white/15 bg-white/5 px-4 py-2 text-sm text-white/80">
-            <input
-              type="text"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder={text.search}
-              className="w-full bg-transparent text-white placeholder:text-white/40 focus:outline-none"
-              autoFocus
-            />
-            <button
-              onClick={() => setShowMobileSearch(false)}
-              className="ml-2 text-white/40 hover:text-white"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
+          <div className="flex sm:hidden">
+            <GlobalSearch />
           </div>
         )}
       </header>
