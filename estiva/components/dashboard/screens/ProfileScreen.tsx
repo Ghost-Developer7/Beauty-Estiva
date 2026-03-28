@@ -110,6 +110,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
   const [uploadingPicture, setUploadingPicture] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
+  const passwordSectionRef = useRef<HTMLDivElement>(null);
 
   // Form state
   const [name, setName] = useState("");
@@ -302,7 +303,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
       />
 
       {/* Modal */}
-      <div className={`relative z-10 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#0f0f1a]" : "bg-white"} shadow-2xl ${isDark ? "shadow-purple-900/20" : "shadow-gray-300/40"}`}>
+      <div className={`relative z-10 w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto scroll-smooth rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#0f0f1a]" : "bg-white"} shadow-2xl ${isDark ? "shadow-purple-900/20" : "shadow-gray-300/40"}`} style={{ scrollbarWidth: "none" }}>
         {/* Header */}
         <div className={`sticky top-0 z-20 flex items-center justify-between border-b ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-[#0f0f1a]/95" : "bg-white/95"} backdrop-blur px-6 py-4`}>
           <div className="flex items-center gap-3">
@@ -597,7 +598,13 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
             {/* Password Section */}
             <div>
               <button
-                onClick={() => setShowPasswordSection(!showPasswordSection)}
+                onClick={() => {
+                  const next = !showPasswordSection;
+                  setShowPasswordSection(next);
+                  if (next) {
+                    setTimeout(() => passwordSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "end" }), 100);
+                  }
+                }}
                 className={`flex w-full items-center justify-between rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-gray-50"} px-4 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5 hover:text-white/80" : "hover:bg-gray-100 hover:text-gray-800"}`}
               >
                 <span className="flex items-center gap-2">
@@ -639,7 +646,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
               </button>
 
               {showPasswordSection && (
-                <div className={`mt-3 space-y-3 rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-gray-50/50"} p-4`}>
+                <div ref={passwordSectionRef} className={`mt-3 space-y-3 rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-gray-50/50"} p-4`}>
                   <div>
                     <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {t.currentPassword}

@@ -482,6 +482,11 @@ body.theme-light .estiva-dashboard .text-white\/25 {
   }
 }
 
+/* ─── Hide scrollbar but keep scrollable (profile modal etc.) ─── */
+[style*="scrollbar-width: none"]::-webkit-scrollbar {
+  display: none;
+}
+
 /* ─── LocaleDateInput: hide native date text, keep calendar icon clickable ─── */
 
 .locale-date-input {
