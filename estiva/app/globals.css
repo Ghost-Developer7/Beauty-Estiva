@@ -482,12 +482,26 @@ body.theme-light .estiva-dashboard .text-white\/25 {
   }
 }
 
-/* ─── LocaleDateInput: hide native date text, keep calendar icon ─── */
+/* ─── LocaleDateInput: hide native date text, keep calendar icon clickable ─── */
+
+.locale-date-input {
+  cursor: pointer;
+}
 
 .locale-date-input::-webkit-datetime-edit-fields-wrapper {
   visibility: hidden;
   width: 0;
   padding: 0;
+}
+
+.locale-date-input::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0.6;
+  padding: 4px;
+}
+
+.locale-date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
 }
 
 /* Firefox: hide native text via color */

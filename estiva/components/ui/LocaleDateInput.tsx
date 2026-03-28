@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface LocaleDateInputProps
@@ -13,7 +13,8 @@ interface LocaleDateInputProps
  * that displays the date in the correct locale format (TR: gg.aa.yyyy, EN: mm/dd/yyyy)
  * regardless of the browser's OS locale.
  *
- * The native date picker is preserved — only the *displayed* text changes.
+ * Clicking anywhere on the input opens the native date picker.
+ * Manual typing is also supported.
  */
 export function LocaleDateInput({
   type = "date",
@@ -24,6 +25,7 @@ export function LocaleDateInput({
   ...rest
 }: LocaleDateInputProps) {
   const { language } = useLanguage();
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const displayText = useMemo(() => {
     const v = (value as string) || "";
@@ -55,9 +57,22 @@ export function LocaleDateInput({
 
   const hasValue = !!(value as string);
 
+  const handleOverlayClick = () => {
+    const input = inputRef.current;
+    if (!input) return;
+    // Try showPicker (modern browsers)
+    try {
+      input.showPicker();
+    } catch {
+      // Fallback: just focus the input
+      input.focus();
+    }
+  };
+
   return (
     <div className="relative">
       <input
+        ref={inputRef}
         type={type as string}
         value={value}
         className={`${className} locale-date-input`}
@@ -65,7 +80,8 @@ export function LocaleDateInput({
         {...rest}
       />
       <span
-        className={`pointer-events-none absolute inset-y-0 left-0 flex items-center px-3 text-sm ${
+        onClick={handleOverlayClick}
+        className={`absolute inset-y-0 left-0 right-8 flex items-center px-3 text-sm cursor-pointer ${
           hasValue
             ? isDark
               ? "text-white"
