@@ -108,6 +108,9 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
   const [changingPassword, setChangingPassword] = useState(false);
   const [showPasswordSection, setShowPasswordSection] = useState(false);
   const [uploadingPicture, setUploadingPicture] = useState(false);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const passwordSectionRef = useRef<HTMLDivElement>(null);
@@ -645,79 +648,154 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
                 </svg>
               </button>
 
-              {showPasswordSection && (
-                <div ref={passwordSectionRef} className={`mt-3 space-y-3 rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-gray-50/50"} p-4`}>
+              {showPasswordSection && (() => {
+                const inputCls = `w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} pl-3 pr-10 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/25" : "placeholder:text-gray-400"} focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`;
+                const toggleBtnCls = `absolute right-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30 hover:text-white/60" : "text-gray-400 hover:text-gray-600"} transition`;
+
+                // Password strength
+                const getStrength = (pw: string) => {
+                  if (!pw) return 0;
+                  let s = 0;
+                  if (pw.length >= 6) s++;
+                  if (pw.length >= 10) s++;
+                  if (/[A-Z]/.test(pw)) s++;
+                  if (/[0-9]/.test(pw)) s++;
+                  if (/[^A-Za-z0-9]/.test(pw)) s++;
+                  return Math.min(s, 4);
+                };
+                const strength = getStrength(newPassword);
+                const strengthLabels = language === "tr"
+                  ? ["", "Zayıf", "Orta", "İyi", "Güçlü"]
+                  : ["", "Weak", "Fair", "Good", "Strong"];
+                const strengthColors = ["", "#ef4444", "#f59e0b", "#3b82f6", "#22c55e"];
+
+                const EyeIcon = () => (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                    <circle cx="12" cy="12" r="3" />
+                  </svg>
+                );
+                const EyeOffIcon = () => (
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+                    <line x1="1" y1="1" x2="23" y2="23" />
+                    <path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" />
+                  </svg>
+                );
+
+                const pwMatch = newPassword && confirmNewPassword && newPassword === confirmNewPassword;
+                const pwMismatch = confirmNewPassword && newPassword !== confirmNewPassword;
+
+                return (
+                <div ref={passwordSectionRef} className={`mt-3 space-y-4 rounded-xl border ${isDark ? "border-white/5" : "border-gray-100"} ${isDark ? "bg-white/[0.02]" : "bg-gray-50/50"} p-4`}>
+                  {/* Current Password */}
                   <div>
-                    <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                    <label className={`mb-1.5 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {t.currentPassword}
                     </label>
-                    <input
-                      type="password"
-                      value={currentPassword}
-                      onChange={(e) => setCurrentPassword(e.target.value)}
-                      className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-gray-300 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
-                      placeholder={t.currentPasswordPh}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showCurrentPw ? "text" : "password"}
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className={inputCls}
+                        placeholder={t.currentPasswordPh}
+                      />
+                      <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)} className={toggleBtnCls}>
+                        {showCurrentPw ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
+                    </div>
                   </div>
+
+                  {/* New Password */}
                   <div>
-                    <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                    <label className={`mb-1.5 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {t.newPassword}
                     </label>
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-gray-300 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
-                      placeholder={t.newPasswordPh}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showNewPw ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className={inputCls}
+                        placeholder={t.newPasswordPh}
+                      />
+                      <button type="button" onClick={() => setShowNewPw(!showNewPw)} className={toggleBtnCls}>
+                        {showNewPw ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
+                    </div>
+                    {/* Strength meter */}
+                    {newPassword && (
+                      <div className="mt-2">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4].map((level) => (
+                            <div
+                              key={level}
+                              className="h-1 flex-1 rounded-full transition-all duration-300"
+                              style={{
+                                backgroundColor: strength >= level ? strengthColors[strength] : isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)",
+                              }}
+                            />
+                          ))}
+                        </div>
+                        <p className="mt-1 text-[10px] font-medium" style={{ color: strengthColors[strength] }}>
+                          {strengthLabels[strength]}
+                        </p>
+                      </div>
+                    )}
                   </div>
+
+                  {/* Confirm Password */}
                   <div>
-                    <label className={`mb-1 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                    <label className={`mb-1.5 block text-xs font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>
                       {t.confirmPassword}
                     </label>
-                    <input
-                      type="password"
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} placeholder:text-gray-300 focus:border-pink-500/50 focus:outline-none focus:ring-1 focus:ring-pink-500/30 transition`}
-                      placeholder={t.confirmPasswordPh}
-                    />
+                    <div className="relative">
+                      <input
+                        type={showConfirmPw ? "text" : "password"}
+                        value={confirmNewPassword}
+                        onChange={(e) => setConfirmNewPassword(e.target.value)}
+                        className={`${inputCls} ${pwMatch ? "!border-green-500/50 !ring-green-500/20" : ""} ${pwMismatch ? "!border-red-500/50 !ring-red-500/20" : ""}`}
+                        placeholder={t.confirmPasswordPh}
+                      />
+                      <button type="button" onClick={() => setShowConfirmPw(!showConfirmPw)} className={toggleBtnCls}>
+                        {showConfirmPw ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
+                    </div>
+                    {pwMatch && (
+                      <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-green-500">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><polyline points="20 6 9 17 4 12" /></svg>
+                        {language === "tr" ? "Şifreler eşleşiyor" : "Passwords match"}
+                      </p>
+                    )}
+                    {pwMismatch && (
+                      <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-red-400">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+                        {language === "tr" ? "Şifreler eşleşmiyor" : "Passwords don't match"}
+                      </p>
+                    )}
                   </div>
+
+                  {/* Submit */}
                   <button
                     onClick={handleChangePassword}
-                    disabled={changingPassword}
-                    className={`w-full flex items-center justify-center gap-2 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm font-medium ${isDark ? "text-white/70" : "text-gray-700"} transition ${isDark ? "hover:bg-white/10 hover:text-white" : "hover:bg-gray-100 hover:text-gray-900"} disabled:opacity-50 disabled:cursor-not-allowed`}
+                    disabled={changingPassword || !currentPassword || !newPassword || !confirmNewPassword || !!pwMismatch}
+                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition hover:shadow-pink-500/30 hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:brightness-100"
                   >
                     {changingPassword ? (
-                      <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/20 border-t-white" />
+                      <div className={`h-4 w-4 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white" : "border-white/40 border-t-white"}`} />
                     ) : (
-                      <svg
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <rect
-                          x="3"
-                          y="11"
-                          width="18"
-                          height="11"
-                          rx="2"
-                          ry="2"
-                        />
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                         <path d="M7 11V7a5 5 0 0 1 10 0v4" />
                       </svg>
                     )}
-                    {changingPassword
-                      ? t.changingPassword
-                      : t.changePasswordBtn}
+                    {changingPassword ? t.changingPassword : t.changePasswordBtn}
                   </button>
                 </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         )}
