@@ -501,13 +501,13 @@ export default function SettingsScreen() {
   return (
     <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header */}
-      <div>
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-2xl font-semibold">{text.title}</h1>
         <p className={`mt-1 text-sm ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.subtitle}</p>
       </div>
 
       {/* Tabs */}
-      <div className={`flex flex-wrap gap-1 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-1.5`}>
+      <div className={`max-w-4xl mx-auto flex flex-wrap gap-1 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} p-1.5`}>
         {text.tabs.map((tab, i) => (
           <button
             key={i}
@@ -526,7 +526,7 @@ export default function SettingsScreen() {
 
       {/* ═══════════════════ Tab 0: Salon Profile ═══════════════════ */}
       {activeTab === 0 && (
-        <form onSubmit={handleSaveProfile} className="max-w-3xl space-y-6">
+        <form onSubmit={handleSaveProfile} className="max-w-4xl mx-auto space-y-6">
           <div className={cardClass}>
             <div className="space-y-1">
               <label className={labelClass}>{text.salonName}</label>
@@ -616,7 +616,7 @@ export default function SettingsScreen() {
 
       {/* ═══════════════════ Tab 1: Working Hours ═══════════════════ */}
       {activeTab === 1 && (
-        <form onSubmit={handleSaveWorkingHours} className="max-w-3xl space-y-6">
+        <form onSubmit={handleSaveWorkingHours} className="max-w-4xl mx-auto space-y-6">
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.workingHoursTitle}</h3>
@@ -724,7 +724,7 @@ export default function SettingsScreen() {
 
       {/* ═══════════════════ Tab 2: Holidays ═══════════════════ */}
       {activeTab === 2 && (
-        <form onSubmit={handleSaveHolidays} className="max-w-3xl space-y-6">
+        <form onSubmit={handleSaveHolidays} className="max-w-4xl mx-auto space-y-6">
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.holidaysTitle}</h3>
@@ -814,7 +814,7 @@ export default function SettingsScreen() {
 
       {/* ═══════════════════ Tab 3: Appointment Settings ═══════════════════ */}
       {activeTab === 3 && (
-        <form onSubmit={handleSaveAppointment} className="max-w-3xl space-y-6">
+        <form onSubmit={handleSaveAppointment} className="max-w-4xl mx-auto space-y-6">
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.appointmentTitle}</h3>
@@ -887,7 +887,7 @@ export default function SettingsScreen() {
 
       {/* ═══════════════════ Tab 4: Notifications ═══════════════════ */}
       {activeTab === 4 && (
-        <form onSubmit={handleSaveNotifications} className="max-w-3xl space-y-6">
+        <form onSubmit={handleSaveNotifications} className="max-w-4xl mx-auto space-y-6">
           <div className={cardClass}>
             <div>
               <h3 className="text-lg font-semibold">{text.notificationTitle}</h3>
