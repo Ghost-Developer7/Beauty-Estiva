@@ -600,7 +600,7 @@ export default function PackageSalesScreen() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{sales.length} {t.total}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${sales.length} ${t.total}`}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -637,34 +637,47 @@ export default function PackageSalesScreen() {
 
       {/* ─── STATS ─── */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatCard
-          label={t.totalSales}
-          value={String(stats.totalSales)}
-          icon={<svg className="text-purple-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4h-4z"/></svg>}
-          gradient="bg-purple-500"
-          isDark={isDark}
-        />
-        <StatCard
-          label={t.totalRevenue}
-          value={`${fmt(stats.totalRevenue)} ₺`}
-          icon={<svg className="text-emerald-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
-          gradient="bg-emerald-500"
-          isDark={isDark}
-        />
-        <StatCard
-          label={t.activePackages}
-          value={String(stats.activePackages)}
-          icon={<svg className="text-blue-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
-          gradient="bg-blue-500"
-          isDark={isDark}
-        />
-        <StatCard
-          label={t.completedPackages}
-          value={String(stats.completedPackages)}
-          icon={<svg className="text-pink-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
-          gradient="bg-pink-500"
-          isDark={isDark}
-        />
+        {loading ? (
+          <>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3 space-y-2`}>
+                <div className={`h-3 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                <div className={`h-6 w-24 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <StatCard
+              label={t.totalSales}
+              value={String(stats.totalSales)}
+              icon={<svg className="text-purple-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4h-4z"/></svg>}
+              gradient="bg-purple-500"
+              isDark={isDark}
+            />
+            <StatCard
+              label={t.totalRevenue}
+              value={`${fmt(stats.totalRevenue)} ₺`}
+              icon={<svg className="text-emerald-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+              gradient="bg-emerald-500"
+              isDark={isDark}
+            />
+            <StatCard
+              label={t.activePackages}
+              value={String(stats.activePackages)}
+              icon={<svg className="text-blue-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
+              gradient="bg-blue-500"
+              isDark={isDark}
+            />
+            <StatCard
+              label={t.completedPackages}
+              value={String(stats.completedPackages)}
+              icon={<svg className="text-pink-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
+              gradient="bg-pink-500"
+              isDark={isDark}
+            />
+          </>
+        )}
       </div>
 
       {/* ─── FILTERS ─── */}
@@ -836,7 +849,7 @@ export default function PackageSalesScreen() {
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
             <div className={`flex items-center justify-between border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
-              <span>{filtered.length} {t.total}</span>
+              <span>{loading ? <span className={`inline-block h-3 w-12 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${filtered.length} ${t.total}`}</span>
               <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} ₺</span>
             </div>
           </>

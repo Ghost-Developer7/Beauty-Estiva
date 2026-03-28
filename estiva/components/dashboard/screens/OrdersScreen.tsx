@@ -566,7 +566,7 @@ export default function OrdersScreen() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{filtered.length} {t.total}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${filtered.length} ${t.total}`}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -604,14 +604,27 @@ export default function OrdersScreen() {
 
       {/* ─── STATS ─── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} />
-        <StatCard label={t.avgPayment} value={`₺${fmt(avgPayment)}`} color="#6366f1" isDark={isDark} />
-        <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" isDark={isDark} />
-        <StatCard
-          label={t.topMethod}
-          value={topMethod ? translateMethodDisplay(topMethod[0], language) : "—"}
-          sub={topMethod ? `${topMethod[1]}x` : ""}
-          color="#f59e0b" isDark={isDark} />
+        {loading ? (
+          <>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3 space-y-2`}>
+                <div className={`h-3 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                <div className={`h-6 w-24 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} />
+            <StatCard label={t.avgPayment} value={`₺${fmt(avgPayment)}`} color="#6366f1" isDark={isDark} />
+            <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" isDark={isDark} />
+            <StatCard
+              label={t.topMethod}
+              value={topMethod ? translateMethodDisplay(topMethod[0], language) : "—"}
+              sub={topMethod ? `${topMethod[1]}x` : ""}
+              color="#f59e0b" isDark={isDark} />
+          </>
+        )}
       </div>
 
       {/* ─── FILTERS ─── */}
@@ -754,7 +767,7 @@ export default function OrdersScreen() {
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
             <div className={`flex items-center justify-between border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3`}>
-              <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{filtered.length} {t.total}</span>
+              <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${filtered.length} ${t.total}`}</span>
               <span className="text-sm font-bold text-emerald-400">₺{fmt(totalRevenue)}</span>
             </div>
           </>

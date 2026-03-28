@@ -504,7 +504,7 @@ export default function CustomersScreen() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{customers.length} {t.total}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${customers.length} ${t.total}`}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -537,10 +537,23 @@ export default function CustomersScreen() {
 
       {/* ─── STATS ─── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t.totalCustomers} value={customers.length} color="#f472b6" isDark={isDark} />
-        <StatCard label={t.vipCustomers} value={vipCount} color="#fbbf24" isDark={isDark} />
-        <StatCard label={t.totalRevenue} value={formatCurrency(totalRevenue)} color="#a78bfa" isDark={isDark} />
-        <StatCard label={t.avgSpend} value={formatCurrency(avgSpend)} color="#60a5fa" isDark={isDark} />
+        {loading ? (
+          <>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3 space-y-2`}>
+                <div className={`h-3 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                <div className={`h-6 w-24 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <StatCard label={t.totalCustomers} value={customers.length} color="#f472b6" isDark={isDark} />
+            <StatCard label={t.vipCustomers} value={vipCount} color="#fbbf24" isDark={isDark} />
+            <StatCard label={t.totalRevenue} value={formatCurrency(totalRevenue)} color="#a78bfa" isDark={isDark} />
+            <StatCard label={t.avgSpend} value={formatCurrency(avgSpend)} color="#60a5fa" isDark={isDark} />
+          </>
+        )}
       </div>
 
       {/* ─── SEARCH ─── */}
@@ -633,7 +646,7 @@ export default function CustomersScreen() {
             </div>
 
             <div className={`border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-3 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
-              {customers.length} {t.total}
+              {loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${customers.length} ${t.total}`}
             </div>
           </>
         )}

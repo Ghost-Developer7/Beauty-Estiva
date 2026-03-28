@@ -318,7 +318,7 @@ export default function ProductsScreen() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{products.length} {t.total}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${products.length} ${t.total}`}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -348,10 +348,23 @@ export default function ProductsScreen() {
 
       {/* ─── STATS ─── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t.totalProducts} value={String(products.length)} color="#a78bfa" isDark={isDark} />
-        <StatCard label={t.avgPrice} value={`₺${fmt(avgPrice)}`} color="#22c55e" isDark={isDark} />
-        <StatCard label={t.lowStock} value={String(lowStockCount)} sub={`≤ 5 ${t.items}`} color="#f59e0b" isDark={isDark} />
-        <StatCard label={t.totalValue} value={`₺${fmt(totalValue)}`} color="#60a5fa" isDark={isDark} />
+        {loading ? (
+          <>
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3 space-y-2`}>
+                <div className={`h-3 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                <div className={`h-6 w-24 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+              </div>
+            ))}
+          </>
+        ) : (
+          <>
+            <StatCard label={t.totalProducts} value={String(products.length)} color="#a78bfa" isDark={isDark} />
+            <StatCard label={t.avgPrice} value={`₺${fmt(avgPrice)}`} color="#22c55e" isDark={isDark} />
+            <StatCard label={t.lowStock} value={String(lowStockCount)} sub={`≤ 5 ${t.items}`} color="#f59e0b" isDark={isDark} />
+            <StatCard label={t.totalValue} value={`₺${fmt(totalValue)}`} color="#60a5fa" isDark={isDark} />
+          </>
+        )}
       </div>
 
       {/* ─── SEARCH ─── */}
