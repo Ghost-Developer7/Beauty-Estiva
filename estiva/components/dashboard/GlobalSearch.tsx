@@ -324,9 +324,9 @@ export default function GlobalSearch() {
     <div ref={containerRef} className="relative flex-1">
       {/* Search Input */}
       <div className={`flex items-center rounded-full border px-4 py-2 text-sm transition-all ${
-        isOpen
-          ? isDark ? "border-white/25 bg-white/10 ring-1 ring-white/10" : "border-gray-300 bg-white ring-1 ring-gray-200"
-          : isDark ? "border-white/15 bg-white/5" : "border-gray-200 bg-gray-50"
+        isDark
+          ? isOpen ? "border-white/25 bg-white/10 ring-1 ring-white/10" : "border-white/15 bg-white/5"
+          : isOpen ? "border-gray-300 bg-gray-50 ring-1 ring-gray-200" : "border-gray-200 bg-gray-50"
       }`}>
         <svg className={`mr-2 shrink-0 ${isDark ? "text-white/40" : "text-gray-400"}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
