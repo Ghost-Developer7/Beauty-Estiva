@@ -27,7 +27,7 @@ const copy = {
       subtitle:
         "Estiva brings together appointment scheduling, staff management, customer tracking and financial analytics in one elegant platform. Trusted by hundreds of beauty centers.",
       cta: "Start Free Trial",
-      ctaSecondary: "Watch Demo",
+      ctaSecondary: "Explore Features",
       stat1Label: "Active Salons",
       stat1Value: "500+",
       stat2Label: "Appointments/Month",
@@ -90,6 +90,7 @@ const copy = {
       whatsapp: "WhatsApp Integration",
       social: "Social Media Integration",
       ai: "AI Features",
+      unlimited: "Unlimited",
       selectPlan: "Get Started",
       popular: "MOST POPULAR",
       loadingPlans: "Loading plans...",
@@ -185,7 +186,7 @@ const copy = {
       subtitle:
         "Estiva randevu planlama, personel y\u00F6netimi, m\u00FC\u015Fteri takibi ve finansal analiti\u011Fi tek bir zarif platformda birle\u015Ftiriyor. Y\u00FCzlerce g\u00FCzellik merkezi taraf\u0131ndan tercih ediliyor.",
       cta: "\u00DCcretsiz Deneyin",
-      ctaSecondary: "Demo \u0130zleyin",
+      ctaSecondary: "\u00D6zellikleri Ke\u015Ffedin",
       stat1Label: "Aktif Salon",
       stat1Value: "500+",
       stat2Label: "Ayl\u0131k Randevu",
@@ -248,6 +249,7 @@ const copy = {
       whatsapp: "WhatsApp Entegrasyonu",
       social: "Sosyal Medya Entegrasyonu",
       ai: "Yapay Zek\u00E2 \u00D6zellikleri",
+      unlimited: "S\u0131n\u0131rs\u0131z",
       selectPlan: "Hemen Ba\u015Fla",
       popular: "EN POP\u00DCLER",
       loadingPlans: "Planlar y\u00FCkleniyor...",
@@ -711,8 +713,8 @@ export default function LandingPage() {
                       : "border-[#d0c0f5] text-[#3b2268] hover:bg-[#efe9ff]"
                   }`}
                 >
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                    <polygon points="5 3 19 12 5 21 5 3" />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9" />
                   </svg>
                   {t.hero.ctaSecondary}
                 </button>
@@ -889,8 +891,8 @@ export default function LandingPage() {
                         name={plan.name}
                         price={isYearly ? plan.yearlyPrice : plan.monthlyPrice}
                         period={isYearly ? t.pricing.perYear : t.pricing.perMonth}
-                        staff={`${plan.maxStaffCount} ${t.pricing.staff}`}
-                        branches={`${plan.maxBranchCount} ${t.pricing.branches}`}
+                        staff={plan.maxStaffCount <= 0 ? t.pricing.unlimited : `${plan.maxStaffCount} ${t.pricing.staff}`}
+                        branches={plan.maxBranchCount <= 0 ? t.pricing.unlimited : `${plan.maxBranchCount} ${t.pricing.branches}`}
                         features={[
                           ...(plan.hasSmsIntegration ? [t.pricing.sms] : []),
                           ...(plan.hasWhatsappIntegration ? [t.pricing.whatsapp] : []),

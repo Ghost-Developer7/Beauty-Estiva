@@ -354,13 +354,13 @@ export default function SubscriptionManagementScreen() {
                 {/* Pricing */}
                 <div className="mb-4 grid grid-cols-2 gap-3">
                   <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
-                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} tracking-wider`}>{t.monthlyPrice}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-500"} tracking-wider`}>{t.monthlyPrice}</p>
                     <p className={`mt-0.5 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {"\u20BA"}{fmt(plan.monthlyPrice)}
                     </p>
                   </div>
                   <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2.5`}>
-                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} tracking-wider`}>{t.yearlyPrice}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-500"} tracking-wider`}>{t.yearlyPrice}</p>
                     <p className={`mt-0.5 text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {"\u20BA"}{fmt(plan.yearlyPrice)}
                     </p>
@@ -370,13 +370,13 @@ export default function SubscriptionManagementScreen() {
                 {/* Limits */}
                 <div className="mb-4 flex gap-3">
                   <div className={`flex-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
-                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.maxStaff}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-500"}`}>{t.maxStaff}</p>
                     <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {plan.maxStaffCount <= 0 ? t.unlimited : plan.maxStaffCount}
                     </p>
                   </div>
                   <div className={`flex-1 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-2`}>
-                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.maxBranch}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-500"}`}>{t.maxBranch}</p>
                     <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
                       {plan.maxBranchCount <= 0 ? t.unlimited : plan.maxBranchCount}
                     </p>
@@ -394,7 +394,7 @@ export default function SubscriptionManagementScreen() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => openEdit(plan)}
-                    className={`flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-2.5 text-xs font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-purple-900/20 transition-all hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
+                    className={`flex-1 rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-900/20 transition-all hover:shadow-purple-900/40 hover:scale-[1.02] active:scale-[0.98]`}
                   >
                     {t.edit}
                   </button>
@@ -467,7 +467,7 @@ export default function SubscriptionManagementScreen() {
               <button
                 onClick={handleAssignPlan}
                 disabled={!assignTenantId || !assignPlanId || assigning}
-                className={`rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2.5 text-xs font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg disabled:opacity-40 transition-all hover:shadow-purple-900/40`}
+                className="rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2.5 text-xs font-bold text-white shadow-lg disabled:opacity-40 transition-all hover:shadow-purple-900/40"
               >
                 {assigning ? t.assigning : t.assignBtn}
               </button>
@@ -477,9 +477,9 @@ export default function SubscriptionManagementScreen() {
 
         {/* Tenant list */}
         {tenantsLoading ? (
-          <p className={`mt-4 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.loadingTenants}</p>
+          <p className={`mt-4 text-sm ${isDark ? "text-white/30" : "text-gray-500"}`}>{t.loadingTenants}</p>
         ) : tenants.length === 0 ? (
-          <p className={`mt-4 text-sm ${isDark ? "text-white/30" : "text-gray-300"}`}>{t.noTenants}</p>
+          <p className={`mt-4 text-sm ${isDark ? "text-white/30" : "text-gray-500"}`}>{t.noTenants}</p>
         ) : (
           <div className={`mt-4 rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} overflow-hidden`}>
             <table className="w-full text-left text-sm">
@@ -679,10 +679,12 @@ export default function SubscriptionManagementScreen() {
 /* === Sub-components === */
 
 function FeatureItem({ label, enabled }: { label: string; enabled: boolean }) {
+  const { theme } = useTheme();
+  const dk = theme === "dark";
   return (
     <div className="flex items-center gap-2">
       <svg
-        className={enabled ? "text-emerald-400" : "text-gray-300"}
+        className={enabled ? "text-emerald-400" : dk ? "text-white/20" : "text-gray-300"}
         width="14"
         height="14"
         viewBox="0 0 24 24"
@@ -696,7 +698,7 @@ function FeatureItem({ label, enabled }: { label: string; enabled: boolean }) {
           <line x1="18" y1="6" x2="6" y2="18" />
         )}
       </svg>
-      <span className={`text-xs ${enabled ? "text-gray-600 dark:text-white/60" : "text-gray-300 dark:text-white/20"}`}>
+      <span className={`text-xs ${enabled ? (dk ? "text-white/60" : "text-gray-600") : (dk ? "text-white/20" : "text-gray-400")}`}>
         {label}
       </span>
     </div>
