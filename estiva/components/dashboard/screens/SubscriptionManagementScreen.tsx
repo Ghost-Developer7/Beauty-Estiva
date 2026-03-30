@@ -560,7 +560,7 @@ export default function SubscriptionManagementScreen() {
             <textarea
               value={formDescription}
               onChange={(e) => setFormDescription(e.target.value)}
-              rows={2}
+              rows={1}
               placeholder={t.descriptionPh}
               className={`w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none ${isDark ? "focus:border-white/25" : "focus:border-gray-400"} resize-none`}
             />
