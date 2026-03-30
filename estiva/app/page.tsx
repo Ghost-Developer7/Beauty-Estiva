@@ -150,8 +150,8 @@ const copy = {
       messagePlaceholder: "Tell us about your salon...",
       send: "Send Message",
       info: {
-        address: "Levent Mah. Canan Sok. No:12, Besiktas/Istanbul",
-        phone: "+90 (212) 555 04 78",
+        address: "Pınarbaşı, Hürriyet Cd., 07070 Konyaaltı/Antalya",
+        phone: "+90 552 865 88 32",
         email: "info@estiva.studio",
         hours: "Mon - Fri: 09:00 - 18:00",
       },
@@ -309,8 +309,8 @@ const copy = {
       messagePlaceholder: "Salonunuz hakk\u0131nda bilgi verin...",
       send: "Mesaj G\u00F6nder",
       info: {
-        address: "Levent Mah. Canan Sok. No:12, Be\u015Fikta\u015F/\u0130stanbul",
-        phone: "+90 (212) 555 04 78",
+        address: "Pınarbaşı, Hürriyet Cd., 07070 Konyaaltı/Antalya",
+        phone: "+90 552 865 88 32",
         email: "info@estiva.studio",
         hours: "Pzt - Cum: 09:00 - 18:00",
       },
@@ -457,14 +457,12 @@ export default function LandingPage() {
   const [plansLoading, setPlansLoading] = useState(true);
   const [plansError, setPlansError] = useState(false);
 
-  // Plan name translations
+  // Plan name translations (API returns Turkish names)
   const PLAN_NAME_MAP: Record<string, { en: string; tr: string }> = {
     "Başlangıç Paketi": { en: "Starter Package", tr: "Başlangıç Paketi" },
-    "Altın Paket": { en: "Gold Package", tr: "Altın Paket" },
-    "Platin Paket": { en: "Platinum Package", tr: "Platin Paket" },
+    "Gold Paketi": { en: "Gold Package", tr: "Gold Paketi" },
+    "Platinum Paketi": { en: "Platinum Package", tr: "Platinum Paketi" },
     "Starter": { en: "Starter", tr: "Başlangıç" },
-    "Gold": { en: "Gold", tr: "Altın" },
-    "Platinum": { en: "Platinum", tr: "Platin" },
     "Professional": { en: "Professional", tr: "Profesyonel" },
     "Enterprise": { en: "Enterprise", tr: "Kurumsal" },
   };

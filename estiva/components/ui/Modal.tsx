@@ -46,7 +46,7 @@ export default function Modal({
       }}
     >
       <div
-        className={`w-full ${maxWidth} mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl border p-4 sm:p-6 shadow-2xl max-h-[95vh] sm:max-h-[85vh] flex flex-col ${
+        className={`w-full ${maxWidth} mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl border p-4 sm:p-6 shadow-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col ${
           isDark
             ? "border-white/10 bg-[#1a1a2e]"
             : "border-gray-200 bg-white shadow-xl"

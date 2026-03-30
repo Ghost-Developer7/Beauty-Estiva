@@ -143,11 +143,8 @@ export default function SubscriptionManagementScreen() {
 
   const PLAN_NAME_MAP: Record<string, { en: string; tr: string }> = {
     "Başlangıç Paketi": { en: "Starter Package", tr: "Başlangıç Paketi" },
-    "Altın Paket": { en: "Gold Package", tr: "Altın Paket" },
-    "Platin Paket": { en: "Platinum Package", tr: "Platin Paket" },
-    "Starter": { en: "Starter", tr: "Başlangıç" },
-    "Gold": { en: "Gold", tr: "Altın" },
-    "Platinum": { en: "Platinum", tr: "Platin" },
+    "Gold Paketi": { en: "Gold Package", tr: "Gold Paketi" },
+    "Platinum Paketi": { en: "Platinum Package", tr: "Platinum Paketi" },
   };
   const getLocalizedPlanName = (name: string) => PLAN_NAME_MAP[name]?.[language] ?? name;
 
@@ -540,7 +537,7 @@ export default function SubscriptionManagementScreen() {
         title={t.editTitle}
         maxWidth="max-w-lg"
       >
-        <div className="space-y-5">
+        <div className="space-y-4">
           {/* Name */}
           <div className="space-y-1.5">
             <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>

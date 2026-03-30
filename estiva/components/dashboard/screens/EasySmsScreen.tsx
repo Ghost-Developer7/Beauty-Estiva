@@ -447,10 +447,11 @@ export default function EasySmsScreen() {
             <div className="space-y-1.5">
               <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.apiKey}</label>
               <input
-                type="password"
+                type="text"
                 value={settings.apiKey ?? ""}
                 onChange={(e) => setSettings({ ...settings, apiKey: e.target.value })}
-                placeholder={t.apiKeyPlaceholder}
+                onFocus={(e) => { if (e.target.value) setSettings({ ...settings, apiKey: "" }); }}
+                placeholder="•••••••••••••••"
                 className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition`}
               />
             </div>
@@ -459,10 +460,11 @@ export default function EasySmsScreen() {
             <div className="space-y-1.5">
               <label className={`text-xs font-medium ${isDark ? "text-white/70" : "text-gray-700"}`}>{t.apiHash}</label>
               <input
-                type="password"
+                type="text"
                 value={settings.apiHash ?? ""}
                 onChange={(e) => setSettings({ ...settings, apiHash: e.target.value })}
-                placeholder={t.apiHashPlaceholder}
+                onFocus={(e) => { if (e.target.value) setSettings({ ...settings, apiHash: "" }); }}
+                placeholder="•••••••••••••••"
                 className={`w-full rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/20" : "placeholder:text-gray-400"} outline-none ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} transition`}
               />
             </div>
