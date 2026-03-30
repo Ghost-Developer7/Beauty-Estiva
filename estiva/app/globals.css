@@ -718,3 +718,14 @@ body.theme-light .estiva-dashboard select option:checked {
   animation: float-delayed 8s ease-in-out infinite;
   animation-delay: 2s;
 }
+
+/* ─── Hide number input spinner arrows ─── */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
