@@ -41,8 +41,17 @@ export default function Modal({
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+      onMouseDown={(e) => {
+        if (e.target === overlayRef.current) {
+          (overlayRef.current as HTMLDivElement & { _closeIntent?: boolean })._closeIntent = true;
+        }
+      }}
       onClick={(e) => {
-        if (e.target === overlayRef.current) onClose();
+        const el = overlayRef.current as HTMLDivElement & { _closeIntent?: boolean } | null;
+        if (e.target === overlayRef.current && el?._closeIntent) {
+          el._closeIntent = false;
+          onClose();
+        }
       }}
     >
       <div

@@ -498,14 +498,6 @@ export default function TreatmentsScreen() {
                   {d} {t.min}
                 </button>
               ))}
-              <input
-                type="number"
-                min={5}
-                step={5}
-                value={form.durationMinutes}
-                onChange={(e) => setForm({ ...form, durationMinutes: Number(e.target.value) })}
-                className={`w-20 rounded-lg border ${isDark ? "bg-white/5" : "bg-gray-50"} px-2.5 py-2 text-center text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.durationMinutes ? "border-red-500" : isDark ? "border-white/10 focus:border-white/25" : "border-gray-200 focus:border-gray-400"}`}
-              />
             </div>
             {fieldErrors.durationMinutes && <p className="text-[11px] text-red-400">{fieldErrors.durationMinutes}</p>}
           </div>
@@ -539,7 +531,7 @@ export default function TreatmentsScreen() {
                   type="button"
                   onClick={() => setForm({ ...form, color: c })}
                   className={`h-8 w-8 rounded-full transition-all duration-150 ${
-                    form.color === c ? `ring-2 ring-white ring-offset-2 ${isDark ? "ring-offset-[#1a1a2e]" : "ring-offset-white"} scale-110` : "hover:scale-105"
+                    form.color === c ? `border-[3px] ${isDark ? "border-white" : "border-gray-800"} shadow-lg scale-110` : "border-2 border-transparent hover:scale-105"
                   }`}
                   style={{ backgroundColor: c }}
                 />

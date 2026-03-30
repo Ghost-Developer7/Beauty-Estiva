@@ -491,7 +491,9 @@ export default function SettingsScreen() {
   const inputClass = `w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none focus:ring-1 ${isDark ? "focus:ring-white/10" : "focus:ring-gray-200"} transition-all`;
   const labelClass = `text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`;
   const cardClass = `rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50"} p-6 space-y-5`;
-  const btnClass = "rounded-xl bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] px-6 py-2.5 text-sm font-semibold text-[#1a1a2e] opacity-100 hover:opacity-90 disabled:opacity-40 transition-opacity shadow-md";
+  const btnClass = isDark
+    ? "rounded-xl bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] px-6 py-2.5 text-sm font-semibold text-[#1a1a2e] opacity-100 hover:opacity-90 disabled:opacity-40 transition-opacity shadow-md"
+    : "rounded-xl bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-2.5 text-sm font-semibold text-white opacity-100 hover:opacity-90 disabled:opacity-40 transition-opacity shadow-md shadow-purple-200";
 
   if (!isOwner) {
     return (
