@@ -2,7 +2,9 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import { staffHRService } from "@/services/staffHRService";
 import type { StaffHRSummary, StaffHRInfo, StaffHRInfoUpdate } from "@/types/api";
 import toast from "react-hot-toast";
@@ -110,6 +112,8 @@ const AVATAR_COLORS = [
 
 export default function StaffHRPage() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const t = copy[language];
 
@@ -405,11 +409,11 @@ export default function StaffHRPage() {
               {/* Hire Date */}
               <div>
                 <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.hireDateLabel}</label>
-                <input
-                  type="date"
+                <LocaleDateInput
                   value={editData.hireDate ? editData.hireDate.split("T")[0] : ""}
                   onChange={(e) => setEditData({ ...editData, hireDate: e.target.value || null })}
-                  className="w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20"
+                  isDark={isDark}
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20 [color-scheme:dark]" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400 [color-scheme:light]"}`}
                 />
               </div>
 

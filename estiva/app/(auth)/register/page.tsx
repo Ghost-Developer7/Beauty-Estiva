@@ -8,6 +8,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { authService } from "@/services/authService";
 import LanguageToggle from "@/components/ui/LanguageToggle";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -249,8 +250,8 @@ function StaffRegisterContent() {
 
             <div className="space-y-1">
               <label className={labelClass}>{text.birthDate}</label>
-              <input type="date" lang={language === "tr" ? "tr" : "en"} value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)}
-                disabled={submitting} className={`${inputClass} ${isDark ? "[color-scheme:dark]" : ""}`} />
+              <LocaleDateInput value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)}
+                disabled={submitting} isDark={isDark} className={`${inputClass} ${isDark ? "[color-scheme:dark]" : "[color-scheme:light]"}`} />
             </div>
 
             <button type="submit" disabled={submitting}

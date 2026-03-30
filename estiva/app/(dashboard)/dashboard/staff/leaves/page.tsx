@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import { staffLeaveService } from "@/services/staffLeaveService";
 import { staffService, type StaffMember } from "@/services/staffService";
 import type { StaffLeaveListItem, StaffLeaveBalance } from "@/types/api";
@@ -490,20 +491,20 @@ export default function StaffLeavesPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.startDate}</label>
-                  <input
-                    type="date"
+                  <LocaleDateInput
                     value={formStartDate}
                     onChange={(e) => setFormStartDate(e.target.value)}
-                    className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400"}`}
+                    isDark={isDark}
+                    className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20 [color-scheme:dark]" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400 [color-scheme:light]"}`}
                   />
                 </div>
                 <div>
                   <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.endDate}</label>
-                  <input
-                    type="date"
+                  <LocaleDateInput
                     value={formEndDate}
                     onChange={(e) => setFormEndDate(e.target.value)}
-                    className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400"}`}
+                    isDark={isDark}
+                    className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20 [color-scheme:dark]" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400 [color-scheme:light]"}`}
                   />
                 </div>
               </div>
