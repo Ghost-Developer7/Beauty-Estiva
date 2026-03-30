@@ -88,8 +88,11 @@ const copy = {
   },
 };
 
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5000";
+const API_BASE = (() => {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5232/api";
+  return apiUrl.replace(/\/api\/?$/, "");
+})();
 
 interface ProfileScreenProps {
   open: boolean;
