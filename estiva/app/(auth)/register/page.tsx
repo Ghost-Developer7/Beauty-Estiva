@@ -35,6 +35,11 @@ const copy = {
     ownerSignup: "Register as salon owner",
     success: "Registration successful! You can now sign in.",
     passwordMismatch: "Passwords don't match",
+    passwordRules: "Min 8 chars, 1 uppercase, 1 number, 1 symbol (!@#$...)",
+    rule8: "At least 8 characters",
+    ruleUpper: "At least 1 uppercase letter",
+    ruleNumber: "At least 1 number",
+    ruleSymbol: "At least 1 symbol (!@#$%&*)",
   },
   tr: {
     badge: "PERSONEL KAYDI",
@@ -60,6 +65,11 @@ const copy = {
     ownerSignup: "Salon sahibi olarak kayıt ol",
     success: "Kayıt başarılı! Artık giriş yapabilirsiniz.",
     passwordMismatch: "Şifreler uyuşmuyor",
+    passwordRules: "Min 8 karakter, 1 büyük harf, 1 rakam, 1 sembol (!@#$...)",
+    rule8: "En az 8 karakter",
+    ruleUpper: "En az 1 büyük harf",
+    ruleNumber: "En az 1 rakam",
+    ruleSymbol: "En az 1 sembol (!@#$%&*)",
   },
 };
 
@@ -130,8 +140,10 @@ function StaffRegisterContent() {
       } else {
         toast.error(res.data.error?.message || (language === "tr" ? "Kayıt başarısız" : "Registration failed"));
       }
-    } catch {
-      toast.error(language === "tr" ? "Kayıt başarısız" : "Registration failed");
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      const msg = axiosErr?.response?.data?.error?.message || (language === "tr" ? "Kayıt başarısız" : "Registration failed");
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
@@ -202,14 +214,38 @@ function StaffRegisterContent() {
               <div className="space-y-1">
                 <label className={labelClass}>{text.password} *</label>
                 <input type="password" required value={form.password} onChange={(e) => update("password", e.target.value)}
-                  placeholder={text.passwordPh} disabled={submitting} className={inputClass} />
+                  placeholder="••••••••" disabled={submitting} className={inputClass} />
               </div>
               <div className="space-y-1">
                 <label className={labelClass}>{text.confirmPassword} *</label>
                 <input type="password" required value={form.confirmPassword} onChange={(e) => update("confirmPassword", e.target.value)}
-                  placeholder={text.confirmPasswordPh} disabled={submitting} className={inputClass} />
+                  placeholder="••••••••" disabled={submitting} className={inputClass} />
               </div>
             </div>
+            {/* Password rules */}
+            {form.password.length > 0 ? (
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 px-1">
+                {[
+                  { ok: form.password.length >= 8, label: text.rule8 },
+                  { ok: /[A-Z]/.test(form.password), label: text.ruleUpper },
+                  { ok: /[0-9]/.test(form.password), label: text.ruleNumber },
+                  { ok: /[^A-Za-z0-9]/.test(form.password), label: text.ruleSymbol },
+                ].map((r) => (
+                  <div key={r.label} className="flex items-center gap-1.5">
+                    <span className={`text-xs ${r.ok ? "text-emerald-400" : "text-red-400"}`}>
+                      {r.ok ? "✓" : "✗"}
+                    </span>
+                    <span className={`text-[11px] ${r.ok ? (isDark ? "text-white/50" : "text-gray-500") : "text-red-400"}`}>
+                      {r.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className={`text-[11px] px-1 ${isDark ? "text-white/30" : "text-gray-400"}`}>
+                {text.passwordRules}
+              </p>
+            )}
 
             <div className="space-y-1">
               <label className={labelClass}>{text.birthDate}</label>
