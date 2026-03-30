@@ -101,12 +101,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const nameChanged =
           res.data.data.name !== user.name ||
           res.data.data.surname !== user.surname;
-        if (rolesChanged || nameChanged) {
+        const pictureChanged =
+          (res.data.data.profilePicturePath ?? null) !== (user.profilePicturePath ?? null);
+        if (rolesChanged || nameChanged || pictureChanged) {
           const updates: Partial<AuthUser> = {};
           if (rolesChanged) updates.roles = serverRoles;
           if (nameChanged) {
             updates.name = res.data.data.name;
             updates.surname = res.data.data.surname;
+          }
+          if (pictureChanged) {
+            updates.profilePicturePath = res.data.data.profilePicturePath ?? null;
           }
           updateUser(updates);
         }
