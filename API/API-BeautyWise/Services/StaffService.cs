@@ -42,6 +42,7 @@ namespace API_BeautyWise.Services
                     IsActive = user.IsActive ?? false,
                     IsApproved = user.IsApproved,
                     DefaultCommissionRate = user.DefaultCommissionRate,
+                    ProfilePicturePath = user.ProfilePicturePath,
                     CDate = user.CDate
                 });
             }
@@ -80,6 +81,7 @@ namespace API_BeautyWise.Services
                     IsActive = user.IsActive ?? false,
                     IsApproved = user.IsApproved,
                     DefaultCommissionRate = user.DefaultCommissionRate,
+                    ProfilePicturePath = user.ProfilePicturePath,
                     CDate = user.CDate
                 });
             }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { staffLeaveService } from "@/services/staffLeaveService";
 import { staffService, type StaffMember } from "@/services/staffService";
@@ -122,6 +123,8 @@ const formatDate = (d: string) =>
 
 export default function StaffLeavesPage() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const t = copy[language];
 
@@ -262,16 +265,16 @@ export default function StaffLeavesPage() {
   /* ═══ RENDER ═══ */
 
   return (
-    <div className="space-y-5 text-white">
+    <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
+          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.subtitle}</p>
         </div>
         <button
           onClick={() => setShowModal(true)}
-          className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+          className={`rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition ${isDark ? "bg-violet-600 hover:bg-violet-500" : "bg-gradient-to-r from-purple-600 to-pink-600 hover:shadow-lg hover:shadow-purple-200"}`}
         >
           + {t.newLeave}
         </button>
@@ -280,31 +283,31 @@ export default function StaffLeavesPage() {
       {/* Leave Balances (Owner/Admin only) */}
       {isOwnerOrAdmin && balances.length > 0 && (
         <div>
-          <h2 className="mb-3 text-sm font-semibold text-white/50 tracking-wider">
+          <h2 className={`mb-3 text-sm font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>
             {t.leaveBalances}
           </h2>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {balances.map((b) => (
               <div
                 key={b.staffId}
-                className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm"
+                className={`rounded-xl border p-4 backdrop-blur-sm ${isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-gray-200 bg-white shadow-sm"}`}
               >
-                <p className="text-sm font-semibold text-white truncate">{b.staffFullName}</p>
+                <p className={`text-sm font-semibold truncate ${isDark ? "text-white" : "text-gray-900"}`}>{b.staffFullName}</p>
                 <div className="mt-3 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
                   <div>
-                    <p className="text-[10px] text-white/30">{t.entitlement}</p>
-                    <p className="text-sm font-bold text-white">{b.annualEntitlement}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-400"}`}>{t.entitlement}</p>
+                    <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{b.annualEntitlement}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/30">{t.used}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-400"}`}>{t.used}</p>
                     <p className="text-sm font-bold text-blue-400">{b.usedDays}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/30">{t.pending}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-400"}`}>{t.pending}</p>
                     <p className="text-sm font-bold text-amber-400">{b.pendingDays}</p>
                   </div>
                   <div>
-                    <p className="text-[10px] text-white/30">{t.remaining}</p>
+                    <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-400"}`}>{t.remaining}</p>
                     <p className={`text-sm font-bold ${b.remainingDays > 0 ? "text-emerald-400" : "text-red-400"}`}>
                       {b.remainingDays}
                     </p>
@@ -321,31 +324,31 @@ export default function StaffLeavesPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20 transition"
+          className={`rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.08] bg-white/[0.03] text-white focus:border-white/20" : "border-gray-200 bg-white text-gray-900 focus:border-gray-400"}`}
         >
-          <option value="" className="bg-[#1a1a2e]">{t.all}</option>
-          <option value="Pending" className="bg-[#1a1a2e]">{getStatusLabel("Pending")}</option>
-          <option value="Approved" className="bg-[#1a1a2e]">{getStatusLabel("Approved")}</option>
-          <option value="Rejected" className="bg-[#1a1a2e]">{getStatusLabel("Rejected")}</option>
+          <option value="" className={isDark ? "bg-[#1a1a2e]" : "bg-white"}>{t.all}</option>
+          <option value="Pending" className={isDark ? "bg-[#1a1a2e]" : "bg-white"}>{getStatusLabel("Pending")}</option>
+          <option value="Approved" className={isDark ? "bg-[#1a1a2e]" : "bg-white"}>{getStatusLabel("Approved")}</option>
+          <option value="Rejected" className={isDark ? "bg-[#1a1a2e]" : "bg-white"}>{getStatusLabel("Rejected")}</option>
         </select>
       </div>
 
       {/* Leave Requests Table */}
-      <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+      <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "border-gray-200 bg-white shadow-sm"}`}>
         {loading ? (
-          <div className="flex items-center justify-center gap-3 p-12 text-white/40">
-            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white/60" />
+          <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
+            <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-600"}`} />
             {t.loading}
           </div>
         ) : leaves.length === 0 ? (
           <div className="flex flex-col items-center justify-center gap-2 p-12">
-            <svg className="text-white/20" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-            <p className="text-sm font-medium text-white/40">{t.noData}</p>
+            <svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
+            <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noData}</p>
           </div>
         ) : (
           <>
             {/* Header */}
-            <div className="hidden lg:grid grid-cols-[1fr_0.7fr_1fr_0.5fr_0.6fr_0.8fr] gap-4 border-b border-white/[0.06] bg-white/[0.03] px-5 py-2.5 text-[10px] font-semibold tracking-wider text-white/30">
+            <div className={`hidden lg:grid grid-cols-[1fr_0.7fr_1fr_0.5fr_0.6fr_0.8fr] gap-4 border-b px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "border-white/[0.06] bg-white/[0.03] text-white/30" : "border-gray-200 bg-gray-50 text-gray-400"}`}>
               <span>{t.staff}</span>
               <span>{t.type}</span>
               <span>{t.dates}</span>
@@ -355,14 +358,14 @@ export default function StaffLeavesPage() {
             </div>
 
             {/* Rows */}
-            <div className="divide-y divide-white/[0.04]">
+            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
               {leaves.map((leave) => (
                 <div
                   key={leave.id}
-                  className="grid grid-cols-1 lg:grid-cols-[1fr_0.7fr_1fr_0.5fr_0.6fr_0.8fr] gap-2 lg:gap-4 items-center px-5 py-3.5 transition-all duration-150 hover:bg-white/[0.04]"
+                  className={`grid grid-cols-1 lg:grid-cols-[1fr_0.7fr_1fr_0.5fr_0.6fr_0.8fr] gap-2 lg:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}
                 >
                   {/* Staff */}
-                  <div className="text-sm font-semibold text-white">{leave.staffFullName}</div>
+                  <div className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{leave.staffFullName}</div>
 
                   {/* Type */}
                   <div>
@@ -372,12 +375,12 @@ export default function StaffLeavesPage() {
                   </div>
 
                   {/* Dates */}
-                  <div className="text-xs text-white/60">
+                  <div className={`text-xs ${isDark ? "text-white/60" : "text-gray-500"}`}>
                     {formatDate(leave.startDate)} - {formatDate(leave.endDate)}
                   </div>
 
                   {/* Duration */}
-                  <div className="text-xs text-white/60">
+                  <div className={`text-xs ${isDark ? "text-white/60" : "text-gray-500"}`}>
                     {leave.durationDays} {leave.durationDays === 1 ? t.day : t.days}
                   </div>
 
@@ -409,7 +412,7 @@ export default function StaffLeavesPage() {
                     {(leave.status === "Pending" || isOwnerOrAdmin) && (
                       <button
                         onClick={() => handleDelete(leave.id)}
-                        className="rounded-lg bg-white/[0.05] px-2.5 py-1 text-[10px] font-semibold text-white/40 transition hover:bg-white/[0.1] hover:text-white/60"
+                        className={`rounded-lg px-2.5 py-1 text-[10px] font-semibold transition ${isDark ? "bg-white/[0.05] text-white/40 hover:bg-white/[0.1] hover:text-white/60" : "bg-gray-100 text-gray-400 hover:bg-gray-200 hover:text-gray-600"}`}
                       >
                         {t.delete}
                       </button>
@@ -420,7 +423,7 @@ export default function StaffLeavesPage() {
             </div>
 
             {/* Footer */}
-            <div className="border-t border-white/[0.06] bg-white/[0.03] px-5 py-3 text-xs text-white/40">
+            <div className={`border-t px-5 py-3 text-xs ${isDark ? "border-white/[0.06] bg-white/[0.03] text-white/40" : "border-gray-200 bg-gray-50 text-gray-400"}`}>
               {leaves.length} {language === "tr" ? "kayıt" : "records"}
             </div>
           </>
@@ -434,14 +437,14 @@ export default function StaffLeavesPage() {
           onClick={() => setShowModal(false)}
         >
           <div
-            className="w-full max-w-md mx-4 rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl"
+            className={`w-full max-w-md mx-4 rounded-2xl border p-6 shadow-2xl ${isDark ? "border-white/10 bg-[#1a1a2e]" : "border-gray-200 bg-white"}`}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{t.newLeave}</h2>
+              <h2 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.newLeave}</h2>
               <button
                 onClick={() => setShowModal(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white"
+                className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${isDark ? "text-white/50 hover:bg-white/10 hover:text-white" : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"}`}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
@@ -451,15 +454,15 @@ export default function StaffLeavesPage() {
               {/* Staff Selector (Owner/Admin only) */}
               {isOwnerOrAdmin && (
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.staff}</label>
+                  <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.staff}</label>
                   <select
                     value={formStaffId ?? ""}
                     onChange={(e) => setFormStaffId(e.target.value ? parseInt(e.target.value) : undefined)}
-                    className="w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20"
+                    className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400"}`}
                   >
-                    <option value="" className="bg-[#1a1a2e] text-white/50">{t.selectStaff}</option>
+                    <option value="" className={isDark ? "bg-[#1a1a2e] text-white/50" : "bg-white text-gray-400"}>{t.selectStaff}</option>
                     {staffList.map((s) => (
-                      <option key={s.id} value={s.id} className="bg-[#1a1a2e] text-white">
+                      <option key={s.id} value={s.id} className={isDark ? "bg-[#1a1a2e] text-white" : "bg-white text-gray-900"}>
                         {s.name} {s.surname}
                       </option>
                     ))}
@@ -469,14 +472,14 @@ export default function StaffLeavesPage() {
 
               {/* Leave Type */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.type}</label>
+                <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.type}</label>
                 <select
                   value={formType}
                   onChange={(e) => setFormType(e.target.value)}
-                  className="w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400"}`}
                 >
                   {LEAVE_TYPES.map((lt) => (
-                    <option key={lt.value} value={lt.value} className="bg-[#1a1a2e] text-white">
+                    <option key={lt.value} value={lt.value} className={isDark ? "bg-[#1a1a2e] text-white" : "bg-white text-gray-900"}>
                       {language === "tr" ? lt.tr : lt.en}
                     </option>
                   ))}
@@ -486,34 +489,34 @@ export default function StaffLeavesPage() {
               {/* Dates */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.startDate}</label>
+                  <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.startDate}</label>
                   <input
                     type="date"
                     value={formStartDate}
                     onChange={(e) => setFormStartDate(e.target.value)}
-                    className="w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20"
+                    className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400"}`}
                   />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.endDate}</label>
+                  <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.endDate}</label>
                   <input
                     type="date"
                     value={formEndDate}
                     onChange={(e) => setFormEndDate(e.target.value)}
-                    className="w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm text-white focus:outline-none focus:border-white/20"
+                    className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-gray-50 text-gray-900 focus:border-gray-400"}`}
                   />
                 </div>
               </div>
 
               {/* Reason */}
               <div>
-                <label className="mb-1.5 block text-xs font-semibold text-white/50">{t.reason}</label>
+                <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.reason}</label>
                 <textarea
                   value={formReason}
                   onChange={(e) => setFormReason(e.target.value)}
                   placeholder={t.reasonPlaceholder}
                   rows={3}
-                  className="w-full rounded-xl border border-white/[0.1] bg-white/[0.05] px-4 py-2.5 text-sm text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 resize-none"
+                  className={`w-full rounded-xl border px-4 py-2.5 text-sm focus:outline-none resize-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white placeholder:text-white/30 focus:border-white/20" : "border-gray-200 bg-gray-50 text-gray-900 placeholder:text-gray-400 focus:border-gray-400"}`}
                 />
               </div>
 

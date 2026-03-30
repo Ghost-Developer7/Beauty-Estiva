@@ -7,6 +7,12 @@ import { staffService, type StaffMember } from "@/services/staffService";
 import Pagination from "@/components/ui/Pagination";
 import toast from "react-hot-toast";
 
+const API_BASE = (() => {
+  if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5232/api";
+  return apiUrl.replace(/\/api\/?$/, "");
+})();
+
 /* ═══════════════════════════════════════════
    CONSTANTS
    ═══════════════════════════════════════════ */
@@ -326,9 +332,13 @@ export default function StaffPage() {
                 >
                   {/* Staff member */}
                   <div className="flex items-center gap-3">
-                    <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(s.id)} text-xs font-bold text-white shadow-sm`}>
-                      {getInitials(s.name, s.surname)}
-                    </div>
+                    {s.profilePicturePath ? (
+                      <img src={`${API_BASE}${s.profilePicturePath}`} alt={`${s.name} ${s.surname}`} className="h-10 w-10 shrink-0 rounded-full object-cover shadow-sm" />
+                    ) : (
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(s.id)} text-xs font-bold text-white shadow-sm`}>
+                        {getInitials(s.name, s.surname)}
+                      </div>
+                    )}
                     <div className="min-w-0">
                       <p className="text-sm font-semibold text-white truncate">{s.name} {s.surname}</p>
                       <p className="text-[11px] text-white/30 md:hidden">{s.email}</p>
@@ -427,9 +437,13 @@ export default function StaffPage() {
                 <div className="space-y-5">
                   {/* Profile header */}
                   <div className="flex items-center gap-4">
-                    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(s.id)} text-lg font-bold text-white shadow-lg`}>
-                      {getInitials(s.name, s.surname)}
-                    </div>
+                    {s.profilePicturePath ? (
+                      <img src={`${API_BASE}${s.profilePicturePath}`} alt={`${s.name} ${s.surname}`} className="h-14 w-14 shrink-0 rounded-full object-cover shadow-lg" />
+                    ) : (
+                      <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(s.id)} text-lg font-bold text-white shadow-lg`}>
+                        {getInitials(s.name, s.surname)}
+                      </div>
+                    )}
                     <div>
                       <p className="text-lg font-bold text-white">{s.name} {s.surname}</p>
                       <div className="mt-1 flex gap-1">

@@ -12,6 +12,7 @@ namespace API_BeautyWise.DTO
         public bool IsActive { get; set; }
         public bool IsApproved { get; set; }
         public decimal DefaultCommissionRate { get; set; }
+        public string? ProfilePicturePath { get; set; }
         public DateTime? CDate { get; set; }
     }
 }

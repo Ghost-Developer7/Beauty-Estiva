@@ -12,6 +12,7 @@ export interface StaffMember {
   isActive: boolean;
   isApproved: boolean;
   defaultCommissionRate: number;
+  profilePicturePath: string | null;
   cDate: string | null;
 }
 
