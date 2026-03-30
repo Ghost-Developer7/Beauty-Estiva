@@ -19,9 +19,11 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Strip any potential prototype pollution keys from request data
-    // Skip FormData instances — serializing them destroys file upload data
-    if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
+    // For FormData: remove Content-Type so axios auto-sets it with boundary
+    if (config.data instanceof FormData) {
+      delete config.headers["Content-Type"];
+    } else if (config.data && typeof config.data === "object") {
+      // Strip any potential prototype pollution keys from request data
       config.data = JSON.parse(JSON.stringify(config.data));
     }
 
