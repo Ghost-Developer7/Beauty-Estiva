@@ -39,6 +39,21 @@ const copy = {
   },
 };
 
+const PAYMENT_METHOD_MAP: { tr: string; en: string }[] = [
+  { tr: "Nakit", en: "Cash" },
+  { tr: "Kredi / Banka Kartı", en: "Credit / Debit Card" },
+  { tr: "Havale / EFT", en: "Bank Transfer" },
+  { tr: "Çek", en: "Check" },
+  { tr: "Diğer", en: "Other" },
+];
+
+function translatePaymentLabel(label: string, lang: "en" | "tr"): string {
+  const m = PAYMENT_METHOD_MAP.find(
+    pm => pm.tr.toLowerCase() === label.toLowerCase() || pm.en.toLowerCase() === label.toLowerCase()
+  );
+  return m ? (lang === "tr" ? m.tr : m.en) : label;
+}
+
 export default function CashReportScreen() {
   const { language } = useLanguage();
   const { theme } = useTheme();
@@ -141,7 +156,7 @@ export default function CashReportScreen() {
               <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 ${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                 {revenue.byPaymentMethod.length > 0 ? revenue.byPaymentMethod.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
-                    <span>{item.label}</span>
+                    <span>{translatePaymentLabel(item.label, language)}</span>
                     <span>{fmt(item.amountInTry)} ₺</span>
                   </div>
                 )) : (
@@ -164,7 +179,7 @@ export default function CashReportScreen() {
               <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 ${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                 {revenue.byStaff.length > 0 ? revenue.byStaff.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
-                    <span>{item.label}</span>
+                    <span>{translatePaymentLabel(item.label, language)}</span>
                     <span>{fmt(item.amountInTry)} ₺</span>
                   </div>
                 )) : (
@@ -188,7 +203,7 @@ export default function CashReportScreen() {
               <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} px-8 py-2 ${isDark ? "bg-white/[0.02]" : "bg-white"}`}>
                 {expense.byCategory.length > 0 ? expense.byCategory.map((item, i) => (
                   <div key={i} className={`flex items-center justify-between py-3 pl-6 border-b ${isDark ? "border-white/5" : "border-gray-100"} last:border-0 text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>
-                    <span>{item.label}</span>
+                    <span>{translatePaymentLabel(item.label, language)}</span>
                     <span>{fmt(item.amountInTry)} ₺</span>
                   </div>
                 )) : (

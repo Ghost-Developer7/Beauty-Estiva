@@ -49,6 +49,21 @@ const copy = {
 
 const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
+const PAYMENT_METHOD_MAP: { tr: string; en: string }[] = [
+  { tr: "Nakit", en: "Cash" },
+  { tr: "Kredi / Banka Kartı", en: "Credit / Debit Card" },
+  { tr: "Havale / EFT", en: "Bank Transfer" },
+  { tr: "Çek", en: "Check" },
+  { tr: "Diğer", en: "Other" },
+];
+
+function translatePaymentLabel(label: string, lang: "en" | "tr"): string {
+  const m = PAYMENT_METHOD_MAP.find(
+    pm => pm.tr.toLowerCase() === label.toLowerCase() || pm.en.toLowerCase() === label.toLowerCase()
+  );
+  return m ? (lang === "tr" ? m.tr : m.en) : label;
+}
+
 function getDateRange(period: string): { startDate: string; endDate: string } {
   const now = new Date();
   const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
@@ -344,7 +359,7 @@ export default function SalesReportsScreen() {
               {/* Payment Methods */}
               <div className={`rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-white"} p-5`}>
                 <h3 className={`mb-4 text-sm font-semibold ${isDark ? "text-white/60" : "text-gray-500"}`}>{t.tabs[4]}</h3>
-                <BarChart items={dashboard.paymentMethods} color="#22c55e" />
+                <BarChart items={dashboard.paymentMethods.map(pm => ({ ...pm, label: translatePaymentLabel(pm.label, language) }))} color="#22c55e" />
               </div>
 
               {/* Expense Categories */}
@@ -372,7 +387,7 @@ export default function SalesReportsScreen() {
 
           {/* Tab 4: Payment Methods */}
           {activeTab === 4 && revenue && (
-            <GroupTable items={revenue.byPaymentMethod} labelHeader={t.method} color="#22c55e" />
+            <GroupTable items={revenue.byPaymentMethod.map(pm => ({ ...pm, label: translatePaymentLabel(pm.label, language) }))} labelHeader={t.method} color="#22c55e" />
           )}
         </>
       )}
