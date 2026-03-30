@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { staffService, type StaffMember } from "@/services/staffService";
 import Pagination from "@/components/ui/Pagination";
@@ -152,6 +153,8 @@ function StatCard({ label, value, color }: { label: string; value: number; color
 
 export default function StaffPage() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const t = copy[language];
 
@@ -420,13 +423,13 @@ export default function StaffPage() {
           onClick={() => setShowDetail(false)}
         >
           <div
-            className="w-full max-w-md mx-4 rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl"
+            className={`w-full max-w-md mx-4 rounded-2xl border p-6 shadow-2xl ${isDark ? "border-white/10 bg-[#1a1a2e]" : "border-gray-200 bg-white"}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="mb-6 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-white">{t.detailTitle}</h2>
-              <button onClick={() => setShowDetail(false)} className="flex h-8 w-8 items-center justify-center rounded-lg text-white/50 transition hover:bg-white/10 hover:text-white">
+              <h2 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.detailTitle}</h2>
+              <button onClick={() => setShowDetail(false)} className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${isDark ? "text-white/50 hover:bg-white/10 hover:text-white" : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"}`}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
               </button>
             </div>
@@ -494,19 +497,19 @@ export default function StaffPage() {
 
                   {/* ── Rol Değiştirme ── */}
                   {canManageRoles && user?.id && parseInt(user.id) !== s.id && (
-                    <div className="mt-2 rounded-xl border border-white/[0.08] bg-white/[0.03] p-4 space-y-3">
-                      <p className="text-xs font-semibold text-white/50 tracking-wider">{t.changeRole}</p>
+                    <div className={`mt-2 rounded-xl border p-4 space-y-3 ${isDark ? "border-white/[0.08] bg-white/[0.03]" : "border-gray-200 bg-gray-50"}`}>
+                      <p className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.changeRole}</p>
                       <div className="flex items-center gap-2">
                         <select
                           value={selectedNewRole}
                           onChange={(e) => setSelectedNewRole(e.target.value)}
-                          className="flex-1 rounded-lg border border-white/[0.1] bg-white/[0.05] px-3 py-2 text-sm text-white focus:outline-none focus:border-white/20 transition"
+                          className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-white text-gray-900 focus:border-gray-400"}`}
                         >
-                          <option value="" className="bg-[#1a1a2e] text-white/50">{t.selectRole}</option>
+                          <option value="" className={isDark ? "bg-[#1a1a2e] text-white/50" : "bg-white text-gray-400"}>{t.selectRole}</option>
                           {getAssignableRoles()
                             .filter((r) => !(s.roles.length === 1 && s.roles[0] === r))
                             .map((r) => (
-                              <option key={r} value={r} className="bg-[#1a1a2e] text-white">
+                              <option key={r} value={r} className={isDark ? "bg-[#1a1a2e] text-white" : "bg-white text-gray-900"}>
                                 {getRoleDisplay(r, language)}
                               </option>
                             ))}
