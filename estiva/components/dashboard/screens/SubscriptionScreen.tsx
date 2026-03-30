@@ -73,6 +73,9 @@ const copy = {
     popular: "Popular",
     /* plan name translations (API returns Turkish names) */
     planNames: {
+      "Başlangıç Paketi": "Starter Package",
+      "Gold Paketi": "Gold Package",
+      "Platinum Paketi": "Platinum Package",
       "Başlangıç": "Starter",
       "Profesyonel": "Professional",
       "Kurumsal": "Enterprise",
