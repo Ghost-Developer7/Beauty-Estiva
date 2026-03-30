@@ -453,7 +453,7 @@ export default function SubscriptionManagementScreen() {
             >
               <option value={0}>{t.selectPlan}</option>
               {plans.filter(p => p.isActive !== false).map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p.id} value={p.id}>{getLocalizedPlanName(p.name)}</option>
               ))}
             </select>
           </div>
@@ -505,7 +505,7 @@ export default function SubscriptionManagementScreen() {
                     <td className={`px-4 py-3 font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{tn.companyName}</td>
                     <td className={`px-4 py-3 ${isDark ? "text-white/60" : "text-gray-600"}`}>
                       {tn.activeSubscription
-                        ? `${tn.activeSubscription.name}${tn.activeSubscription.isTrialPeriod ? ` (${t.trial})` : ""}`
+                        ? `${getLocalizedPlanName(tn.activeSubscription.name)}${tn.activeSubscription.isTrialPeriod ? ` (${t.trial})` : ""}`
                         : <span className="text-red-400">{t.noPlan}</span>
                       }
                     </td>

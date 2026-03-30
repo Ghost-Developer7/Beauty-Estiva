@@ -83,6 +83,7 @@ export function LocaleDateInput({
         ref={inputRef}
         type={type as string}
         value={value}
+        lang={language === "tr" ? "tr" : "en"}
         className={`${className} locale-date-input`}
         style={style}
         {...rest}
