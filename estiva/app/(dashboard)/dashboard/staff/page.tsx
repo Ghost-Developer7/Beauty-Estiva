@@ -162,6 +162,8 @@ export default function StaffPage() {
   const [showDetail, setShowDetail] = useState(false);
   const [roleChanging, setRoleChanging] = useState(false);
   const [selectedNewRole, setSelectedNewRole] = useState("");
+  const [showRoleConfirm, setShowRoleConfirm] = useState(false);
+  const [pendingRoleStaffId, setPendingRoleStaffId] = useState<number | null>(null);
 
   // Rol yönetimi yetkileri
   const currentUserRoles = user?.roles ?? [];
@@ -175,20 +177,22 @@ export default function StaffPage() {
     return [];
   };
 
-  const handleRoleChange = async (staffId: number) => {
+  const requestRoleChange = (staffId: number) => {
     if (!selectedNewRole) return;
-
-    // Kendi rolünü değiştirme kontrolü
     if (user?.id && parseInt(user.id) === staffId) {
       toast.error(t.cannotChangeOwnRole);
       return;
     }
+    setPendingRoleStaffId(staffId);
+    setShowRoleConfirm(true);
+  };
 
-    if (!confirm(t.roleChangeConfirm)) return;
-
+  const confirmRoleChange = async () => {
+    if (!pendingRoleStaffId || !selectedNewRole) return;
+    setShowRoleConfirm(false);
     setRoleChanging(true);
     try {
-      const res = await staffService.changeRole(staffId, selectedNewRole);
+      const res = await staffService.changeRole(pendingRoleStaffId, selectedNewRole);
       if (res.data.success) {
         toast.success(t.roleChangeSuccess);
         setSelectedNewRole("");
@@ -201,6 +205,7 @@ export default function StaffPage() {
       toast.error(msg);
     } finally {
       setRoleChanging(false);
+      setPendingRoleStaffId(null);
     }
   };
 
@@ -376,6 +381,29 @@ export default function StaffPage() {
       {/* ═══════════════════════════════════════════
          DETAIL MODAL
          ═══════════════════════════════════════════ */}
+      {/* ═══ ROLE CONFIRM MODAL ═══ */}
+      {showRoleConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowRoleConfirm(false)}>
+          <div className="w-full max-w-sm mx-4 rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-500/20">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <h3 className="text-lg font-semibold text-white">{t.changeRole}</h3>
+            </div>
+            <p className="text-sm text-white/60 mb-6">{t.roleChangeConfirm}</p>
+            <div className="flex items-center gap-3 justify-end">
+              <button onClick={() => setShowRoleConfirm(false)} className="rounded-xl px-4 py-2.5 text-sm font-medium text-white/60 border border-white/10 hover:bg-white/5 transition">
+                {language === "tr" ? "İptal" : "Cancel"}
+              </button>
+              <button onClick={confirmRoleChange} className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 transition">
+                {language === "tr" ? "Onayla" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showDetail && selectedStaff && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
@@ -470,7 +498,7 @@ export default function StaffPage() {
                             ))}
                         </select>
                         <button
-                          onClick={() => handleRoleChange(s.id)}
+                          onClick={() => requestRoleChange(s.id)}
                           disabled={!selectedNewRole || roleChanging}
                           className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
                         >

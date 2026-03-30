@@ -172,10 +172,56 @@ export default function ProductSalesScreen() {
   const lowStockCount = products.filter(p => p.stockQuantity <= 5).length;
 
   const openSaleForm = () => { const dc = currencies.find(c => c.isDefault) || currencies[0]; setSaleForm({ productId: 0, customerId: null, quantity: 1, currencyId: dc?.id || 0, exchangeRateToTry: dc?.exchangeRateToTry || 1, paymentMethod: "Cash", notes: "" }); setCustomerSearch(""); setShowSaleForm(true); };
-  const handleSaleSubmit = async (e: FormEvent) => { e.preventDefault(); if (!saleForm.productId) { toast.error(language === "tr" ? "Ürün seçimi zorunludur" : "Product is required"); return; } setSaleSaving(true); try { await productService.createSale({ productId: saleForm.productId, customerId: saleForm.customerId || undefined, quantity: saleForm.quantity, currencyId: saleForm.currencyId || undefined, exchangeRateToTry: saleForm.exchangeRateToTry, paymentMethod: saleForm.paymentMethod, notes: saleForm.notes || undefined }); toast.success(language === "tr" ? "Satış kaydedildi" : "Sale recorded"); setShowSaleForm(false); fetchSales(); fetchProducts(); } catch { toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed"); } finally { setSaleSaving(false); } };
+  const handleSaleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!saleForm.productId) { toast.error(language === "tr" ? "Ürün seçimi zorunludur" : "Product is required"); return; }
+    if (saleForm.quantity < 1) { toast.error(language === "tr" ? "Adet en az 1 olmalıdır" : "Quantity must be at least 1"); return; }
+    const sp = products.find(p => p.id === saleForm.productId);
+    if (sp && saleForm.quantity > sp.stockQuantity) { toast.error(language === "tr" ? `Yetersiz stok (mevcut: ${sp.stockQuantity})` : `Insufficient stock (available: ${sp.stockQuantity})`); return; }
+    setSaleSaving(true);
+    try {
+      await productService.createSale({
+        productId: saleForm.productId,
+        customerId: saleForm.customerId || undefined,
+        quantity: saleForm.quantity,
+        currencyId: saleForm.currencyId || undefined,
+        exchangeRateToTry: saleForm.exchangeRateToTry,
+        paymentMethod: saleForm.paymentMethod,
+        saleDate: new Date().toISOString(),
+        notes: saleForm.notes || undefined,
+      });
+      toast.success(language === "tr" ? "Satış kaydedildi" : "Sale recorded");
+      setShowSaleForm(false);
+      fetchSales();
+      fetchProducts();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg && msg.length < 150) {
+        toast.error(msg);
+      } else {
+        toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed");
+      }
+    } finally { setSaleSaving(false); }
+  };
   const openProductCreate = () => { setProductForm({ name: "", description: "", barcode: "", price: 0, stockQuantity: 0 }); setEditingProductId(null); setProductFormMode("create"); setShowProductForm(true); };
   const openProductEdit = (p: ProductListItem) => { setProductForm({ name: p.name, description: p.description || "", barcode: p.barcode || "", price: p.price, stockQuantity: p.stockQuantity }); setEditingProductId(p.id); setProductFormMode("edit"); setShowProductForm(true); };
-  const handleProductSubmit = async (e: FormEvent) => { e.preventDefault(); if (!productForm.name.trim()) { toast.error(language === "tr" ? "Ürün adı zorunludur" : "Product name is required"); return; } setProductSaving(true); try { const p = { name: productForm.name, description: productForm.description || undefined, barcode: productForm.barcode || undefined, price: productForm.price, stockQuantity: productForm.stockQuantity }; if (productFormMode === "edit" && editingProductId) { await productService.update(editingProductId, p); toast.success(language === "tr" ? "Ürün güncellendi" : "Product updated"); } else { await productService.create(p); toast.success(language === "tr" ? "Ürün oluşturuldu" : "Product created"); } setShowProductForm(false); fetchProducts(); } catch { toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed"); } finally { setProductSaving(false); } };
+  const handleProductSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!productForm.name.trim()) { toast.error(language === "tr" ? "Ürün adı zorunludur" : "Product name is required"); return; }
+    if (productForm.price < 0) { toast.error(language === "tr" ? "Fiyat negatif olamaz" : "Price cannot be negative"); return; }
+    if (productForm.stockQuantity < 0) { toast.error(language === "tr" ? "Stok negatif olamaz" : "Stock cannot be negative"); return; }
+    setProductSaving(true);
+    try {
+      const p = { name: productForm.name.trim(), description: productForm.description || undefined, barcode: productForm.barcode || undefined, price: productForm.price, stockQuantity: productForm.stockQuantity };
+      if (productFormMode === "edit" && editingProductId) { await productService.update(editingProductId, p); toast.success(language === "tr" ? "Ürün güncellendi" : "Product updated"); }
+      else { await productService.create(p); toast.success(language === "tr" ? "Ürün oluşturuldu" : "Product created"); }
+      setShowProductForm(false); fetchProducts();
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "";
+      if (msg && msg.length < 150) { toast.error(msg); }
+      else { toast.error(language === "tr" ? "İşlem başarısız" : "Operation failed"); }
+    } finally { setProductSaving(false); }
+  };
   const handleDeleteProduct = async (id: number) => { if (!confirm(t.confirmDelete)) return; try { await productService.delete(id); toast.success(language === "tr" ? "Ürün silindi" : "Product deleted"); fetchProducts(); } catch { toast.error(language === "tr" ? "Silme başarısız" : "Delete failed"); } };
   const handleDeleteSale = async (id: number) => { if (!confirm(t.confirmDelete)) return; try { await productService.deleteSale(id); toast.success(language === "tr" ? "Satış silindi" : "Sale deleted"); setShowSaleDetail(false); fetchSales(); fetchProducts(); } catch { toast.error(language === "tr" ? "Silme başarısız" : "Delete failed"); } };
   const handleCurrencyChange = (id: number) => { const c = currencies.find(x => x.id === id); setSaleForm({ ...saleForm, currencyId: id, exchangeRateToTry: c?.exchangeRateToTry || 1 }); };

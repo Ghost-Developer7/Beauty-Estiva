@@ -577,7 +577,7 @@ export default function OverviewScreen() {
                   const statusLabel = language === "tr" ? (STATUS_TR[apt.status] || apt.status) : apt.status;
                   return (
                     <tr key={apt.id} className={`transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}>
-                      <td className={`px-6 py-3.5 font-mono text-sm ${isDark ? "text-white/80" : "text-gray-800"}`}>{apt.time}</td>
+                      <td className={`px-6 py-3.5 text-sm ${isDark ? "text-white/80" : "text-gray-800"}`}>{apt.time}</td>
                       <td className={`px-6 py-3.5 font-medium ${isDark ? "text-white" : "text-gray-900"}`}>{apt.customerName}</td>
                       <td className={`px-6 py-3.5 ${isDark ? "text-white/60" : "text-gray-600"}`}>
                         <span className="flex items-center gap-2">

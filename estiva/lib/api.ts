@@ -20,7 +20,8 @@ api.interceptors.request.use(
     }
 
     // Strip any potential prototype pollution keys from request data
-    if (config.data && typeof config.data === "object") {
+    // Skip FormData instances — serializing them destroys file upload data
+    if (config.data && typeof config.data === "object" && !(config.data instanceof FormData)) {
       config.data = JSON.parse(JSON.stringify(config.data));
     }
 

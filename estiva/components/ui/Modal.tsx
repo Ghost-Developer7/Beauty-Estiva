@@ -79,7 +79,11 @@ export default function Modal({
           </button>
         </div>
         {/* Content */}
-        <div className="flex-1 overflow-y-auto">{children}</div>
+        <div className={`flex-1 overflow-y-auto pr-1 ${
+          isDark
+            ? "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-white/20"
+            : "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-400"
+        }`}>{children}</div>
       </div>
     </div>
   );

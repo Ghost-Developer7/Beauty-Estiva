@@ -8,20 +8,28 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 
 const navLinks = {
-  en: ["ABOUT", "MEMBERSHIP", "CONTACT"],
-  tr: ["HAKKIMIZDA", "ÜYELİK", "İLETİŞİM"],
+  en: [
+    { label: "ABOUT", href: "/#features" },
+    { label: "MEMBERSHIP", href: "/#pricing" },
+    { label: "CONTACT", href: "/#contact" },
+  ],
+  tr: [
+    { label: "HAKKIMIZDA", href: "/#features" },
+    { label: "ÜYELİK", href: "/#pricing" },
+    { label: "İLETİŞİM", href: "/#contact" },
+  ],
 };
 
 const highlights = {
   en: [
-    "Prestige-grade appointment orchestration.",
-    "Secure cloud desk for every therapist.",
-    "Serene analytics built for beauty founders.",
+    "Smart appointment scheduling and calendar management.",
+    "Staff management with role-based access control.",
+    "Real-time analytics and sales reporting dashboard.",
   ],
   tr: [
-    "Prestij seviyesinde randevu orkestrasyonu.",
-    "Her terapist için güvenli bulut çalışma alanı.",
-    "Güzellik kurucularına özel sakin analitik paneller.",
+    "Akıllı randevu planlama ve takvim yönetimi.",
+    "Rol tabanlı erişim kontrolü ile personel yönetimi.",
+    "Gerçek zamanlı analitik ve satış raporlama paneli.",
   ],
 };
 
@@ -41,15 +49,15 @@ const stats = {
 const heroCopy = {
   en: {
     badge: "BEAUTY CENTER",
-    title: "A membership built for calm operators.",
+    title: "Elevate your beauty center to the digital age.",
     subtitle:
-      "Request a tailored demo and we will configure Estiva around your rituals, team, and retail flow.",
+      "Register now to manage appointments, staff, and analytics — all from a single elegant dashboard.",
   },
   tr: {
     badge: "GÜZELLİK MERKEZİ",
-    title: "Sakin operatörler için bir üyelik.",
+    title: "Güzellik merkezinizi dijital çağa taşıyın.",
     subtitle:
-      "Size özel demo talep edin; Estiva'yı ritüellerinize, ekibinize ve satış akışınıza göre kuralım.",
+      "Randevularınızı, ekibinizi ve analizlerinizi tek bir şık panelden yönetmek için hemen kaydolun.",
   },
 };
 
@@ -110,9 +118,9 @@ export default function SignupPage() {
               } md:flex`}
           >
             {nav.map((link) => (
-              <a key={link} href="#" className="hover:text-white">
-                {link}
-              </a>
+              <Link key={link.label} href={link.href} className={`transition-colors ${isDark ? "hover:text-white" : "hover:text-[#3b2268]"}`}>
+                {link.label}
+              </Link>
             ))}
           </nav>
           <div className="flex items-center gap-3">

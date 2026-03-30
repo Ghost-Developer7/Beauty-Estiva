@@ -69,6 +69,14 @@ export function LocaleDateInput({
     }
   };
 
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    rest.onChange?.(e);
+    // Auto-close the native picker after selection by blurring the input
+    setTimeout(() => {
+      inputRef.current?.blur();
+    }, 0);
+  };
+
   return (
     <div className="relative">
       <input
@@ -78,6 +86,7 @@ export function LocaleDateInput({
         className={`${className} locale-date-input`}
         style={style}
         {...rest}
+        onChange={handleChange}
       />
       <span
         onClick={handleOverlayClick}

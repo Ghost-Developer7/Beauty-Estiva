@@ -74,7 +74,7 @@ const copy = {
     // General
     loading: "Loading...",
     noData: "No data found.",
-    currency: "TRY",
+    currency: "₺",
   },
   tr: {
     title: "Komisyon Yönetimi",
@@ -126,7 +126,7 @@ const copy = {
     cancel: "İptal",
     loading: "Yükleniyor...",
     noData: "Veri bulunamadı.",
-    currency: "TRY",
+    currency: "₺",
   },
 };
 

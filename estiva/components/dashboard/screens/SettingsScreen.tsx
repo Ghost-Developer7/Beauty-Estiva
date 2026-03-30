@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, FormEvent } from "react";
+import { useState, useEffect, useCallback, useRef, FormEvent } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -287,6 +287,10 @@ export default function SettingsScreen() {
     whatsappApiToken: "",
     whatsappInstanceId: "",
   });
+  const savedWhatsappRef = useRef<WhatsappIntegration>({
+    whatsappApiToken: "",
+    whatsappInstanceId: "",
+  });
 
   // Notification rules (from old system)
   const [rules, setRules] = useState<NotificationRule[]>([]);
@@ -358,13 +362,22 @@ export default function SettingsScreen() {
       }
 
       if (waRes.status === "fulfilled" && waRes.value.data.success && waRes.value.data.data) {
-        setWhatsapp(waRes.value.data.data);
+        const waData = waRes.value.data.data;
+        setWhatsapp(waData);
+        savedWhatsappRef.current = { ...waData };
       }
     } catch { /* silent */ }
     finally { setLoading(false); }
   }, []);
 
   useEffect(() => { fetchData(); }, [fetchData]);
+
+  // Reset WhatsApp form to saved (backend) values when switching away from the Notifications tab
+  useEffect(() => {
+    if (activeTab !== 4) {
+      setWhatsapp({ ...savedWhatsappRef.current });
+    }
+  }, [activeTab]);
 
   // ─── Save Handlers ───
 
@@ -454,6 +467,7 @@ export default function SettingsScreen() {
 
       // Save WhatsApp credentials
       await notificationService.saveWhatsapp(whatsapp);
+      savedWhatsappRef.current = { ...whatsapp };
 
       // Update reminder hour
       await tenantService.updateAppointmentSettings({
@@ -477,7 +491,7 @@ export default function SettingsScreen() {
   const inputClass = `w-full rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} ${isDark ? "focus:border-white/30" : "focus:border-gray-400"} focus:outline-none focus:ring-1 ${isDark ? "focus:ring-white/10" : "focus:ring-gray-200"} transition-all`;
   const labelClass = `text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`;
   const cardClass = `rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50"} p-6 space-y-5`;
-  const btnClass = "rounded-xl bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] px-6 py-2.5 text-sm font-semibold text-[#1a1a2e] hover:opacity-90 disabled:opacity-50 transition-opacity";
+  const btnClass = "rounded-xl bg-gradient-to-r from-[#f3a4ff] to-[#ffd1dc] px-6 py-2.5 text-sm font-semibold text-[#1a1a2e] opacity-100 hover:opacity-90 disabled:opacity-40 transition-opacity shadow-md";
 
   if (!isOwner) {
     return (

@@ -905,7 +905,7 @@ export default function AppointmentsScreen() {
                 </div>
 
                 {/* Time grid */}
-                <div className="relative flex">
+                <div className="relative flex pt-2">
                   {/* Hours column */}
                   <div className={`w-16 shrink-0 border-r ${isDark ? "border-white/[0.06]" : "border-gray-200"}`}>
                     {hours.map((h) => (

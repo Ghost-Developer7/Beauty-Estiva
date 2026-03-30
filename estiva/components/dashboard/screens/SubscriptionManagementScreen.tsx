@@ -141,6 +141,16 @@ export default function SubscriptionManagementScreen() {
 
   const isSuperAdmin = user?.roles?.includes("SuperAdmin") ?? false;
 
+  const PLAN_NAME_MAP: Record<string, { en: string; tr: string }> = {
+    "Başlangıç Paketi": { en: "Starter Package", tr: "Başlangıç Paketi" },
+    "Altın Paket": { en: "Gold Package", tr: "Altın Paket" },
+    "Platin Paket": { en: "Platinum Package", tr: "Platin Paket" },
+    "Starter": { en: "Starter", tr: "Başlangıç" },
+    "Gold": { en: "Gold", tr: "Altın" },
+    "Platinum": { en: "Platinum", tr: "Platin" },
+  };
+  const getLocalizedPlanName = (name: string) => PLAN_NAME_MAP[name]?.[language] ?? name;
+
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -330,7 +340,7 @@ export default function SubscriptionManagementScreen() {
               >
                 {/* Status Badge */}
                 <div className="mb-4 flex items-center justify-between">
-                  <h3 className="text-lg font-bold">{plan.name}</h3>
+                  <h3 className="text-lg font-bold">{getLocalizedPlanName(plan.name)}</h3>
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${
                       isActive

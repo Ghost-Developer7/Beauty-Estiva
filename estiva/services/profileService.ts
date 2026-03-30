@@ -22,9 +22,7 @@ export const profileService = {
   uploadProfilePicture(file: File) {
     const formData = new FormData();
     formData.append("file", file);
-    return api.post<ApiResponse<string>>("/profile/picture", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    return api.post<ApiResponse<string>>("/profile/picture", formData);
   },
 
   removeProfilePicture() {

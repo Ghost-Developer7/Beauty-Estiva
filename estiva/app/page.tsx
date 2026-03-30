@@ -457,6 +457,19 @@ export default function LandingPage() {
   const [plansLoading, setPlansLoading] = useState(true);
   const [plansError, setPlansError] = useState(false);
 
+  // Plan name translations
+  const PLAN_NAME_MAP: Record<string, { en: string; tr: string }> = {
+    "Başlangıç Paketi": { en: "Starter Package", tr: "Başlangıç Paketi" },
+    "Altın Paket": { en: "Gold Package", tr: "Altın Paket" },
+    "Platin Paket": { en: "Platinum Package", tr: "Platin Paket" },
+    "Starter": { en: "Starter", tr: "Başlangıç" },
+    "Gold": { en: "Gold", tr: "Altın" },
+    "Platinum": { en: "Platinum", tr: "Platin" },
+    "Professional": { en: "Professional", tr: "Profesyonel" },
+    "Enterprise": { en: "Enterprise", tr: "Kurumsal" },
+  };
+  const getLocalizedPlanName = (name: string) => PLAN_NAME_MAP[name]?.[language] ?? name;
+
   // Scroll detection for navbar
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -888,7 +901,7 @@ export default function LandingPage() {
                     {plans.map((plan, i) => (
                       <PricingCard
                         key={plan.id}
-                        name={plan.name}
+                        name={getLocalizedPlanName(plan.name)}
                         price={isYearly ? plan.yearlyPrice : plan.monthlyPrice}
                         period={isYearly ? t.pricing.perYear : t.pricing.perMonth}
                         staff={plan.maxStaffCount <= 0 ? t.pricing.unlimited : `${plan.maxStaffCount} ${t.pricing.staff}`}
@@ -1188,18 +1201,27 @@ export default function LandingPage() {
 
               {/* Link columns */}
               {[
-                { title: t.footer.product, links: t.footer.productLinks },
-                { title: t.footer.support, links: t.footer.supportLinks },
-                { title: t.footer.legal, links: t.footer.legalLinks },
+                { title: t.footer.product, links: t.footer.productLinks, sections: ["features", "pricing", null, null] },
+                { title: t.footer.support, links: t.footer.supportLinks, sections: [null, null, null, "contact"] },
+                { title: t.footer.legal, links: t.footer.legalLinks, sections: [null, null, null] },
               ].map((col) => (
                 <div key={col.title}>
                   <p className="text-sm font-semibold">{col.title}</p>
                   <ul className={`mt-3 space-y-2 text-sm ${subtle}`}>
-                    {col.links.map((link) => (
+                    {col.links.map((link, i) => (
                       <li key={link}>
-                        <a href="#" className={`transition ${isDark ? "hover:text-white" : "hover:text-[#1f1233]"}`}>
-                          {link}
-                        </a>
+                        {col.sections[i] ? (
+                          <button
+                            onClick={() => scrollTo(col.sections[i]!)}
+                            className={`transition ${isDark ? "hover:text-white" : "hover:text-[#1f1233]"}`}
+                          >
+                            {link}
+                          </button>
+                        ) : (
+                          <a href="#" className={`transition ${isDark ? "hover:text-white" : "hover:text-[#1f1233]"}`}>
+                            {link}
+                          </a>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -1280,7 +1302,7 @@ function PricingCard({
         <span className="text-4xl font-bold">
           {price > 0 ? `${Math.round(price).toLocaleString("tr-TR")}` : "0"}
         </span>
-        <span className={`text-lg ${subtle}`}>TL{period}</span>
+        <span className={`text-lg ${subtle}`}>₺{period}</span>
       </div>
 
       <div className={`my-6 h-px ${isDark ? "bg-white/10" : "bg-[#e3d8ff]"}`} />

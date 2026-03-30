@@ -214,7 +214,7 @@ function StaffRegisterContent() {
             <div className="space-y-1">
               <label className={labelClass}>{text.birthDate}</label>
               <input type="date" lang={language === "tr" ? "tr" : "en"} value={form.birthDate} onChange={(e) => update("birthDate", e.target.value)}
-                disabled={submitting} className={inputClass} />
+                disabled={submitting} className={`${inputClass} ${isDark ? "[color-scheme:dark]" : ""}`} />
             </div>
 
             <button type="submit" disabled={submitting}

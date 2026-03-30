@@ -75,7 +75,7 @@ export default function Pagination({
   };
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center justify-between gap-3 px-5 py-3 border-t ${
+    <div className={`flex flex-col sm:flex-row items-center justify-between gap-2 px-5 py-2 border-t ${
       isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-gray-50"
     }`}>
       {/* Info */}

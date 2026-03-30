@@ -51,10 +51,10 @@ function getNestedValue(obj: Record<string, unknown>, key: string): unknown {
    FONT LOADING — Roboto with full Turkish support
    ═══════════════════════════════════════════ */
 
-// CDN URLs for Roboto (fontsource via jsDelivr — stable, versioned)
+// CDN URLs for Roboto TTF (jsPDF requires TTF format, not WOFF)
 const FONT_URLS = {
-  regular: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-ext-400-normal.woff",
-  bold: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-ext-700-normal.woff",
+  regular: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-ext-400-normal.ttf",
+  bold: "https://cdn.jsdelivr.net/fontsource/fonts/roboto@latest/latin-ext-700-normal.ttf",
 };
 
 // In-memory font cache so we only fetch once per session
@@ -87,11 +87,11 @@ async function loadFonts(): Promise<{ regular: string; bold: string }> {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function registerFonts(doc: any, fonts: { regular: string; bold: string }) {
-  doc.addFileToVFS("Roboto-Regular.woff", fonts.regular);
-  doc.addFont("Roboto-Regular.woff", "Roboto", "normal");
+  doc.addFileToVFS("Roboto-Regular.ttf", fonts.regular);
+  doc.addFont("Roboto-Regular.ttf", "Roboto", "normal");
 
-  doc.addFileToVFS("Roboto-Bold.woff", fonts.bold);
-  doc.addFont("Roboto-Bold.woff", "Roboto", "bold");
+  doc.addFileToVFS("Roboto-Bold.ttf", fonts.bold);
+  doc.addFont("Roboto-Bold.ttf", "Roboto", "bold");
 }
 
 /* ═══════════════════════════════════════════
@@ -172,9 +172,11 @@ export async function exportToPDF(
   try {
     const fonts = await loadFonts();
     registerFonts(doc, fonts);
+    doc.setFont("Roboto", "normal"); // verify font works
     fontFamily = "Roboto";
-  } catch {
-    // Font fetch failed — continue with helvetica (no Turkish chars)
+  } catch (fontErr) {
+    console.warn("PDF font loading failed, using helvetica fallback:", fontErr);
+    fontFamily = "helvetica";
   }
 
   const now = new Date();

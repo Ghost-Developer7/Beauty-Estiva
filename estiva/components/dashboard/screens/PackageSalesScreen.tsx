@@ -29,7 +29,7 @@ const copy = {
   en: {
     title: "Package Sales",
     total: "total",
-    newSale: "+ New Package",
+    newSale: "New Package",
     search: "Search customer, treatment...",
     loading: "Loading...",
     noData: "No package sales yet.",
@@ -118,7 +118,7 @@ const copy = {
   tr: {
     title: "Paket Satışları",
     total: "toplam",
-    newSale: "+ Yeni Paket",
+    newSale: "Yeni Paket",
     search: "Müşteri, hizmet ara...",
     loading: "Yükleniyor...",
     noData: "Henüz paket satışı yok.",

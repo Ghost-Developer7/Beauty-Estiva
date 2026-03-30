@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { authService } from "@/services/authService";
+import { profileService } from "@/services/profileService";
 import { decodeJwt, isTokenExpired } from "@/lib/jwt";
 import type { AuthUser, LoginRequest } from "@/types/api";
 
@@ -79,6 +80,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setIsLoading(false);
   }, []);
+
+  // Sync roles from server so that role changes made by an Owner
+  // are reflected on the staff member's side without re-login
+  useEffect(() => {
+    if (!user) return;
+    const token = Cookies.get(TOKEN_KEY);
+    if (!token || isTokenExpired(token)) return;
+
+    let cancelled = false;
+    profileService
+      .getProfile()
+      .then((res) => {
+        if (cancelled || !res.data.success || !res.data.data) return;
+        const serverRoles = res.data.data.roles ?? [];
+        // Update roles (and name/surname) if they differ from local state
+        const rolesChanged =
+          serverRoles.length !== user.roles.length ||
+          serverRoles.some((r) => !user.roles.includes(r));
+        const nameChanged =
+          res.data.data.name !== user.name ||
+          res.data.data.surname !== user.surname;
+        if (rolesChanged || nameChanged) {
+          const updates: Partial<AuthUser> = {};
+          if (rolesChanged) updates.roles = serverRoles;
+          if (nameChanged) {
+            updates.name = res.data.data.name;
+            updates.surname = res.data.data.surname;
+          }
+          updateUser(updates);
+        }
+      })
+      .catch(() => {
+        // Silently ignore — network errors shouldn't break the app
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // Only run once on mount when user is available, not on every user change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   const login = useCallback(
     async (data: LoginRequest) => {
