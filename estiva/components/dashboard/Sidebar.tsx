@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import type { ComponentType } from "react";
 import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -230,6 +230,22 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     }
   }, [expanded]);
 
+  // Sidebar nav scroll pozisyonunu koru
+  const navRef = useRef<HTMLElement>(null);
+  const scrollPosRef = useRef(0);
+
+  const saveScrollPos = useCallback(() => {
+    if (navRef.current) scrollPosRef.current = navRef.current.scrollTop;
+  }, []);
+
+  // Route değişince scroll pozisyonunu geri yükle
+  useEffect(() => {
+    const el = navRef.current;
+    if (el && scrollPosRef.current > 0) {
+      requestAnimationFrame(() => { el.scrollTop = scrollPosRef.current; });
+    }
+  }, [pathname]);
+
   // Close mobile sidebar on route change
   useEffect(() => {
     if (mobileOpen && onMobileClose) {
@@ -298,7 +314,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         )}
       </div>
 
-      <nav className="mt-4 flex-1 min-h-0 space-y-1 px-3 overflow-y-auto custom-scrollbar">
+      <nav ref={navRef} onScroll={saveScrollPos} className="mt-4 flex-1 min-h-0 space-y-1 px-3 overflow-y-auto custom-scrollbar">
         {items.map((item, index) => renderNavItem(item, index, pathname, expanded, openMenus, toggleMenu))}
       </nav>
 
