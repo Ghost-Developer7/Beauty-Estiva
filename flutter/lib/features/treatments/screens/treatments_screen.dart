@@ -35,22 +35,24 @@ class _TreatmentsScreenState extends State<TreatmentsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Hizmetler', style: TextStyle(
-              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+          Text('Hizmetler', style: TextStyle(
+              color: c.textPrimary, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
 
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                 : _treatments.isEmpty
-                    ? const Center(child: Text('Hizmet bulunamadi', style: TextStyle(color: AppColors.textDim)))
+                    ? Center(child: Text('Hizmet bulunamadi', style: TextStyle(color: c.textDim)))
                     : GridView.builder(
-                        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                           maxCrossAxisExtent: 320,
                           mainAxisSpacing: 12,
                           crossAxisSpacing: 12,
@@ -62,19 +64,19 @@ class _TreatmentsScreenState extends State<TreatmentsScreen> {
                           return Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
-                              color: AppColors.cardBg,
+                              color: c.cardBg,
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.cardBorder),
+                              border: Border.all(color: c.cardBorder),
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(t.name, style: const TextStyle(
-                                    color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
+                                Text(t.name, style: TextStyle(
+                                    color: c.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
                                 if (t.description != null)
-                                  Text(t.description!, style: const TextStyle(
-                                      color: AppColors.textDim, fontSize: 12),
+                                  Text(t.description!, style: TextStyle(
+                                      color: c.textDim, fontSize: 12),
                                       maxLines: 2, overflow: TextOverflow.ellipsis),
                                 Row(
                                   children: [

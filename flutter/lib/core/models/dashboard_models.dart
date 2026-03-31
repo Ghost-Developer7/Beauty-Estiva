@@ -8,7 +8,12 @@ class DashboardSummary {
   final int activePackages;
   final List<MonthlyTrend> monthlyTrend;
   final List<RevenueByGroup> topServices;
+  final List<RevenueByGroup> topStaff;
+  final List<CustomerGrowth> customerGrowth;
+  final StatusDistribution? statusDistribution;
   final List<TodayAppointment> todaySchedule;
+
+  double get netProfit => thisMonthRevenue - thisMonthExpense;
 
   DashboardSummary({
     required this.todayAppointmentsCount,
@@ -20,6 +25,9 @@ class DashboardSummary {
     required this.activePackages,
     required this.monthlyTrend,
     required this.topServices,
+    required this.topStaff,
+    required this.customerGrowth,
+    this.statusDistribution,
     required this.todaySchedule,
   });
 
@@ -38,6 +46,15 @@ class DashboardSummary {
       topServices: (json['topServices'] as List? ?? [])
           .map((e) => RevenueByGroup.fromJson(e))
           .toList(),
+      topStaff: (json['topStaff'] as List? ?? [])
+          .map((e) => RevenueByGroup.fromJson(e))
+          .toList(),
+      customerGrowth: (json['customerGrowth'] as List? ?? [])
+          .map((e) => CustomerGrowth.fromJson(e))
+          .toList(),
+      statusDistribution: json['statusDistribution'] != null
+          ? StatusDistribution.fromJson(json['statusDistribution'])
+          : null,
       todaySchedule: (json['todaySchedule'] as List? ?? [])
           .map((e) => TodayAppointment.fromJson(e))
           .toList(),
@@ -73,6 +90,47 @@ class RevenueByGroup {
       );
 }
 
+class CustomerGrowth {
+  final String month;
+  final int newCustomers;
+  final int totalCustomers;
+
+  CustomerGrowth({required this.month, required this.newCustomers, required this.totalCustomers});
+
+  factory CustomerGrowth.fromJson(Map<String, dynamic> json) => CustomerGrowth(
+        month: json['month'] ?? '',
+        newCustomers: json['newCustomers'] ?? 0,
+        totalCustomers: json['totalCustomers'] ?? 0,
+      );
+}
+
+class StatusDistribution {
+  final int scheduled;
+  final int confirmed;
+  final int completed;
+  final int cancelled;
+  final int noShow;
+  final int total;
+
+  StatusDistribution({
+    required this.scheduled,
+    required this.confirmed,
+    required this.completed,
+    required this.cancelled,
+    required this.noShow,
+    required this.total,
+  });
+
+  factory StatusDistribution.fromJson(Map<String, dynamic> json) => StatusDistribution(
+        scheduled: json['scheduled'] ?? 0,
+        confirmed: json['confirmed'] ?? 0,
+        completed: json['completed'] ?? 0,
+        cancelled: json['cancelled'] ?? 0,
+        noShow: json['noShow'] ?? 0,
+        total: json['total'] ?? 0,
+      );
+}
+
 class TodayAppointment {
   final int id;
   final String time;
@@ -80,6 +138,7 @@ class TodayAppointment {
   final String treatmentName;
   final String staffName;
   final String status;
+  final String? treatmentColor;
 
   TodayAppointment({
     required this.id,
@@ -88,6 +147,7 @@ class TodayAppointment {
     required this.treatmentName,
     required this.staffName,
     required this.status,
+    this.treatmentColor,
   });
 
   factory TodayAppointment.fromJson(Map<String, dynamic> json) => TodayAppointment(
@@ -97,5 +157,6 @@ class TodayAppointment {
         treatmentName: json['treatmentName'] ?? '',
         staffName: json['staffName'] ?? '',
         status: json['status'] ?? '',
+        treatmentColor: json['treatmentColor'],
       );
 }

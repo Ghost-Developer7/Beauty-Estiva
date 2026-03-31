@@ -37,23 +37,24 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final isMobile = ResponsiveBuilder.isMobile(context);
 
     return Scaffold(
-      backgroundColor: AppColors.loginBg,
+      backgroundColor: c.loginBg,
       body: Column(
         children: [
           // Header
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            decoration: const BoxDecoration(
-              border: Border(bottom: BorderSide(color: AppColors.cardBorder)),
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color: c.cardBorder)),
             ),
             child: Row(
               children: [
                 Text('ESTIVA',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: c.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 5,
@@ -64,32 +65,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Content
           Expanded(
-            child: isMobile ? _buildMobileLayout() : _buildDesktopLayout(),
+            child: isMobile ? _buildMobileLayout(c) : _buildDesktopLayout(c),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDesktopLayout() {
+  Widget _buildDesktopLayout(AppColors c) {
     return Row(
       children: [
         // Left: Hero
-        Expanded(child: _buildHeroSection()),
+        Expanded(child: _buildHeroSection(c)),
         // Right: Form
-        SizedBox(width: 460, child: Center(child: _buildFormCard())),
+        SizedBox(width: 460, child: Center(child: _buildFormCard(c))),
       ],
     );
   }
 
-  Widget _buildMobileLayout() {
+  Widget _buildMobileLayout(AppColors c) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
-      child: _buildFormCard(),
+      child: _buildFormCard(c),
     );
   }
 
-  Widget _buildHeroSection() {
+  Widget _buildHeroSection(AppColors c) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 40),
       child: Column(
@@ -99,9 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.navIconBg,
+              color: c.navIconBg,
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: const Color(0xFF3a2d5c)),
+              border: Border.all(color: c.cardBorder),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -114,8 +115,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 const SizedBox(width: 10),
-                Text('TEKRAR HOS GELDINIZ',
-                    style: TextStyle(color: AppColors.textMuted, fontSize: 11,
+                Text('TEKRAR HOŞ GELDİNİZ',
+                    style: TextStyle(color: c.textMuted, fontSize: 11,
                         fontWeight: FontWeight.w600, letterSpacing: 3)),
               ],
             ),
@@ -123,28 +124,28 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 28),
 
           // Title
-          const Text('Salonunuz sizi\nbekliyor.',
-              style: TextStyle(color: Colors.white, fontSize: 42,
+          Text('Salonunuz sizi\nbekliyor.',
+              style: TextStyle(color: c.textPrimary, fontSize: 42,
                   fontWeight: FontWeight.bold, height: 1.15)),
           const SizedBox(height: 12),
-          const Text(
-            'Kaldiginiz yerden devam edin — randevular, analizler ve tum ekibiniz tek bir zarif konsolda.',
-            style: TextStyle(color: AppColors.textDim, fontSize: 15, height: 1.6),
+          Text(
+            'Kaldığınız yerden devam edin — randevular, analizler ve tüm ekibiniz tek bir zarif konsolda.',
+            style: TextStyle(color: c.textDim, fontSize: 15, height: 1.6),
           ),
           const SizedBox(height: 32),
 
           // Highlights
           ...[
-            'Gercek zamanli pano parmaklarinizin ucunda.',
-            'Kusursuz randevu yonetimi.',
-            'Guclu icgoruler, zarif sunumla.',
+            'Gerçek zamanlı pano parmaklarınızın ucunda.',
+            'Kusursuz randevu yönetimi.',
+            'Güçlü içgörüler, zarif sunumla.',
           ].map((text) => Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: Row(
                   children: [
                     const Icon(Icons.check, color: AppColors.primary, size: 18),
                     const SizedBox(width: 10),
-                    Text(text, style: const TextStyle(color: AppColors.textDim, fontSize: 13)),
+                    Text(text, style: TextStyle(color: c.textDim, fontSize: 13)),
                   ],
                 ),
               )),
@@ -154,15 +155,15 @@ class _LoginScreenState extends State<LoginScreen> {
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: const Color(0xFF110c20),
+              color: c.cardBg,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppColors.cardBorder),
+              border: Border.all(color: c.cardBorder),
             ),
             child: Row(
               children: [
-                _buildStat('500+', 'SALON'),
-                _buildStat('2M+', 'RANDEVU'),
-                _buildStat('99%', 'MEMNUNIYET'),
+                _buildStat('500+', 'SALON', c),
+                _buildStat('2M+', 'RANDEVU', c),
+                _buildStat('99%', 'MEMNUNIYET', c),
               ],
             ),
           ),
@@ -171,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildStat(String value, String label) {
+  Widget _buildStat(String value, String label, AppColors c) {
     return Expanded(
       child: Column(
         children: [
@@ -183,44 +184,44 @@ class _LoginScreenState extends State<LoginScreen> {
                 fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
           ),
           const SizedBox(height: 4),
-          Text(label, style: const TextStyle(
-              color: AppColors.textDim, fontSize: 10, letterSpacing: 2)),
+          Text(label, style: TextStyle(
+              color: c.textDim, fontSize: 10, letterSpacing: 2)),
         ],
       ),
     );
   }
 
-  Widget _buildFormCard() {
+  Widget _buildFormCard(AppColors c) {
     return Consumer<AuthProvider>(
       builder: (context, auth, _) {
         return Container(
           margin: const EdgeInsets.all(32),
           padding: const EdgeInsets.all(40),
           decoration: BoxDecoration(
-            color: AppColors.loginCardBg,
+            color: c.loginCardBg,
             borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: AppColors.cardBorder),
+            border: Border.all(color: c.cardBorder),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('UYE GIRISI', style: TextStyle(
-                  color: AppColors.textDim, fontSize: 11,
+              Text('ÜYE GİRİŞİ', style: TextStyle(
+                  color: c.textDim, fontSize: 11,
                   fontWeight: FontWeight.w600, letterSpacing: 3)),
               const SizedBox(height: 8),
-              const Text('Giris yap', style: TextStyle(
-                  color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+              Text('Giriş yap', style: TextStyle(
+                  color: c.textPrimary, fontSize: 28, fontWeight: FontWeight.bold)),
               const SizedBox(height: 6),
-              const Text('Yonetim paneline erismek icin bilgilerinizi girin.',
-                  style: TextStyle(color: AppColors.textDim, fontSize: 13)),
+              Text('Yönetim paneline erişmek için bilgilerinizi girin.',
+                  style: TextStyle(color: c.textDim, fontSize: 13)),
               const SizedBox(height: 32),
 
               // Email
-              _buildLabel('E-posta'),
+              _buildLabel('E-posta', c),
               const SizedBox(height: 6),
               TextField(
                 controller: _emailController,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: c.textPrimary, fontSize: 14),
                 decoration: const InputDecoration(hintText: 'sen@example.com'),
                 keyboardType: TextInputType.emailAddress,
                 onSubmitted: (_) => _handleLogin(),
@@ -228,18 +229,18 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 16),
 
               // Password
-              _buildLabel('Sifre'),
+              _buildLabel('Şifre', c),
               const SizedBox(height: 6),
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
+                style: TextStyle(color: c.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: '********',
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: AppColors.textDim,
+                      color: c.textDim,
                     ),
                     onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
                   ),
@@ -292,9 +293,9 @@ class _LoginScreenState extends State<LoginScreen> {
                 text: TextSpan(
                   style: const TextStyle(fontSize: 12),
                   children: [
-                    TextSpan(text: 'Henuz hesabiniz yok mu? ',
-                        style: TextStyle(color: AppColors.textDim)),
-                    TextSpan(text: 'Hemen olusturun',
+                    TextSpan(text: 'Henuz hesabiniz yok mu?',
+                        style: TextStyle(color: c.textDim)),
+                    const TextSpan(text: 'Hemen olusturun',
                         style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600)),
                   ],
                 ),
@@ -306,11 +307,11 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildLabel(String text) {
+  Widget _buildLabel(String text, AppColors c) {
     return Align(
       alignment: Alignment.centerLeft,
-      child: Text(text, style: const TextStyle(
-          color: AppColors.textMuted, fontSize: 12, fontWeight: FontWeight.w600)),
+      child: Text(text, style: TextStyle(
+          color: c.textMuted, fontSize: 12, fontWeight: FontWeight.w600)),
     );
   }
 }

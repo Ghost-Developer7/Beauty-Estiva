@@ -1,32 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/providers/theme_provider.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+    final themeProvider = context.watch<ThemeProvider>();
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Ayarlar', style: TextStyle(
-              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+          Text('Ayarlar', style: TextStyle(
+              color: c.textPrimary, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 28),
 
           // Theme
           _buildCard(
+            c: c,
             title: 'TEMA',
             child: Row(
               children: [
-                const Icon(Icons.brightness_6, color: AppColors.textNav, size: 22),
+                Icon(Icons.brightness_6, color: c.textNav, size: 22),
                 const SizedBox(width: 12),
-                const Text('Koyu Tema', style: TextStyle(color: Colors.white, fontSize: 14)),
+                Text('Koyu Tema', style: TextStyle(color: c.textPrimary, fontSize: 14)),
                 const Spacer(),
                 Switch(
-                  value: true,
-                  onChanged: (_) {},
+                  value: themeProvider.isDark,
+                  onChanged: (_) => context.read<ThemeProvider>().toggleTheme(),
                   activeColor: AppColors.primary,
                 ),
               ],
@@ -36,14 +42,15 @@ class SettingsScreen extends StatelessWidget {
 
           // Language
           _buildCard(
+            c: c,
             title: 'DIL',
             child: Row(
               children: [
-                const Icon(Icons.translate, color: AppColors.textNav, size: 22),
+                Icon(Icons.translate, color: c.textNav, size: 22),
                 const SizedBox(width: 16),
-                _buildLangButton('Turkce', true),
+                _buildLangButton('Turkce', true, c),
                 const SizedBox(width: 8),
-                _buildLangButton('English', false),
+                _buildLangButton('English', false, c),
               ],
             ),
           ),
@@ -51,15 +58,16 @@ class SettingsScreen extends StatelessWidget {
 
           // App info
           _buildCard(
+            c: c,
             title: 'UYGULAMA',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text('Beauty Estiva', style: TextStyle(
-                    color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
-                SizedBox(height: 4),
-                Text('v1.0.0 • Flutter', style: TextStyle(color: AppColors.textDim, fontSize: 12)),
-                Text('Windows / Android / iOS', style: TextStyle(color: AppColors.textDim, fontSize: 12)),
+                    color: c.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
+                const SizedBox(height: 4),
+                Text('v1.0.0 \u2022 Flutter', style: TextStyle(color: c.textDim, fontSize: 12)),
+                Text('Windows / Android / iOS', style: TextStyle(color: c.textDim, fontSize: 12)),
               ],
             ),
           ),
@@ -68,20 +76,20 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCard({required String title, required Widget child}) {
+  Widget _buildCard({required AppColors c, required String title, required Widget child}) {
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 500),
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(color: c.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: const TextStyle(color: AppColors.textDim, fontSize: 10,
+          Text(title, style: TextStyle(color: c.textDim, fontSize: 10,
               fontWeight: FontWeight.w600, letterSpacing: 2)),
           const SizedBox(height: 16),
           child,
@@ -90,16 +98,16 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLangButton(String text, bool active) {
+  Widget _buildLangButton(String text, bool active, AppColors c) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: active ? AppColors.navActive : Colors.transparent,
+        color: active ? c.navActive : Colors.transparent,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: active ? AppColors.primary : AppColors.cardBorder),
+        border: Border.all(color: active ? AppColors.primary : c.cardBorder),
       ),
       child: Text(text, style: TextStyle(
-          color: active ? Colors.white : AppColors.textNav, fontSize: 13)),
+          color: active ? c.textPrimary : c.textNav, fontSize: 13)),
     );
   }
 }

@@ -6,14 +6,13 @@ class _NavItem {
   final String label;
   final IconData icon;
   final String route;
-
   const _NavItem(this.label, this.icon, this.route);
 }
 
 const _navItems = [
-  _NavItem('Ozet', Icons.dashboard_rounded, '/dashboard'),
+  _NavItem('Özet', Icons.dashboard_rounded, '/dashboard'),
   _NavItem('Randevular', Icons.access_time_rounded, '/appointments'),
-  _NavItem('Musteriler', Icons.people_rounded, '/customers'),
+  _NavItem('Müşteriler', Icons.people_rounded, '/customers'),
   _NavItem('Hizmetler', Icons.content_cut_rounded, '/treatments'),
   _NavItem('Personel', Icons.badge_rounded, '/staff'),
   _NavItem('Ayarlar', Icons.settings_rounded, '/settings'),
@@ -21,16 +20,19 @@ const _navItems = [
 
 class AppSidebar extends StatelessWidget {
   final VoidCallback onItemTap;
-
   const AppSidebar({super.key, required this.onItemTap});
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final currentRoute = GoRouterState.of(context).matchedLocation;
 
     return Container(
       width: 256,
-      decoration: const BoxDecoration(gradient: AppColors.sidebarGradient),
+      decoration: BoxDecoration(
+        gradient: c.sidebarGradient,
+        border: Border(right: BorderSide(color: c.sidebarBorder)),
+      ),
       child: Column(
         children: [
           // Logo
@@ -52,12 +54,12 @@ class AppSidebar extends StatelessWidget {
                 const SizedBox(width: 12),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text('ESTIVA', style: TextStyle(
-                        color: AppColors.textMuted, fontSize: 10, fontWeight: FontWeight.w600,
+                        color: c.textMuted, fontSize: 10, fontWeight: FontWeight.w600,
                         letterSpacing: 3)),
                     Text('Beauty OS', style: TextStyle(
-                        color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                        color: c.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
                   ],
                 ),
               ],
@@ -81,6 +83,7 @@ class AppSidebar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                     child: InkWell(
                       borderRadius: BorderRadius.circular(12),
+                      hoverColor: c.navHover,
                       onTap: () {
                         context.go(item.route);
                         onItemTap();
@@ -88,7 +91,7 @@ class AppSidebar extends StatelessWidget {
                       child: Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                         decoration: BoxDecoration(
-                          color: isActive ? AppColors.navActive : Colors.transparent,
+                          color: isActive ? c.navActive : Colors.transparent,
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Row(
@@ -97,17 +100,17 @@ class AppSidebar extends StatelessWidget {
                               width: 36, height: 36,
                               decoration: BoxDecoration(
                                 color: isActive
-                                    ? Colors.white.withValues(alpha: 0.15)
-                                    : AppColors.navIconBg,
+                                    ? AppColors.primary.withValues(alpha: 0.2)
+                                    : c.navIconBg,
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Icon(item.icon,
-                                  color: isActive ? Colors.white : AppColors.textNav,
+                                  color: isActive ? c.navActiveText : c.textNav,
                                   size: 18),
                             ),
                             const SizedBox(width: 12),
                             Text(item.label, style: TextStyle(
-                              color: isActive ? Colors.white : AppColors.textNav,
+                              color: isActive ? c.navActiveText : c.textNav,
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
                             )),
@@ -124,11 +127,11 @@ class AppSidebar extends StatelessWidget {
           // Version
           Container(
             padding: const EdgeInsets.all(20),
-            decoration: const BoxDecoration(
-              border: Border(top: BorderSide(color: AppColors.cardBorder)),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: c.cardBorder)),
             ),
-            child: const Text('version 1.0 / Flutter',
-                style: TextStyle(color: AppColors.textDim, fontSize: 11)),
+            child: Text('version 1.0 / Flutter',
+                style: TextStyle(color: c.textDim, fontSize: 11)),
           ),
         ],
       ),

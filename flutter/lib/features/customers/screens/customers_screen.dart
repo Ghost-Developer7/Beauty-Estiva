@@ -50,6 +50,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
@@ -58,8 +60,8 @@ class _CustomersScreenState extends State<CustomersScreen> {
           // Header
           Row(
             children: [
-              const Text('Musteriler', style: TextStyle(
-                  color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+              Text('Musteriler', style: TextStyle(
+                  color: c.textPrimary, fontSize: 24, fontWeight: FontWeight.bold)),
               const Spacer(),
               _buildAddButton(),
             ],
@@ -70,18 +72,18 @@ class _CustomersScreenState extends State<CustomersScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
             decoration: BoxDecoration(
-              color: AppColors.cardBg,
+              color: c.cardBg,
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: AppColors.cardBorder),
+              border: Border.all(color: c.cardBorder),
             ),
             child: Row(
               children: [
-                const Icon(Icons.search, color: AppColors.textDim, size: 20),
+                Icon(Icons.search, color: c.textDim, size: 20),
                 const SizedBox(width: 10),
                 Expanded(
                   child: TextField(
                     controller: _searchController,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                    style: TextStyle(color: c.textPrimary, fontSize: 14),
                     decoration: const InputDecoration(
                       hintText: 'Ara...', border: InputBorder.none,
                       enabledBorder: InputBorder.none, focusedBorder: InputBorder.none,
@@ -98,40 +100,40 @@ class _CustomersScreenState extends State<CustomersScreen> {
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
-                : _buildTable(),
+                : _buildTable(c),
           ),
 
           // Pagination
-          _buildPagination(),
+          _buildPagination(c),
         ],
       ),
     );
   }
 
-  Widget _buildTable() {
+  Widget _buildTable(AppColors c) {
     if (_customers.isEmpty) {
-      return const Center(child: Text('Musteri bulunamadi', style: TextStyle(color: AppColors.textDim)));
+      return Center(child: Text('Musteri bulunamadi', style: TextStyle(color: c.textDim)));
     }
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.cardBg,
+        color: c.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.cardBorder),
+        border: Border.all(color: c.cardBorder),
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(16),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: DataTable(
-            headingRowColor: WidgetStateProperty.all(const Color(0xFF0a0815)),
+            headingRowColor: WidgetStateProperty.all(c.tableHeaderBg),
             dataRowColor: WidgetStateProperty.resolveWith((states) {
-              if (states.contains(WidgetState.selected)) return AppColors.navActive;
-              return AppColors.cardBg;
+              if (states.contains(WidgetState.selected)) return c.navActive;
+              return c.cardBg;
             }),
-            headingTextStyle: const TextStyle(
-                color: AppColors.textDim, fontSize: 11, fontWeight: FontWeight.w600),
-            dataTextStyle: const TextStyle(color: Colors.white, fontSize: 13),
+            headingTextStyle: TextStyle(
+                color: c.textDim, fontSize: 11, fontWeight: FontWeight.w600),
+            dataTextStyle: TextStyle(color: c.textPrimary, fontSize: 13),
             columns: const [
               DataColumn(label: Text('AD SOYAD')),
               DataColumn(label: Text('TELEFON')),
@@ -140,19 +142,19 @@ class _CustomersScreenState extends State<CustomersScreen> {
               DataColumn(label: Text('HARCAMA')),
               DataColumn(label: Text('ISLEMLER')),
             ],
-            rows: _customers.map((c) => DataRow(cells: [
-              DataCell(Text(c.fullName)),
-              DataCell(Text(c.phone)),
-              DataCell(Text(c.email ?? '-')),
-              DataCell(Text('${c.totalVisits}')),
-              DataCell(Text('${c.totalSpent.toStringAsFixed(0)}')),
+            rows: _customers.map((cust) => DataRow(cells: [
+              DataCell(Text(cust.fullName)),
+              DataCell(Text(cust.phone)),
+              DataCell(Text(cust.email ?? '-')),
+              DataCell(Text('${cust.totalVisits}')),
+              DataCell(Text('${cust.totalSpent.toStringAsFixed(0)}')),
               DataCell(Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  IconButton(icon: const Icon(Icons.edit, size: 18, color: AppColors.textNav),
+                  IconButton(icon: Icon(Icons.edit, size: 18, color: c.textNav),
                       onPressed: () {}),
                   IconButton(icon: const Icon(Icons.delete, size: 18, color: AppColors.red),
-                      onPressed: () => _deleteCustomer(c.id)),
+                      onPressed: () => _deleteCustomer(cust.id)),
                 ],
               )),
             ])).toList(),
@@ -189,7 +191,7 @@ class _CustomersScreenState extends State<CustomersScreen> {
     );
   }
 
-  Widget _buildPagination() {
+  Widget _buildPagination(AppColors c) {
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Row(
@@ -197,17 +199,17 @@ class _CustomersScreenState extends State<CustomersScreen> {
         children: [
           TextButton(
             onPressed: _page > 1 ? () { _page--; _loadData(); } : null,
-            child: Text('Onceki', style: TextStyle(color: _page > 1 ? AppColors.textNav : AppColors.textDim)),
+            child: Text('Önceki', style: TextStyle(color: _page > 1 ? c.textNav : c.textDim)),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text('$_page / $_totalPages',
-                style: const TextStyle(color: AppColors.textDim, fontSize: 13)),
+                style: TextStyle(color: c.textDim, fontSize: 13)),
           ),
           TextButton(
             onPressed: _page < _totalPages ? () { _page++; _loadData(); } : null,
             child: Text('Sonraki', style: TextStyle(
-                color: _page < _totalPages ? AppColors.textNav : AppColors.textDim)),
+                color: _page < _totalPages ? c.textNav : c.textDim)),
           ),
         ],
       ),

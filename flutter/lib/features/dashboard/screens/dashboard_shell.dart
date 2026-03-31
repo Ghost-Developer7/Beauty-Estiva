@@ -16,10 +16,11 @@ class _DashboardShellState extends State<DashboardShell> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     final isMobile = ResponsiveBuilder.isMobile(context);
 
     return Scaffold(
-      backgroundColor: AppColors.panelBg,
+      backgroundColor: c.panelBg,
       drawer: isMobile
           ? Drawer(
               backgroundColor: Colors.transparent,

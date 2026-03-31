@@ -34,20 +34,22 @@ class _StaffScreenState extends State<StaffScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Personel', style: TextStyle(
-              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+          Text('Personel', style: TextStyle(
+              color: c.textPrimary, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 20),
 
           Expanded(
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                 : _staff.isEmpty
-                    ? const Center(child: Text('Personel bulunamadi', style: TextStyle(color: AppColors.textDim)))
+                    ? Center(child: Text('Personel bulunamadi', style: TextStyle(color: c.textDim)))
                     : ListView.separated(
                         itemCount: _staff.length,
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
@@ -56,9 +58,9 @@ class _StaffScreenState extends State<StaffScreen> {
                           return Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: AppColors.cardBg,
+                              color: c.cardBg,
                               borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: AppColors.cardBorder),
+                              border: Border.all(color: c.cardBorder),
                             ),
                             child: Row(
                               children: [
@@ -82,17 +84,17 @@ class _StaffScreenState extends State<StaffScreen> {
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      Text(s.fullName, style: const TextStyle(
-                                          color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600)),
+                                      Text(s.fullName, style: TextStyle(
+                                          color: c.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
                                       const SizedBox(height: 2),
-                                      Text(s.email, style: const TextStyle(
-                                          color: AppColors.textDim, fontSize: 12)),
+                                      Text(s.email, style: TextStyle(
+                                          color: c.textDim, fontSize: 12)),
                                     ],
                                   ),
                                 ),
                                 // Roles
-                                Text(s.rolesDisplay, style: const TextStyle(
-                                    color: AppColors.textMuted, fontSize: 12)),
+                                Text(s.rolesDisplay, style: TextStyle(
+                                    color: c.textMuted, fontSize: 12)),
                                 const SizedBox(width: 12),
                                 // Status
                                 Container(
@@ -100,13 +102,13 @@ class _StaffScreenState extends State<StaffScreen> {
                                   decoration: BoxDecoration(
                                     color: s.isActive
                                         ? AppColors.green.withValues(alpha: 0.15)
-                                        : AppColors.textDim.withValues(alpha: 0.15),
+                                        : c.textDim.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
                                     s.isActive ? 'Aktif' : 'Pasif',
                                     style: TextStyle(
-                                      color: s.isActive ? AppColors.green : AppColors.textDim,
+                                      color: s.isActive ? AppColors.green : c.textDim,
                                       fontSize: 11, fontWeight: FontWeight.w600,
                                     ),
                                   ),

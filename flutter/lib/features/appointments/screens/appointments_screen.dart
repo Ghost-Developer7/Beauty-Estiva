@@ -53,19 +53,21 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
       case 'Completed': return AppColors.cyan;
       case 'Cancelled': return AppColors.red;
       case 'NoShow': return AppColors.orange;
-      default: return AppColors.textDim;
+      default: return AppColors.of(context).textDim;
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final c = AppColors.of(context);
+
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Randevular', style: TextStyle(
-              color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+          Text('Randevular', style: TextStyle(
+              color: c.textPrimary, fontSize: 24, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
 
           // Date filter
@@ -88,17 +90,17 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   decoration: BoxDecoration(
-                    color: AppColors.cardBg,
+                    color: c.cardBg,
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.cardBorder),
+                    border: Border.all(color: c.cardBorder),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.calendar_today, color: AppColors.textNav, size: 16),
+                      Icon(Icons.calendar_today, color: c.textNav, size: 16),
                       const SizedBox(width: 8),
                       Text(
                         '${_selectedDate.day.toString().padLeft(2, '0')}.${_selectedDate.month.toString().padLeft(2, '0')}.${_selectedDate.year}',
-                        style: const TextStyle(color: Colors.white, fontSize: 14),
+                        style: TextStyle(color: c.textPrimary, fontSize: 14),
                       ),
                     ],
                   ),
@@ -112,19 +114,19 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
             child: _loading
                 ? const Center(child: CircularProgressIndicator(color: AppColors.primary))
                 : _appointments.isEmpty
-                    ? const Center(child: Text('Randevu bulunamadi', style: TextStyle(color: AppColors.textDim)))
+                    ? Center(child: Text('Randevu bulunamadi', style: TextStyle(color: c.textDim)))
                     : Container(
                         decoration: BoxDecoration(
-                          color: AppColors.cardBg,
+                          color: c.cardBg,
                           borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: AppColors.cardBorder),
+                          border: Border.all(color: c.cardBorder),
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
                           child: ListView.separated(
                             itemCount: _appointments.length,
                             separatorBuilder: (_, __) =>
-                                const Divider(height: 1, color: AppColors.cardBorder),
+                                Divider(height: 1, color: c.cardBorder),
                             itemBuilder: (context, index) {
                               final a = _appointments[index];
                               return ListTile(
@@ -137,9 +139,9 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
                                       fontSize: 14, fontWeight: FontWeight.w600),
                                 ),
                                 title: Text(a.customerFullName,
-                                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500)),
-                                subtitle: Text('${a.treatmentName} • ${a.staffFullName}',
-                                    style: const TextStyle(color: AppColors.textDim, fontSize: 12)),
+                                    style: TextStyle(color: c.textPrimary, fontWeight: FontWeight.w500)),
+                                subtitle: Text('${a.treatmentName} \u2022 ${a.staffFullName}',
+                                    style: TextStyle(color: c.textDim, fontSize: 12)),
                                 trailing: Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                   decoration: BoxDecoration(
@@ -164,11 +166,11 @@ class _AppointmentsScreenState extends State<AppointmentsScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(onPressed: _page > 1 ? () { _page--; _loadData(); } : null,
-                    child: Text('Onceki', style: TextStyle(color: _page > 1 ? AppColors.textNav : AppColors.textDim))),
+                    child: Text('Önceki', style: TextStyle(color: _page > 1 ? c.textNav : c.textDim))),
                 Padding(padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('$_page / $_totalPages', style: const TextStyle(color: AppColors.textDim))),
+                    child: Text('$_page / $_totalPages', style: TextStyle(color: c.textDim))),
                 TextButton(onPressed: _page < _totalPages ? () { _page++; _loadData(); } : null,
-                    child: Text('Sonraki', style: TextStyle(color: _page < _totalPages ? AppColors.textNav : AppColors.textDim))),
+                    child: Text('Sonraki', style: TextStyle(color: _page < _totalPages ? c.textNav : c.textDim))),
               ],
             ),
           ),
