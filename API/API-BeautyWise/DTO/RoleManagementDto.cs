@@ -8,6 +8,13 @@ namespace API_BeautyWise.DTO
         public string? Reason { get; set; }
     }
 
+    /// <summary>Rol ekle/kaldır isteği (çoklu rol desteği)</summary>
+    public class ToggleRoleRequestDto
+    {
+        public string Role { get; set; } = "";
+        public string? Reason { get; set; }
+    }
+
     /// <summary>Audit log kayıt DTO'su</summary>
     public class RoleChangeAuditLogDto
     {

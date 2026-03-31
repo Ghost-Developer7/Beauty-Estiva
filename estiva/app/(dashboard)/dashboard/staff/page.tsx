@@ -70,11 +70,16 @@ const copy = {
     rolesCol: "Roles",
     statusCol: "Status",
     changeRole: "Change Role",
+    manageRoles: "Manage Roles",
     roleChangeSuccess: "Role updated successfully",
     roleChangeConfirm: "Are you sure you want to change this role?",
+    roleToggleConfirm: "Are you sure you want to toggle this role?",
     selectRole: "Select new role",
     save: "Save",
     cannotChangeOwnRole: "You cannot change your own role",
+    addRole: "Add",
+    removeRole: "Remove",
+    mustHaveOneRole: "User must have at least one role",
   },
   tr: {
     title: "Personel",
@@ -105,11 +110,16 @@ const copy = {
     rolesCol: "Roller",
     statusCol: "Durum",
     changeRole: "Rol Değiştir",
+    manageRoles: "Rol Yönetimi",
     roleChangeSuccess: "Rol başarıyla güncellendi",
     roleChangeConfirm: "Bu rolü değiştirmek istediğinizden emin misiniz?",
+    roleToggleConfirm: "Bu rol değişikliğini onaylıyor musunuz?",
     selectRole: "Yeni rol seçin",
     save: "Kaydet",
     cannotChangeOwnRole: "Kendi rolünüzü değiştiremezsiniz",
+    addRole: "Ekle",
+    removeRole: "Kaldır",
+    mustHaveOneRole: "Kullanıcının en az bir rolü olmalıdır",
   },
 };
 
@@ -173,6 +183,9 @@ export default function StaffPage() {
   const [selectedNewRole, setSelectedNewRole] = useState("");
   const [showRoleConfirm, setShowRoleConfirm] = useState(false);
   const [pendingRoleStaffId, setPendingRoleStaffId] = useState<number | null>(null);
+  const [pendingToggleRole, setPendingToggleRole] = useState<string>("");
+  const [showToggleConfirm, setShowToggleConfirm] = useState(false);
+  const [togglingRole, setTogglingRole] = useState<string | null>(null);
 
   // Rol yönetimi yetkileri
   const currentUserRoles = user?.roles ?? [];
@@ -215,6 +228,45 @@ export default function StaffPage() {
     } finally {
       setRoleChanging(false);
       setPendingRoleStaffId(null);
+    }
+  };
+
+  const requestToggleRole = (staffId: number, role: string, staffRoles: string[]) => {
+    if (user?.id && parseInt(user.id) === staffId) {
+      toast.error(t.cannotChangeOwnRole);
+      return;
+    }
+    const hasRole = staffRoles.includes(role);
+    if (hasRole && staffRoles.length <= 1) {
+      toast.error(t.mustHaveOneRole);
+      return;
+    }
+    setPendingRoleStaffId(staffId);
+    setPendingToggleRole(role);
+    setShowToggleConfirm(true);
+  };
+
+  const confirmToggleRole = async () => {
+    if (!pendingRoleStaffId || !pendingToggleRole) return;
+    setShowToggleConfirm(false);
+    setTogglingRole(pendingToggleRole);
+    try {
+      const res = await staffService.toggleRole(pendingRoleStaffId, pendingToggleRole);
+      if (res.data.success && res.data.data) {
+        toast.success(t.roleChangeSuccess);
+        setStaff(prev => prev.map(s => s.id === pendingRoleStaffId ? { ...s, roles: res.data.data!.roles } : s));
+        if (selectedStaff?.id === pendingRoleStaffId) {
+          setSelectedStaff(prev => prev ? { ...prev, roles: res.data.data!.roles } : prev);
+        }
+      }
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } };
+      const msg = axiosErr?.response?.data?.error?.message || (language === "tr" ? "Rol değiştirilemedi" : "Failed to change role");
+      toast.error(msg);
+    } finally {
+      setTogglingRole(null);
+      setPendingRoleStaffId(null);
+      setPendingToggleRole("");
     }
   };
 
@@ -394,22 +446,58 @@ export default function StaffPage() {
       {/* ═══════════════════════════════════════════
          DETAIL MODAL
          ═══════════════════════════════════════════ */}
-      {/* ═══ ROLE CONFIRM MODAL ═══ */}
+      {/* ═══ ROLE CONFIRM MODAL (eski tek-rol) ═══ */}
       {showRoleConfirm && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowRoleConfirm(false)}>
-          <div className="w-full max-w-sm mx-4 rounded-2xl border border-white/10 bg-[#1a1a2e] p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className={`w-full max-w-sm mx-4 rounded-2xl border p-6 shadow-2xl ${isDark ? "border-white/10 bg-[#1a1a2e]" : "border-gray-200 bg-white"}`} onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-500/20">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
               </div>
-              <h3 className="text-lg font-semibold text-white">{t.changeRole}</h3>
+              <h3 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.changeRole}</h3>
             </div>
-            <p className="text-sm text-white/60 mb-6">{t.roleChangeConfirm}</p>
+            <p className={`text-sm mb-6 ${isDark ? "text-white/60" : "text-gray-500"}`}>{t.roleChangeConfirm}</p>
             <div className="flex items-center gap-3 justify-end">
-              <button onClick={() => setShowRoleConfirm(false)} className="rounded-xl px-4 py-2.5 text-sm font-medium text-white/60 border border-white/10 hover:bg-white/5 transition">
+              <button onClick={() => setShowRoleConfirm(false)} className={`rounded-xl px-4 py-2.5 text-sm font-medium border transition ${isDark ? "text-white/60 border-white/10 hover:bg-white/5" : "text-gray-500 border-gray-200 hover:bg-gray-50"}`}>
                 {language === "tr" ? "İptal" : "Cancel"}
               </button>
               <button onClick={confirmRoleChange} className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 transition">
+                {language === "tr" ? "Onayla" : "Confirm"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ═══ ROLE TOGGLE CONFIRM MODAL ═══ */}
+      {showToggleConfirm && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={() => setShowToggleConfirm(false)}>
+          <div className={`w-full max-w-sm mx-4 rounded-2xl border p-6 shadow-2xl ${isDark ? "border-white/10 bg-[#1a1a2e]" : "border-gray-200 bg-white"}`} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-500/20">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+              </div>
+              <h3 className={`text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.manageRoles}</h3>
+            </div>
+            <p className={`text-sm mb-6 ${isDark ? "text-white/60" : "text-gray-500"}`}>
+              {pendingToggleRole && (
+                <>
+                  <span className="font-semibold" style={{ color: ROLE_LABELS[pendingToggleRole]?.color }}>
+                    {getRoleDisplay(pendingToggleRole, language)}
+                  </span>
+                  {" "}
+                  {language === "tr"
+                    ? (staff.find(s => s.id === pendingRoleStaffId)?.roles.includes(pendingToggleRole) ? "rolü kaldırılacak." : "rolü eklenecek.")
+                    : (staff.find(s => s.id === pendingRoleStaffId)?.roles.includes(pendingToggleRole) ? "role will be removed." : "role will be added.")}
+                  {" "}{t.roleToggleConfirm}
+                </>
+              )}
+            </p>
+            <div className="flex items-center gap-3 justify-end">
+              <button onClick={() => setShowToggleConfirm(false)} className={`rounded-xl px-4 py-2.5 text-sm font-medium border transition ${isDark ? "text-white/60 border-white/10 hover:bg-white/5" : "text-gray-500 border-gray-200 hover:bg-gray-50"}`}>
+                {language === "tr" ? "İptal" : "Cancel"}
+              </button>
+              <button onClick={confirmToggleRole} className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-violet-500 transition">
                 {language === "tr" ? "Onayla" : "Confirm"}
               </button>
             </div>
@@ -495,36 +583,52 @@ export default function StaffPage() {
                     </div>
                   </div>
 
-                  {/* ── Rol Değiştirme ── */}
+                  {/* ── Rol Yönetimi (Çoklu Rol Toggle) ── */}
                   {canManageRoles && user?.id && parseInt(user.id) !== s.id && (
                     <div className={`mt-2 rounded-xl border p-4 space-y-3 ${isDark ? "border-white/[0.08] bg-white/[0.03]" : "border-gray-200 bg-gray-50"}`}>
-                      <p className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.changeRole}</p>
-                      <div className="flex items-center gap-2">
-                        <select
-                          value={selectedNewRole}
-                          onChange={(e) => setSelectedNewRole(e.target.value)}
-                          className={`flex-1 rounded-lg border px-3 py-2 text-sm focus:outline-none transition ${isDark ? "border-white/[0.1] bg-white/[0.05] text-white focus:border-white/20" : "border-gray-200 bg-white text-gray-900 focus:border-gray-400"}`}
-                        >
-                          <option value="" className={isDark ? "bg-[#1a1a2e] text-white/50" : "bg-white text-gray-400"}>{t.selectRole}</option>
-                          {getAssignableRoles()
-                            .filter((r) => !(s.roles.length === 1 && s.roles[0] === r))
-                            .map((r) => (
-                              <option key={r} value={r} className={isDark ? "bg-[#1a1a2e] text-white" : "bg-white text-gray-900"}>
-                                {getRoleDisplay(r, language)}
-                              </option>
-                            ))}
-                        </select>
-                        <button
-                          onClick={() => requestRoleChange(s.id)}
-                          disabled={!selectedNewRole || roleChanging}
-                          className="rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          {roleChanging ? (
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                          ) : (
-                            t.save
-                          )}
-                        </button>
+                      <p className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.manageRoles}</p>
+                      <div className="flex flex-wrap gap-2">
+                        {getAssignableRoles().map((role) => {
+                          const hasRole = s.roles.includes(role);
+                          const isToggling = togglingRole === role && pendingRoleStaffId === s.id;
+                          const isLastRole = hasRole && s.roles.length <= 1;
+                          const roleInfo = ROLE_LABELS[role];
+                          return (
+                            <button
+                              key={role}
+                              onClick={() => requestToggleRole(s.id, role, s.roles)}
+                              disabled={isToggling || (isLastRole)}
+                              className={`relative flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                                hasRole
+                                  ? isDark
+                                    ? `border-[${roleInfo?.color}]/30 bg-[${roleInfo?.color}]/10 text-white`
+                                    : `border-[${roleInfo?.color}]/30 bg-[${roleInfo?.color}]/10 text-gray-900`
+                                  : isDark
+                                    ? "border-white/[0.08] bg-white/[0.02] text-white/40 hover:border-white/20 hover:text-white/70"
+                                    : "border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:text-gray-600"
+                              } ${isLastRole ? "opacity-40 cursor-not-allowed" : "cursor-pointer"}`}
+                              style={hasRole ? { borderColor: `${roleInfo?.color}40`, backgroundColor: `${roleInfo?.color}15` } : {}}
+                            >
+                              {isToggling ? (
+                                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-current/30 border-t-current" />
+                              ) : (
+                                <div
+                                  className={`h-3.5 w-3.5 rounded-full border-2 flex items-center justify-center transition-all ${
+                                    hasRole ? "border-current" : isDark ? "border-white/20" : "border-gray-300"
+                                  }`}
+                                  style={hasRole ? { borderColor: roleInfo?.color, backgroundColor: roleInfo?.color } : {}}
+                                >
+                                  {hasRole && (
+                                    <svg className="h-2 w-2 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                  )}
+                                </div>
+                              )}
+                              <span style={hasRole ? { color: roleInfo?.color } : {}}>{getRoleDisplay(role, language)}</span>
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
                   )}

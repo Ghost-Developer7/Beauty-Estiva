@@ -234,6 +234,141 @@ namespace API_BeautyWise.Services
             };
         }
 
+        public async Task<StaffListDto> ToggleRoleAsync(int tenantId, int performedByUserId, int targetUserId, ToggleRoleRequestDto dto)
+        {
+            // 1. Rol geçerli mi?
+            if (!ValidRoles.Contains(dto.Role))
+                throw new InvalidOperationException("INVALID_ROLE");
+
+            // 2. İşlemi yapan kullanıcı
+            var performer = await _context.Users.FirstOrDefaultAsync(u => u.Id == performedByUserId);
+            if (performer == null)
+                throw new InvalidOperationException("PERFORMER_NOT_FOUND");
+
+            var performerRoles = await _userManager.GetRolesAsync(performer);
+            var performerHighestRole = GetHighestRole(performerRoles);
+
+            // 3. Yetki kontrolü
+            if (!AssignableRoles.ContainsKey(performerHighestRole))
+                throw new UnauthorizedAccessException("NO_PERMISSION");
+
+            if (!AssignableRoles[performerHighestRole].Contains(dto.Role))
+                throw new UnauthorizedAccessException("CANNOT_ASSIGN_THIS_ROLE");
+
+            // 4. Hedef kullanıcı
+            var targetUser = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == targetUserId && u.TenantId == tenantId && u.IsActive == true);
+            if (targetUser == null)
+                throw new InvalidOperationException("USER_NOT_FOUND");
+
+            // 5. Kendi rolünü değiştiremez
+            if (performedByUserId == targetUserId)
+                throw new InvalidOperationException("CANNOT_CHANGE_OWN_ROLE");
+
+            var currentRoles = await _userManager.GetRolesAsync(targetUser);
+            var hasRole = currentRoles.Contains(dto.Role);
+
+            // Rolü kaldırma durumunda: son Owner koruması + en az 1 rol kalmalı
+            if (hasRole)
+            {
+                if (dto.Role == "Owner")
+                {
+                    var ownerCount = await _context.Users
+                        .Where(u => u.TenantId == tenantId && u.IsActive == true)
+                        .CountAsync(u => _context.UserRoles
+                            .Any(ur => ur.UserId == u.Id &&
+                                       _context.Roles.Any(r => r.Id == ur.RoleId && r.Name == "Owner")));
+                    if (ownerCount <= 1)
+                        throw new InvalidOperationException("LAST_OWNER_CANNOT_BE_CHANGED");
+                }
+
+                if (currentRoles.Count <= 1)
+                    throw new InvalidOperationException("MUST_HAVE_AT_LEAST_ONE_ROLE");
+            }
+
+            // Tenant bilgisi
+            var tenant = await _context.Tenants.FindAsync(tenantId);
+            var performerFullName = $"{performer.Name} {performer.Surname}".Trim();
+            var targetFullName = $"{targetUser.Name} {targetUser.Surname}".Trim();
+            var tenantName = tenant?.CompanyName ?? "";
+
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if (hasRole)
+                {
+                    // Rolü kaldır
+                    var removeResult = await _userManager.RemoveFromRoleAsync(targetUser, dto.Role);
+                    if (!removeResult.Succeeded)
+                        throw new InvalidOperationException("ROLE_REMOVE_FAILED");
+
+                    _context.RoleChangeAuditLogs.Add(new RoleChangeAuditLog
+                    {
+                        TenantId = tenantId,
+                        TargetUserId = targetUser.Id,
+                        PerformedByUserId = performedByUserId,
+                        ActionType = "RoleRemoved",
+                        OldRole = dto.Role,
+                        NewRole = "",
+                        Reason = dto.Reason,
+                        TargetUserName = targetFullName,
+                        PerformedByUserName = performerFullName,
+                        TenantName = tenantName,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+                else
+                {
+                    // Rolü ekle
+                    if (!await _roleManager.RoleExistsAsync(dto.Role))
+                        await _roleManager.CreateAsync(new AppRole { Name = dto.Role });
+
+                    var addResult = await _userManager.AddToRoleAsync(targetUser, dto.Role);
+                    if (!addResult.Succeeded)
+                        throw new InvalidOperationException("ROLE_ADD_FAILED");
+
+                    _context.RoleChangeAuditLogs.Add(new RoleChangeAuditLog
+                    {
+                        TenantId = tenantId,
+                        TargetUserId = targetUser.Id,
+                        PerformedByUserId = performedByUserId,
+                        ActionType = "RoleAdded",
+                        OldRole = "",
+                        NewRole = dto.Role,
+                        Reason = dto.Reason,
+                        TargetUserName = targetFullName,
+                        PerformedByUserName = performerFullName,
+                        TenantName = tenantName,
+                        CreatedAt = DateTime.UtcNow
+                    });
+                }
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+            }
+            catch
+            {
+                await transaction.RollbackAsync();
+                throw;
+            }
+
+            var updatedRoles = await _userManager.GetRolesAsync(targetUser);
+            return new StaffListDto
+            {
+                Id = targetUser.Id,
+                Name = targetUser.Name,
+                Surname = targetUser.Surname,
+                Email = targetUser.Email ?? "",
+                Phone = targetUser.PhoneNumber,
+                BirthDate = targetUser.BirthDate,
+                Roles = updatedRoles.ToList(),
+                IsActive = targetUser.IsActive ?? false,
+                IsApproved = targetUser.IsApproved,
+                DefaultCommissionRate = targetUser.DefaultCommissionRate,
+                CDate = targetUser.CDate
+            };
+        }
+
         /// <summary>Yetki hiyerarşisine göre en yüksek rolü döndürür</summary>
         private static string GetHighestRole(IList<string> roles)
         {

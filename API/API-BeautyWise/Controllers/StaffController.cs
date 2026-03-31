@@ -114,5 +114,44 @@ namespace API_BeautyWise.Controllers
                 return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
             }
         }
+
+        /// <summary>
+        /// Bir personele rol ekler veya kaldırır (toggle). Çoklu rol desteği.
+        /// </summary>
+        [HttpPost("{id}/role/toggle")]
+        [Authorize(Roles = "SuperAdmin,Owner")]
+        public async Task<IActionResult> ToggleRole(int id, [FromBody] ToggleRoleRequestDto dto)
+        {
+            try
+            {
+                var result = await _roleManagementService.ToggleRoleAsync(GetTenantId(), GetUserId(), id, dto);
+                return Ok(ApiResponse<StaffListDto>.Ok(result));
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ApiResponse<object>.Fail(
+                    ex.Message == "CANNOT_ASSIGN_THIS_ROLE"
+                        ? "Bu rolü atama yetkiniz yok."
+                        : "Bu işlem için yetkiniz yok.",
+                    ex.Message));
+            }
+            catch (InvalidOperationException ex)
+            {
+                var message = ex.Message switch
+                {
+                    "INVALID_ROLE" => "Geçersiz rol.",
+                    "USER_NOT_FOUND" => "Kullanıcı bulunamadı.",
+                    "CANNOT_CHANGE_OWN_ROLE" => "Kendi rolünüzü değiştiremezsiniz.",
+                    "LAST_OWNER_CANNOT_BE_CHANGED" => "Mağazanın son sahibinin rolü değiştirilemez.",
+                    "MUST_HAVE_AT_LEAST_ONE_ROLE" => "Kullanıcının en az bir rolü olmalıdır.",
+                    _ => "Rol değişikliği sırasında bir hata oluştu."
+                };
+                return BadRequest(ApiResponse<object>.Fail(message, ex.Message));
+            }
+            catch (Exception)
+            {
+                return BadRequest(ApiResponse<object>.Fail("İşlem sırasında bir hata oluştu."));
+            }
+        }
     }
 }

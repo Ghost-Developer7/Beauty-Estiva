@@ -37,4 +37,11 @@ export const staffService = {
       reason,
     });
   },
+
+  toggleRole(staffId: number, role: string, reason?: string) {
+    return api.post<ApiResponse<StaffMember>>(`/staff/${staffId}/role/toggle`, {
+      role,
+      reason,
+    });
+  },
 };
