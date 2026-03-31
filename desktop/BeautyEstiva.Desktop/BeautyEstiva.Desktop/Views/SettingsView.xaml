@@ -1,0 +1,104 @@
+<UserControl x:Class="BeautyEstiva.Desktop.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+
+    <UserControl.Resources>
+        <SolidColorBrush x:Key="CardBg" Color="#0f0a1e" />
+        <SolidColorBrush x:Key="CardBorder" Color="#1a1030" />
+        <SolidColorBrush x:Key="TextDim" Color="#5a4d7a" />
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Background="Transparent">
+        <StackPanel MaxWidth="600" Margin="28,24">
+            <TextBlock Text="{DynamicResource Settings}" FontSize="24" FontWeight="Bold"
+                       Foreground="White" Margin="0,0,0,28" />
+
+            <!-- Theme -->
+            <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}"
+                    BorderThickness="1" CornerRadius="16" Padding="24,20" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Theme}" Foreground="{StaticResource TextDim}"
+                               FontSize="10" FontWeight="SemiBold" Margin="0,0,0,16" />
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Brightness6" Foreground="#8a7cb0"
+                                                 Width="22" Height="22" Margin="0,0,12,0" VerticalAlignment="Center" />
+                        <TextBlock Text="{DynamicResource DarkTheme}" Foreground="White" FontSize="14"
+                                   VerticalAlignment="Center" Margin="0,0,16,0" />
+                        <ToggleButton IsChecked="{Binding IsDarkTheme}" Command="{Binding ToggleThemeCommand}"
+                                      Style="{StaticResource MaterialDesignSwitchToggleButton}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- Language -->
+            <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}"
+                    BorderThickness="1" CornerRadius="16" Padding="24,20" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="{DynamicResource Language}" Foreground="{StaticResource TextDim}"
+                               FontSize="10" FontWeight="SemiBold" Margin="0,0,0,16" />
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Translate" Foreground="#8a7cb0"
+                                                 Width="22" Height="22" Margin="0,0,16,0" VerticalAlignment="Center" />
+                        <Button Command="{Binding ChangeLanguageCommand}" CommandParameter="tr"
+                                Margin="0,0,8,0" Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="Bd" CornerRadius="10" Padding="16,8"
+                                                        BorderBrush="#1a1030" BorderThickness="1" Background="Transparent">
+                                                    <TextBlock Text="Turkce" Foreground="#8a7cb0" FontSize="13" />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTurkish}" Value="True">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#1a1030" />
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="#6c5ce7" />
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding ChangeLanguageCommand}" CommandParameter="en"
+                                Cursor="Hand">
+                            <Button.Style>
+                                <Style TargetType="Button">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="Bd" CornerRadius="10" Padding="16,8"
+                                                        BorderBrush="#1a1030" BorderThickness="1" Background="Transparent">
+                                                    <TextBlock Text="English" Foreground="#8a7cb0" FontSize="13" />
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <DataTrigger Binding="{Binding IsTurkish}" Value="False">
+                                                        <Setter TargetName="Bd" Property="Background" Value="#1a1030" />
+                                                        <Setter TargetName="Bd" Property="BorderBrush" Value="#6c5ce7" />
+                                                    </DataTrigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- App Info -->
+            <Border Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}"
+                    BorderThickness="1" CornerRadius="16" Padding="24,20">
+                <StackPanel>
+                    <TextBlock Text="Beauty Estiva Desktop" FontSize="16" FontWeight="SemiBold" Foreground="White" Margin="0,0,0,4" />
+                    <TextBlock Text="v1.0.0" Foreground="#5a4d7a" FontSize="12" />
+                    <TextBlock Text=".NET 8 + WPF + MaterialDesign" Foreground="#5a4d7a" FontSize="12" Margin="0,4,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

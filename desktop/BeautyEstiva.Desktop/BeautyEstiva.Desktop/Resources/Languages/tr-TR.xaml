@@ -1,0 +1,77 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System;assembly=mscorlib">
+
+    <!-- Auth -->
+    <system:String x:Key="Login">Giriş Yap</system:String>
+    <system:String x:Key="Email">E-posta</system:String>
+    <system:String x:Key="Password">Şifre</system:String>
+    <system:String x:Key="LoginButton">Giriş</system:String>
+    <system:String x:Key="LoginError">Giriş başarısız</system:String>
+    <system:String x:Key="Logout">Çıkış</system:String>
+    <system:String x:Key="Welcome">Hoş Geldiniz</system:String>
+
+    <!-- Navigation -->
+    <system:String x:Key="Dashboard">Gösterge Paneli</system:String>
+    <system:String x:Key="Appointments">Randevular</system:String>
+    <system:String x:Key="Customers">Müşteriler</system:String>
+    <system:String x:Key="Treatments">Hizmetler</system:String>
+    <system:String x:Key="Staff">Personel</system:String>
+    <system:String x:Key="Settings">Ayarlar</system:String>
+    <system:String x:Key="Search">Ara...</system:String>
+
+    <!-- Dashboard -->
+    <system:String x:Key="TodayAppointments">Bugünkü Randevular</system:String>
+    <system:String x:Key="UpcomingAppointments">Yaklaşan Randevular</system:String>
+    <system:String x:Key="WeeklyRevenue">Haftalık Gelir</system:String>
+    <system:String x:Key="MonthlyRevenue">Aylık Gelir</system:String>
+    <system:String x:Key="TotalCustomers">Toplam Müşteri</system:String>
+    <system:String x:Key="TodaySchedule">Bugünün Programı</system:String>
+    <system:String x:Key="TopServices">En Çok Tercih Edilen Hizmetler</system:String>
+    <system:String x:Key="MonthlyTrend">Aylık Trend</system:String>
+
+    <!-- Common -->
+    <system:String x:Key="Add">Ekle</system:String>
+    <system:String x:Key="Edit">Düzenle</system:String>
+    <system:String x:Key="Delete">Sil</system:String>
+    <system:String x:Key="Save">Kaydet</system:String>
+    <system:String x:Key="Cancel">İptal</system:String>
+    <system:String x:Key="Close">Kapat</system:String>
+    <system:String x:Key="Loading">Yükleniyor...</system:String>
+    <system:String x:Key="NoData">Veri bulunamadı</system:String>
+    <system:String x:Key="Name">Ad</system:String>
+    <system:String x:Key="Surname">Soyad</system:String>
+    <system:String x:Key="Phone">Telefon</system:String>
+    <system:String x:Key="Actions">İşlemler</system:String>
+    <system:String x:Key="Status">Durum</system:String>
+    <system:String x:Key="Date">Tarih</system:String>
+    <system:String x:Key="Time">Saat</system:String>
+    <system:String x:Key="Price">Fiyat</system:String>
+    <system:String x:Key="Duration">Süre</system:String>
+    <system:String x:Key="Description">Açıklama</system:String>
+    <system:String x:Key="Notes">Notlar</system:String>
+    <system:String x:Key="Customer">Müşteri</system:String>
+    <system:String x:Key="Treatment">Hizmet</system:String>
+    <system:String x:Key="StaffMember">Personel</system:String>
+    <system:String x:Key="Confirm">Onayla</system:String>
+    <system:String x:Key="Complete">Tamamla</system:String>
+    <system:String x:Key="Previous">Önceki</system:String>
+    <system:String x:Key="Next">Sonraki</system:String>
+    <system:String x:Key="Page">Sayfa</system:String>
+    <system:String x:Key="Of">/</system:String>
+    <system:String x:Key="Total">Toplam</system:String>
+    <system:String x:Key="Active">Aktif</system:String>
+    <system:String x:Key="Inactive">Pasif</system:String>
+    <system:String x:Key="Roles">Roller</system:String>
+    <system:String x:Key="Visits">Ziyaret</system:String>
+    <system:String x:Key="Spending">Harcama</system:String>
+    <system:String x:Key="Points">Puan</system:String>
+
+    <!-- Settings -->
+    <system:String x:Key="Theme">Tema</system:String>
+    <system:String x:Key="DarkTheme">Koyu Tema</system:String>
+    <system:String x:Key="LightTheme">Açık Tema</system:String>
+    <system:String x:Key="Language">Dil</system:String>
+    <system:String x:Key="ApiUrl">API Adresi</system:String>
+    <system:String x:Key="AppTitle">Beauty Estiva</system:String>
+</ResourceDictionary>

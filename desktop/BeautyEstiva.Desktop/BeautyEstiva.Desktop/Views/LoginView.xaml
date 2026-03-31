@@ -1,0 +1,254 @@
+<UserControl x:Class="BeautyEstiva.Desktop.Views.LoginView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes">
+
+    <UserControl.Resources>
+        <!-- Dark purple background -->
+        <SolidColorBrush x:Key="LoginBg" Color="#0b0614" />
+        <SolidColorBrush x:Key="CardBg" Color="#1a1030" />
+        <SolidColorBrush x:Key="CardBorder" Color="#2a1f45" />
+        <SolidColorBrush x:Key="AccentPurple" Color="#6c5ce7" />
+        <SolidColorBrush x:Key="AccentPink" Color="#fd79a8" />
+        <SolidColorBrush x:Key="SubtleText" Color="#6a5c8c" />
+        <SolidColorBrush x:Key="PillBg" Color="#1e1435" />
+        <SolidColorBrush x:Key="PillBorder" Color="#3a2d5c" />
+        <SolidColorBrush x:Key="InputBg" Color="#130e22" />
+        <SolidColorBrush x:Key="InputBorder" Color="#2a1f45" />
+        <SolidColorBrush x:Key="StatBg" Color="#110c20" />
+    </UserControl.Resources>
+
+    <Grid Background="{StaticResource LoginBg}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Left: Hero Section -->
+        <Grid Grid.Column="0" Margin="60,0,40,0" VerticalAlignment="Center">
+            <StackPanel MaxWidth="520">
+                <!-- Badge -->
+                <Border Background="{StaticResource PillBg}"
+                        BorderBrush="{StaticResource PillBorder}" BorderThickness="1"
+                        CornerRadius="20" Padding="16,8" HorizontalAlignment="Left" Margin="0,0,0,28">
+                    <StackPanel Orientation="Horizontal">
+                        <Ellipse Width="8" Height="8" Margin="0,0,10,0">
+                            <Ellipse.Fill>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#6c5ce7" Offset="0" />
+                                    <GradientStop Color="#fd79a8" Offset="1" />
+                                </LinearGradientBrush>
+                            </Ellipse.Fill>
+                        </Ellipse>
+                        <TextBlock Text="TEKRAR HOS GELDINIZ" FontSize="11" FontWeight="SemiBold"
+                                   Foreground="#9a88c2" />
+                    </StackPanel>
+                </Border>
+
+                <!-- Title -->
+                <TextBlock Text="Salonunuz sizi bekliyor." FontSize="40" FontWeight="Bold"
+                           Foreground="White" Margin="0,0,0,12" TextWrapping="Wrap" />
+
+                <TextBlock Text="Kaldiginiz yerden devam edin - randevular, analizler ve tum ekibiniz tek bir zarif konsolda."
+                           FontSize="15" Foreground="{StaticResource SubtleText}"
+                           TextWrapping="Wrap" LineHeight="24" Margin="0,0,0,32" />
+
+                <!-- Highlights -->
+                <StackPanel Margin="0,0,0,36">
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <materialDesign:PackIcon Kind="Check" Foreground="#6c5ce7" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Gercek zamanli pano parmaklarinizin ucunda." Foreground="{StaticResource SubtleText}" FontSize="13" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                        <materialDesign:PackIcon Kind="Check" Foreground="#6c5ce7" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Kusursuz randevu yonetimi." Foreground="{StaticResource SubtleText}" FontSize="13" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <materialDesign:PackIcon Kind="Check" Foreground="#6c5ce7" Width="18" Height="18" Margin="0,0,10,0" VerticalAlignment="Center" />
+                        <TextBlock Text="Guclu icgoruler, zarif sunumla." Foreground="{StaticResource SubtleText}" FontSize="13" />
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Stats -->
+                <Border Background="{StaticResource StatBg}" BorderBrush="{StaticResource CardBorder}"
+                        BorderThickness="1" CornerRadius="16" Padding="24,20">
+                    <UniformGrid Columns="3">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="500+" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center">
+                                <TextBlock.Foreground>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#6c5ce7" Offset="0" />
+                                        <GradientStop Color="#fd79a8" Offset="1" />
+                                    </LinearGradientBrush>
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                            <TextBlock Text="SALON" FontSize="10" Foreground="{StaticResource SubtleText}"
+                                       HorizontalAlignment="Center" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="2M+" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center">
+                                <TextBlock.Foreground>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#6c5ce7" Offset="0" />
+                                        <GradientStop Color="#fd79a8" Offset="1" />
+                                    </LinearGradientBrush>
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                            <TextBlock Text="RANDEVU" FontSize="10" Foreground="{StaticResource SubtleText}"
+                                       HorizontalAlignment="Center" Margin="0,4,0,0" />
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="99%" FontSize="26" FontWeight="Bold" HorizontalAlignment="Center">
+                                <TextBlock.Foreground>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                        <GradientStop Color="#6c5ce7" Offset="0" />
+                                        <GradientStop Color="#fd79a8" Offset="1" />
+                                    </LinearGradientBrush>
+                                </TextBlock.Foreground>
+                            </TextBlock>
+                            <TextBlock Text="MEMNUNIYET" FontSize="10" Foreground="{StaticResource SubtleText}"
+                                       HorizontalAlignment="Center" Margin="0,4,0,0" />
+                        </StackPanel>
+                    </UniformGrid>
+                </Border>
+            </StackPanel>
+        </Grid>
+
+        <!-- Right: Login Form Card -->
+        <Border Grid.Column="1" Width="440" Margin="0,0,60,0" VerticalAlignment="Center"
+                Background="{StaticResource CardBg}" BorderBrush="{StaticResource CardBorder}"
+                BorderThickness="1" CornerRadius="28" Padding="48">
+            <StackPanel>
+                <!-- Badge -->
+                <TextBlock Text="UYE GIRISI" FontSize="11" FontWeight="SemiBold"
+                           Foreground="{StaticResource SubtleText}" HorizontalAlignment="Center"
+                           Margin="0,0,0,8" />
+
+                <!-- Title -->
+                <TextBlock Text="{DynamicResource Login}" FontSize="28" FontWeight="Bold"
+                           Foreground="White" HorizontalAlignment="Center" Margin="0,0,0,6" />
+
+                <TextBlock Text="Yonetim paneline erismek icin bilgilerinizi girin."
+                           FontSize="13" Foreground="{StaticResource SubtleText}"
+                           HorizontalAlignment="Center" Margin="0,0,0,32" />
+
+                <!-- Email -->
+                <TextBlock Text="{DynamicResource Email}" Foreground="#9a88c2" FontSize="12"
+                           FontWeight="SemiBold" Margin="0,0,0,6" />
+                <TextBox Text="{Binding Email, UpdateSourceTrigger=PropertyChanged}"
+                         FontSize="14" Foreground="White" CaretBrush="White"
+                         Padding="14,12" Margin="0,0,0,16">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Background" Value="{StaticResource InputBg}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="TextBox">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="12" Padding="{TemplateBinding Padding}">
+                                            <ScrollViewer x:Name="PART_ContentHost" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+
+                <!-- Password -->
+                <TextBlock Text="{DynamicResource Password}" Foreground="#9a88c2" FontSize="12"
+                           FontWeight="SemiBold" Margin="0,0,0,6" />
+                <PasswordBox x:Name="PasswordBox" FontSize="14" Foreground="White"
+                             Padding="14,12" Margin="0,0,0,8"
+                             PasswordChanged="PasswordBox_PasswordChanged">
+                    <PasswordBox.Style>
+                        <Style TargetType="PasswordBox">
+                            <Setter Property="Background" Value="{StaticResource InputBg}" />
+                            <Setter Property="BorderBrush" Value="{StaticResource InputBorder}" />
+                            <Setter Property="BorderThickness" Value="1" />
+                            <Setter Property="CaretBrush" Value="White" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="PasswordBox">
+                                        <Border Background="{TemplateBinding Background}"
+                                                BorderBrush="{TemplateBinding BorderBrush}"
+                                                BorderThickness="{TemplateBinding BorderThickness}"
+                                                CornerRadius="12" Padding="{TemplateBinding Padding}">
+                                            <ScrollViewer x:Name="PART_ContentHost" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </PasswordBox.Style>
+                </PasswordBox>
+
+                <!-- Error -->
+                <TextBlock Text="{Binding ErrorMessage}" Foreground="#ef4444"
+                           TextWrapping="Wrap" Margin="0,8,0,8" FontSize="13"
+                           Visibility="{Binding ErrorMessage, Converter={StaticResource NullToVis}}" />
+
+                <!-- Login Button -->
+                <Button Command="{Binding LoginCommand}" Height="48" Margin="0,16,0,0"
+                        Cursor="Hand"
+                        IsEnabled="{Binding IsLoading, Converter={StaticResource InvertBooleanConverter}}">
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="Bd" CornerRadius="16" Padding="0,12"
+                                                Cursor="Hand">
+                                            <Border.Background>
+                                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                                    <GradientStop Color="#6c5ce7" Offset="0" />
+                                                    <GradientStop Color="#8b5cf6" Offset="1" />
+                                                </LinearGradientBrush>
+                                            </Border.Background>
+                                            <TextBlock Text="{DynamicResource LoginButton}"
+                                                       Foreground="White" FontSize="15" FontWeight="SemiBold"
+                                                       HorizontalAlignment="Center" VerticalAlignment="Center" />
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="Bd" Property="Opacity" Value="0.9" />
+                                            </Trigger>
+                                            <Trigger Property="IsEnabled" Value="False">
+                                                <Setter TargetName="Bd" Property="Opacity" Value="0.5" />
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </Button.Style>
+                </Button>
+
+                <!-- Loading -->
+                <ProgressBar Style="{StaticResource MaterialDesignCircularProgressBar}"
+                             IsIndeterminate="True" Value="0"
+                             Visibility="{Binding IsLoading, Converter={StaticResource BooleanToVisibilityConverter}}"
+                             HorizontalAlignment="Center" Margin="0,16,0,0" />
+
+                <!-- Signup link -->
+                <TextBlock HorizontalAlignment="Center" Margin="0,20,0,0" FontSize="12">
+                    <Run Text="Henuz hesabiniz yok mu? " Foreground="{StaticResource SubtleText}" />
+                    <Run Text="Hemen olusturun" Foreground="#fd79a8" FontWeight="SemiBold" />
+                </TextBlock>
+            </StackPanel>
+        </Border>
+
+        <!-- Header bar -->
+        <Border Grid.ColumnSpan="2" VerticalAlignment="Top"
+                BorderBrush="#1a1030" BorderThickness="0,0,0,1" Padding="24,16">
+            <DockPanel>
+                <TextBlock Text="ESTIVA" FontSize="15" FontWeight="Bold" Foreground="White"
+                           DockPanel.Dock="Left" VerticalAlignment="Center" />
+            </DockPanel>
+        </Border>
+    </Grid>
+</UserControl>
