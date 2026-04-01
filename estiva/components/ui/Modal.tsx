@@ -40,7 +40,7 @@ export default function Modal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4"
       onMouseDown={(e) => {
         if (e.target === overlayRef.current) {
           (overlayRef.current as HTMLDivElement & { _closeIntent?: boolean })._closeIntent = true;
@@ -55,7 +55,7 @@ export default function Modal({
       }}
     >
       <div
-        className={`w-full ${maxWidth} mx-4 rounded-2xl border p-4 sm:p-6 shadow-2xl max-h-[85vh] flex flex-col ${
+        className={`w-full ${maxWidth} my-auto rounded-2xl border p-5 shadow-2xl max-h-[80vh] flex flex-col ${
           isDark
             ? "border-white/10 bg-[#1a1a2e]"
             : "border-gray-200 bg-white shadow-xl"
@@ -72,16 +72,7 @@ export default function Modal({
                 : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
             }`}
           >
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
