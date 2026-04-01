@@ -85,6 +85,10 @@ const copy = {
     vipCustomers: "VIP Customers",
     totalRevenue: "Total Revenue",
     avgSpend: "Avg. Spend",
+    tipTotalCustomers: "Total number of active registered customers.",
+    tipVip: "Customers with 5.000 ₺+ total spending. Segment is auto-calculated.",
+    tipRevenue: "Sum of all customer spending recorded in the system.",
+    tipAvgSpend: "Total revenue divided by number of customers. Shows the average spending per customer.",
     createTitle: "New Customer",
     editTitle: "Edit Customer",
     name: "Name",
@@ -146,6 +150,10 @@ const copy = {
     vipCustomers: "VIP Müşteri",
     totalRevenue: "Toplam Gelir",
     avgSpend: "Ort. Harcama",
+    tipTotalCustomers: "Sistemde kayıtlı aktif müşteri sayısı.",
+    tipVip: "Toplam 5.000 ₺ ve üzeri harcama yapan müşteriler. Segment otomatik hesaplanır.",
+    tipRevenue: "Tüm müşterilerin sisteme kayıtlı toplam harcaması.",
+    tipAvgSpend: "Toplam gelirin müşteri sayısına bölünmesiyle hesaplanır. Müşteri başına ortalama harcamayı gösterir.",
     createTitle: "Yeni Müşteri",
     editTitle: "Müşteri Düzenle",
     name: "Ad",
@@ -243,10 +251,31 @@ const getTagColor = (tag: string) => TAG_COLORS[Math.abs(tag.split("").reduce((a
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
 
-function StatCard({ label, value, color, isDark }: { label: string; value: string | number; color: string; isDark: boolean }) {
+function StatCard({ label, value, color, isDark, tooltip }: { label: string; value: string | number; color: string; isDark: boolean; tooltip?: string }) {
+  const [showTip, setShowTip] = useState(false);
   return (
     <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
-      <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
+      <div className="flex items-center gap-1.5">
+        <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
+        {tooltip && (
+          <div className="relative">
+            <button
+              onMouseEnter={() => setShowTip(true)}
+              onMouseLeave={() => setShowTip(false)}
+              onClick={() => setShowTip(p => !p)}
+              className={`flex h-4 w-4 items-center justify-center rounded-full ${isDark ? "bg-white/10 text-white/40 hover:bg-white/20 hover:text-white/70" : "bg-gray-200 text-gray-400 hover:bg-gray-300 hover:text-gray-600"} transition`}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </button>
+            {showTip && (
+              <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 rounded-lg border px-3 py-2 text-[11px] leading-relaxed shadow-xl z-50 ${isDark ? "border-white/10 bg-[#1a1a2e] text-white/80" : "border-gray-200 bg-white text-gray-600"}`}>
+                {tooltip}
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-px w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] ${isDark ? "border-t-[#1a1a2e]" : "border-t-white"}`} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
     </div>
   );
@@ -583,10 +612,10 @@ export default function CustomersScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.totalCustomers} value={customers.length} color="#f472b6" isDark={isDark} />
-            <StatCard label={t.vipCustomers} value={vipCount} color="#fbbf24" isDark={isDark} />
-            <StatCard label={t.totalRevenue} value={formatCurrency(totalRevenue)} color="#a78bfa" isDark={isDark} />
-            <StatCard label={t.avgSpend} value={formatCurrency(avgSpend)} color="#60a5fa" isDark={isDark} />
+            <StatCard label={t.totalCustomers} value={customers.length} color="#f472b6" isDark={isDark} tooltip={t.tipTotalCustomers} />
+            <StatCard label={t.vipCustomers} value={vipCount} color="#fbbf24" isDark={isDark} tooltip={t.tipVip} />
+            <StatCard label={t.totalRevenue} value={`₺${formatCurrency(totalRevenue)}`} color="#a78bfa" isDark={isDark} tooltip={t.tipRevenue} />
+            <StatCard label={t.avgSpend} value={`₺${formatCurrency(avgSpend)}`} color="#60a5fa" isDark={isDark} tooltip={t.tipAvgSpend} />
           </>
         )}
       </div>
