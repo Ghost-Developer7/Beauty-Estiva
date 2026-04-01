@@ -4,6 +4,37 @@ import { success, fail, serverError } from "@/lib/api-response";
 import { requireSubscription } from "@/lib/api-middleware";
 import { paginatedResponse, getPaginationParams } from "@/lib/pagination";
 
+const APPOINTMENT_STATUS_MAP: Record<number, string> = {
+  1: "Scheduled",
+  2: "Confirmed",
+  3: "Completed",
+  4: "Cancelled",
+  5: "NoShow",
+};
+
+function mapAppointmentToListItem(a: any) {
+  return {
+    id: a.Id,
+    customerId: a.CustomerId,
+    customerFullName: a.Customers ? `${a.Customers.Name} ${a.Customers.Surname}` : "",
+    customerPhone: a.Customers?.Phone || "",
+    staffId: a.StaffId,
+    staffFullName: a.Users ? `${a.Users.Name} ${a.Users.Surname}` : "",
+    treatmentId: a.TreatmentId,
+    treatmentName: a.Treatments?.Name || "",
+    treatmentColor: a.Treatments?.Color || null,
+    durationMinutes: a.Treatments?.DurationMinutes || 0,
+    startTime: a.StartTime,
+    endTime: a.EndTime,
+    status: APPOINTMENT_STATUS_MAP[a.Status] || "Scheduled",
+    notes: a.Notes,
+    isRecurring: a.IsRecurring || false,
+    sessionNumber: a.SessionNumber || 1,
+    totalSessions: a.TotalSessions || null,
+    parentAppointmentId: a.ParentAppointmentId || null,
+  };
+}
+
 // GET /api/appointment — List appointments with filters
 export async function GET(req: NextRequest) {
   const { user, error } = await requireSubscription(req, ["Owner", "Staff", "Admin"]);
@@ -11,6 +42,7 @@ export async function GET(req: NextRequest) {
 
   try {
     const searchParams = req.nextUrl.searchParams;
+    const pageParam = searchParams.get("page") || searchParams.get("pageNumber");
     const { page, pageSize, skip } = getPaginationParams(searchParams);
 
     const startDate = searchParams.get("startDate");
@@ -40,28 +72,43 @@ export async function GET(req: NextRequest) {
       where.Status = parseInt(status);
     }
 
+    const includeRelations = {
+      Customers: {
+        select: { Id: true, Name: true, Surname: true, Phone: true },
+      },
+      Users: {
+        select: { Id: true, Name: true, Surname: true },
+      },
+      Treatments: {
+        select: { Id: true, Name: true, DurationMinutes: true, Color: true },
+      },
+    };
+
+    // If no page param, return flat array for list() calls
+    if (!pageParam) {
+      const appointments = await prisma.appointments.findMany({
+        where,
+        orderBy: { StartTime: "desc" },
+        include: includeRelations,
+      });
+
+      const mapped = appointments.map(mapAppointmentToListItem);
+      return success(mapped);
+    }
+
     const [appointments, totalCount] = await Promise.all([
       prisma.appointments.findMany({
         where,
         skip,
         take: pageSize,
         orderBy: { StartTime: "desc" },
-        include: {
-          Customers: {
-            select: { Id: true, Name: true, Surname: true },
-          },
-          Users: {
-            select: { Id: true, Name: true, Surname: true },
-          },
-          Treatments: {
-            select: { Id: true, Name: true, DurationMinutes: true },
-          },
-        },
+        include: includeRelations,
       }),
       prisma.appointments.count({ where }),
     ]);
 
-    return success(paginatedResponse(appointments, totalCount, page, pageSize));
+    const mapped = appointments.map(mapAppointmentToListItem);
+    return success(paginatedResponse(mapped, totalCount, page, pageSize));
   } catch (err) {
     console.error("Appointment list error:", err);
     return serverError();

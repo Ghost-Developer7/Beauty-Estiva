@@ -63,25 +63,53 @@ export async function GET(req: NextRequest) {
       prisma.packageSales_Packages.count({ where }),
     ]);
 
+    const PAYMENT_METHOD_NAMES: Record<number, string> = {
+      0: "Belirtilmedi",
+      1: "Nakit",
+      2: "Kredi Kartı",
+      3: "Havale/EFT",
+      4: "Çek",
+      5: "Diğer",
+    };
+
+    const PACKAGE_STATUS_NAMES: Record<number, string> = {
+      1: "Active",
+      2: "Completed",
+      3: "Expired",
+      4: "Cancelled",
+    };
+
     const mapped = items.map((p) => ({
       id: p.Id,
       customerId: p.CustomerId,
-      customerName: `${p.Customers.Name} ${p.Customers.Surname}`,
+      customerFullName: `${p.Customers.Name} ${p.Customers.Surname}`,
       treatmentId: p.TreatmentId,
       treatmentName: p.Treatments.Name,
       staffId: p.StaffId,
-      staffName: `${p.Users.Name} ${p.Users.Surname}`,
+      staffFullName: `${p.Users.Name} ${p.Users.Surname}`,
       totalSessions: p.TotalSessions,
       usedSessions: p.UsedSessions,
-      totalPrice: p.TotalPrice,
-      paidAmount: p.PaidAmount,
-      paymentMethod: p.PaymentMethod,
+      remainingSessions: p.TotalSessions - p.UsedSessions,
+      totalPrice: Number(p.TotalPrice),
+      paidAmount: Number(p.PaidAmount),
+      remainingPayment: Number(p.TotalPrice) - Number(p.PaidAmount),
+      paymentMethodValue: p.PaymentMethod,
+      paymentMethodDisplay: PAYMENT_METHOD_NAMES[p.PaymentMethod] || "Diğer",
       startDate: p.StartDate,
       endDate: p.EndDate,
-      status: p.Status,
+      statusValue: p.Status,
+      statusDisplay: PACKAGE_STATUS_NAMES[p.Status] || "Active",
       notes: p.Notes,
-      cDate: p.CDate,
+      createdAt: p.CDate,
+      usages: [],
+      payments: [],
     }));
+
+    // If no page param, return flat array for list() calls
+    const pageParam = searchParams.get("page") || searchParams.get("pageNumber");
+    if (!pageParam) {
+      return success(mapped);
+    }
 
     return success(paginatedResponse(mapped, totalCount, page, pageSize));
   } catch (error) {

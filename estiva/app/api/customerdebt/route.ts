@@ -74,7 +74,22 @@ export async function GET(req: NextRequest) {
         }),
       ]);
 
-      return success(paginatedResponse(payments, totalCount, page, pageSize));
+      const mappedPayments = payments.map((p) => ({
+        id: p.Id,
+        customerDebtId: p.CustomerDebtId,
+        customerName: p.CustomerDebts?.Customers ? `${p.CustomerDebts.Customers.Name} ${p.CustomerDebts.Customers.Surname}` : null,
+        personName: p.CustomerDebts?.PersonName || null,
+        debtDescription: null,
+        debtType: p.CustomerDebts?.Type || "",
+        amount: Number(p.Amount),
+        paymentMethod: p.PaymentMethod,
+        notes: p.Notes,
+        paymentDate: p.PaymentDate,
+        source: null,
+        cDate: p.CDate,
+      }));
+
+      return success(paginatedResponse(mappedPayments, totalCount, page, pageSize));
     }
 
     // Default: list debts with pagination
@@ -117,7 +132,7 @@ export async function GET(req: NextRequest) {
           },
           CustomerDebtPayments: {
             where: { IsActive: true },
-            select: { Id: true, Amount: true, PaymentDate: true, PaymentMethod: true },
+            select: { Id: true, Amount: true, PaymentDate: true, PaymentMethod: true, Notes: true, CustomerDebtId: true, CDate: true },
             orderBy: { PaymentDate: "desc" },
           },
         },
@@ -125,7 +140,38 @@ export async function GET(req: NextRequest) {
       prisma.customerDebts.count({ where }),
     ]);
 
-    return success(paginatedResponse(debts, totalCount, page, pageSize));
+    const mapped = debts.map((d) => ({
+      id: d.Id,
+      tenantId: d.TenantId,
+      customerId: d.CustomerId,
+      customerName: d.Customers ? `${d.Customers.Name} ${d.Customers.Surname}` : null,
+      customerPhone: d.Customers?.Phone || null,
+      personName: d.PersonName,
+      type: d.Type,
+      amount: Number(d.Amount),
+      paidAmount: Number(d.PaidAmount),
+      remainingAmount: Number(d.Amount) - Number(d.PaidAmount),
+      currency: d.Currency,
+      description: d.Description,
+      notes: d.Notes,
+      dueDate: d.DueDate,
+      status: d.Status,
+      relatedAppointmentId: d.RelatedAppointmentId,
+      relatedPackageSaleId: d.RelatedPackageSaleId,
+      source: d.Source,
+      cDate: d.CDate,
+      payments: (d.CustomerDebtPayments || []).map((p) => ({
+        id: p.Id,
+        customerDebtId: p.CustomerDebtId,
+        amount: Number(p.Amount),
+        paymentMethod: p.PaymentMethod,
+        notes: p.Notes,
+        paymentDate: p.PaymentDate,
+        cDate: p.CDate,
+      })),
+    }));
+
+    return success(paginatedResponse(mapped, totalCount, page, pageSize));
   } catch (err) {
     console.error("Customer debt list error:", err);
     return serverError();

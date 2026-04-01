@@ -32,6 +32,8 @@ export async function GET(req: NextRequest) {
       where.ExpenseCategoryId = parseInt(categoryId);
     }
 
+    const pageParam = searchParams.get("page") || searchParams.get("pageNumber");
+
     const [expenses, totalCount] = await Promise.all([
       prisma.expenses.findMany({
         where,
@@ -50,7 +52,27 @@ export async function GET(req: NextRequest) {
       prisma.expenses.count({ where }),
     ]);
 
-    return success(paginatedResponse(expenses, totalCount, page, pageSize));
+    const mapped = expenses.map((e) => ({
+      id: e.Id,
+      categoryId: e.ExpenseCategoryId,
+      categoryName: e.ExpenseCategories?.Name || "",
+      amount: Number(e.Amount),
+      currencyCode: e.Currencies?.Code || "TRY",
+      currencySymbol: e.Currencies?.Symbol || "₺",
+      exchangeRateToTry: Number(e.ExchangeRateToTry) || 1,
+      amountInTry: Number(e.AmountInTry) || 0,
+      description: e.Description,
+      expenseDate: e.ExpenseDate,
+      receiptNumber: e.ReceiptNumber,
+      notes: e.Notes,
+    }));
+
+    // If no page param, return flat array for list() calls
+    if (!pageParam) {
+      return success(mapped);
+    }
+
+    return success(paginatedResponse(mapped, totalCount, page, pageSize));
   } catch (err) {
     console.error("Expense list error:", err);
     return serverError();

@@ -3,6 +3,14 @@ import { prisma } from "@/lib/prisma";
 import { success, fail, notFound, serverError } from "@/lib/api-response";
 import { requireSubscription } from "@/lib/api-middleware";
 
+const APPOINTMENT_STATUS_MAP: Record<number, string> = {
+  1: "Scheduled",
+  2: "Confirmed",
+  3: "Completed",
+  4: "Cancelled",
+  5: "NoShow",
+};
+
 // GET /api/appointment/[id] — Get appointment detail
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { user, error } = await requireSubscription(req);
@@ -31,7 +39,12 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         },
         other_Appointments: {
           where: { IsActive: true },
-          select: { Id: true, StartTime: true, EndTime: true, Status: true, SessionNumber: true },
+          select: {
+            Id: true, StartTime: true, EndTime: true, Status: true,
+            SessionNumber: true, TotalSessions: true, ParentAppointmentId: true,
+            CustomerId: true, StaffId: true, TreatmentId: true, Notes: true,
+            IsRecurring: true,
+          },
           orderBy: { SessionNumber: "asc" },
         },
         AppointmentPayments: {
@@ -43,7 +56,49 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     if (!appointment) return notFound("Randevu bulunamadı.");
 
-    return success(appointment);
+    const mapped = {
+      id: appointment.Id,
+      customerId: appointment.CustomerId,
+      customerFullName: appointment.Customers ? `${appointment.Customers.Name} ${appointment.Customers.Surname}` : "",
+      customerPhone: appointment.Customers?.Phone || "",
+      staffId: appointment.StaffId,
+      staffFullName: appointment.Users ? `${appointment.Users.Name} ${appointment.Users.Surname}` : "",
+      treatmentId: appointment.TreatmentId,
+      treatmentName: appointment.Treatments?.Name || "",
+      treatmentColor: appointment.Treatments?.Color || null,
+      durationMinutes: appointment.Treatments?.DurationMinutes || 0,
+      startTime: appointment.StartTime,
+      endTime: appointment.EndTime,
+      status: APPOINTMENT_STATUS_MAP[appointment.Status] || "Scheduled",
+      notes: appointment.Notes,
+      isRecurring: appointment.IsRecurring || false,
+      sessionNumber: appointment.SessionNumber || 1,
+      totalSessions: appointment.TotalSessions || null,
+      parentAppointmentId: appointment.ParentAppointmentId || null,
+      recurrenceIntervalDays: appointment.RecurrenceIntervalDays || null,
+      seriesAppointments: (appointment.other_Appointments || []).map((s: any) => ({
+        id: s.Id,
+        customerId: s.CustomerId,
+        customerFullName: appointment.Customers ? `${appointment.Customers.Name} ${appointment.Customers.Surname}` : "",
+        customerPhone: appointment.Customers?.Phone || "",
+        staffId: s.StaffId,
+        staffFullName: appointment.Users ? `${appointment.Users.Name} ${appointment.Users.Surname}` : "",
+        treatmentId: s.TreatmentId,
+        treatmentName: appointment.Treatments?.Name || "",
+        treatmentColor: appointment.Treatments?.Color || null,
+        durationMinutes: appointment.Treatments?.DurationMinutes || 0,
+        startTime: s.StartTime,
+        endTime: s.EndTime,
+        status: APPOINTMENT_STATUS_MAP[s.Status] || "Scheduled",
+        notes: s.Notes,
+        isRecurring: s.IsRecurring || false,
+        sessionNumber: s.SessionNumber || 1,
+        totalSessions: s.TotalSessions || null,
+        parentAppointmentId: s.ParentAppointmentId || null,
+      })),
+    };
+
+    return success(mapped);
   } catch (err) {
     console.error("Appointment detail error:", err);
     return serverError();

@@ -25,28 +25,28 @@ export async function GET(req: NextRequest) {
         Email: true,
         WorkingHoursJson: true,
         IsMainBranch: true,
+        IsActive: true,
+        CDate: true,
+        _count: {
+          select: {
+            Users: true,
+          },
+        },
       },
       orderBy: [{ IsMainBranch: "desc" }, { Name: "asc" }],
     });
 
-    const items = branches.map((b) => {
-      let workingHours = null;
-      try {
-        workingHours = b.WorkingHoursJson ? JSON.parse(b.WorkingHoursJson) : null;
-      } catch {
-        workingHours = null;
-      }
-
-      return {
-        id: b.Id,
-        name: b.Name,
-        address: b.Address,
-        phone: b.Phone,
-        email: b.Email,
-        workingHours,
-        isMainBranch: b.IsMainBranch,
-      };
-    });
+    const items = branches.map((b) => ({
+      id: b.Id,
+      name: b.Name,
+      address: b.Address,
+      phone: b.Phone,
+      email: b.Email,
+      isMainBranch: b.IsMainBranch,
+      isActive: b.IsActive,
+      staffCount: b._count.Users,
+      cDate: b.CDate,
+    }));
 
     return success(items);
   } catch (error) {

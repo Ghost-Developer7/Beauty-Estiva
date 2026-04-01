@@ -22,6 +22,8 @@ export async function GET(req: NextRequest) {
       IsActive: true,
     };
 
+    const pageParam = searchParams.get("page") || searchParams.get("pageNumber");
+
     const [staffMembers, totalCount] = await Promise.all([
       prisma.users.findMany({
         where,
@@ -31,7 +33,9 @@ export async function GET(req: NextRequest) {
           Surname: true,
           Email: true,
           PhoneNumber: true,
+          BirthDate: true,
           IsApproved: true,
+          IsActive: true,
           ProfilePicturePath: true,
           DefaultCommissionRate: true,
           BranchId: true,
@@ -40,16 +44,9 @@ export async function GET(req: NextRequest) {
             select: {
               Roles: {
                 select: {
-                  Id: true,
                   Name: true,
                 },
               },
-            },
-          },
-          Branches: {
-            select: {
-              Id: true,
-              Name: true,
             },
           },
         },
@@ -66,16 +63,18 @@ export async function GET(req: NextRequest) {
       surname: s.Surname,
       email: s.Email,
       phone: s.PhoneNumber,
+      birthDate: s.BirthDate,
+      roles: s.UserRoles.map((ur) => ur.Roles.Name),
+      isActive: s.IsActive,
       isApproved: s.IsApproved,
-      profilePicture: s.ProfilePicturePath,
-      defaultCommissionRate: s.DefaultCommissionRate,
-      branch: s.Branches ? { id: s.Branches.Id, name: s.Branches.Name } : null,
-      roles: s.UserRoles.map((ur) => ({
-        id: ur.Roles.Id,
-        name: ur.Roles.Name,
-      })),
-      joinedDate: s.CDate,
+      defaultCommissionRate: Number(s.DefaultCommissionRate) || 0,
+      cDate: s.CDate,
     }));
+
+    // If no page param, return flat array for list() calls
+    if (!pageParam) {
+      return success(items);
+    }
 
     return success(paginatedResponse(items, totalCount, page, pageSize));
   } catch (error) {
