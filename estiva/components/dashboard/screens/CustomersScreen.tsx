@@ -300,6 +300,8 @@ export default function CustomersScreen() {
   const [customers, setCustomers] = useState<CustomerListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState<string>("name");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
   const [showForm, setShowForm] = useState(false);
   const [formMode, setFormMode] = useState<"create" | "edit">("create");
@@ -490,6 +492,39 @@ export default function CustomersScreen() {
     }
   };
 
+  /* ═══ SORTING ═══ */
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDir(prev => prev === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortDir("asc");
+    }
+  };
+
+  const sortedCustomers = [...customers].sort((a, b) => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    switch (sortKey) {
+      case "name": return dir * (`${a.name} ${a.surname}`).localeCompare(`${b.name} ${b.surname}`, "tr");
+      case "phone": return dir * (a.phone || "").localeCompare(b.phone || "", "tr");
+      case "totalVisits": return dir * (a.totalVisits - b.totalVisits);
+      case "loyaltyPoints": return dir * (a.loyaltyPoints - b.loyaltyPoints);
+      case "totalSpent": return dir * (a.totalSpent - b.totalSpent);
+      case "segment": {
+        const order: Record<string, number> = { VIP: 4, Premium: 3, Regular: 2, New: 1 };
+        return dir * ((order[a.segment] || 0) - (order[b.segment] || 0));
+      }
+      default: return 0;
+    }
+  });
+
+  const SortIcon = ({ col }: { col: string }) => {
+    if (sortKey !== col) return <svg className="inline ml-1 opacity-30" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5" /></svg>;
+    return sortDir === "asc"
+      ? <svg className="inline ml-1" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 15l5 5 5-5" /></svg>
+      : <svg className="inline ml-1" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 9l5-5 5 5" /></svg>;
+  };
+
   /* ═══════════════════════════════════════════
      RENDER
      ═══════════════════════════════════════════ */
@@ -585,17 +620,17 @@ export default function CustomersScreen() {
           <>
             {/* Header */}
             <div className={`hidden lg:grid grid-cols-[1.2fr_1fr_0.5fr_0.5fr_0.6fr_0.5fr_80px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
-              <span>{t.customer}</span>
-              <span>{t.contact}</span>
-              <span>{t.visits}</span>
-              <span>{t.points}</span>
-              <span>{t.spent}</span>
-              <span>{t.segment}</span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("name")}>{t.customer}<SortIcon col="name" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("phone")}>{t.contact}<SortIcon col="phone" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("totalVisits")}>{t.visits}<SortIcon col="totalVisits" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("loyaltyPoints")}>{t.points}<SortIcon col="loyaltyPoints" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("totalSpent")}>{t.spent}<SortIcon col="totalSpent" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("segment")}>{t.segment}<SortIcon col="segment" /></span>
               <span />
             </div>
 
             <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
-              {customers.map((c) => (
+              {sortedCustomers.map((c) => (
                 <div
                   key={c.id}
                   onClick={() => openDetail(c.id)}
