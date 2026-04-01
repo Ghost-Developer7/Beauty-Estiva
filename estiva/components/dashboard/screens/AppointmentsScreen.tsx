@@ -110,6 +110,10 @@ const copy = {
     confirmed: "Confirmed",
     completed: "Completed",
     cancelled: "Cancelled",
+    tipScheduled: "Appointments waiting for confirmation.",
+    tipConfirmed: "Confirmed appointments ready to go.",
+    tipCompleted: "Successfully completed appointments.",
+    tipCancelled: "Cancelled or no-show appointments.",
   },
   tr: {
     title: "Randevular",
@@ -170,6 +174,10 @@ const copy = {
     confirmed: "Onaylandı",
     completed: "Tamamlandı",
     cancelled: "İptal",
+    tipScheduled: "Onay bekleyen randevular.",
+    tipConfirmed: "Onaylanmış, gerçekleşecek randevular.",
+    tipCompleted: "Başarıyla tamamlanan randevular.",
+    tipCancelled: "İptal edilen veya gelmeyenler.",
   },
 };
 
@@ -222,13 +230,29 @@ const getStaffColor = (staffId: number) => STAFF_COLORS[staffId % STAFF_COLORS.l
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
 
-function StatCard({ label, value, color, isDark }: { label: string; value: number; color: string; isDark: boolean }) {
+function StatCard({ label, value, color, isDark, tooltip }: { label: string; value: number; color: string; isDark: boolean; tooltip?: string }) {
+  const [showTip, setShowTip] = useState(false);
   return (
     <div className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
       <div className={`h-2 w-2 rounded-full ${color}`} />
       <div>
         <p className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{value}</p>
-        <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
+        <div className="flex items-center gap-1">
+          <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
+          {tooltip && (
+            <div className="relative">
+              <button onMouseEnter={() => setShowTip(true)} onMouseLeave={() => setShowTip(false)} className={`flex h-3.5 w-3.5 items-center justify-center rounded-full ${isDark ? "bg-white/10 text-white/30 hover:text-white/60" : "bg-gray-200 text-gray-400 hover:text-gray-600"} transition`}>
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              </button>
+              {showTip && (
+                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 rounded-lg border px-3 py-2 text-[11px] leading-relaxed shadow-xl z-50 ${isDark ? "border-white/10 bg-[#1a1a2e] text-white/80" : "border-gray-200 bg-white text-gray-600"}`}>
+                  {tooltip}
+                  <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-px border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] ${isDark ? "border-t-[#1a1a2e]" : "border-t-white"}`} />
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -654,10 +678,10 @@ export default function AppointmentsScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.scheduled} value={stats.scheduled} color="bg-blue-400" isDark={isDark} />
-            <StatCard label={t.confirmed} value={stats.confirmed} color="bg-emerald-400" isDark={isDark} />
-            <StatCard label={t.completed} value={stats.completed} color="bg-green-400" isDark={isDark} />
-            <StatCard label={t.cancelled} value={stats.cancelled} color="bg-red-400" isDark={isDark} />
+            <StatCard label={t.scheduled} value={stats.scheduled} color="bg-blue-400" isDark={isDark} tooltip={t.tipScheduled} />
+            <StatCard label={t.confirmed} value={stats.confirmed} color="bg-emerald-400" isDark={isDark} tooltip={t.tipConfirmed} />
+            <StatCard label={t.completed} value={stats.completed} color="bg-green-400" isDark={isDark} tooltip={t.tipCompleted} />
+            <StatCard label={t.cancelled} value={stats.cancelled} color="bg-red-400" isDark={isDark} tooltip={t.tipCancelled} />
           </>
         )}
       </div>
