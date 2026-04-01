@@ -40,7 +40,7 @@ export default function Modal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/60 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 grid place-items-center overflow-y-auto overscroll-contain bg-black/60 backdrop-blur-sm py-6 px-4"
       onMouseDown={(e) => {
         if (e.target === overlayRef.current) {
           (overlayRef.current as HTMLDivElement & { _closeIntent?: boolean })._closeIntent = true;
@@ -55,11 +55,12 @@ export default function Modal({
       }}
     >
       <div
-        className={`w-full ${maxWidth} my-auto rounded-2xl border p-5 shadow-2xl max-h-[80vh] flex flex-col ${
+        className={`w-full ${maxWidth} rounded-2xl border p-5 shadow-2xl flex flex-col ${
           isDark
             ? "border-white/10 bg-[#1a1a2e]"
             : "border-gray-200 bg-white shadow-xl"
         }`}
+        style={{ maxHeight: "calc(100vh - 3rem)" }}
       >
         {/* Header */}
         <div className="mb-4 flex items-center justify-between shrink-0">
