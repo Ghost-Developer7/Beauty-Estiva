@@ -1,9 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
+import '../../../core/bloc/auth/auth_cubit.dart';
+import '../../../core/bloc/auth/auth_state.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/providers/auth_provider.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_text_styles.dart';
 import '../../../core/widgets/responsive_builder.dart';
+import '../../../core/widgets/app_button.dart';
+import '../../../core/widgets/app_text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,11 +30,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleLogin() async {
-    final auth = context.read<AuthProvider>();
-    final success = await auth.login(
-      _emailController.text.trim(),
-      _passwordController.text,
-    );
+    final success = await context.read<AuthCubit>().login(
+          _emailController.text.trim(),
+          _passwordController.text,
+        );
     if (success && mounted) {
       context.go('/dashboard');
     }
@@ -62,8 +66,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ],
             ),
           ),
-
-          // Content
           Expanded(
             child: isMobile ? _buildMobileLayout(c) : _buildDesktopLayout(c),
           ),
@@ -75,9 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _buildDesktopLayout(AppColors c) {
     return Row(
       children: [
-        // Left: Hero
         Expanded(child: _buildHeroSection(c)),
-        // Right: Form
         SizedBox(width: 460, child: Center(child: _buildFormCard(c))),
       ],
     );
@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Widget _buildMobileLayout(AppColors c) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: AppSpacing.paddingXxl,
       child: _buildFormCard(c),
     );
   }
@@ -101,14 +101,15 @@ class _LoginScreenState extends State<LoginScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
               color: c.navIconBg,
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
               border: Border.all(color: c.cardBorder),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 8, height: 8,
+                  width: 8,
+                  height: 8,
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: AppColors.primaryGradient,
@@ -116,25 +117,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 const SizedBox(width: 10),
                 Text('TEKRAR HOŞ GELDİNİZ',
-                    style: TextStyle(color: c.textMuted, fontSize: 11,
-                        fontWeight: FontWeight.w600, letterSpacing: 3)),
+                    style: AppTextStyles.labelWide(c)),
               ],
             ),
           ),
-          const SizedBox(height: 28),
-
-          // Title
-          Text('Salonunuz sizi\nbekliyor.',
-              style: TextStyle(color: c.textPrimary, fontSize: 42,
-                  fontWeight: FontWeight.bold, height: 1.15)),
-          const SizedBox(height: 12),
+          AppSpacing.verticalXxl,
+          Text('Salonunuz sizi\nbekliyor.', style: AppTextStyles.hero(c)),
+          AppSpacing.verticalMd,
           Text(
             'Kaldığınız yerden devam edin — randevular, analizler ve tüm ekibiniz tek bir zarif konsolda.',
             style: TextStyle(color: c.textDim, fontSize: 15, height: 1.6),
           ),
-          const SizedBox(height: 32),
-
-          // Highlights
+          AppSpacing.verticalXxxl,
           ...[
             'Gerçek zamanlı pano parmaklarınızın ucunda.',
             'Kusursuz randevu yönetimi.',
@@ -145,18 +139,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: [
                     const Icon(Icons.check, color: AppColors.primary, size: 18),
                     const SizedBox(width: 10),
-                    Text(text, style: TextStyle(color: c.textDim, fontSize: 13)),
+                    Text(text, style: AppTextStyles.bodySmall(c)),
                   ],
                 ),
               )),
           const SizedBox(height: 36),
-
-          // Stats
           Container(
-            padding: const EdgeInsets.all(24),
+            padding: AppSpacing.paddingXxl,
             decoration: BoxDecoration(
               color: c.cardBg,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
               border: Border.all(color: c.cardBorder),
             ),
             child: Row(
@@ -180,138 +172,106 @@ class _LoginScreenState extends State<LoginScreen> {
             shaderCallback: (bounds) => const LinearGradient(
               colors: [AppColors.primary, AppColors.accent],
             ).createShader(bounds),
-            child: Text(value, style: const TextStyle(
-                fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white)),
+            child: Text(value,
+                style: AppTextStyles.statValue(c)
+                    .copyWith(color: Colors.white)),
           ),
-          const SizedBox(height: 4),
-          Text(label, style: TextStyle(
-              color: c.textDim, fontSize: 10, letterSpacing: 2)),
+          AppSpacing.verticalXs,
+          Text(label, style: AppTextStyles.labelWide(c)),
         ],
       ),
     );
   }
 
   Widget _buildFormCard(AppColors c) {
-    return Consumer<AuthProvider>(
-      builder: (context, auth, _) {
-        return Container(
-          margin: const EdgeInsets.all(32),
-          padding: const EdgeInsets.all(40),
-          decoration: BoxDecoration(
-            color: c.loginCardBg,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: c.cardBorder),
+    return Container(
+      margin: AppSpacing.paddingXxl,
+      padding: const EdgeInsets.all(40),
+      decoration: BoxDecoration(
+        color: c.loginCardBg,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXxl),
+        border: Border.all(color: c.cardBorder),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('ÜYE GİRİŞİ', style: AppTextStyles.labelWide(c)),
+          AppSpacing.verticalSm,
+          Text('Giriş yap', style: AppTextStyles.heading1(c)),
+          AppSpacing.verticalSm,
+          Text('Yönetim paneline erişmek için bilgilerinizi girin.',
+              style: AppTextStyles.bodySmall(c)),
+          AppSpacing.verticalXxxl,
+          AppTextField(
+            controller: _emailController,
+            label: 'E-posta',
+            hintText: 'sen@example.com',
+            keyboardType: TextInputType.emailAddress,
+            onSubmitted: (_) => _handleLogin(),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('ÜYE GİRİŞİ', style: TextStyle(
-                  color: c.textDim, fontSize: 11,
-                  fontWeight: FontWeight.w600, letterSpacing: 3)),
-              const SizedBox(height: 8),
-              Text('Giriş yap', style: TextStyle(
-                  color: c.textPrimary, fontSize: 28, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 6),
-              Text('Yönetim paneline erişmek için bilgilerinizi girin.',
-                  style: TextStyle(color: c.textDim, fontSize: 13)),
-              const SizedBox(height: 32),
-
-              // Email
-              _buildLabel('E-posta', c),
-              const SizedBox(height: 6),
-              TextField(
-                controller: _emailController,
-                style: TextStyle(color: c.textPrimary, fontSize: 14),
-                decoration: const InputDecoration(hintText: 'sen@example.com'),
-                keyboardType: TextInputType.emailAddress,
-                onSubmitted: (_) => _handleLogin(),
+          AppSpacing.verticalLg,
+          AppTextField(
+            controller: _passwordController,
+            label: 'Şifre',
+            hintText: '********',
+            obscureText: _obscurePassword,
+            suffixIcon: IconButton(
+              icon: Icon(
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                color: c.textDim,
               ),
-              const SizedBox(height: 16),
-
-              // Password
-              _buildLabel('Şifre', c),
-              const SizedBox(height: 6),
-              TextField(
-                controller: _passwordController,
-                obscureText: _obscurePassword,
-                style: TextStyle(color: c.textPrimary, fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: '********',
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility_off : Icons.visibility,
-                      color: c.textDim,
-                    ),
-                    onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-                  ),
-                ),
-                onSubmitted: (_) => _handleLogin(),
-              ),
-              const SizedBox(height: 8),
-
-              // Error
-              if (auth.error != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 8),
-                  child: Text(auth.error!,
-                      style: const TextStyle(color: AppColors.red, fontSize: 13)),
-                ),
-
-              const SizedBox(height: 16),
-
-              // Login button
-              SizedBox(
-                width: double.infinity,
-                height: 48,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: AppColors.primaryGradient,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: ElevatedButton(
-                    onPressed: auth.isLoading ? null : _handleLogin,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.transparent,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
-                    ),
-                    child: auth.isLoading
-                        ? const SizedBox(width: 22, height: 22,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: Colors.white))
-                        : const Text('Giris',
-                            style: TextStyle(color: Colors.white, fontSize: 15,
-                                fontWeight: FontWeight.w600)),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Signup link
-              RichText(
-                text: TextSpan(
-                  style: const TextStyle(fontSize: 12),
-                  children: [
-                    TextSpan(text: 'Henuz hesabiniz yok mu?',
-                        style: TextStyle(color: c.textDim)),
-                    const TextSpan(text: 'Hemen olusturun',
-                        style: TextStyle(color: AppColors.accent, fontWeight: FontWeight.w600)),
-                  ],
-                ),
-              ),
-            ],
+              onPressed: () =>
+                  setState(() => _obscurePassword = !_obscurePassword),
+            ),
+            onSubmitted: (_) => _handleLogin(),
           ),
-        );
-      },
-    );
-  }
+          AppSpacing.verticalSm,
 
-  Widget _buildLabel(String text, AppColors c) {
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Text(text, style: TextStyle(
-          color: c.textMuted, fontSize: 12, fontWeight: FontWeight.w600)),
+          // Error - sadece hata değiştiğinde rebuild
+          BlocSelector<AuthCubit, AuthState, String?>(
+            selector: (state) => state.error,
+            builder: (context, error) {
+              if (error == null) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(top: 8, bottom: 8),
+                child: Text(error,
+                    style: const TextStyle(color: AppColors.red, fontSize: 13)),
+              );
+            },
+          ),
+
+          AppSpacing.verticalLg,
+
+          // Button - sadece loading değiştiğinde rebuild
+          BlocSelector<AuthCubit, AuthState, bool>(
+            selector: (state) => state.isLoading,
+            builder: (context, isLoading) {
+              return AppButton(
+                text: 'Giris',
+                isLoading: isLoading,
+                onPressed: isLoading ? null : _handleLogin,
+              );
+            },
+          ),
+
+          AppSpacing.verticalXl,
+          RichText(
+            text: TextSpan(
+              style: const TextStyle(fontSize: 12),
+              children: [
+                TextSpan(
+                    text: 'Henuz hesabiniz yok mu? ',
+                    style: TextStyle(color: c.textDim)),
+                const TextSpan(
+                    text: 'Hemen olusturun',
+                    style: TextStyle(
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w600)),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

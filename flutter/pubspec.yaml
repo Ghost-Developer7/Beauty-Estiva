@@ -38,7 +38,9 @@ dependencies:
   dio: ^5.9.2
   flutter_secure_storage: ^10.0.0
   shared_preferences: ^2.5.5
-  provider: ^6.1.5+1
+  # State management - BLoC pattern (granüler rebuild)
+  flutter_bloc: ^9.1.0
+  equatable: ^2.0.7
   fl_chart: ^1.2.0
   google_fonts: ^8.0.2
   shimmer: ^3.0.0

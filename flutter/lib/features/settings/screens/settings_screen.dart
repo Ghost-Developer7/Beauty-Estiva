@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../core/bloc/theme/theme_cubit.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../core/providers/theme_provider.dart';
+import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/app_text_styles.dart';
 
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
@@ -9,65 +11,66 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = AppColors.of(context);
-    final themeProvider = context.watch<ThemeProvider>();
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(24),
+      padding: AppSpacing.paddingXxl,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Ayarlar', style: TextStyle(
-              color: c.textPrimary, fontSize: 24, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 28),
+          Text('Ayarlar', style: AppTextStyles.heading2(c)),
+          AppSpacing.verticalXxl,
 
-          // Theme
-          _buildCard(
-            c: c,
+          // Theme - sadece theme state değiştiğinde rebuild
+          _SettingsCard(
             title: 'TEMA',
             child: Row(
               children: [
                 Icon(Icons.brightness_6, color: c.textNav, size: 22),
-                const SizedBox(width: 12),
-                Text('Koyu Tema', style: TextStyle(color: c.textPrimary, fontSize: 14)),
+                AppSpacing.horizontalMd,
+                Text('Koyu Tema', style: AppTextStyles.body(c)),
                 const Spacer(),
-                Switch(
-                  value: themeProvider.isDark,
-                  onChanged: (_) => context.read<ThemeProvider>().toggleTheme(),
-                  activeColor: AppColors.primary,
+                BlocBuilder<ThemeCubit, bool>(
+                  builder: (context, isDark) {
+                    return Switch(
+                      value: isDark,
+                      onChanged: (_) =>
+                          context.read<ThemeCubit>().toggleTheme(),
+                      activeThumbColor: AppColors.primary,
+                    );
+                  },
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalLg,
 
           // Language
-          _buildCard(
-            c: c,
+          _SettingsCard(
             title: 'DIL',
             child: Row(
               children: [
                 Icon(Icons.translate, color: c.textNav, size: 22),
-                const SizedBox(width: 16),
-                _buildLangButton('Turkce', true, c),
-                const SizedBox(width: 8),
-                _buildLangButton('English', false, c),
+                AppSpacing.horizontalLg,
+                _LangButton(text: 'Turkce', active: true),
+                AppSpacing.horizontalSm,
+                _LangButton(text: 'English', active: false),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          AppSpacing.verticalLg,
 
           // App info
-          _buildCard(
-            c: c,
+          _SettingsCard(
             title: 'UYGULAMA',
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Beauty Estiva', style: TextStyle(
-                    color: c.textPrimary, fontSize: 16, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 4),
-                Text('v1.0.0 \u2022 Flutter', style: TextStyle(color: c.textDim, fontSize: 12)),
-                Text('Windows / Android / iOS', style: TextStyle(color: c.textDim, fontSize: 12)),
+                Text('Beauty Estiva', style: AppTextStyles.bodyLarge(c)),
+                AppSpacing.verticalXs,
+                Text('v1.0.0 \u2022 Flutter',
+                    style: AppTextStyles.bodySmallMuted(c)),
+                Text('Windows / Android / iOS',
+                    style: AppTextStyles.bodySmallMuted(c)),
               ],
             ),
           ),
@@ -75,30 +78,45 @@ class SettingsScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildCard({required AppColors c, required String title, required Widget child}) {
+class _SettingsCard extends StatelessWidget {
+  final String title;
+  final Widget child;
+  const _SettingsCard({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       width: double.infinity,
       constraints: const BoxConstraints(maxWidth: 500),
-      padding: const EdgeInsets.all(24),
+      padding: AppSpacing.paddingXxl,
       decoration: BoxDecoration(
         color: c.cardBg,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         border: Border.all(color: c.cardBorder),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: TextStyle(color: c.textDim, fontSize: 10,
-              fontWeight: FontWeight.w600, letterSpacing: 2)),
-          const SizedBox(height: 16),
+          Text(title, style: AppTextStyles.labelWide(c)),
+          AppSpacing.verticalLg,
           child,
         ],
       ),
     );
   }
+}
 
-  Widget _buildLangButton(String text, bool active, AppColors c) {
+class _LangButton extends StatelessWidget {
+  final String text;
+  final bool active;
+  const _LangButton({required this.text, required this.active});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = AppColors.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
@@ -106,8 +124,9 @@ class SettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: active ? AppColors.primary : c.cardBorder),
       ),
-      child: Text(text, style: TextStyle(
-          color: active ? c.textPrimary : c.textNav, fontSize: 13)),
+      child: Text(text,
+          style: TextStyle(
+              color: active ? c.textPrimary : c.textNav, fontSize: 13)),
     );
   }
 }

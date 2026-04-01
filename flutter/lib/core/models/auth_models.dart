@@ -43,6 +43,7 @@ class AuthUser {
   final String surname;
   final String email;
   final List<String> roles;
+  final String? profileImageUrl;
 
   AuthUser({
     required this.id,
@@ -51,6 +52,7 @@ class AuthUser {
     required this.surname,
     required this.email,
     required this.roles,
+    this.profileImageUrl,
   });
 
   String get fullName => '$name $surname'.trim();
