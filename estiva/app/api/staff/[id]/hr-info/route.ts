@@ -5,19 +5,19 @@ import { requireRoles } from "@/lib/api-middleware";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ staffId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { user, error } = await requireRoles(req, ["Owner", "Admin"]);
     if (error) return error;
 
-    const { staffId } = await params;
-    const staffIdNum = parseInt(staffId);
-    if (isNaN(staffIdNum)) return fail("Geçersiz personel ID");
+    const { id } = await params;
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return fail("Geçersiz personel ID");
 
     const hrInfo = await prisma.staffHRInfos.findFirst({
       where: {
-        StaffId: staffIdNum,
+        StaffId: idNum,
         TenantId: user!.tenantId,
         IsActive: true,
       },
@@ -32,7 +32,7 @@ export async function GET(
 
     return success({
       id: hrInfo.Id,
-      staffId: hrInfo.StaffId,
+      id: hrInfo.StaffId,
       staffName: `${hrInfo.Users.Name} ${hrInfo.Users.Surname}`,
       staffEmail: hrInfo.Users.Email,
       hireDate: hrInfo.HireDate,
@@ -54,19 +54,19 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ staffId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { user, error } = await requireRoles(req, ["Owner", "Admin"]);
     if (error) return error;
 
-    const { staffId } = await params;
-    const staffIdNum = parseInt(staffId);
-    if (isNaN(staffIdNum)) return fail("Geçersiz personel ID");
+    const { id } = await params;
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return fail("Geçersiz personel ID");
 
     // Verify staff belongs to tenant
     const staff = await prisma.users.findFirst({
-      where: { Id: staffIdNum, TenantId: user!.tenantId, IsActive: true },
+      where: { Id: idNum, TenantId: user!.tenantId, IsActive: true },
     });
     if (!staff) return notFound("Personel bulunamadı");
 
@@ -75,7 +75,7 @@ export async function PUT(
 
     const existing = await prisma.staffHRInfos.findFirst({
       where: {
-        StaffId: staffIdNum,
+        StaffId: idNum,
         TenantId: user!.tenantId,
         IsActive: true,
       },
@@ -106,7 +106,7 @@ export async function PUT(
       result = await prisma.staffHRInfos.create({
         data: {
           TenantId: user!.tenantId,
-          StaffId: staffIdNum,
+          StaffId: idNum,
           HireDate: body.hireDate ? new Date(body.hireDate) : null,
           Position: body.position || null,
           Salary: body.salary || null,

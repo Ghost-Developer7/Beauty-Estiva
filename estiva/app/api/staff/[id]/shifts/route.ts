@@ -5,18 +5,18 @@ import { requireSubscription } from "@/lib/api-middleware";
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ staffId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { user, error } = await requireSubscription(req);
     if (error) return error;
 
-    const { staffId } = await params;
-    const staffIdNum = parseInt(staffId);
-    if (isNaN(staffIdNum)) return fail("Geçersiz personel ID");
+    const { id } = await params;
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return fail("Geçersiz personel ID");
 
     const staff = await prisma.users.findFirst({
-      where: { Id: staffIdNum, TenantId: user!.tenantId, IsActive: true },
+      where: { Id: idNum, TenantId: user!.tenantId, IsActive: true },
       select: { Id: true, Name: true, Surname: true },
     });
 
@@ -24,7 +24,7 @@ export async function GET(
 
     const shifts = await prisma.staffShifts.findMany({
       where: {
-        StaffId: staffIdNum,
+        StaffId: idNum,
         TenantId: user!.tenantId,
         IsActive: true,
       },
@@ -33,7 +33,7 @@ export async function GET(
 
     return success({
       staffName: `${staff.Name} ${staff.Surname}`,
-      staffId: staff.Id,
+      id: staff.Id,
       shifts: shifts.map((s) => ({
         id: s.Id,
         dayOfWeek: s.DayOfWeek,
@@ -52,18 +52,18 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: Promise<{ staffId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { user, error } = await requireSubscription(req);
     if (error) return error;
 
-    const { staffId } = await params;
-    const staffIdNum = parseInt(staffId);
-    if (isNaN(staffIdNum)) return fail("Geçersiz personel ID");
+    const { id } = await params;
+    const idNum = parseInt(id);
+    if (isNaN(idNum)) return fail("Geçersiz personel ID");
 
     const staff = await prisma.users.findFirst({
-      where: { Id: staffIdNum, TenantId: user!.tenantId, IsActive: true },
+      where: { Id: idNum, TenantId: user!.tenantId, IsActive: true },
     });
     if (!staff) return notFound("Personel bulunamadı");
 
@@ -77,7 +77,7 @@ export async function PUT(
     // Delete old shifts for this staff
     await prisma.staffShifts.updateMany({
       where: {
-        StaffId: staffIdNum,
+        StaffId: idNum,
         TenantId: user!.tenantId,
         IsActive: true,
       },
@@ -91,7 +91,7 @@ export async function PUT(
         prisma.staffShifts.create({
           data: {
             TenantId: user!.tenantId,
-            StaffId: staffIdNum,
+            StaffId: idNum,
             DayOfWeek: shift.dayOfWeek,
             StartTime: new Date(shift.startTime),
             EndTime: new Date(shift.endTime),
