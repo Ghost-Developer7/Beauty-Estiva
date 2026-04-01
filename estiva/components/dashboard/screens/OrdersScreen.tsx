@@ -64,6 +64,10 @@ const copy = {
     // Stats
     totalRevenue: "Total Revenue",
     avgPayment: "Avg Payment",
+    tipRevenue: "Sum of all payments (converted to TRY).",
+    tipAvg: "Total revenue divided by number of payments.",
+    tipCount: "Total number of recorded payments.",
+    tipMethod: "Most frequently used payment method.",
     totalPayments: "Payments",
     topMethod: "Top Method",
     // Table
@@ -127,6 +131,10 @@ const copy = {
     search: "Ara...",
     totalRevenue: "Toplam Gelir",
     avgPayment: "Ort. Ödeme",
+    tipRevenue: "Tüm ödemelerin toplamı (TRY'ye çevrilmiş).",
+    tipAvg: "Toplam gelirin ödeme sayısına bölümü.",
+    tipCount: "Kayıtlı toplam ödeme sayısı.",
+    tipMethod: "En sık kullanılan ödeme yöntemi.",
     totalPayments: "Ödeme Sayısı",
     topMethod: "En Çok Kullanılan",
     customer: "Müşteri",
@@ -207,10 +215,26 @@ function translateMethodDisplay(display: string, lang: "en" | "tr"): string {
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
 
-function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
+function StatCard({ label, value, sub, color, isDark, tooltip }: { label: string; value: string; sub?: string; color: string; isDark: boolean; tooltip?: string }) {
+  const [showTip, setShowTip] = useState(false);
   return (
     <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
-      <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
+      <div className="flex items-center gap-1.5">
+        <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
+        {tooltip && (
+          <div className="relative">
+            <button onMouseEnter={() => setShowTip(true)} onMouseLeave={() => setShowTip(false)} className={`flex h-3.5 w-3.5 items-center justify-center rounded-full ${isDark ? "bg-white/10 text-white/40 hover:bg-white/20 hover:text-white/70" : "bg-gray-200 text-gray-400 hover:bg-gray-300 hover:text-gray-600"} transition`}>
+              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+            </button>
+            {showTip && (
+              <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 rounded-lg border px-3 py-2 text-[11px] leading-relaxed shadow-xl z-50 ${isDark ? "border-white/10 bg-[#1a1a2e] text-white/80" : "border-gray-200 bg-white text-gray-600"}`}>
+                {tooltip}
+                <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-px w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] ${isDark ? "border-t-[#1a1a2e]" : "border-t-white"}`} />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
       {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
     </div>
@@ -266,6 +290,20 @@ export default function OrdersScreen() {
   const [endDate, setEndDate] = useState("");
   const [staffFilter, setStaffFilter] = useState<number | "">("");
   const [searchQuery, setSearchQuery] = useState("");
+
+  /* ─── Sorting ─── */
+  const [sortKey, setSortKey] = useState<string>("paidAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+  const handleSort = (key: string) => {
+    if (sortKey === key) setSortDir(prev => prev === "asc" ? "desc" : "asc");
+    else { setSortKey(key); setSortDir(key === "paidAt" ? "desc" : "asc"); }
+  };
+  const SortIcon = ({ col }: { col: string }) => {
+    if (sortKey !== col) return <svg className="inline ml-1 opacity-30" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 15l5 5 5-5M7 9l5-5 5 5" /></svg>;
+    return sortDir === "asc"
+      ? <svg className="inline ml-1" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 15l5 5 5-5" /></svg>
+      : <svg className="inline ml-1" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 9l5-5 5 5" /></svg>;
+  };
 
   /* ─── Create Modal ─── */
   const [showCreate, setShowCreate] = useState(false);
@@ -374,6 +412,17 @@ export default function OrdersScreen() {
       p.treatmentName?.toLowerCase().includes(q) ||
       p.staffFullName?.toLowerCase().includes(q)
     );
+  }).sort((a, b) => {
+    const dir = sortDir === "asc" ? 1 : -1;
+    switch (sortKey) {
+      case "customerFullName": return dir * (a.customerFullName || "").localeCompare(b.customerFullName || "", "tr");
+      case "treatmentName": return dir * (a.treatmentName || "").localeCompare(b.treatmentName || "", "tr");
+      case "staffFullName": return dir * (a.staffFullName || "").localeCompare(b.staffFullName || "", "tr");
+      case "paidAt": return dir * (new Date(a.paidAt).getTime() - new Date(b.paidAt).getTime());
+      case "amountInTry": return dir * (a.amountInTry - b.amountInTry);
+      case "paymentMethodDisplay": return dir * (a.paymentMethodDisplay || "").localeCompare(b.paymentMethodDisplay || "", "tr");
+      default: return 0;
+    }
   });
 
   /* ═══ STATS ═══ */
@@ -615,14 +664,14 @@ export default function OrdersScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} />
-            <StatCard label={t.avgPayment} value={`₺${fmt(avgPayment)}`} color="#6366f1" isDark={isDark} />
-            <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" isDark={isDark} />
+            <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} tooltip={t.tipRevenue} />
+            <StatCard label={t.avgPayment} value={`₺${fmt(avgPayment)}`} color="#6366f1" isDark={isDark} tooltip={t.tipAvg} />
+            <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" isDark={isDark} tooltip={t.tipCount} />
             <StatCard
               label={t.topMethod}
               value={topMethod ? translateMethodDisplay(topMethod[0], language) : "—"}
               sub={topMethod ? `${topMethod[1]}x` : ""}
-              color="#f59e0b" isDark={isDark} />
+              color="#f59e0b" isDark={isDark} tooltip={t.tipMethod} />
           </>
         )}
       </div>
@@ -687,12 +736,12 @@ export default function OrdersScreen() {
           <>
             {/* Table header */}
             <div className={`hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
-              <span>{t.customer}</span>
-              <span>{t.treatment}</span>
-              <span>{t.staffMember}</span>
-              <span>{t.date}</span>
-              <span>{t.amount}</span>
-              <span>{t.method}</span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("customerFullName")}>{t.customer}<SortIcon col="customerFullName" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("treatmentName")}>{t.treatment}<SortIcon col="treatmentName" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("staffFullName")}>{t.staffMember}<SortIcon col="staffFullName" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("paidAt")}>{t.date}<SortIcon col="paidAt" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("amountInTry")}>{t.amount}<SortIcon col="amountInTry" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("paymentMethodDisplay")}>{t.method}<SortIcon col="paymentMethodDisplay" /></span>
               <span>{t.actions}</span>
             </div>
 
