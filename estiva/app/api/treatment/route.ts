@@ -2,39 +2,47 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { success, fail, serverError } from "@/lib/api-response";
 import { requireSubscription, requireRoles } from "@/lib/api-middleware";
+import { paginatedResponse, getPaginationParams } from "@/lib/pagination";
 
 /**
  * GET /api/treatment
  * List treatments (auth required, subscription required).
+ * Supports both flat array and paginated response.
  */
 export async function GET(req: NextRequest) {
   try {
     const { user, error } = await requireSubscription(req);
     if (error) return error;
 
-    const treatments = await prisma.treatments.findMany({
-      where: {
-        TenantId: user!.tenantId,
-        IsActive: true,
-      },
-      select: {
-        Id: true,
-        Name: true,
-        Description: true,
-        DurationMinutes: true,
-        Price: true,
-        Color: true,
-      },
-      orderBy: { Name: "asc" },
-    });
+    const { searchParams } = new URL(req.url);
+    const hasPagination = searchParams.has("page") || searchParams.has("pageSize") || searchParams.has("pageNumber");
 
+    const where = { TenantId: user!.tenantId, IsActive: true };
+    const select = { Id: true, Name: true, Description: true, DurationMinutes: true, Price: true, Color: true };
+
+    if (hasPagination) {
+      const pageNum = parseInt(searchParams.get("pageNumber") || searchParams.get("page") || "1");
+      const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") || "20")));
+      const skip = (pageNum - 1) * pageSize;
+
+      const [treatments, totalCount] = await Promise.all([
+        prisma.treatments.findMany({ where, select, orderBy: { Name: "asc" }, skip, take: pageSize }),
+        prisma.treatments.count({ where }),
+      ]);
+
+      const items = treatments.map((t) => ({
+        id: t.Id, name: t.Name, description: t.Description,
+        durationMinutes: t.DurationMinutes, price: t.Price ? Number(t.Price) : null, color: t.Color,
+      }));
+
+      return success(paginatedResponse(items, totalCount, pageNum, pageSize));
+    }
+
+    // No pagination - return flat array
+    const treatments = await prisma.treatments.findMany({ where, select, orderBy: { Name: "asc" } });
     const items = treatments.map((t) => ({
-      id: t.Id,
-      name: t.Name,
-      description: t.Description,
-      durationMinutes: t.DurationMinutes,
-      price: t.Price,
-      color: t.Color,
+      id: t.Id, name: t.Name, description: t.Description,
+      durationMinutes: t.DurationMinutes, price: t.Price ? Number(t.Price) : null, color: t.Color,
     }));
 
     return success(items);
