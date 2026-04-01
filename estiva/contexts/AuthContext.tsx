@@ -157,7 +157,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Persist user info for page reload
       localStorage.setItem("estiva-user", JSON.stringify(authUser));
       setUser(authUser);
-      router.push("/dashboard");
+
+      // Use hard navigation so middleware sees the new cookie immediately
+      window.location.href = "/dashboard";
     },
     [router],
   );
