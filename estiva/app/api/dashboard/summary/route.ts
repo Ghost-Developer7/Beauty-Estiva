@@ -86,12 +86,12 @@ export async function GET(req: NextRequest) {
     // Top services
     const serviceMap = new Map<string, number>();
     for (const p of topServicesRaw) { const n = p.Appointments.Treatments.Name; serviceMap.set(n, (serviceMap.get(n) || 0) + Number(p.AmountInTry)); }
-    const topServices = Array.from(serviceMap.entries()).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount).slice(0, 5);
+    const topServices = Array.from(serviceMap.entries()).map(([label, amountInTry]) => ({ label, count: 0, amountInTry })).sort((a, b) => b.amountInTry - a.amountInTry).slice(0, 5);
 
     // Top staff
     const staffMap = new Map<string, number>();
     for (const p of topStaffRaw) { const n = `${p.Appointments.Users.Name} ${p.Appointments.Users.Surname}`; staffMap.set(n, (staffMap.get(n) || 0) + Number(p.AmountInTry)); }
-    const topStaff = Array.from(staffMap.entries()).map(([name, amount]) => ({ name, amount })).sort((a, b) => b.amount - a.amount).slice(0, 5);
+    const topStaff = Array.from(staffMap.entries()).map(([label, amountInTry]) => ({ label, count: 0, amountInTry })).sort((a, b) => b.amountInTry - a.amountInTry).slice(0, 5);
 
     // Today schedule formatted
     const todayScheduleFormatted = todaySchedule.map((a) => ({

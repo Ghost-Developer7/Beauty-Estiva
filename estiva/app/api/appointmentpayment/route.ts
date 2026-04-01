@@ -59,7 +59,30 @@ export async function GET(req: NextRequest) {
       prisma.appointmentPayments.count({ where }),
     ]);
 
-    return success(paginatedResponse(payments, totalCount, page, pageSize));
+    const PAYMENT_METHOD_NAMES: Record<number, string> = { 1: "Nakit", 2: "Kredi Kartı", 3: "Havale/EFT", 4: "Çek", 5: "Diğer" };
+
+    const items = payments.map((p) => ({
+      id: p.Id,
+      appointmentId: p.Appointments.Id,
+      amount: p.Amount,
+      amountInTry: p.AmountInTry,
+      exchangeRateToTry: p.ExchangeRateToTry,
+      paymentMethod: p.PaymentMethod,
+      paymentMethodDisplay: PAYMENT_METHOD_NAMES[p.PaymentMethod] || "Diğer",
+      paidAt: p.PaidAt,
+      notes: p.Notes,
+      currencyCode: p.Currencies.Code,
+      currencySymbol: p.Currencies.Symbol,
+      customerName: `${p.Appointments.Customers.Name} ${p.Appointments.Customers.Surname}`,
+      customerId: p.Appointments.Customers.Id,
+      treatmentName: p.Appointments.Treatments.Name,
+      treatmentId: p.Appointments.Treatments.Id,
+      staffName: `${p.Appointments.Users.Name} ${p.Appointments.Users.Surname}`,
+      staffId: p.Appointments.Users.Id,
+      appointmentDate: p.Appointments.StartTime,
+    }));
+
+    return success(paginatedResponse(items, totalCount, page, pageSize));
   } catch (err) {
     console.error("Payment list error:", err);
     return serverError();

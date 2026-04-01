@@ -75,6 +75,11 @@ export async function GET(req: NextRequest) {
       tags: c.Tags,
     }));
 
+    // If no pagination params provided, return flat array (for dropdown/list usage)
+    const hasPagination = searchParams.has("page") || searchParams.has("pageSize");
+    if (!hasPagination) {
+      return success(items);
+    }
     return success(paginatedResponse(items, totalCount, page, pageSize));
   } catch (error) {
     console.error("List customers error:", error);
