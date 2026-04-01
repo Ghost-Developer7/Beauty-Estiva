@@ -553,9 +553,9 @@ export default function LandingPage() {
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-          <button onClick={() => scrollTo("hero")} className="text-xl font-bold tracking-[0.4em]">
+          <Link href="/" onClick={() => scrollTo("hero")} className="text-xl font-bold tracking-[0.4em]">
             ESTIVA
-          </button>
+          </Link>
 
           {/* Desktop nav */}
           <div className="hidden items-center gap-8 md:flex">
@@ -1161,7 +1161,7 @@ export default function LandingPage() {
             <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
               {/* Brand */}
               <div className="lg:col-span-2">
-                <p className="text-xl font-bold tracking-[0.4em]">ESTIVA</p>
+                <Link href="/" className="text-xl font-bold tracking-[0.4em]">ESTIVA</Link>
                 <p className={`mt-3 max-w-sm text-sm leading-relaxed ${subtle}`}>{t.footer.desc}</p>
                 <div className="mt-5 flex gap-3">
                   {["instagram", "twitter", "linkedin"].map((social) => (
