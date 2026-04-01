@@ -412,6 +412,30 @@ function useInView(threshold = 0.15) {
   return { ref, isInView };
 }
 
+/* ── Animations helper (defined outside component to prevent remount on re-render) ── */
+function Section({
+  children,
+  className = "",
+  id,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  id?: string;
+}) {
+  const { ref, isInView } = useInView(0.1);
+  return (
+    <section
+      ref={ref}
+      id={id}
+      className={`transition-all duration-700 ${
+        isInView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
+      } ${className}`}
+    >
+      {children}
+    </section>
+  );
+}
+
 /* ─────────────────────── AnimatedCounter ─────────────────────── */
 function AnimatedCounter({ target, suffix, duration = 2000 }: { target: number; suffix: string; duration?: number }) {
   const [count, setCount] = useState(0);
@@ -507,30 +531,6 @@ export default function LandingPage() {
   const cardBorder = isDark ? "border-white/[0.08]" : "border-[#d5cce6]";
   const sectionAlt = isDark ? "bg-[#0f0920]" : "bg-[#e4e0ed]";
 
-  /* ── Animations helper ── */
-  function Section({
-    children,
-    className = "",
-    id,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-    id?: string;
-  }) {
-    const { ref, isInView } = useInView(0.1);
-    return (
-      <section
-        ref={ref}
-        id={id}
-        className={`transition-all duration-700 ${
-          isInView ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-        } ${className}`}
-      >
-        {children}
-      </section>
-    );
-  }
-
   return (
     <div className={`min-h-screen ${bg} ${text} overflow-x-hidden`}>
       {/* ═══ GRADIENT BACKGROUND ═══ */}
@@ -548,7 +548,7 @@ export default function LandingPage() {
           scrolled
             ? isDark
               ? "bg-[#0b0614]/90 backdrop-blur-xl shadow-lg shadow-black/20 border-b border-white/[0.06]"
-              : "bg-white/90 backdrop-blur-xl shadow-lg shadow-purple-100/40 border-b border-[#e3d8ff]"
+              : "bg-[#eae6f3]/90 backdrop-blur-xl shadow-lg shadow-purple-100/30 border-b border-[#d5cce6]"
             : "bg-transparent"
         }`}
       >
