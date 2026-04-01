@@ -759,3 +759,17 @@ input[type="number"]::-webkit-inner-spin-button {
 input[type="number"] {
   -moz-appearance: textfield;
 }
+
+/* ─── Remove focus outline on Recharts containers ─── */
+.recharts-wrapper:focus,
+.recharts-wrapper:focus-visible,
+.recharts-surface:focus,
+.recharts-surface:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.estiva-dashboard .recharts-wrapper,
+.estiva-dashboard .recharts-surface {
+  outline: none !important;
+}
