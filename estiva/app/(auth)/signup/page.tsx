@@ -112,7 +112,7 @@ export default function SignupPage() {
           className={`flex w-full flex-wrap items-center justify-between gap-4 border-b px-4 py-6 sm:px-8 lg:px-16 ${isDark ? "border-white/10" : "border-[#e2d9ff]"
             }`}
         >
-          <div className="text-lg font-semibold tracking-[0.5em]">ESTIVA</div>
+          <Link href="/" className="text-lg font-semibold tracking-[0.5em]">ESTIVA</Link>
           <nav
             className={`hidden gap-8 text-xs tracking-[0.3em] ${isDark ? "text-white/70" : "text-[#65558c]"
               } md:flex`}
