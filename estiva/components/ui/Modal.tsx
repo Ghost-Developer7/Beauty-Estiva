@@ -55,14 +55,14 @@ export default function Modal({
       }}
     >
       <div
-        className={`w-full ${maxWidth} mx-0 sm:mx-4 rounded-t-2xl sm:rounded-2xl border p-4 sm:p-6 shadow-2xl max-h-[95vh] sm:max-h-[90vh] flex flex-col ${
+        className={`w-full ${maxWidth} mx-4 rounded-2xl border p-4 sm:p-6 shadow-2xl max-h-[85vh] flex flex-col ${
           isDark
             ? "border-white/10 bg-[#1a1a2e]"
             : "border-gray-200 bg-white shadow-xl"
         }`}
       >
         {/* Header */}
-        <div className="mb-4 sm:mb-6 flex items-center justify-between shrink-0">
+        <div className="mb-4 flex items-center justify-between shrink-0">
           <h2 className={`text-base sm:text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h2>
           <button
             onClick={onClose}
@@ -87,8 +87,8 @@ export default function Modal({
             </svg>
           </button>
         </div>
-        {/* Content */}
-        <div className={`flex-1 overflow-y-auto pr-1 ${
+        {/* Scrollable content */}
+        <div className={`flex-1 min-h-0 overflow-y-auto pr-1 ${
           isDark
             ? "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-white/20"
             : "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-400"
