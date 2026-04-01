@@ -57,10 +57,14 @@ export async function GET(req: NextRequest) {
     };
 
     if (startDate) {
-      where.StartTime = { ...where.StartTime, gte: new Date(startDate) };
+      // Treat date as Turkey timezone (UTC+3) — start of day
+      const start = new Date(startDate + "T00:00:00+03:00");
+      where.StartTime = { ...where.StartTime, gte: start };
     }
     if (endDate) {
-      where.EndTime = { ...where.EndTime, lte: new Date(endDate) };
+      // End of day in Turkey timezone
+      const end = new Date(endDate + "T23:59:59.999+03:00");
+      where.StartTime = { ...where.StartTime, lte: end };
     }
     if (staffId) {
       where.StaffId = parseInt(staffId);
