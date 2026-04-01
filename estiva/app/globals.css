@@ -761,15 +761,23 @@ input[type="number"] {
 }
 
 /* ─── Remove focus outline on Recharts containers ─── */
+.recharts-wrapper,
+.recharts-wrapper *,
+.recharts-surface,
+.recharts-surface *,
 .recharts-wrapper:focus,
 .recharts-wrapper:focus-visible,
+.recharts-wrapper:focus-within,
 .recharts-surface:focus,
 .recharts-surface:focus-visible {
   outline: none !important;
   box-shadow: none !important;
+  -webkit-tap-highlight-color: transparent !important;
 }
 
-.estiva-dashboard .recharts-wrapper,
-.estiva-dashboard .recharts-surface {
+.estiva-dashboard svg:focus,
+.estiva-dashboard svg:focus-visible,
+.estiva-dashboard .recharts-wrapper svg {
   outline: none !important;
+  border: none !important;
 }
