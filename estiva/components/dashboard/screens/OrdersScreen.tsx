@@ -735,7 +735,7 @@ export default function OrdersScreen() {
         ) : (
           <>
             {/* Table header */}
-            <div className={`hidden md:grid grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden md:grid grid-cols-[1fr_0.8fr_0.8fr_0.7fr_0.6fr_0.7fr_60px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("customerFullName")}>{t.customer}<SortIcon col="customerFullName" /></span>
               <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("treatmentName")}>{t.treatment}<SortIcon col="treatmentName" /></span>
               <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("staffFullName")}>{t.staffMember}<SortIcon col="staffFullName" /></span>
@@ -753,7 +753,7 @@ export default function OrdersScreen() {
                   <div
                     key={p.id}
                     onClick={() => openDetail(p)}
-                    className={`group grid grid-cols-1 md:grid-cols-[1fr_1fr_0.8fr_0.6fr_0.7fr_0.7fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
+                    className={`group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.8fr_0.7fr_0.6fr_0.7fr_60px] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
                     {/* Customer */}
                     <div className="flex items-center gap-3">

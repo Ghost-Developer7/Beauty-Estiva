@@ -84,7 +84,8 @@ export default function NotificationBell() {
       await markAsRead(n.id);
     }
     if (n.actionUrl && typeof window !== "undefined") {
-      window.location.href = n.actionUrl;
+      const url = n.actionUrl.startsWith("/dashboard") ? n.actionUrl : `/dashboard${n.actionUrl.startsWith("/") ? "" : "/"}${n.actionUrl}`;
+      window.location.href = url;
       setOpen(false);
     }
   };
