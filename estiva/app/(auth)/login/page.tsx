@@ -87,13 +87,13 @@ export default function LoginPage() {
   const form = formCopy[language];
   const footer = footerCopy[language];
 
-  const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#f7f4ff]";
+  const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#eae6f3]";
   const baseText = isDark ? "text-white" : "text-[#1f1233]";
   const subtleText = isDark ? "text-white/60" : "text-[#6a5c8c]";
-  const cardBorder = isDark ? "border-white/10" : "border-[#e3d8ff]";
-  const cardBg = isDark ? "bg-white/[0.04]" : "bg-white";
-  const pillBorder = isDark ? "border-white/15" : "border-[#dacfff]";
-  const pillBg = isDark ? "bg-white/[0.06]" : "bg-white";
+  const cardBorder = isDark ? "border-white/10" : "border-[#d5cce6]";
+  const cardBg = isDark ? "bg-white/[0.04]" : "bg-[#f0ecf7]";
+  const pillBorder = isDark ? "border-white/15" : "border-[#cbc2de]";
+  const pillBg = isDark ? "bg-white/[0.06]" : "bg-[#ede9f5]";
 
   return (
     <div className={`relative min-h-screen overflow-hidden ${baseBg} ${baseText}`}>
@@ -201,7 +201,7 @@ export default function LoginPage() {
                 className={`mt-4 flex items-center justify-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition ${
                   isDark
                     ? "border-white/20 bg-white/[0.04] text-white hover:border-white/40 hover:bg-white/[0.08]"
-                    : "border-[#dcd0ff] bg-[#f8f5ff] text-[#2e174e] hover:border-[#bfa3ff] hover:bg-[#efe9ff]"
+                    : "border-[#cbc2de] bg-[#e8e4f1] text-[#2e174e] hover:border-[#b5aac8] hover:bg-[#e2ddef]"
                 }`}
               >
                 {form.signupButton}

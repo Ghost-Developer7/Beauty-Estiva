@@ -88,12 +88,12 @@ export default function SignUpForm() {
 
   const baseText = isDark ? "text-white" : "text-[#1d1233]";
   const eyebrowText = isDark ? "text-white/40" : "text-[#9a88c2]";
-  const cardBorder = isDark ? "border-white/10" : "border-[#e3d8ff]";
-  const cardBg = isDark ? "bg-white/5" : "bg-white";
+  const cardBorder = isDark ? "border-white/10" : "border-[#d5cce6]";
+  const cardBg = isDark ? "bg-white/5" : "bg-[#f0ecf7]";
   const mutedText = isDark ? "text-white/60" : "text-[#6a5c8c]";
   const inputClass = isDark
     ? "w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2.5 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none"
-    : "w-full rounded-xl border border-[#d9cef4] bg-white px-3 py-2.5 text-sm text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:outline-none";
+    : "w-full rounded-xl border border-[#cbc2de] bg-[#ede9f5] px-3 py-2.5 text-sm text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:outline-none";
   const labelClass = isDark ? "text-xs font-medium text-white/60" : "text-xs font-medium text-[#47376d]";
   const errorInputClass = "border-red-500 focus:border-red-500";
 

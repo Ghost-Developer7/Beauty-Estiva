@@ -500,12 +500,12 @@ export default function LandingPage() {
   }, []);
 
   /* ── Theme classes ── */
-  const bg = isDark ? "bg-[#0b0614]" : "bg-[#f8f5ff]";
+  const bg = isDark ? "bg-[#0b0614]" : "bg-[#eae6f3]";
   const text = isDark ? "text-white" : "text-[#1f1233]";
   const subtle = isDark ? "text-white/60" : "text-[#6a5c8c]";
-  const cardBg = isDark ? "bg-white/[0.04]" : "bg-white";
-  const cardBorder = isDark ? "border-white/[0.08]" : "border-[#e3d8ff]";
-  const sectionAlt = isDark ? "bg-[#0f0920]" : "bg-[#f0ebff]";
+  const cardBg = isDark ? "bg-white/[0.04]" : "bg-[#f0ecf7]";
+  const cardBorder = isDark ? "border-white/[0.08]" : "border-[#d5cce6]";
+  const sectionAlt = isDark ? "bg-[#0f0920]" : "bg-[#e4e0ed]";
 
   /* ── Animations helper ── */
   function Section({

@@ -89,13 +89,13 @@ export default function SignupPage() {
   const statList = stats[language];
   const form = formCopy[language];
 
-  const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#f7f4ff]";
+  const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#eae6f3]";
   const baseText = isDark ? "text-white" : "text-[#1f1233]";
   const subtleText = isDark ? "text-white/70" : "text-[#6a5c8c]";
-  const cardBorder = isDark ? "border-white/10" : "border-[#e3d8ff]";
-  const cardBg = isDark ? "bg-white/5" : "bg-white";
-  const pillBorder = isDark ? "border-white/15" : "border-[#dacfff]";
-  const pillBg = isDark ? "bg-white/10" : "bg-white";
+  const cardBorder = isDark ? "border-white/10" : "border-[#d5cce6]";
+  const cardBg = isDark ? "bg-white/5" : "bg-[#f0ecf7]";
+  const pillBorder = isDark ? "border-white/15" : "border-[#cbc2de]";
+  const pillBg = isDark ? "bg-white/10" : "bg-[#ede9f5]";
 
   return (
     <div className={`relative min-h-screen overflow-hidden ${baseBg} ${baseText}`}>

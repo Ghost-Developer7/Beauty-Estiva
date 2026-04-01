@@ -106,14 +106,14 @@ function StaffRegisterContent() {
     }
   }, [inviteFromUrl, emailFromUrl]);
 
-  const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#f7f4ff]";
+  const baseBg = isDark ? "bg-[#0b0614]" : "bg-[#eae6f3]";
   const baseText = isDark ? "text-white" : "text-[#1f1233]";
   const subtleText = isDark ? "text-white/60" : "text-[#6a5c8c]";
-  const cardBorder = isDark ? "border-white/10" : "border-[#e3d8ff]";
-  const cardBg = isDark ? "bg-white/5" : "bg-white";
+  const cardBorder = isDark ? "border-white/10" : "border-[#d5cce6]";
+  const cardBg = isDark ? "bg-white/5" : "bg-[#f0ecf7]";
   const inputClass = isDark
     ? "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder:text-white/40 focus:border-white/30 focus:outline-none focus:ring-2 focus:ring-white/20"
-    : "w-full rounded-xl border border-[#d9cef4] bg-white px-4 py-3 text-sm text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:outline-none focus:ring-2 focus:ring-[#b79df1]/40";
+    : "w-full rounded-xl border border-[#cbc2de] bg-[#ede9f5] px-4 py-3 text-sm text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:outline-none focus:ring-2 focus:ring-[#b79df1]/40";
   const labelClass = isDark ? "text-xs font-medium text-white/60" : "text-xs font-medium text-[#47376d]";
 
   const update = (field: string, value: string) => setForm((f) => ({ ...f, [field]: value }));

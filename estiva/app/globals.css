@@ -84,7 +84,7 @@ body.theme-dark {
 }
 
 body.theme-light {
-  background-color: #f8f5ff;
+  background-color: #f0ecf7;
   color: #1f1233;
 }
 
@@ -111,7 +111,7 @@ body.theme-dark .estiva-dashboard {
 }
 
 body.theme-light .estiva-dashboard {
-  background-color: #f8f5ff;
+  background-color: #eae6f3;
   color: #1f1233;
 }
 
@@ -121,8 +121,8 @@ body.theme-dark .estiva-dashboard-panel {
 }
 
 body.theme-light .estiva-dashboard-panel {
-  background: radial-gradient(circle at top, rgba(84, 89, 172, 0.1), transparent 60%),
-    linear-gradient(180deg, #f8f5ff, #efe9ff);
+  background: radial-gradient(circle at top, rgba(84, 89, 172, 0.08), transparent 60%),
+    linear-gradient(180deg, #eae6f3, #e2ddef);
 }
 
 body.theme-dark .estiva-dashboard-sidebar {
@@ -131,8 +131,8 @@ body.theme-dark .estiva-dashboard-sidebar {
 }
 
 body.theme-light .estiva-dashboard-sidebar {
-  background: linear-gradient(195deg, #ffffff, #f1ecff);
-  border-right: 1px solid #e3d8ff;
+  background: linear-gradient(195deg, #ede9f5, #e4dff0);
+  border-right: 1px solid #d5cce6;
 }
 
 /* Light theme overrides for existing dashboard utility usage */
@@ -230,11 +230,11 @@ body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.04\]:hover {
 
 /* Light theme: bg-white/[0.02] and bg-white/[0.03] used for subtle backgrounds */
 body.theme-light .estiva-dashboard .bg-white\/\[0\.02\] {
-  background-color: rgb(255 255 255 / 0.6);
+  background-color: rgb(237 233 245 / 0.45);
 }
 
 body.theme-light .estiva-dashboard .bg-white\/\[0\.03\] {
-  background-color: rgb(255 255 255 / 0.7);
+  background-color: rgb(237 233 245 / 0.55);
 }
 
 /* Light theme: border-white/[0.06] and border-white/[0.08] */
@@ -251,39 +251,39 @@ body.theme-light .estiva-dashboard .border-white {
 }
 
 body.theme-light .estiva-dashboard .border-white\/5 {
-  border-color: #efe9ff;
+  border-color: #ddd8ea;
 }
 
 body.theme-light .estiva-dashboard .border-white\/10 {
-  border-color: #e3d8ff;
+  border-color: #d5cce6;
 }
 
 body.theme-light .estiva-dashboard .border-white\/15 {
-  border-color: #dacfff;
+  border-color: #cbc2de;
 }
 
 body.theme-light .estiva-dashboard .border-white\/20 {
-  border-color: #d0c0f5;
+  border-color: #c0b5d6;
 }
 
 body.theme-light .estiva-dashboard .border-white\/40 {
-  border-color: #b59cf2;
+  border-color: #a898c8;
 }
 
 body.theme-light .estiva-dashboard .bg-white\/5 {
-  background-color: rgb(255 255 255 / 0.72);
+  background-color: rgb(237 233 245 / 0.6);
 }
 
 body.theme-light .estiva-dashboard .bg-white\/10 {
-  background-color: rgb(255 255 255 / 0.82);
+  background-color: rgb(237 233 245 / 0.7);
 }
 
 body.theme-light .estiva-dashboard .bg-white\/15 {
-  background-color: rgb(255 255 255 / 0.9);
+  background-color: rgb(237 233 245 / 0.8);
 }
 
 body.theme-light .estiva-dashboard .bg-white\/20 {
-  background-color: rgb(255 255 255 / 0.96);
+  background-color: rgb(237 233 245 / 0.9);
 }
 
 body.theme-light .estiva-dashboard .hover\:bg-white\/10:hover {
@@ -296,28 +296,28 @@ body.theme-light .estiva-dashboard .divide-white\/5 > :not([hidden]) ~ :not([hid
 
 /* Some screens use dark "frame" colors; soften them in light mode */
 body.theme-light .estiva-dashboard .bg-\[\#0b0614\] {
-  background-color: rgb(255 255 255 / 0.92);
+  background-color: #e8e4f1;
 }
 
 body.theme-light .estiva-dashboard .bg-\[\#040309\] {
-  background-color: rgb(255 255 255 / 0.92);
+  background-color: #e8e4f1;
 }
 
 body.theme-light .estiva-dashboard .bg-\[\#0d0d1a\]\/90 {
-  background-color: rgb(255 255 255 / 0.92);
+  background-color: rgb(232 228 241 / 0.92);
 }
 
 body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\] {
-  background-color: #ffffff;
+  background-color: #edeaf6;
 }
 
 body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]\/95 {
-  background-color: rgb(255 255 255 / 0.97);
+  background-color: rgb(237 234 246 / 0.97);
 }
 
 /* Light theme: modal/overlay dark bg overrides */
 body.theme-light .estiva-dashboard .bg-white\/\[0\.06\] {
-  background-color: rgb(255 255 255 / 0.8);
+  background-color: rgb(237 233 245 / 0.65);
 }
 
 body.theme-light .estiva-dashboard .border-white\/15 {
@@ -334,7 +334,7 @@ body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.06\]:hover {
 }
 
 body.theme-light .estiva-dashboard .bg-white\/15 {
-  background-color: rgb(255 255 255 / 0.9);
+  background-color: rgb(237 233 245 / 0.8);
 }
 
 /* Light theme: ring colors */
@@ -398,6 +398,36 @@ body.theme-light .estiva-dashboard button.bg-green-600 {
 /* Light theme: text-white/25 for subtle labels */
 body.theme-light .estiva-dashboard .text-white\/25 {
   color: rgb(31 18 51 / 0.25);
+}
+
+/* Light theme: soften gray/white utilities used in dashboard components */
+body.theme-light .estiva-dashboard .bg-white {
+  background-color: #edeaf6;
+}
+
+body.theme-light .estiva-dashboard .bg-gray-50,
+body.theme-light .estiva-dashboard .bg-gray-50\/50 {
+  background-color: #e8e4f1;
+}
+
+body.theme-light .estiva-dashboard .bg-gray-100 {
+  background-color: #e2ddef;
+}
+
+body.theme-light .estiva-dashboard .hover\:bg-gray-50:hover {
+  background-color: #e4e0ed;
+}
+
+body.theme-light .estiva-dashboard .hover\:bg-gray-100:hover {
+  background-color: #ddd8ea;
+}
+
+body.theme-light .estiva-dashboard .border-gray-200 {
+  border-color: #d5cce6;
+}
+
+body.theme-light .estiva-dashboard .border-gray-300 {
+  border-color: #c8bed8;
 }
 
 /* Layout utility */
@@ -565,16 +595,16 @@ body.theme-light .estiva-dashboard .text-white\/25 {
 /* Light theme override for date inputs */
 body.theme-light .estiva-dashboard input[type="date"],
 body.theme-light .estiva-dashboard input[type="datetime-local"] {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(237, 233, 245, 0.85);
   color: #1f1233;
-  border-color: #e3d8ff;
+  border-color: #d5cce6;
   color-scheme: light;
 }
 
 body.theme-light .estiva-dashboard input[type="date"]:hover,
 body.theme-light .estiva-dashboard input[type="datetime-local"]:hover {
-  border-color: #d0c0f5;
-  background-color: rgba(255, 255, 255, 0.95);
+  border-color: #c4b8de;
+  background-color: rgba(237, 233, 245, 0.95);
 }
 
 body.theme-light .estiva-dashboard input[type="date"]:focus,
@@ -611,19 +641,19 @@ body.theme-light .estiva-dashboard input[type="datetime-local"]::-webkit-calenda
 
 /* Light theme override for dashboard selects */
 body.theme-light .estiva-dashboard select {
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: rgba(237, 233, 245, 0.85);
   color: #1f1233;
-  border-color: #e3d8ff;
+  border-color: #d5cce6;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(31,18,51,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
 body.theme-light .estiva-dashboard select:hover {
-  border-color: #d0c0f5;
-  background-color: rgba(255, 255, 255, 0.95);
+  border-color: #c4b8de;
+  background-color: rgba(237, 233, 245, 0.95);
 }
 
 body.theme-light .estiva-dashboard select option {
-  background-color: #ffffff;
+  background-color: #edeaf6;
   color: #1f1233;
 }
 
