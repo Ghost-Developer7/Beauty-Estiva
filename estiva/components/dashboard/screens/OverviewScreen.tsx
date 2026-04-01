@@ -437,7 +437,7 @@ export default function OverviewScreen() {
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                   <XAxis dataKey="name" tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`} />
-                  <Tooltip content={<CustomTooltip  isDark={isDark} />} />
+                  <Tooltip content={<CustomTooltip  isDark={isDark} />} cursor={{ stroke: isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)" }} />
                   <Legend wrapperStyle={{ color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", fontSize: 12 }} />
                   <Line type="monotone" dataKey={t.revenue} stroke="#ec4899" strokeWidth={2.5} dot={{ fill: "#ec4899", r: 4 }} activeDot={{ r: 6, fill: "#ec4899" }} />
                   <Line type="monotone" dataKey={t.expense} stroke="#8b5cf6" strokeWidth={2.5} dot={{ fill: "#8b5cf6", r: 4 }} activeDot={{ r: 6, fill: "#8b5cf6" }} />
@@ -505,7 +505,7 @@ export default function OverviewScreen() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                 <XAxis dataKey="name" tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)", fontSize: 12 }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip  isDark={isDark} />} />
+                <Tooltip content={<CustomTooltip  isDark={isDark} />} cursor={{ fill: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }} />
                 <Legend wrapperStyle={{ color: isDark ? "rgba(255,255,255,0.6)" : "rgba(0,0,0,0.6)", fontSize: 12 }} />
                 <Bar dataKey={t.newCustomers} fill="#ec4899" radius={[4, 4, 0, 0]} />
                 <Bar dataKey={t.totalCust} fill="#8b5cf6" radius={[4, 4, 0, 0]} />
@@ -537,6 +537,7 @@ export default function OverviewScreen() {
                       fontSize: 13,
                     }}
                     formatter={(value) => [`${formatCurrency(Number(value ?? 0))} ₺`, t.revenue]}
+                    cursor={{ fill: isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)" }}
                   />
                   <Bar dataKey="value" radius={[0, 4, 4, 0]}>
                     {topServicesData.map((_, index) => (
