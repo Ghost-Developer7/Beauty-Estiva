@@ -587,10 +587,10 @@ export default function CustomersScreen() {
             <div className={`hidden lg:grid grid-cols-[1.2fr_1fr_0.5fr_0.5fr_0.6fr_0.5fr_80px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.customer}</span>
               <span>{t.contact}</span>
-              <span className="text-center">{t.visits}</span>
-              <span className="text-center">{t.points}</span>
-              <span className="text-right">{t.spent}</span>
-              <span className="text-center">{t.segment}</span>
+              <span>{t.visits}</span>
+              <span>{t.points}</span>
+              <span>{t.spent}</span>
+              <span>{t.segment}</span>
               <span />
             </div>
 
@@ -617,11 +617,11 @@ export default function CustomersScreen() {
                     <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{c.email || "\u2014"}</p>
                   </div>
 
-                  <p className={`hidden lg:block text-xs text-center ${isDark ? "text-white/50" : "text-gray-500"}`}>{c.totalVisits}</p>
-                  <p className="hidden lg:block text-xs text-center text-amber-400 font-semibold">{c.loyaltyPoints}</p>
-                  <p className={`hidden lg:block text-xs text-right ${isDark ? "text-white/50" : "text-gray-500"}`}>{formatCurrency(c.totalSpent)}</p>
+                  <p className={`hidden lg:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{c.totalVisits}</p>
+                  <p className="hidden lg:block text-xs text-amber-400 font-semibold">{c.loyaltyPoints}</p>
+                  <p className={`hidden lg:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{formatCurrency(c.totalSpent)}</p>
 
-                  <div className="hidden lg:flex justify-center">
+                  <div className="hidden lg:block">
                     <SegmentBadge segment={c.segment} language={language} />
                   </div>
 
