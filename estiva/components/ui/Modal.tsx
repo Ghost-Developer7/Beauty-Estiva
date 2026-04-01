@@ -40,54 +40,48 @@ export default function Modal({
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm"
-      onMouseDown={(e) => {
-        if (e.target === overlayRef.current || (e.target as HTMLElement).dataset.overlay) {
-          (overlayRef.current as HTMLDivElement & { _closeIntent?: boolean })._closeIntent = true;
-        }
-      }}
-      onClick={(e) => {
-        const el = overlayRef.current as HTMLDivElement & { _closeIntent?: boolean } | null;
-        if (((e.target as HTMLElement) === overlayRef.current || (e.target as HTMLElement).dataset.overlay) && el?._closeIntent) {
-          el._closeIntent = false;
-          onClose();
-        }
+      onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
+      style={{
+        position: "fixed",
+        inset: 0,
+        zIndex: 50,
+        overflowY: "auto",
+        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(4px)",
+        padding: "1rem",
       }}
     >
-      {/* Centering wrapper — min-height forces vertical centering, padding gives breathing room */}
-      <div data-overlay="true" className="flex min-h-full items-center justify-center p-4">
-        <div
-          className={`w-full ${maxWidth} rounded-2xl border p-5 shadow-2xl flex flex-col ${
-            isDark
-              ? "border-white/10 bg-[#1a1a2e]"
-              : "border-gray-200 bg-white shadow-xl"
-          }`}
-          style={{ maxHeight: "calc(100vh - 2rem)" }}
-        >
-          {/* Header */}
-          <div className="mb-4 flex items-center justify-between shrink-0">
-            <h2 className={`text-base sm:text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h2>
-            <button
-              onClick={onClose}
-              className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
-                isDark
-                  ? "text-white/50 hover:bg-white/10 hover:text-white"
-                  : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-              }`}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          </div>
-          {/* Scrollable content */}
-          <div className={`flex-1 min-h-0 overflow-y-auto pr-1 ${
-            isDark
-              ? "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-white/20"
-              : "[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb:hover]:bg-gray-400"
-          }`}>{children}</div>
+      <div
+        style={{
+          width: "100%",
+          maxWidth: maxWidth === "max-w-lg" ? "32rem" : maxWidth === "max-w-xl" ? "36rem" : maxWidth === "max-w-2xl" ? "42rem" : "32rem",
+          margin: "1rem auto",
+          borderRadius: "1rem",
+          border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e5e7eb",
+          background: isDark ? "#1a1a2e" : "#fff",
+          padding: "1.25rem",
+          boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+          <h2 className={`text-base sm:text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h2>
+          <button
+            onClick={onClose}
+            className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
+              isDark
+                ? "text-white/50 hover:bg-white/10 hover:text-white"
+                : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            }`}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
         </div>
+        {/* Content — tüm form burada, sayfa scroll ile ulaşılır */}
+        <div>{children}</div>
       </div>
     </div>
   );
