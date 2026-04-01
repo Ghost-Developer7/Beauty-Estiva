@@ -584,13 +584,13 @@ export default function CustomersScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden lg:grid grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden lg:grid grid-cols-[1.2fr_1fr_0.5fr_0.5fr_0.6fr_0.5fr_80px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span>{t.customer}</span>
               <span>{t.contact}</span>
-              <span>{t.visits}</span>
-              <span>{t.points}</span>
-              <span>{t.spent}</span>
-              <span>{t.segment}</span>
+              <span className="text-center">{t.visits}</span>
+              <span className="text-center">{t.points}</span>
+              <span className="text-right">{t.spent}</span>
+              <span className="text-center">{t.segment}</span>
               <span />
             </div>
 
@@ -599,7 +599,7 @@ export default function CustomersScreen() {
                 <div
                   key={c.id}
                   onClick={() => openDetail(c.id)}
-                  className={`group grid grid-cols-1 lg:grid-cols-[1fr_0.8fr_0.5fr_0.4fr_0.5fr_0.4fr_auto] gap-2 lg:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
+                  className={`group grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_0.5fr_0.5fr_0.6fr_0.5fr_80px] gap-2 lg:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                 >
                   {/* Customer */}
                   <div className="flex items-center gap-3">
@@ -607,15 +607,7 @@ export default function CustomersScreen() {
                       {getInitials(c.name, c.surname)}
                     </div>
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{c.name} {c.surname}</p>
-                        {c.tags && c.tags.length > 0 && (
-                          <div className="hidden xl:flex gap-1">
-                            {c.tags.slice(0, 2).map(tg => <TagPill key={tg} tag={tg} />)}
-                            {c.tags.length > 2 && <span className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>+{c.tags.length - 2}</span>}
-                          </div>
-                        )}
-                      </div>
+                      <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{c.name} {c.surname}</p>
                       <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} lg:hidden`}>{c.phone || c.email || ""}</p>
                     </div>
                   </div>
@@ -625,11 +617,11 @@ export default function CustomersScreen() {
                     <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{c.email || "\u2014"}</p>
                   </div>
 
-                  <p className={`hidden lg:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{c.totalVisits}</p>
-                  <p className="hidden lg:block text-xs text-amber-400 font-semibold">{c.loyaltyPoints}</p>
-                  <p className={`hidden lg:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{formatCurrency(c.totalSpent)}</p>
+                  <p className={`hidden lg:block text-xs text-center ${isDark ? "text-white/50" : "text-gray-500"}`}>{c.totalVisits}</p>
+                  <p className="hidden lg:block text-xs text-center text-amber-400 font-semibold">{c.loyaltyPoints}</p>
+                  <p className={`hidden lg:block text-xs text-right ${isDark ? "text-white/50" : "text-gray-500"}`}>{formatCurrency(c.totalSpent)}</p>
 
-                  <div className="hidden lg:block">
+                  <div className="hidden lg:flex justify-center">
                     <SegmentBadge segment={c.segment} language={language} />
                   </div>
 
