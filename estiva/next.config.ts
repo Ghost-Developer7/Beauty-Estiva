@@ -32,6 +32,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["@prisma/client", "prisma"],
   async headers() {
     return [
       {

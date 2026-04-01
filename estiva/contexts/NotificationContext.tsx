@@ -9,7 +9,6 @@ import {
   useRef,
   ReactNode,
 } from "react";
-import * as signalR from "@microsoft/signalr";
 import Cookies from "js-cookie";
 import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
@@ -17,11 +16,6 @@ import {
   notificationInAppService,
   type InAppNotification,
 } from "@/services/notificationInAppService";
-
-// NEXT_PUBLIC_API_URL = "https://test.mehmetkara.xyz/api" gibi olabilir
-// Hub URL icin /api kismini cikarip /hubs/notification ekliyoruz
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-const HUB_URL = API_URL.replace(/\/api\/?$/, "") + "/hubs/notification";
 
 interface NotificationContextValue {
   notifications: InAppNotification[];
@@ -48,7 +42,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const connectionRef = useRef<signalR.HubConnection | null>(null);
+  const eventSourceRef = useRef<EventSource | null>(null);
 
   // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
@@ -94,7 +88,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         );
         setUnreadCount((prev) => Math.max(0, prev - 1));
       } catch {
-        /* mark-as-read failure is non-critical, local state already updated optimistically */
+        /* mark-as-read failure is non-critical */
       }
     },
     []
@@ -109,7 +103,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       );
       setUnreadCount(0);
     } catch {
-      /* mark-all-as-read failure is non-critical, local state already updated optimistically */
+      /* mark-all-as-read failure is non-critical */
     }
   }, []);
 
@@ -120,16 +114,16 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       setTotalCount((prev) => prev - 1);
     } catch {
-      /* delete failure is non-critical, local state already updated optimistically */
+      /* delete failure is non-critical */
     }
   }, []);
 
-  // SignalR connection
+  // SSE connection (replaces SignalR)
   useEffect(() => {
     if (!isAuthenticated || !user) {
-      if (connectionRef.current) {
-        connectionRef.current.stop();
-        connectionRef.current = null;
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close();
+        eventSourceRef.current = null;
         setIsConnected(false);
       }
       return;
@@ -138,78 +132,63 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     const token = Cookies.get("estiva-token");
     if (!token) return;
 
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl(HUB_URL, {
-        accessTokenFactory: () => token,
-      })
-      .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
-      .configureLogging(signalR.LogLevel.None)
-      .build();
+    // Use SSE for real-time notifications
+    const sseUrl = `/api/notification/stream`;
+    const eventSource = new EventSource(sseUrl);
 
-    connection.on("ReceiveNotification", (notification: InAppNotification) => {
-      setNotifications((prev) => {
-        // Prevent duplicates
-        if (prev.some((n) => n.id === notification.id)) return prev;
-        return [notification, ...prev];
-      });
-      setUnreadCount((prev) => prev + 1);
-      setTotalCount((prev) => prev + 1);
-
-      // Show toast for new notifications
-      const toastType = notification.type === "error" ? "error" : "success";
-      if (toastType === "error") {
-        toast.error(notification.title, { duration: 4000 });
-      } else {
-        toast(notification.title, {
-          duration: 4000,
-          icon: "🔔",
-        });
-      }
-    });
-
-    connection.on("NotificationRead", (notificationId: number) => {
-      setNotifications((prev) =>
-        prev.map((n) =>
-          n.id === notificationId
-            ? { ...n, isRead: true, readAt: new Date().toISOString() }
-            : n
-        )
-      );
-    });
-
-    connection.on("AllNotificationsRead", () => {
-      setNotifications((prev) =>
-        prev.map((n) => ({ ...n, isRead: true, readAt: new Date().toISOString() }))
-      );
-      setUnreadCount(0);
-    });
-
-    connection.onreconnected(() => {
+    eventSource.onopen = () => {
       setIsConnected(true);
-      fetchUnreadCount();
-    });
+    };
 
-    connection.onclose(() => {
+    eventSource.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+
+        if (parsed.type === "connected") {
+          setIsConnected(true);
+          fetchUnreadCount();
+          fetchNotifications(1);
+          return;
+        }
+
+        if (parsed.type === "ReceiveNotification") {
+          const notification: InAppNotification = parsed.data;
+          setNotifications((prev) => {
+            if (prev.some((n) => n.id === notification.id)) return prev;
+            return [notification, ...prev];
+          });
+          setUnreadCount((prev) => prev + 1);
+          setTotalCount((prev) => prev + 1);
+
+          // Show toast
+          if (notification.type === "error") {
+            toast.error(notification.title, { duration: 4000 });
+          } else {
+            toast(notification.title, {
+              duration: 4000,
+              icon: "\uD83D\uDD14",
+            });
+          }
+        }
+      } catch {
+        /* JSON parse error on SSE message is non-critical */
+      }
+    };
+
+    eventSource.onerror = () => {
       setIsConnected(false);
-    });
+      // EventSource will auto-reconnect
+    };
 
-    connection
-      .start()
-      .then(() => {
-        setIsConnected(true);
-        connectionRef.current = connection;
-        // Initial data fetch
-        fetchUnreadCount();
-        fetchNotifications(1);
-      })
-      .catch(() => {
-        /* SignalR connection failure is non-critical, app works without real-time notifications */
-        setIsConnected(false);
-      });
+    eventSourceRef.current = eventSource;
+
+    // Initial data fetch
+    fetchUnreadCount();
+    fetchNotifications(1);
 
     return () => {
-      connection.stop();
-      connectionRef.current = null;
+      eventSource.close();
+      eventSourceRef.current = null;
     };
   }, [isAuthenticated, user, fetchUnreadCount, fetchNotifications]);
 

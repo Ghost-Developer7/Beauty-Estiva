@@ -1,0 +1,1025 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+model EFMigrationsHistory {
+  MigrationId    String @id(map: "PK___EFMigrationsHistory") @db.NVarChar(150)
+  ProductVersion String @db.NVarChar(32)
+
+  @@map("__EFMigrationsHistory")
+}
+
+model AppointmentPayments {
+  Id                     Int                      @id(map: "PK_AppointmentPayments") @default(autoincrement())
+  TenantId               Int
+  AppointmentId          Int
+  Amount                 Decimal                  @db.Decimal(18, 2)
+  CurrencyId             Int
+  ExchangeRateToTry      Decimal                  @db.Decimal(18, 6)
+  AmountInTry            Decimal                  @db.Decimal(18, 2)
+  PaymentMethod          Int
+  PaidAt                 DateTime
+  Notes                  String?                  @db.NVarChar(Max)
+  CUser                  Int?
+  UUser                  Int?
+  CDate                  DateTime?
+  UDate                  DateTime?
+  IsActive               Boolean?
+  Appointments           Appointments             @relation(fields: [AppointmentId], references: [Id], onUpdate: NoAction, map: "FK_AppointmentPayments_Appointments_AppointmentId")
+  Currencies             Currencies               @relation(fields: [CurrencyId], references: [Id], onUpdate: NoAction, map: "FK_AppointmentPayments_Currencies_CurrencyId")
+  Tenants                Tenants                  @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_AppointmentPayments_Tenants_TenantId")
+  StaffCommissionRecords StaffCommissionRecords[]
+
+  @@index([AppointmentId], map: "IX_AppointmentPayments_AppointmentId")
+  @@index([CurrencyId], map: "IX_AppointmentPayments_CurrencyId")
+  @@index([TenantId], map: "IX_AppointmentPayments_TenantId")
+}
+
+model Appointments {
+  Id                     Int                   @id(map: "PK_Appointments") @default(autoincrement())
+  TenantId               Int
+  CustomerId             Int
+  StaffId                Int
+  TreatmentId            Int
+  StartTime              DateTime
+  EndTime                DateTime
+  Status                 Int
+  Notes                  String?               @db.NVarChar(Max)
+  IsRecurring            Boolean
+  RecurrenceIntervalDays Int?
+  TotalSessions          Int?
+  SessionNumber          Int
+  ParentAppointmentId    Int?
+  CUser                  Int?
+  UUser                  Int?
+  CDate                  DateTime?
+  UDate                  DateTime?
+  IsActive               Boolean?
+  AppointmentPayments    AppointmentPayments[]
+  Appointments           Appointments?         @relation("AppointmentsToAppointments", fields: [ParentAppointmentId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Appointments_Appointments_ParentAppointmentId")
+  other_Appointments     Appointments[]        @relation("AppointmentsToAppointments")
+  Customers              Customers             @relation(fields: [CustomerId], references: [Id], onUpdate: NoAction, map: "FK_Appointments_Customers_CustomerId")
+  Tenants                Tenants               @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_Appointments_Tenants_TenantId")
+  Treatments             Treatments            @relation(fields: [TreatmentId], references: [Id], onUpdate: NoAction, map: "FK_Appointments_Treatments_TreatmentId")
+  Users                  Users                 @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_Appointments_Users_StaffId")
+
+  @@index([CustomerId], map: "IX_Appointments_CustomerId")
+  @@index([ParentAppointmentId], map: "IX_Appointments_ParentAppointmentId")
+  @@index([StaffId], map: "IX_Appointments_StaffId")
+  @@index([TenantId], map: "IX_Appointments_TenantId")
+  @@index([TreatmentId], map: "IX_Appointments_TreatmentId")
+}
+
+model Branches {
+  Id               Int       @id(map: "PK_Branches") @default(autoincrement())
+  TenantId         Int
+  Name             String    @db.NVarChar(200)
+  Address          String?   @db.NVarChar(500)
+  Phone            String?   @db.NVarChar(30)
+  Email            String?   @db.NVarChar(150)
+  WorkingHoursJson String?   @db.NVarChar(2000)
+  IsMainBranch     Boolean
+  CUser            Int?
+  UUser            Int?
+  CDate            DateTime?
+  UDate            DateTime?
+  IsActive         Boolean?
+  Tenants          Tenants   @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_Branches_Tenants_TenantId")
+  Users            Users[]
+
+  @@index([TenantId], map: "IX_Branches_TenantId")
+}
+
+model Coupons {
+  Id                  Int                   @id(map: "PK_Coupons") @default(autoincrement())
+  Code                String                @db.NVarChar(50)
+  Description         String?               @db.NVarChar(200)
+  IsPercentage        Boolean
+  DiscountAmount      Decimal               @db.Decimal(18, 2)
+  StartDate           DateTime
+  EndDate             DateTime
+  MaxUsageCount       Int?
+  CurrentUsageCount   Int
+  IsGlobal            Boolean
+  SpecificTenantId    Int?
+  CUser               Int?
+  UUser               Int?
+  CDate               DateTime?
+  UDate               DateTime?
+  IsActive            Boolean?
+  Tenants             Tenants?              @relation(fields: [SpecificTenantId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Coupons_Tenants_SpecificTenantId")
+  CouponUsages        CouponUsages[]
+  TenantSubscriptions TenantSubscriptions[]
+
+  @@index([SpecificTenantId], map: "IX_Coupons_SpecificTenantId")
+}
+
+model CouponUsages {
+  Id                  Int                 @id(map: "PK_CouponUsages") @default(autoincrement())
+  CouponId            Int
+  TenantId            Int
+  SubscriptionId      Int
+  OriginalPrice       Decimal             @db.Decimal(18, 2)
+  DiscountAmount      Decimal             @db.Decimal(18, 2)
+  FinalPrice          Decimal             @db.Decimal(18, 2)
+  UsedDate            DateTime
+  CUser               Int?
+  UUser               Int?
+  CDate               DateTime?
+  UDate               DateTime?
+  IsActive            Boolean?
+  Coupons             Coupons             @relation(fields: [CouponId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_CouponUsages_Coupons_CouponId")
+  Tenants             Tenants             @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_CouponUsages_Tenants_TenantId")
+  TenantSubscriptions TenantSubscriptions @relation(fields: [SubscriptionId], references: [Id], onUpdate: NoAction, map: "FK_CouponUsages_TenantSubscriptions_SubscriptionId")
+
+  @@index([CouponId], map: "IX_CouponUsages_CouponId")
+  @@index([SubscriptionId], map: "IX_CouponUsages_SubscriptionId")
+  @@index([TenantId], map: "IX_CouponUsages_TenantId")
+}
+
+model Currencies {
+  Id                  Int                   @id(map: "PK_Currencies") @default(autoincrement())
+  Code                String                @db.NVarChar(10)
+  Symbol              String                @db.NVarChar(5)
+  Name                String                @db.NVarChar(100)
+  IsDefault           Boolean
+  IsActive            Boolean
+  DisplayOrder        Int
+  ExchangeRateToTry   Decimal?              @db.Decimal(18, 6)
+  RateLastUpdated     DateTime?
+  TcmbCurrencyCode    String?               @db.NVarChar(10)
+  AppointmentPayments AppointmentPayments[]
+  Expenses            Expenses[]
+  ProductSales        ProductSales[]
+}
+
+model CustomerDebtPayments {
+  Id             Int           @id(map: "PK_CustomerDebtPayments") @default(autoincrement())
+  TenantId       Int
+  CustomerDebtId Int
+  Amount         Decimal       @db.Decimal(18, 2)
+  PaymentMethod  String        @db.NVarChar(50)
+  Notes          String?
+  PaymentDate    DateTime
+  CUser          Int?
+  UUser          Int?
+  CDate          DateTime?
+  UDate          DateTime?
+  IsActive       Boolean?
+  CustomerDebts  CustomerDebts @relation(fields: [CustomerDebtId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_CustomerDebtPayments_CustomerDebts_CustomerDebtId")
+
+  @@index([CustomerDebtId], map: "IX_CustomerDebtPayments_CustomerDebtId")
+  @@index([TenantId, PaymentDate], map: "IX_CustomerDebtPayments_TenantId_PaymentDate")
+}
+
+model CustomerDebts {
+  Id                   Int                    @id(map: "PK_CustomerDebts") @default(autoincrement())
+  TenantId             Int
+  CustomerId           Int?
+  PersonName           String?                @db.NVarChar(200)
+  Type                 String                 @db.NVarChar(20)
+  Amount               Decimal                @db.Decimal(18, 2)
+  PaidAmount           Decimal                @db.Decimal(18, 2)
+  Currency             String?                @db.NVarChar(10)
+  Description          String?                @db.NVarChar(500)
+  Notes                String?
+  DueDate              DateTime?
+  Status               String                 @db.NVarChar(20)
+  RelatedAppointmentId Int?
+  RelatedPackageSaleId Int?
+  Source               String?                @db.NVarChar(50)
+  CUser                Int?
+  UUser                Int?
+  CDate                DateTime?
+  UDate                DateTime?
+  IsActive             Boolean?
+  CustomerDebtPayments CustomerDebtPayments[]
+  Customers            Customers?             @relation(fields: [CustomerId], references: [Id], onUpdate: NoAction, map: "FK_CustomerDebts_Customers_CustomerId")
+  Tenants              Tenants                @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_CustomerDebts_Tenants_TenantId")
+
+  @@index([CustomerId], map: "IX_CustomerDebts_CustomerId")
+  @@index([TenantId, Type, Status], map: "IX_CustomerDebts_TenantId_Type_Status")
+}
+
+model Customers {
+  Id                    Int                     @id(map: "PK_Customers") @default(autoincrement())
+  TenantId              Int
+  Name                  String                  @db.NVarChar(Max)
+  Surname               String                  @db.NVarChar(Max)
+  Phone                 String                  @db.NVarChar(Max)
+  Email                 String?                 @db.NVarChar(Max)
+  BirthDate             DateTime?
+  Notes                 String?                 @db.NVarChar(Max)
+  CUser                 Int?
+  UUser                 Int?
+  CDate                 DateTime?
+  UDate                 DateTime?
+  IsActive              Boolean?
+  Allergies             String?                 @db.NVarChar(Max)
+  CustomerSince         DateTime                @default(dbgenerated("0001-01-01T00:00:00.0000000"), map: "DF__Customers__Custo__318258D2")
+  LastVisitDate         DateTime?
+  LoyaltyPoints         Int                     @default(0, map: "DF__Customers__Loyal__32767D0B")
+  Preferences           String?                 @db.NVarChar(Max)
+  PreferredStaffId      Int?
+  ReferralSource        String?                 @db.NVarChar(Max)
+  Tags                  String?                 @db.NVarChar(Max)
+  TotalSpent            Decimal                 @default(0.0, map: "DF__Customers__Total__336AA144") @db.Decimal(18, 2)
+  TotalVisits           Int                     @default(0, map: "DF__Customers__Total__345EC57D")
+  Appointments          Appointments[]
+  CustomerDebts         CustomerDebts[]
+  Tenants               Tenants                 @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Customers_Tenants_TenantId")
+  Users                 Users?                  @relation(fields: [PreferredStaffId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Customers_Users_PreferredStaffId")
+  PackageSales_Packages PackageSales_Packages[]
+  ProductSales          ProductSales[]
+
+  @@index([PreferredStaffId], map: "IX_Customers_PreferredStaffId")
+  @@index([TenantId], map: "IX_Customers_TenantId")
+}
+
+model ExpenseCategories {
+  Id       Int        @id(map: "PK_ExpenseCategories") @default(autoincrement())
+  TenantId Int
+  Name     String     @db.NVarChar(100)
+  Color    String?    @db.NVarChar(Max)
+  CUser    Int?
+  UUser    Int?
+  CDate    DateTime?
+  UDate    DateTime?
+  IsActive Boolean?
+  Tenants  Tenants    @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_ExpenseCategories_Tenants_TenantId")
+  Expenses Expenses[]
+
+  @@index([TenantId], map: "IX_ExpenseCategories_TenantId")
+}
+
+model Expenses {
+  Id                Int                @id(map: "PK_Expenses") @default(autoincrement())
+  TenantId          Int
+  ExpenseCategoryId Int?
+  Amount            Decimal            @db.Decimal(18, 2)
+  CurrencyId        Int
+  ExchangeRateToTry Decimal            @db.Decimal(18, 6)
+  AmountInTry       Decimal            @db.Decimal(18, 2)
+  Description       String             @db.NVarChar(500)
+  ExpenseDate       DateTime
+  ReceiptNumber     String?            @db.NVarChar(Max)
+  Notes             String?            @db.NVarChar(Max)
+  CUser             Int?
+  UUser             Int?
+  CDate             DateTime?
+  UDate             DateTime?
+  IsActive          Boolean?
+  Currencies        Currencies         @relation(fields: [CurrencyId], references: [Id], onUpdate: NoAction, map: "FK_Expenses_Currencies_CurrencyId")
+  ExpenseCategories ExpenseCategories? @relation(fields: [ExpenseCategoryId], references: [Id], onUpdate: NoAction, map: "FK_Expenses_ExpenseCategories_ExpenseCategoryId")
+  Tenants           Tenants            @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_Expenses_Tenants_TenantId")
+
+  @@index([CurrencyId], map: "IX_Expenses_CurrencyId")
+  @@index([ExpenseCategoryId], map: "IX_Expenses_ExpenseCategoryId")
+  @@index([TenantId], map: "IX_Expenses_TenantId")
+}
+
+model InAppNotifications {
+  Id               Int       @id(map: "PK_InAppNotifications") @default(autoincrement())
+  TenantId         Int
+  UserId           Int?
+  Title            String    @db.NVarChar(200)
+  Message          String
+  Type             String    @db.NVarChar(20)
+  EntityType       String?   @db.NVarChar(50)
+  EntityId         Int?
+  IsRead           Boolean
+  ReadAt           DateTime?
+  ActionUrl        String?   @db.NVarChar(500)
+  Icon             String?   @db.NVarChar(50)
+  DeduplicationKey String?   @db.NVarChar(200)
+  CUser            Int?
+  UUser            Int?
+  CDate            DateTime?
+  UDate            DateTime?
+  IsActive         Boolean?
+  Tenants          Tenants   @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_InAppNotifications_Tenants_TenantId")
+  Users            Users?    @relation(fields: [UserId], references: [Id], onUpdate: NoAction, map: "FK_InAppNotifications_Users_UserId")
+
+  @@index([DeduplicationKey], map: "IX_InAppNotifications_DeduplicationKey")
+  @@index([TenantId, CDate], map: "IX_InAppNotifications_TenantId_CDate")
+  @@index([TenantId, UserId, IsRead], map: "IX_InAppNotifications_TenantId_UserId_IsRead")
+  @@index([UserId], map: "IX_InAppNotifications_UserId")
+}
+
+model PackageSales_Packages {
+  Id                    Int                     @id(map: "PK_PackageSales_Packages") @default(autoincrement())
+  TenantId              Int
+  CustomerId            Int
+  TreatmentId           Int
+  StaffId               Int
+  TotalSessions         Int
+  UsedSessions          Int
+  TotalPrice            Decimal                 @db.Decimal(18, 2)
+  PaidAmount            Decimal                 @db.Decimal(18, 2)
+  PaymentMethod         Int
+  StartDate             DateTime
+  EndDate               DateTime
+  Status                Int
+  Notes                 String?                 @db.NVarChar(Max)
+  CUser                 Int?
+  UUser                 Int?
+  CDate                 DateTime?
+  UDate                 DateTime?
+  IsActive              Boolean?
+  Customers             Customers               @relation(fields: [CustomerId], references: [Id], onUpdate: NoAction, map: "FK_PackageSales_Packages_Customers_CustomerId")
+  Tenants               Tenants                 @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_PackageSales_Packages_Tenants_TenantId")
+  Treatments            Treatments              @relation(fields: [TreatmentId], references: [Id], onUpdate: NoAction, map: "FK_PackageSales_Packages_Treatments_TreatmentId")
+  Users                 Users                   @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_PackageSales_Packages_Users_StaffId")
+  PackageSales_Payments PackageSales_Payments[]
+  PackageSales_Usages   PackageSales_Usages[]
+
+  @@index([CustomerId], map: "IX_PackageSales_Packages_CustomerId")
+  @@index([StaffId], map: "IX_PackageSales_Packages_StaffId")
+  @@index([TenantId], map: "IX_PackageSales_Packages_TenantId")
+  @@index([TreatmentId], map: "IX_PackageSales_Packages_TreatmentId")
+}
+
+model PackageSales_Payments {
+  Id                    Int                   @id(map: "PK_PackageSales_Payments") @default(autoincrement())
+  PackageSaleId         Int
+  TenantId              Int
+  Amount                Decimal               @db.Decimal(18, 2)
+  PaymentMethod         Int
+  PaidAt                DateTime
+  Notes                 String?               @db.NVarChar(Max)
+  CUser                 Int?
+  UUser                 Int?
+  CDate                 DateTime?
+  UDate                 DateTime?
+  IsActive              Boolean?
+  PackageSales_Packages PackageSales_Packages @relation(fields: [PackageSaleId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_PackageSales_Payments_PackageSales_Packages_PackageSaleId")
+  Tenants               Tenants               @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_PackageSales_Payments_Tenants_TenantId")
+
+  @@index([PackageSaleId], map: "IX_PackageSales_Payments_PackageSaleId")
+  @@index([TenantId], map: "IX_PackageSales_Payments_TenantId")
+}
+
+model PackageSales_Usages {
+  Id                    Int                   @id(map: "PK_PackageSales_Usages") @default(autoincrement())
+  PackageSaleId         Int
+  TenantId              Int
+  UsageDate             DateTime
+  StaffId               Int?
+  Notes                 String?               @db.NVarChar(Max)
+  CUser                 Int?
+  UUser                 Int?
+  CDate                 DateTime?
+  UDate                 DateTime?
+  IsActive              Boolean?
+  PackageSales_Packages PackageSales_Packages @relation(fields: [PackageSaleId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_PackageSales_Usages_PackageSales_Packages_PackageSaleId")
+  Tenants               Tenants               @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_PackageSales_Usages_Tenants_TenantId")
+  Users                 Users?                @relation(fields: [StaffId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_PackageSales_Usages_Users_StaffId")
+
+  @@index([PackageSaleId], map: "IX_PackageSales_Usages_PackageSaleId")
+  @@index([StaffId], map: "IX_PackageSales_Usages_StaffId")
+  @@index([TenantId], map: "IX_PackageSales_Usages_TenantId")
+}
+
+model Products {
+  Id            Int            @id(map: "PK_Products") @default(autoincrement())
+  TenantId      Int
+  Name          String         @db.NVarChar(200)
+  Description   String?
+  Barcode       String?        @db.NVarChar(50)
+  Price         Decimal        @db.Decimal(18, 2)
+  StockQuantity Int
+  CUser         Int?
+  UUser         Int?
+  CDate         DateTime?
+  UDate         DateTime?
+  IsActive      Boolean?
+  Tenants       Tenants        @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_Products_Tenants_TenantId")
+  ProductSales  ProductSales[]
+
+  @@index([TenantId], map: "IX_Products_TenantId")
+}
+
+model ProductSales {
+  Id                Int        @id(map: "PK_ProductSales") @default(autoincrement())
+  TenantId          Int
+  ProductId         Int
+  CustomerId        Int?
+  StaffId           Int
+  Quantity          Int
+  UnitPrice         Decimal    @db.Decimal(18, 2)
+  TotalAmount       Decimal    @db.Decimal(18, 2)
+  CurrencyId        Int
+  ExchangeRateToTry Decimal    @db.Decimal(18, 6)
+  AmountInTry       Decimal    @db.Decimal(18, 2)
+  PaymentMethod     Int
+  SaleDate          DateTime
+  Notes             String?    @db.NVarChar(Max)
+  CUser             Int?
+  UUser             Int?
+  CDate             DateTime?
+  UDate             DateTime?
+  IsActive          Boolean?
+  Currencies        Currencies @relation(fields: [CurrencyId], references: [Id], onUpdate: NoAction, map: "FK_ProductSales_Currencies_CurrencyId")
+  Customers         Customers? @relation(fields: [CustomerId], references: [Id], onUpdate: NoAction, map: "FK_ProductSales_Customers_CustomerId")
+  Products          Products   @relation(fields: [ProductId], references: [Id], onUpdate: NoAction, map: "FK_ProductSales_Products_ProductId")
+  Tenants           Tenants    @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_ProductSales_Tenants_TenantId")
+  Users             Users      @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_ProductSales_Users_StaffId")
+
+  @@index([CurrencyId], map: "IX_ProductSales_CurrencyId")
+  @@index([CustomerId], map: "IX_ProductSales_CustomerId")
+  @@index([ProductId], map: "IX_ProductSales_ProductId")
+  @@index([StaffId], map: "IX_ProductSales_StaffId")
+  @@index([TenantId], map: "IX_ProductSales_TenantId")
+}
+
+model RoleChangeAuditLogs {
+  Id                                                 Int      @id(map: "PK_RoleChangeAuditLogs") @default(autoincrement())
+  TenantId                                           Int
+  TargetUserId                                       Int
+  PerformedByUserId                                  Int
+  ActionType                                         String   @db.NVarChar(50)
+  OldRole                                            String   @db.NVarChar(50)
+  NewRole                                            String   @db.NVarChar(50)
+  Reason                                             String?  @db.NVarChar(500)
+  TargetUserName                                     String   @db.NVarChar(200)
+  PerformedByUserName                                String   @db.NVarChar(200)
+  TenantName                                         String   @db.NVarChar(250)
+  CreatedAt                                          DateTime
+  Tenants                                            Tenants  @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_RoleChangeAuditLogs_Tenants_TenantId")
+  Users_RoleChangeAuditLogs_PerformedByUserIdToUsers Users    @relation("RoleChangeAuditLogs_PerformedByUserIdToUsers", fields: [PerformedByUserId], references: [Id], onUpdate: NoAction, map: "FK_RoleChangeAuditLogs_Users_PerformedByUserId")
+  Users_RoleChangeAuditLogs_TargetUserIdToUsers      Users    @relation("RoleChangeAuditLogs_TargetUserIdToUsers", fields: [TargetUserId], references: [Id], onUpdate: NoAction, map: "FK_RoleChangeAuditLogs_Users_TargetUserId")
+
+  @@index([PerformedByUserId], map: "IX_RoleChangeAuditLogs_PerformedByUserId")
+  @@index([TargetUserId], map: "IX_RoleChangeAuditLogs_TargetUserId")
+  @@index([TenantId, CreatedAt], map: "IX_RoleChangeAuditLogs_TenantId_CreatedAt")
+}
+
+model RoleClaims {
+  Id         Int     @id(map: "PK_RoleClaims") @default(autoincrement())
+  RoleId     Int
+  ClaimType  String? @db.NVarChar(Max)
+  ClaimValue String? @db.NVarChar(Max)
+  Roles      Roles   @relation(fields: [RoleId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_RoleClaims_Roles_RoleId")
+
+  @@index([RoleId], map: "IX_RoleClaims_RoleId")
+}
+
+model Roles {
+  Id               Int          @id(map: "PK_Roles") @default(autoincrement())
+  Name             String?      @db.NVarChar(256)
+  NormalizedName   String?      @unique(map: "RoleNameIndex") @db.NVarChar(256)
+  ConcurrencyStamp String?      @db.NVarChar(Max)
+  RoleClaims       RoleClaims[]
+  UserRoles        UserRoles[]
+}
+
+model StaffCommissionRecords {
+  Id                    Int                 @id(map: "PK_StaffCommissionRecords") @default(autoincrement())
+  TenantId              Int
+  StaffId               Int
+  AppointmentPaymentId  Int
+  CommissionRate        Decimal             @db.Decimal(5, 2)
+  PaymentAmountInTry    Decimal             @db.Decimal(18, 2)
+  CommissionAmountInTry Decimal             @db.Decimal(18, 2)
+  SalonShareInTry       Decimal             @db.Decimal(18, 2)
+  IsPaid                Boolean
+  PaidAt                DateTime?
+  CUser                 Int?
+  UUser                 Int?
+  CDate                 DateTime?
+  UDate                 DateTime?
+  IsActive              Boolean?
+  AppointmentPayments   AppointmentPayments @relation(fields: [AppointmentPaymentId], references: [Id], onUpdate: NoAction, map: "FK_StaffCommissionRecords_AppointmentPayments_AppointmentPaymentId")
+  Tenants               Tenants             @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_StaffCommissionRecords_Tenants_TenantId")
+  Users                 Users               @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_StaffCommissionRecords_Users_StaffId")
+
+  @@index([AppointmentPaymentId], map: "IX_StaffCommissionRecords_AppointmentPaymentId")
+  @@index([StaffId], map: "IX_StaffCommissionRecords_StaffId")
+  @@index([TenantId, StaffId], map: "IX_StaffCommissionRecords_TenantId_StaffId")
+}
+
+model StaffHRInfos {
+  Id                     Int       @id(map: "PK_StaffHRInfos") @default(autoincrement())
+  TenantId               Int
+  StaffId                Int
+  HireDate               DateTime?
+  Position               String?   @db.NVarChar(100)
+  Salary                 Decimal?  @db.Decimal(18, 2)
+  SalaryCurrency         String    @db.NVarChar(10)
+  IdentityNumber         String?   @db.NVarChar(20)
+  EmergencyContactName   String?   @db.NVarChar(100)
+  EmergencyContactPhone  String?   @db.NVarChar(30)
+  AnnualLeaveEntitlement Int
+  UsedLeaveDays          Int
+  Notes                  String?
+  CUser                  Int?
+  UUser                  Int?
+  CDate                  DateTime?
+  UDate                  DateTime?
+  IsActive               Boolean?
+  Tenants                Tenants   @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_StaffHRInfos_Tenants_TenantId")
+  Users                  Users     @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_StaffHRInfos_Users_StaffId")
+
+  @@unique([TenantId, StaffId], map: "IX_StaffHRInfos_TenantId_StaffId")
+  @@index([StaffId], map: "IX_StaffHRInfos_StaffId")
+}
+
+model StaffLeaves {
+  Id                                    Int       @id(map: "PK_StaffLeaves") @default(autoincrement())
+  TenantId                              Int
+  StaffId                               Int
+  StartDate                             DateTime
+  EndDate                               DateTime
+  LeaveType                             String    @db.NVarChar(50)
+  Reason                                String?   @db.NVarChar(500)
+  Status                                String    @db.NVarChar(20)
+  ApprovedById                          Int?
+  ApprovedDate                          DateTime?
+  CUser                                 Int?
+  UUser                                 Int?
+  CDate                                 DateTime?
+  UDate                                 DateTime?
+  IsActive                              Boolean?
+  Tenants                               Tenants   @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_StaffLeaves_Tenants_TenantId")
+  Users_StaffLeaves_ApprovedByIdToUsers Users?    @relation("StaffLeaves_ApprovedByIdToUsers", fields: [ApprovedById], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_StaffLeaves_Users_ApprovedById")
+  Users_StaffLeaves_StaffIdToUsers      Users     @relation("StaffLeaves_StaffIdToUsers", fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_StaffLeaves_Users_StaffId")
+
+  @@index([ApprovedById], map: "IX_StaffLeaves_ApprovedById")
+  @@index([StaffId], map: "IX_StaffLeaves_StaffId")
+  @@index([TenantId, StaffId, StartDate], map: "IX_StaffLeaves_TenantId_StaffId_StartDate")
+}
+
+model StaffShifts {
+  Id             Int       @id(map: "PK_StaffShifts") @default(autoincrement())
+  TenantId       Int
+  StaffId        Int
+  DayOfWeek      Int
+  StartTime      DateTime  @db.Time
+  EndTime        DateTime  @db.Time
+  BreakStartTime DateTime? @db.Time
+  BreakEndTime   DateTime? @db.Time
+  IsWorkingDay   Boolean
+  CUser          Int?
+  UUser          Int?
+  CDate          DateTime?
+  UDate          DateTime?
+  IsActive       Boolean?
+  Tenants        Tenants   @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_StaffShifts_Tenants_TenantId")
+  Users          Users     @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_StaffShifts_Users_StaffId")
+
+  @@index([StaffId], map: "IX_StaffShifts_StaffId")
+  @@index([TenantId, StaffId, DayOfWeek], map: "IX_StaffShifts_TenantId_StaffId_DayOfWeek")
+}
+
+model StaffTreatmentCommissions {
+  Id             Int        @id(map: "PK_StaffTreatmentCommissions") @default(autoincrement())
+  TenantId       Int
+  StaffId        Int
+  TreatmentId    Int
+  CommissionRate Decimal    @db.Decimal(5, 2)
+  CUser          Int?
+  UUser          Int?
+  CDate          DateTime?
+  UDate          DateTime?
+  IsActive       Boolean?
+  Tenants        Tenants    @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_StaffTreatmentCommissions_Tenants_TenantId")
+  Treatments     Treatments @relation(fields: [TreatmentId], references: [Id], onUpdate: NoAction, map: "FK_StaffTreatmentCommissions_Treatments_TreatmentId")
+  Users          Users      @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_StaffTreatmentCommissions_Users_StaffId")
+
+  @@unique([TenantId, StaffId, TreatmentId], map: "IX_StaffTreatmentCommissions_TenantId_StaffId_TreatmentId")
+  @@index([StaffId], map: "IX_StaffTreatmentCommissions_StaffId")
+  @@index([TreatmentId], map: "IX_StaffTreatmentCommissions_TreatmentId")
+}
+
+model StaffUnavailabilities {
+  Id        Int       @id(map: "PK_StaffUnavailabilities") @default(autoincrement())
+  TenantId  Int
+  StaffId   Int
+  StartTime DateTime
+  EndTime   DateTime
+  Reason    String    @db.NVarChar(Max)
+  Notes     String?   @db.NVarChar(Max)
+  CUser     Int?
+  UUser     Int?
+  CDate     DateTime?
+  UDate     DateTime?
+  IsActive  Boolean?
+  Tenants   Tenants   @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_StaffUnavailabilities_Tenants_TenantId")
+  Users     Users     @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_StaffUnavailabilities_Users_StaffId")
+
+  @@index([StaffId], map: "IX_StaffUnavailabilities_StaffId")
+  @@index([TenantId], map: "IX_StaffUnavailabilities_TenantId")
+}
+
+model SubscriptionPlans {
+  Id                        Int                   @id(map: "PK_SubscriptionPlans") @default(autoincrement())
+  Name                      String                @db.NVarChar(100)
+  MonthlyPrice              Decimal               @db.Decimal(18, 2)
+  YearlyPrice               Decimal               @db.Decimal(18, 2)
+  MaxStaffCount             Int
+  MaxBranchCount            Int
+  HasSmsIntegration         Boolean
+  HasAiFeatures             Boolean
+  CUser                     Int?
+  UUser                     Int?
+  CDate                     DateTime?
+  UDate                     DateTime?
+  IsActive                  Boolean?
+  Description               String?               @db.NVarChar(500)
+  Features                  String?               @db.NVarChar(2000)
+  HasSocialMediaIntegration Boolean               @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__Subscript__HasSo__73852659")
+  HasWhatsappIntegration    Boolean               @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__Subscript__HasWh__74794A92")
+  ValidityMonths            Int                   @default(0, map: "DF__Subscript__Valid__756D6ECB")
+  Tenants                   Tenants[]
+  TenantSubscriptions       TenantSubscriptions[]
+}
+
+model TenantEmailIntegrations {
+  Id         Int       @id(map: "PK_TenantEmailIntegrations") @default(autoincrement())
+  TenantId   Int       @unique(map: "IX_TenantEmailIntegrations_TenantId")
+  SmtpServer String    @db.NVarChar(Max)
+  SmtpPort   Int
+  SmtpUser   String    @db.NVarChar(Max)
+  SmtpPass   String    @db.NVarChar(Max)
+  CUser      Int?
+  UUser      Int?
+  CDate      DateTime?
+  UDate      DateTime?
+  IsActive   Boolean?
+  Tenants    Tenants   @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantEmailIntegrations_Tenants_TenantId")
+}
+
+model TenantInviteTokens {
+  Id            Int       @id(map: "PK_TenantInviteTokens") @default(autoincrement())
+  TokenCode     String    @db.NVarChar(10)
+  EmailToInvite String?   @db.NVarChar(Max)
+  ExpireDate    DateTime
+  IsUsed        Boolean
+  TenantId      Int
+  CUser         Int?
+  UUser         Int?
+  CDate         DateTime?
+  UDate         DateTime?
+  IsActive      Boolean?
+  Tenants       Tenants   @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantInviteTokens_Tenants_TenantId")
+
+  @@index([TenantId], map: "IX_TenantInviteTokens_TenantId")
+}
+
+model TenantLogos {
+  Id         Int       @id(map: "PK_TenantLogos") @default(autoincrement())
+  TenantId   Int
+  ImageUrl   String    @db.NVarChar(Max)
+  FileName   String?   @db.NVarChar(Max)
+  FileSize   BigInt
+  IsSelected Boolean
+  CUser      Int?
+  UUser      Int?
+  CDate      DateTime?
+  UDate      DateTime?
+  IsActive   Boolean?
+  Tenants    Tenants   @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantLogos_Tenants_TenantId")
+
+  @@index([TenantId], map: "IX_TenantLogos_TenantId")
+}
+
+model TenantNotificationHistories {
+  Id              Int      @id(map: "PK_TenantNotificationHistories") @default(autoincrement())
+  TenantId        Int
+  ChangedByUserId Int
+  Channel         Int
+  OldValue        Boolean
+  NewValue        Boolean
+  ChangeDate      DateTime
+  Tenants         Tenants  @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantNotificationHistories_Tenants_TenantId")
+
+  @@index([TenantId], map: "IX_TenantNotificationHistories_TenantId")
+}
+
+model TenantNotificationRules {
+  Id       Int       @id(map: "PK_TenantNotificationRules") @default(autoincrement())
+  TenantId Int
+  Channel  Int
+  IsActive Boolean
+  CUser    Int?
+  UUser    Int?
+  CDate    DateTime?
+  UDate    DateTime?
+  Tenants  Tenants   @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantNotificationRules_Tenants_TenantId")
+
+  @@index([TenantId], map: "IX_TenantNotificationRules_TenantId")
+}
+
+model TenantPaymentHistories {
+  Id                  Int                  @id(map: "PK_TenantPaymentHistories") @default(autoincrement())
+  Amount              Decimal              @db.Decimal(18, 2)
+  PaymentDate         DateTime
+  TransactionId       String?              @db.NVarChar(Max)
+  PaymentStatus       String               @db.NVarChar(Max)
+  Description         String               @db.NVarChar(Max)
+  TenantId            Int
+  CUser               Int?
+  UUser               Int?
+  CDate               DateTime?
+  UDate               DateTime?
+  IsActive            Boolean?
+  ConversationId      String?              @db.NVarChar(Max)
+  IsRefunded          Boolean              @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__TenantPay__IsRef__1AD3FDA4")
+  PaymentId           String?              @db.NVarChar(Max)
+  PaymentMethod       String?              @db.NVarChar(Max)
+  PaymentToken        String?              @db.NVarChar(Max)
+  RefundAmount        Decimal?             @db.Decimal(18, 2)
+  RefundDate          DateTime?
+  RefundReason        String?              @db.NVarChar(Max)
+  SubscriptionId      Int?
+  Tenants             Tenants              @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantPaymentHistories_Tenants_TenantId")
+  TenantSubscriptions TenantSubscriptions? @relation(fields: [SubscriptionId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_TenantPaymentHistories_TenantSubscriptions_SubscriptionId")
+
+  @@index([SubscriptionId], map: "IX_TenantPaymentHistories_SubscriptionId")
+  @@index([TenantId], map: "IX_TenantPaymentHistories_TenantId")
+}
+
+model TenantPaymentIntegrations {
+  Id                 Int       @id(map: "PK_TenantPaymentIntegrations") @default(autoincrement())
+  TenantId           Int       @unique(map: "IX_TenantPaymentIntegrations_TenantId")
+  PaymentProvider    String?   @db.NVarChar(Max)
+  PaymentMethodToken String?   @db.NVarChar(Max)
+  CUser              Int?
+  UUser              Int?
+  CDate              DateTime?
+  UDate              DateTime?
+  IsActive           Boolean?
+  Tenants            Tenants   @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantPaymentIntegrations_Tenants_TenantId")
+}
+
+model Tenants {
+  Id                          Int                           @id(map: "PK_Tenants") @default(autoincrement())
+  TenantUUID                  Int
+  CompanyName                 String                        @db.NVarChar(250)
+  TaxNumber                   String                        @db.NVarChar(20)
+  TaxOffice                   String                        @db.NVarChar(100)
+  Address                     String                        @db.NVarChar(Max)
+  Phone                       String                        @db.NVarChar(Max)
+  ReminderHourBefore          Int
+  SubscriptionPlanId          Int?
+  CUser                       Int?
+  UUser                       Int?
+  CDate                       DateTime?
+  UDate                       DateTime?
+  IsActive                    Boolean?
+  AppointmentSlotMinutes      Int                           @default(0, map: "DF__Tenants__Appoint__2CBDA3B5")
+  AutoConfirmAppointments     Boolean                       @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__Tenants__AutoCon__2DB1C7EE")
+  BufferMinutes               Int                           @default(0, map: "DF__Tenants__BufferM__2EA5EC27")
+  Currency                    String                        @default("N'", map: "DF__Tenants__Currenc__2F9A1060") @db.NVarChar(10)
+  HolidaysJson                String?                       @db.NVarChar(Max)
+  Timezone                    String                        @default("N'", map: "DF__Tenants__Timezon__308E3499") @db.NVarChar(50)
+  WorkingHoursJson            String?                       @db.NVarChar(Max)
+  AppointmentPayments         AppointmentPayments[]
+  Appointments                Appointments[]
+  Branches                    Branches[]
+  Coupons                     Coupons[]
+  CouponUsages                CouponUsages[]
+  CustomerDebts               CustomerDebts[]
+  Customers                   Customers[]
+  ExpenseCategories           ExpenseCategories[]
+  Expenses                    Expenses[]
+  InAppNotifications          InAppNotifications[]
+  PackageSales_Packages       PackageSales_Packages[]
+  PackageSales_Payments       PackageSales_Payments[]
+  PackageSales_Usages         PackageSales_Usages[]
+  Products                    Products[]
+  ProductSales                ProductSales[]
+  RoleChangeAuditLogs         RoleChangeAuditLogs[]
+  StaffCommissionRecords      StaffCommissionRecords[]
+  StaffHRInfos                StaffHRInfos[]
+  StaffLeaves                 StaffLeaves[]
+  StaffShifts                 StaffShifts[]
+  StaffTreatmentCommissions   StaffTreatmentCommissions[]
+  StaffUnavailabilities       StaffUnavailabilities[]
+  TenantEmailIntegrations     TenantEmailIntegrations?
+  TenantInviteTokens          TenantInviteTokens[]
+  TenantLogos                 TenantLogos[]
+  TenantNotificationHistories TenantNotificationHistories[]
+  TenantNotificationRules     TenantNotificationRules[]
+  TenantPaymentHistories      TenantPaymentHistories[]
+  TenantPaymentIntegrations   TenantPaymentIntegrations?
+  SubscriptionPlans           SubscriptionPlans?            @relation(fields: [SubscriptionPlanId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_Tenants_SubscriptionPlans_SubscriptionPlanId")
+  TenantSMSIntegrations       TenantSMSIntegrations?
+  TenantSubscriptions         TenantSubscriptions[]
+  TenantWhatsappIntegrations  TenantWhatsappIntegrations?
+  Treatments                  Treatments[]
+  Users                       Users[]
+
+  @@index([SubscriptionPlanId], map: "IX_Tenants_SubscriptionPlanId")
+}
+
+model TenantSMSIntegrations {
+  Id                     Int       @id(map: "PK_TenantSMSIntegrations") @default(autoincrement())
+  TenantId               Int       @unique(map: "IX_TenantSMSIntegrations_TenantId")
+  SmsProvider            String?   @db.NVarChar(Max)
+  SmsHeader              String?   @db.NVarChar(Max)
+  SmsApiUser             String?   @db.NVarChar(Max)
+  SmsApiKey              String?   @db.NVarChar(Max)
+  CUser                  Int?
+  UUser                  Int?
+  CDate                  DateTime?
+  UDate                  DateTime?
+  IsActive               Boolean?
+  CreditBalance          Decimal   @default(0.0, map: "DF__TenantSMS__Credi__52E34C9D") @db.Decimal(18, 2)
+  CreditBalanceUpdatedAt DateTime?
+  SmsApiHash             String?   @db.NVarChar(Max)
+  Tenants                Tenants   @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantSMSIntegrations_Tenants_TenantId")
+}
+
+model TenantSubscriptions {
+  Id                     Int                      @id(map: "PK_TenantSubscriptions") @default(autoincrement())
+  TenantId               Int
+  SubscriptionPlanId     Int
+  PriceSold              Decimal                  @db.Decimal(18, 2)
+  StartDate              DateTime
+  EndDate                DateTime
+  IsActive               Boolean
+  CancelReason           String?                  @db.NVarChar(Max)
+  CUser                  Int?
+  UUser                  Int?
+  CDate                  DateTime?
+  UDate                  DateTime?
+  AutoRenew              Boolean                  @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__TenantSub__AutoR__14270015")
+  CancelledDate          DateTime?
+  CouponId               Int?
+  DiscountAmount         Decimal?                 @db.Decimal(18, 2)
+  FailedPaymentAttempts  Int                      @default(0, map: "DF__TenantSub__Faile__151B244E")
+  GracePeriodEndDate     DateTime?
+  IsCancelled            Boolean                  @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__TenantSub__IsCan__160F4887")
+  IsInGracePeriod        Boolean                  @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__TenantSub__IsInG__17036CC0")
+  IsRefunded             Boolean                  @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__TenantSub__IsRef__17F790F9")
+  IsTrialPeriod          Boolean                  @default(dbgenerated("CONVERT([bit],(0))"), map: "DF__TenantSub__IsTri__18EBB532")
+  NextRenewalDate        DateTime?
+  PaymentStatus          String                   @default("N'", map: "DF__TenantSub__Payme__19DFD96B") @db.NVarChar(Max)
+  PaymentToken           String?                  @db.NVarChar(Max)
+  PaymentTransactionId   String?                  @db.NVarChar(Max)
+  RefundAmount           Decimal?                 @db.Decimal(18, 2)
+  RefundDate             DateTime?
+  TrialEndDate           DateTime?
+  CouponUsages           CouponUsages[]
+  TenantPaymentHistories TenantPaymentHistories[]
+  Coupons                Coupons?                 @relation(fields: [CouponId], references: [Id], onDelete: NoAction, onUpdate: NoAction, map: "FK_TenantSubscriptions_Coupons_CouponId")
+  SubscriptionPlans      SubscriptionPlans        @relation(fields: [SubscriptionPlanId], references: [Id], onUpdate: NoAction, map: "FK_TenantSubscriptions_SubscriptionPlans_SubscriptionPlanId")
+  Tenants                Tenants                  @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantSubscriptions_Tenants_TenantId")
+
+  @@index([CouponId], map: "IX_TenantSubscriptions_CouponId")
+  @@index([SubscriptionPlanId], map: "IX_TenantSubscriptions_SubscriptionPlanId")
+  @@index([TenantId], map: "IX_TenantSubscriptions_TenantId")
+}
+
+model TenantWhatsappIntegrations {
+  Id                 Int       @id(map: "PK_TenantWhatsappIntegrations") @default(autoincrement())
+  TenantId           Int       @unique(map: "IX_TenantWhatsappIntegrations_TenantId")
+  WhatsappApiToken   String?   @db.NVarChar(Max)
+  WhatsappInstanceId String?   @db.NVarChar(Max)
+  CUser              Int?
+  UUser              Int?
+  CDate              DateTime?
+  UDate              DateTime?
+  IsActive           Boolean?
+  Tenants            Tenants   @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_TenantWhatsappIntegrations_Tenants_TenantId")
+}
+
+model Treatments {
+  Id                        Int                         @id(map: "PK_Treatments") @default(autoincrement())
+  TenantId                  Int
+  Name                      String                      @db.NVarChar(Max)
+  Description               String?                     @db.NVarChar(Max)
+  DurationMinutes           Int
+  Price                     Decimal?                    @db.Decimal(18, 2)
+  Color                     String?                     @db.NVarChar(Max)
+  CUser                     Int?
+  UUser                     Int?
+  CDate                     DateTime?
+  UDate                     DateTime?
+  IsActive                  Boolean?
+  Appointments              Appointments[]
+  PackageSales_Packages     PackageSales_Packages[]
+  StaffTreatmentCommissions StaffTreatmentCommissions[]
+  Tenants                   Tenants                     @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Treatments_Tenants_TenantId")
+
+  @@index([TenantId], map: "IX_Treatments_TenantId")
+}
+
+model UserClaims {
+  Id         Int     @id(map: "PK_UserClaims") @default(autoincrement())
+  UserId     Int
+  ClaimType  String? @db.NVarChar(Max)
+  ClaimValue String? @db.NVarChar(Max)
+  Users      Users   @relation(fields: [UserId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserClaims_Users_UserId")
+
+  @@index([UserId], map: "IX_UserClaims_UserId")
+}
+
+model UserLogins {
+  LoginProvider       String  @db.NVarChar(450)
+  ProviderKey         String  @db.NVarChar(450)
+  ProviderDisplayName String? @db.NVarChar(Max)
+  UserId              Int
+  Users               Users   @relation(fields: [UserId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserLogins_Users_UserId")
+
+  @@id([LoginProvider, ProviderKey], map: "PK_UserLogins")
+  @@index([UserId], map: "IX_UserLogins_UserId")
+}
+
+model UserNotificationPreferences {
+  Id        Int       @id(map: "PK_UserNotificationPreferences") @default(autoincrement())
+  AppUserId Int
+  Channel   Int
+  IsEnabled Boolean
+  CUser     Int?
+  UUser     Int?
+  CDate     DateTime?
+  UDate     DateTime?
+  IsActive  Boolean?
+  Users     Users     @relation(fields: [AppUserId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserNotificationPreferences_Users_AppUserId")
+
+  @@index([AppUserId], map: "IX_UserNotificationPreferences_AppUserId")
+}
+
+model UserRoles {
+  UserId Int
+  RoleId Int
+  Roles  Roles @relation(fields: [RoleId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserRoles_Roles_RoleId")
+  Users  Users @relation(fields: [UserId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserRoles_Users_UserId")
+
+  @@id([UserId, RoleId], map: "PK_UserRoles")
+  @@index([RoleId], map: "IX_UserRoles_RoleId")
+}
+
+model Users {
+  Id                                                               Int                           @id(map: "PK_Users") @default(autoincrement())
+  Name                                                             String                        @db.NVarChar(Max)
+  Surname                                                          String                        @db.NVarChar(Max)
+  BirthDate                                                        DateTime?
+  TenantId                                                         Int
+  CUser                                                            Int?
+  UUser                                                            Int?
+  CDate                                                            DateTime?
+  UDate                                                            DateTime?
+  IsActive                                                         Boolean?
+  IsApproved                                                       Boolean
+  UserName                                                         String?                       @db.NVarChar(256)
+  NormalizedUserName                                               String?                       @unique(map: "UserNameIndex") @db.NVarChar(256)
+  Email                                                            String?                       @db.NVarChar(256)
+  NormalizedEmail                                                  String?                       @db.NVarChar(256)
+  EmailConfirmed                                                   Boolean
+  PasswordHash                                                     String?                       @db.NVarChar(Max)
+  SecurityStamp                                                    String?                       @db.NVarChar(Max)
+  ConcurrencyStamp                                                 String?                       @db.NVarChar(Max)
+  PhoneNumber                                                      String?                       @db.NVarChar(Max)
+  PhoneNumberConfirmed                                             Boolean
+  TwoFactorEnabled                                                 Boolean
+  LockoutEnd                                                       DateTime?                     @db.DateTimeOffset
+  LockoutEnabled                                                   Boolean
+  AccessFailedCount                                                Int
+  DefaultCommissionRate                                            Decimal                       @default(0.0, map: "DF__Users__DefaultCo__4D5F7D71") @db.Decimal(5, 2)
+  ProfilePicturePath                                               String?                       @db.NVarChar(Max)
+  BranchId                                                         Int?
+  Appointments                                                     Appointments[]
+  Customers                                                        Customers[]
+  InAppNotifications                                               InAppNotifications[]
+  PackageSales_Packages                                            PackageSales_Packages[]
+  PackageSales_Usages                                              PackageSales_Usages[]
+  ProductSales                                                     ProductSales[]
+  RoleChangeAuditLogs_RoleChangeAuditLogs_PerformedByUserIdToUsers RoleChangeAuditLogs[]         @relation("RoleChangeAuditLogs_PerformedByUserIdToUsers")
+  RoleChangeAuditLogs_RoleChangeAuditLogs_TargetUserIdToUsers      RoleChangeAuditLogs[]         @relation("RoleChangeAuditLogs_TargetUserIdToUsers")
+  StaffCommissionRecords                                           StaffCommissionRecords[]
+  StaffHRInfos                                                     StaffHRInfos[]
+  StaffLeaves_StaffLeaves_ApprovedByIdToUsers                      StaffLeaves[]                 @relation("StaffLeaves_ApprovedByIdToUsers")
+  StaffLeaves_StaffLeaves_StaffIdToUsers                           StaffLeaves[]                 @relation("StaffLeaves_StaffIdToUsers")
+  StaffShifts                                                      StaffShifts[]
+  StaffTreatmentCommissions                                        StaffTreatmentCommissions[]
+  StaffUnavailabilities                                            StaffUnavailabilities[]
+  UserClaims                                                       UserClaims[]
+  UserLogins                                                       UserLogins[]
+  UserNotificationPreferences                                      UserNotificationPreferences[]
+  UserRoles                                                        UserRoles[]
+  Branches                                                         Branches?                     @relation(fields: [BranchId], references: [Id], onUpdate: NoAction, map: "FK_Users_Branches_BranchId")
+  Tenants                                                          Tenants                       @relation(fields: [TenantId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_Users_Tenants_TenantId")
+  UserTokens                                                       UserTokens[]
+
+  @@index([NormalizedEmail], map: "EmailIndex")
+  @@index([BranchId], map: "IX_Users_BranchId")
+  @@index([TenantId], map: "IX_Users_TenantId")
+}
+
+model UserTokens {
+  UserId        Int
+  LoginProvider String  @db.NVarChar(450)
+  Name          String  @db.NVarChar(450)
+  Value         String? @db.NVarChar(Max)
+  Users         Users   @relation(fields: [UserId], references: [Id], onDelete: Cascade, onUpdate: NoAction, map: "FK_UserTokens_Users_UserId")
+
+  @@id([UserId, LoginProvider, Name], map: "PK_UserTokens")
+}
