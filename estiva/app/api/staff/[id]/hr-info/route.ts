@@ -32,7 +32,7 @@ export async function GET(
 
     return success({
       id: hrInfo.Id,
-      id: hrInfo.StaffId,
+      staffId: hrInfo.StaffId,
       staffName: `${hrInfo.Users.Name} ${hrInfo.Users.Surname}`,
       staffEmail: hrInfo.Users.Email,
       hireDate: hrInfo.HireDate,
