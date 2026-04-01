@@ -60,20 +60,29 @@ export async function GET(req: NextRequest) {
       prisma.customers.count({ where }),
     ]);
 
-    const items = customers.map((c) => ({
-      id: c.Id,
-      name: c.Name,
-      surname: c.Surname,
-      phone: c.Phone,
-      email: c.Email,
-      totalAppointments: c._count.Appointments,
-      lastAppointmentDate: c.LastVisitDate,
-      loyaltyPoints: c.LoyaltyPoints,
-      totalSpent: c.TotalSpent,
-      totalVisits: c.TotalVisits,
-      customerSince: c.CustomerSince,
-      tags: c.Tags,
-    }));
+    const items = customers.map((c) => {
+      const totalSpent = Number(c.TotalSpent || 0);
+      let tags: string[] = [];
+      try { tags = c.Tags ? JSON.parse(c.Tags) : []; } catch { tags = []; }
+      // Segment based on totalSpent
+      const segment = totalSpent >= 5000 ? "VIP" : totalSpent >= 1000 ? "Premium" : totalSpent > 0 ? "Regular" : "New";
+      return {
+        id: c.Id,
+        name: c.Name,
+        surname: c.Surname,
+        fullName: `${c.Name} ${c.Surname}`,
+        phone: c.Phone,
+        email: c.Email,
+        totalAppointments: c._count.Appointments,
+        lastAppointmentDate: c.LastVisitDate,
+        loyaltyPoints: c.LoyaltyPoints,
+        totalSpent,
+        totalVisits: c.TotalVisits,
+        segment,
+        tags,
+        customerSince: c.CustomerSince,
+      };
+    });
 
     // If no pagination params provided, return flat array (for dropdown/list usage)
     const hasPagination = searchParams.has("page") || searchParams.has("pageSize");
