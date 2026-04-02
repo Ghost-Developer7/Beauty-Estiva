@@ -47,7 +47,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Fetch unread count
   const fetchUnreadCount = useCallback(async () => {
     try {
-      const res = await notificationInAppService.getUnreadCount();
+      const res = await notificationInAppService.unreadCount();
       if (res.data.success) {
         setUnreadCount(res.data.data);
       }
@@ -59,7 +59,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Fetch notifications
   const fetchNotifications = useCallback(async (page = 1) => {
     try {
-      const res = await notificationInAppService.getNotifications(page, 20);
+      const res = await notificationInAppService.list(page, 20);
       if (res.data.success && res.data.data) {
         const d = res.data.data;
         if (page === 1) {
@@ -80,7 +80,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   const markAsRead = useCallback(
     async (id: number) => {
       try {
-        await notificationInAppService.markAsRead(id);
+        await notificationInAppService.markRead(id);
         setNotifications((prev) =>
           prev.map((n) =>
             n.id === id ? { ...n, isRead: true, readAt: new Date().toISOString() } : n
@@ -97,7 +97,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Mark all as read
   const markAllAsRead = useCallback(async () => {
     try {
-      await notificationInAppService.markAllAsRead();
+      await notificationInAppService.markAllRead();
       setNotifications((prev) =>
         prev.map((n) => ({ ...n, isRead: true, readAt: new Date().toISOString() }))
       );
@@ -110,7 +110,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   // Delete notification
   const deleteNotification = useCallback(async (id: number) => {
     try {
-      await notificationInAppService.deleteNotification(id);
+      await notificationInAppService.delete(id);
       setNotifications((prev) => prev.filter((n) => n.id !== id));
       setTotalCount((prev) => prev - 1);
     } catch {

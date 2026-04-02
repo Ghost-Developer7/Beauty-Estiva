@@ -1,46 +1,54 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { success, fail, notFound, serverError } from "@/lib/api-response";
-import { requireRoles } from "@/lib/api-middleware";
+import { Auth, Response, RouteHandler, Guard, DateRange } from "@/core/server";
 
-// PUT /api/staff/leaves/[id]/approve — Approve leave request
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { user, error } = await requireRoles(req, ["Owner", "Admin"]);
+type Ctx = { params: Promise<{ id: string }> };
+
+/**
+ * PUT /api/staff/leaves/:id/approve
+ * Approve a pending leave request and deduct days from the leave balance.
+ * Restricted to Owner / Admin roles.
+ */
+export const PUT = RouteHandler.wrap(
+  "staff/leaves/[id]/approve PUT",
+  async (req: NextRequest, { params }: Ctx) => {
+    const { user, error } = await Auth.requireRole(req, ["Owner", "Admin"]);
     if (error) return error;
 
     const { id } = await params;
-    const leaveId = parseInt(id);
-    if (isNaN(leaveId)) return fail("Geçersiz izin ID.");
+    const leaveId = Guard.parseId(id);
+    if (!leaveId) return Response.badRequest("Invalid leave ID");
 
     const leave = await prisma.staffLeaves.findFirst({
-      where: { Id: leaveId, TenantId: user!.tenantId, IsActive: true },
+      where: { Id: leaveId, ...Guard.activeTenant(user.tenantId) },
     });
-
-    if (!leave) return notFound("İzin talebi bulunamadı.");
+    if (!leave) return Response.notFound("Leave request not found");
 
     if (leave.Status !== "Pending") {
-      return fail("Sadece bekleyen talepler onaylanabilir.");
+      return Response.badRequest("Only pending requests can be approved");
     }
 
-    const now = new Date();
-    await prisma.staffLeaves.update({
-      where: { Id: leaveId },
-      data: {
-        Status: "Approved",
-        ApprovedById: user!.id,
-        ApprovedDate: now,
-        UUser: user!.id,
-        UDate: now,
-      },
-    });
+    const days = DateRange.daysBetween(leave.StartDate, leave.EndDate);
 
-    return success(null, "İzin talebi onaylandı.");
-  } catch (error) {
-    console.error("Leave approve error:", error);
-    return serverError();
-  }
-}
+    await prisma.$transaction([
+      prisma.staffLeaves.update({
+        where: { Id: leaveId },
+        data: {
+          Status: "Approved",
+          ApprovedById: user.id,
+          ApprovedDate: new Date(),
+          ...Guard.updateAudit(user.id),
+        },
+      }),
+      prisma.staffHRInfos.updateMany({
+        where: { StaffId: leave.StaffId, ...Guard.activeTenant(user.tenantId) },
+        data: {
+          UsedLeaveDays: { increment: days },
+          ...Guard.updateAudit(user.id),
+        },
+      }),
+    ]);
+
+    return Response.ok(null, "Leave request approved");
+  },
+);

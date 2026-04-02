@@ -4,7 +4,7 @@ export interface InAppNotification {
   id: number;
   title: string;
   message: string;
-  type: string; // info, success, warning, error
+  type: "info" | "success" | "warning" | "error";
   entityType?: string;
   entityId?: number;
   actionUrl?: string;
@@ -23,20 +23,28 @@ export interface NotificationPageResult {
 }
 
 export const notificationInAppService = {
-  getNotifications: (page = 1, pageSize = 20) =>
-    api.get<{ success: boolean; data: NotificationPageResult }>(
-      `/notification/in-app?page=${page}&pageSize=${pageSize}`
-    ),
+  list(page = 1, pageSize = 20) {
+    return api.get<{ success: boolean; data: NotificationPageResult }>(
+      "/notification/in-app",
+      { params: { page, pageSize } },
+    );
+  },
 
-  getUnreadCount: () =>
-    api.get<{ success: boolean; data: number }>("/notification/in-app/unread-count"),
+  unreadCount() {
+    return api.get<{ success: boolean; data: number }>(
+      "/notification/in-app/unread-count",
+    );
+  },
 
-  markAsRead: (id: number) =>
-    api.patch(`/notification/in-app/${id}/read`),
+  markRead(id: number) {
+    return api.patch(`/notification/in-app/${id}/read`);
+  },
 
-  markAllAsRead: () =>
-    api.patch("/notification/in-app/read-all"),
+  markAllRead() {
+    return api.patch("/notification/in-app/read-all");
+  },
 
-  deleteNotification: (id: number) =>
-    api.delete(`/notification/in-app/${id}`),
+  delete(id: number) {
+    return api.delete(`/notification/in-app/${id}`);
+  },
 };

@@ -82,8 +82,8 @@ export default function LoginForm() {
         <button
           type="button"
           onClick={() => setShowPassword(!showPassword)}
-          className={`absolute right-4 top-[38px] p-1 transition-colors ${
-            isDark ? "text-white/50 hover:text-white" : "text-[#73619d] hover:text-[#1d1233]"
+          className={`absolute right-3 top-[38px] flex h-8 w-8 items-center justify-center rounded-lg transition-all ${
+            isDark ? "text-white/80 hover:text-white hover:bg-white/10" : "text-[#73619d] hover:text-[#1d1233] hover:bg-[#ede9f5]"
           }`}
           aria-label={showPassword ? "Hide password" : "Show password"}
         >

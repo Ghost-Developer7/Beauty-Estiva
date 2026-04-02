@@ -1,34 +1,21 @@
-export interface PaginatedResponse<T> {
-  items: T[];
-  totalCount: number;
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPreviousPage: boolean;
-}
+/**
+ * @deprecated Import from "@/core/server" instead.
+ *
+ * This file is kept for backward compatibility.
+ * All logic now lives in library/backend/Pagination.ts.
+ */
 
-export function paginatedResponse<T>(
+import { Pagination, PageResult } from "@/core/server/Pagination";
+
+// Re-export the old type name
+export type PaginatedResponse<T> = PageResult<T>;
+
+export const getPaginationParams = (searchParams: URLSearchParams) =>
+  Pagination.parse(searchParams);
+
+export const paginatedResponse = <T>(
   items: T[],
   totalCount: number,
   pageNumber: number,
-  pageSize: number
-): PaginatedResponse<T> {
-  const totalPages = Math.ceil(totalCount / pageSize);
-  return {
-    items,
-    totalCount,
-    pageNumber,
-    pageSize,
-    totalPages,
-    hasNextPage: pageNumber < totalPages,
-    hasPreviousPage: pageNumber > 1,
-  };
-}
-
-export function getPaginationParams(searchParams: URLSearchParams) {
-  const page = Math.max(1, parseInt(searchParams.get("page") || searchParams.get("pageNumber") || "1"));
-  const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get("pageSize") || "20")));
-  const skip = (page - 1) * pageSize;
-  return { page, pageSize, skip };
-}
+  pageSize: number,
+) => Pagination.build(items, totalCount, { page: pageNumber, pageSize });

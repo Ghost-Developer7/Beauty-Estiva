@@ -10,19 +10,19 @@ import type {
 } from "@/types/api";
 
 export const commissionService = {
-  /** Tüm personel/hizmet komisyon oranlarını getirir */
+  /** Returns commission rates for all staff / services */
   getAllRates() {
     return api.get<ApiResponse<AllCommissionRates>>("/commission/rates");
   },
 
-  /** Personelin komisyon oranlarını getirir */
+  /** Returns commission rates for a specific staff member */
   getStaffRates(staffId: number) {
     return api.get<ApiResponse<StaffCommissionRate>>(
       `/commission/staff/${staffId}/rates`,
     );
   },
 
-  /** Personelin komisyon oranlarını ayarlar */
+  /** Sets commission rates for a specific staff member */
   setStaffRates(staffId: number, data: SetStaffCommissionRequest) {
     return api.put<ApiResponse<null>>(
       `/commission/staff/${staffId}/rates`,
@@ -30,7 +30,7 @@ export const commissionService = {
     );
   },
 
-  /** Komisyon kayıtlarını listeler */
+  /** Lists commission records with optional filters */
   getRecords(params?: {
     startDate?: string;
     endDate?: string;
@@ -43,7 +43,7 @@ export const commissionService = {
     );
   },
 
-  /** Personel bazlı komisyon özetini getirir */
+  /** Returns commission summary grouped by staff */
   getSummary(params?: {
     startDate?: string;
     endDate?: string;
@@ -56,7 +56,7 @@ export const commissionService = {
     );
   },
 
-  /** Personelin kendi komisyon özetini getirir */
+  /** Returns the current staff member's own commission summary */
   getMySummary(params?: { startDate?: string; endDate?: string }) {
     return api.get<ApiResponse<StaffCommissionSummary | null>>(
       "/commission/my",
@@ -64,7 +64,7 @@ export const commissionService = {
     );
   },
 
-  /** Bireysel personel komisyon geçmişi */
+  /** Returns commission summary for a specific staff member */
   getStaffSummary(
     staffId: number,
     params?: { startDate?: string; endDate?: string },
@@ -75,19 +75,19 @@ export const commissionService = {
     );
   },
 
-  /** Tek komisyon kaydını ödendi olarak işaretler */
+  /** Marks a single commission record as paid */
   payRecord(id: number) {
     return api.post<ApiResponse<null>>(`/commission/records/${id}/pay`);
   },
 
-  /** Komisyon kayıtlarını "ödendi" olarak işaretler (çoklu) */
+  /** Marks multiple commission records as paid */
   markPaid(commissionRecordIds: number[]) {
     return api.post<ApiResponse<null>>("/commission/mark-paid", {
       commissionRecordIds,
     });
   },
 
-  /** Aylık toplu ödeme */
+  /** Bulk-pays commissions for a given month */
   bulkPay(data: BulkPayCommissionsRequest) {
     return api.post<ApiResponse<null>>("/commission/records/bulk-pay", data);
   },

@@ -1,99 +1,90 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { success, fail, serverError, notFound } from "@/lib/api-response";
-import { requireSubscription, requireRoles } from "@/lib/api-middleware";
+import { Auth, Response, RouteHandler, Guard, DateRange } from "@/core/server";
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { user, error } = await requireRoles(req, ["Owner", "Admin"]);
+type Ctx = { params: Promise<{ id: string }> };
+
+/**
+ * PUT /api/staff/leaves/:id
+ * Approve or reject a leave request.
+ * Body: { action: "approve" | "reject" }
+ * Restricted to Owner / Admin roles.
+ */
+export const PUT = RouteHandler.wrap(
+  "staff/leaves/[id] PUT",
+  async (req: NextRequest, { params }: Ctx) => {
+    const { user, error } = await Auth.requireRole(req, ["Owner", "Admin"]);
     if (error) return error;
 
     const { id } = await params;
-    const leaveId = parseInt(id);
-    if (isNaN(leaveId)) return fail("Geçersiz izin ID");
+    const leaveId = Guard.parseId(id);
+    if (!leaveId) return Response.badRequest("Invalid leave ID");
 
     const leave = await prisma.staffLeaves.findFirst({
-      where: { Id: leaveId, TenantId: user!.tenantId, IsActive: true },
+      where: { Id: leaveId, ...Guard.activeTenant(user.tenantId) },
     });
-    if (!leave) return notFound("İzin talebi bulunamadı");
+    if (!leave) return Response.notFound("Leave request not found");
 
     const body = await req.json();
-    const { action } = body;
-
-    if (action !== "approve" && action !== "reject") {
-      return fail("action 'approve' veya 'reject' olmalıdır");
+    if (body.action !== "approve" && body.action !== "reject") {
+      return Response.badRequest("'action' must be 'approve' or 'reject'");
     }
 
-    const newStatus = action === "approve" ? "Approved" : "Rejected";
+    const isApproving = body.action === "approve";
+    const newStatus = isApproving ? "Approved" : "Rejected";
     const now = new Date();
 
-    const updated = await prisma.staffLeaves.update({
+    await prisma.staffLeaves.update({
       where: { Id: leaveId },
       data: {
         Status: newStatus,
-        ApprovedById: user!.id,
+        ApprovedById: user.id,
         ApprovedDate: now,
-        UUser: user!.id,
-        UDate: now,
+        ...Guard.updateAudit(user.id),
       },
     });
 
-    // If approved, update UsedLeaveDays in StaffHRInfos
-    if (action === "approve") {
-      const startDate = new Date(leave.StartDate);
-      const endDate = new Date(leave.EndDate);
-      const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
-
+    // Deduct approved days from the staff member's leave balance
+    if (isApproving) {
+      const days = DateRange.daysBetween(leave.StartDate, leave.EndDate);
       await prisma.staffHRInfos.updateMany({
-        where: {
-          StaffId: leave.StaffId,
-          TenantId: user!.tenantId,
-          IsActive: true,
-        },
+        where: { StaffId: leave.StaffId, ...Guard.activeTenant(user.tenantId) },
         data: {
-          UsedLeaveDays: { increment: diffDays },
-          UUser: user!.id,
-          UDate: now,
+          UsedLeaveDays: { increment: days },
+          ...Guard.updateAudit(user.id),
         },
       });
     }
 
-    return success(updated, `İzin talebi ${newStatus === "Approved" ? "onaylandı" : "reddedildi"}`);
-  } catch (error) {
-    console.error("Staff leave PUT error:", error);
-    return serverError();
-  }
-}
+    const message = isApproving ? "Leave request approved" : "Leave request rejected";
+    return Response.ok(null, message);
+  },
+);
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { user, error } = await requireSubscription(req);
+/**
+ * DELETE /api/staff/leaves/:id
+ * Soft-delete a leave request.
+ */
+export const DELETE = RouteHandler.wrap(
+  "staff/leaves/[id] DELETE",
+  async (req: NextRequest, { params }: Ctx) => {
+    const { user, error } = await Auth.requireSubscription(req);
     if (error) return error;
 
     const { id } = await params;
-    const leaveId = parseInt(id);
-    if (isNaN(leaveId)) return fail("Geçersiz izin ID");
+    const leaveId = Guard.parseId(id);
+    if (!leaveId) return Response.badRequest("Invalid leave ID");
 
     const leave = await prisma.staffLeaves.findFirst({
-      where: { Id: leaveId, TenantId: user!.tenantId, IsActive: true },
+      where: { Id: leaveId, ...Guard.activeTenant(user.tenantId) },
     });
-    if (!leave) return notFound("İzin talebi bulunamadı");
+    if (!leave) return Response.notFound("Leave request not found");
 
     await prisma.staffLeaves.update({
       where: { Id: leaveId },
-      data: { IsActive: false, UUser: user!.id, UDate: new Date() },
+      data: Guard.softDelete(user.id),
     });
 
-    return success(null, "İzin talebi silindi");
-  } catch (error) {
-    console.error("Staff leave DELETE error:", error);
-    return serverError();
-  }
-}
+    return Response.ok(null, "Leave request deleted");
+  },
+);

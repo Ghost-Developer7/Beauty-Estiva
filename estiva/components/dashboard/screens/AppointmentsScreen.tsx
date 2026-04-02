@@ -19,6 +19,7 @@ import type {
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
+import { InfoTooltip } from "@/components/ui/Tooltip";
 import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
@@ -44,14 +45,36 @@ const STAFF_COLORS = [
   "#fb923c", "#f87171", "#c084fc", "#22d3ee", "#a3e635",
 ];
 
-type ViewMode = "list" | "timeline";
+type ViewMode = "list" | "calendar";
+
+const MONTH_NAMES: Record<string, string[]> = {
+  en: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+  tr: ["Ocak","Şubat","Mart","Nisan","Mayıs","Haziran","Temmuz","Ağustos","Eylül","Ekim","Kasım","Aralık"],
+};
+const CAL_WEEK_ORDER = [1, 2, 3, 4, 5, 6, 0];
+const CAL_DAY_LABELS: Record<string, Record<number, string>> = {
+  en: { 0: "Sun", 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat" },
+  tr: { 0: "Paz", 1: "Pzt", 2: "Sal", 3: "Çar", 4: "Per", 5: "Cum", 6: "Cmt" },
+};
+
+function getCalGrid(year: number, month: number): (number | null)[][] {
+  const firstOffset = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const cells: (number | null)[] = [
+    ...Array<null>(firstOffset).fill(null),
+    ...Array.from({ length: daysInMonth }, (_, i) => i + 1),
+  ];
+  while (cells.length % 7 !== 0) cells.push(null);
+  const rows: (number | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) rows.push(cells.slice(i, i + 7));
+  return rows;
+}
 
 const copy = {
   en: {
     title: "Appointments",
     newAppointment: "New Appointment",
     list: "List",
-    timeline: "Timeline",
     allStaff: "All Staff",
     allTreatments: "All Treatments",
     allStatuses: "All Statuses",
@@ -100,11 +123,9 @@ const copy = {
     cancelAppointment: "Cancel Appointment",
     whatsappReminder: "Send WhatsApp Reminder",
     confirmCancel: "Cancel this appointment?",
-    // Timeline
     today: "Today",
     yesterday: "Yesterday",
     tomorrow: "Tomorrow",
-    noStaff: "No staff members found.",
     // Stats
     scheduled: "Scheduled",
     confirmed: "Confirmed",
@@ -114,12 +135,18 @@ const copy = {
     tipConfirmed: "Confirmed appointments ready to go.",
     tipCompleted: "Successfully completed appointments.",
     tipCancelled: "Cancelled or no-show appointments.",
+    // Calendar
+    calendar: "Calendar",
+    monthSummary: "Monthly Summary",
+    appts: "appts",
+    clickDayHint: "Click a day to view its appointments",
+    more: "more",
+    allStaffCal: "All Staff",
   },
   tr: {
     title: "Randevular",
     newAppointment: "Yeni Randevu",
     list: "Liste",
-    timeline: "Zaman Çizelgesi",
     allStaff: "Tüm Personel",
     allTreatments: "Tüm Hizmetler",
     allStatuses: "Tüm Durumlar",
@@ -169,7 +196,6 @@ const copy = {
     today: "Bugün",
     yesterday: "Dün",
     tomorrow: "Yarın",
-    noStaff: "Personel bulunamadı.",
     scheduled: "Planlandı",
     confirmed: "Onaylandı",
     completed: "Tamamlandı",
@@ -178,6 +204,13 @@ const copy = {
     tipConfirmed: "Onaylanmış, gerçekleşecek randevular.",
     tipCompleted: "Başarıyla tamamlanan randevular.",
     tipCancelled: "İptal edilen veya gelmeyenler.",
+    // Calendar
+    calendar: "Takvim",
+    monthSummary: "Aylık Özet",
+    appts: "randevu",
+    clickDayHint: "Günü tıklayarak randevuları listeleyin",
+    more: "daha",
+    allStaffCal: "Tüm Personel",
   },
 };
 
@@ -230,29 +263,20 @@ const getStaffColor = (staffId: number) => STAFF_COLORS[staffId % STAFF_COLORS.l
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
 
-function StatCard({ label, value, color, isDark, tooltip }: { label: string; value: number; color: string; isDark: boolean; tooltip?: string }) {
-  const [showTip, setShowTip] = useState(false);
+function StatCard({ label, value, sub, icon, iconColor, gradient, isDark, tooltip }: { label: string; value: number; sub?: string; icon: React.ReactNode; iconColor: string; gradient: string; isDark: boolean; tooltip?: string }) {
   return (
-    <div className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
-      <div className={`h-2 w-2 rounded-full ${color}`} />
-      <div>
-        <p className={`text-lg font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{value}</p>
-        <div className="flex items-center gap-1">
-          <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-          {tooltip && (
-            <div className="relative">
-              <button onMouseEnter={() => setShowTip(true)} onMouseLeave={() => setShowTip(false)} className={`flex h-3.5 w-3.5 items-center justify-center rounded-full ${isDark ? "bg-white/10 text-white/30 hover:text-white/60" : "bg-gray-200 text-gray-400 hover:text-gray-600"} transition`}>
-                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              </button>
-              {showTip && (
-                <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-44 rounded-lg border px-3 py-2 text-[11px] leading-relaxed shadow-xl z-50 ${isDark ? "border-white/10 bg-[#1a1a2e] text-white/80" : "border-gray-200 bg-white text-gray-600"}`}>
-                  {tooltip}
-                  <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-px border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] ${isDark ? "border-t-[#1a1a2e]" : "border-t-white"}`} />
-                </div>
-              )}
-            </div>
-          )}
+    <div className={`group relative overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5 backdrop-blur-sm transition-all ${isDark ? "hover:border-white/20 hover:bg-white/[0.07]" : "hover:border-gray-300 hover:bg-gray-100"}`}>
+      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
+      <div className="relative">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{label}</p>
+            {tooltip && <InfoTooltip content={tooltip} />}
+          </div>
+          <span className={iconColor}>{icon}</span>
         </div>
+        <p className="mt-3 text-2xl font-bold">{value}</p>
+        {sub && <p className={`mt-1 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{sub}</p>}
       </div>
     </div>
   );
@@ -311,7 +335,7 @@ export default function AppointmentsScreen() {
   /* ─── Filters ─── */
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     const param = searchParams.get("view");
-    return param === "timeline" ? "timeline" : "list";
+    return param === "list" ? "list" : "calendar";
   });
   const [dateFilter, setDateFilter] = useState(() => new Date().toISOString().split("T")[0]);
   const [staffFilter, setStaffFilter] = useState<number | "">("");
@@ -335,6 +359,14 @@ export default function AppointmentsScreen() {
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusTarget, setStatusTarget] = useState<{ id: number; current: string } | null>(null);
   const [newStatus, setNewStatus] = useState("Scheduled");
+
+  /* ─── Calendar ─── */
+  const todayDate = new Date();
+  const [calYear, setCalYear] = useState(todayDate.getFullYear());
+  const [calMonth, setCalMonth] = useState(todayDate.getMonth());
+  const [calAppointments, setCalAppointments] = useState<AppointmentListItem[]>([]);
+  const [calLoading, setCalLoading] = useState(false);
+  const [calStaffIds, setCalStaffIds] = useState<Set<number> | null>(null); // null = all
 
   /* ═══ DATA FETCHING ═══ */
 
@@ -386,8 +418,24 @@ export default function AppointmentsScreen() {
     if (staffRes.status === "fulfilled" && staffRes.value.data.success && staffRes.value.data.data) setStaffList(staffRes.value.data.data);
   }, []);
 
+  const fetchCalendarData = useCallback(async () => {
+    if (viewMode !== "calendar") return;
+    setCalLoading(true);
+    try {
+      const startDate = new Date(calYear, calMonth, 1).toISOString().split("T")[0];
+      const endDate = new Date(calYear, calMonth + 1, 0).toISOString().split("T")[0];
+      const res = await appointmentService.list({ startDate, endDate });
+      if (res.data.success && res.data.data) setCalAppointments(res.data.data);
+    } catch {
+      toast.error(language === "tr" ? "Takvim yüklenemedi" : "Failed to load calendar");
+    } finally {
+      setCalLoading(false);
+    }
+  }, [viewMode, calYear, calMonth, language]);
+
   useEffect(() => { fetchAppointments(); }, [fetchAppointments]);
   useEffect(() => { fetchReferenceData(); }, [fetchReferenceData]);
+  useEffect(() => { fetchCalendarData(); }, [fetchCalendarData]);
 
   // Close customer dropdown on outside click
   useEffect(() => {
@@ -583,6 +631,53 @@ export default function AppointmentsScreen() {
     return d.toLocaleDateString(locale, { day: "numeric", month: "short" });
   };
 
+  /* ═══ CALENDAR DERIVED ═══ */
+
+  const filteredCalApts =
+    calStaffIds === null
+      ? calAppointments
+      : calAppointments.filter((a) => calStaffIds.has(a.staffId));
+
+  const calAptsByDay = new Map<string, AppointmentListItem[]>();
+  for (const apt of filteredCalApts) {
+    const key = apt.startTime.slice(0, 10);
+    if (!calAptsByDay.has(key)) calAptsByDay.set(key, []);
+    calAptsByDay.get(key)!.push(apt);
+  }
+
+  const calMonthStats = {
+    scheduled: filteredCalApts.filter((a) => a.status === "Scheduled").length,
+    confirmed: filteredCalApts.filter((a) => a.status === "Confirmed").length,
+    completed: filteredCalApts.filter((a) => a.status === "Completed").length,
+    cancelled: filteredCalApts.filter((a) => a.status === "Cancelled" || a.status === "NoShow").length,
+  };
+
+  const calStaffBreakdown = staffList
+    .filter((s) => s.isActive)
+    .map((s) => ({ ...s, count: filteredCalApts.filter((a) => a.staffId === s.id).length }))
+    .filter((s) => s.count > 0);
+
+  const calGrid = getCalGrid(calYear, calMonth);
+
+  const calPrevMonth = () => {
+    if (calMonth === 0) { setCalYear((y) => y - 1); setCalMonth(11); }
+    else setCalMonth((m) => m - 1);
+  };
+  const calNextMonth = () => {
+    if (calMonth === 11) { setCalYear((y) => y + 1); setCalMonth(0); }
+    else setCalMonth((m) => m + 1);
+  };
+  const calGoToday = () => { setCalYear(todayDate.getFullYear()); setCalMonth(todayDate.getMonth()); };
+
+  const toggleCalStaff = (staffId: number) => {
+    setCalStaffIds((prev) => {
+      const cur = prev === null ? new Set(staffList.filter((s) => s.isActive).map((s) => s.id)) : new Set(prev);
+      if (cur.has(staffId)) { cur.delete(staffId); if (cur.size === 0) return new Set([staffId]); }
+      else { cur.add(staffId); if (cur.size === staffList.filter((s) => s.isActive).length) return null; }
+      return cur;
+    });
+  };
+
   /* ═══ CUSTOMER SEARCH ═══ */
   const filteredCustomers = customers.filter((c) => {
     if (!customerSearch) return true;
@@ -597,33 +692,6 @@ export default function AppointmentsScreen() {
   };
 
   /* ═══ TIMELINE HELPERS ═══ */
-  const HOUR_START = 8;
-  const HOUR_END = 22;
-  const SLOT_HEIGHT = 48; // px per 30min
-  const hours = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i);
-
-  const getTimePosition = (timeStr: string) => {
-    const d = new Date(timeStr);
-    const totalMinutes = d.getHours() * 60 + d.getMinutes();
-    const startMinutes = HOUR_START * 60;
-    return ((totalMinutes - startMinutes) / 30) * SLOT_HEIGHT;
-  };
-
-  const getBlockHeight = (startStr: string, endStr: string) => {
-    const start = new Date(startStr);
-    const end = new Date(endStr);
-    const durationMin = (end.getTime() - start.getTime()) / 60000;
-    return Math.max((durationMin / 30) * SLOT_HEIGHT, SLOT_HEIGHT * 0.8);
-  };
-
-  // Group appointments by staff for timeline
-  const staffWithAppointments = staffList
-    .filter(s => s.isActive)
-    .map(s => ({
-      ...s,
-      appointments: filtered.filter(a => a.staffId === s.id),
-      color: getStaffColor(s.id),
-    }));
 
   /* ═══════════════════════════════════════════
      RENDER
@@ -666,62 +734,93 @@ export default function AppointmentsScreen() {
       </div>
 
       {/* ─── STATS ─── */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {loading ? (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        {(loading && viewMode !== "calendar") || (calLoading && viewMode === "calendar") ? (
           <>
             {[...Array(4)].map((_, i) => (
-              <div key={i} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3 space-y-2`}>
-                <div className={`h-3 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
-                <div className={`h-6 w-24 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+              <div key={i} className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5 space-y-3`}>
+                <div className={`h-3 w-20 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                <div className={`h-7 w-12 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
               </div>
             ))}
           </>
-        ) : (
-          <>
-            <StatCard label={t.scheduled} value={stats.scheduled} color="bg-blue-400" isDark={isDark} tooltip={t.tipScheduled} />
-            <StatCard label={t.confirmed} value={stats.confirmed} color="bg-emerald-400" isDark={isDark} tooltip={t.tipConfirmed} />
-            <StatCard label={t.completed} value={stats.completed} color="bg-green-400" isDark={isDark} tooltip={t.tipCompleted} />
-            <StatCard label={t.cancelled} value={stats.cancelled} color="bg-red-400" isDark={isDark} tooltip={t.tipCancelled} />
-          </>
-        )}
+        ) : (() => {
+          const s = viewMode === "calendar" ? calMonthStats : stats;
+          const sub = viewMode === "calendar" ? MONTH_NAMES[language][calMonth] : undefined;
+          return (
+            <>
+              <StatCard label={t.scheduled} value={s.scheduled} sub={sub} isDark={isDark} tooltip={t.tipScheduled} iconColor="text-blue-400" gradient="from-blue-500/10 to-transparent"
+                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>} />
+              <StatCard label={t.confirmed} value={s.confirmed} sub={sub} isDark={isDark} tooltip={t.tipConfirmed} iconColor="text-emerald-400" gradient="from-emerald-500/10 to-transparent"
+                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>} />
+              <StatCard label={t.completed} value={s.completed} sub={sub} isDark={isDark} tooltip={t.tipCompleted} iconColor="text-green-400" gradient="from-green-500/10 to-transparent"
+                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>} />
+              <StatCard label={t.cancelled} value={s.cancelled} sub={sub} isDark={isDark} tooltip={t.tipCancelled} iconColor="text-red-400" gradient="from-red-500/10 to-transparent"
+                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>} />
+            </>
+          );
+        })()}
       </div>
 
-      {/* ─── DATE NAV + FILTERS ─── */}
+      {/* ─── DATE / MONTH NAV + FILTERS ─── */}
       <div className="flex flex-wrap items-center gap-3">
-        {/* Date navigation */}
-        <div className={`flex items-center gap-1 rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
-          <button onClick={() => navigateDate(-1)} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
-          </button>
-          <button
-            onClick={goToday}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${isToday ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
-          >
-            {getDateLabel() || t.today}
-          </button>
-          <button onClick={() => navigateDate(1)} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
-          </button>
-        </div>
+        {/* Date navigation (list & timeline) */}
+        {viewMode !== "calendar" && (
+          <>
+            <div className={`flex items-center gap-1 rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
+              <button onClick={() => navigateDate(-1)} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+              <button
+                onClick={goToday}
+                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${isToday ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
+              >
+                {getDateLabel() || t.today}
+              </button>
+              <button onClick={() => navigateDate(1)} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+              </button>
+            </div>
+            <LocaleDateInput
+              value={dateFilter}
+              onChange={(e) => setDateFilter(e.target.value)}
+              className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
+              isDark={isDark}
+            />
+          </>
+        )}
 
-        <LocaleDateInput
-          value={dateFilter}
-          onChange={(e) => setDateFilter(e.target.value)}
-          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
-          isDark={isDark}
-        />
+        {/* Month navigation (calendar) */}
+        {viewMode === "calendar" && (
+          <div className={`flex items-center gap-1 rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
+            <button onClick={calPrevMonth} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <span className="min-w-[140px] text-center text-xs font-semibold px-1">
+              {MONTH_NAMES[language][calMonth]} {calYear}
+            </span>
+            <button onClick={calNextMonth} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+            </button>
+            <button onClick={calGoToday} className={`rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-medium ${isDark ? "text-white/40" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
+              {t.today}
+            </button>
+          </div>
+        )}
 
         <div className={`h-6 w-px ${isDark ? "bg-white/10" : "bg-gray-100"}`} />
 
         {/* View toggle */}
         <div className={`flex rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
-          {(["list", "timeline"] as ViewMode[]).map((mode) => (
+          {(["calendar", "list"] as ViewMode[]).map((mode) => (
             <button
               key={mode}
               onClick={() => setViewMode(mode)}
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${viewMode === mode ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"}`}
+              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${viewMode === mode ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"}`}
             >
-              {mode === "list" ? t.list : t.timeline}
+              {mode === "calendar" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
+              {mode === "list" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/></svg>}
+              {mode === "calendar" ? t.calendar : t.list}
             </button>
           ))}
         </div>
@@ -777,10 +876,12 @@ export default function AppointmentsScreen() {
       </div>
 
       {/* ─── DATE DISPLAY ─── */}
-      <div className={`text-sm font-medium ${isDark ? "text-white/50" : "text-gray-500"}`}>
-        {formatDate(dateFilter + "T00:00:00", language)}
-        {getDateLabel() && <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{getDateLabel()}</span>}
-      </div>
+      {viewMode !== "calendar" && (
+        <div className={`text-sm font-medium ${isDark ? "text-white/50" : "text-gray-500"}`}>
+          {formatDate(dateFilter + "T00:00:00", language)}
+          {getDateLabel() && <span className="ml-2 rounded-full bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-400">{getDateLabel()}</span>}
+        </div>
+      )}
 
       {/* ═══ LIST VIEW ═══ */}
       {viewMode === "list" && (
@@ -892,101 +993,162 @@ export default function AppointmentsScreen() {
       )}
 
       {/* ═══ TIMELINE VIEW ═══ */}
-      {viewMode === "timeline" && (
-        <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02] shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "border-gray-200 bg-white shadow-sm"}`}>
-          {loading ? (
-            <div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}>
+      {/* ═══ CALENDAR VIEW ═══ */}
+      {viewMode === "calendar" && (
+        <div className="space-y-4">
+
+          {/* Staff filter chips */}
+          {staffList.filter((s) => s.isActive).length > 1 && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setCalStaffIds(null)}
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  calStaffIds === null
+                    ? "border-white/20 bg-white/10 text-white"
+                    : `border-white/[0.07] ${isDark ? "bg-white/[0.03]" : "bg-gray-50"} text-white/40 hover:bg-white/[0.07] hover:text-white/60`
+                }`}
+              >
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                {t.allStaffCal}
+              </button>
+              {staffList.filter((s) => s.isActive).map((s) => {
+                const isSelected = calStaffIds === null || calStaffIds.has(s.id);
+                const color = STAFF_COLORS[s.id % STAFF_COLORS.length];
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => toggleCalStaff(s.id)}
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                      isSelected
+                        ? "border-white/15 bg-white/[0.07] text-white/80"
+                        : `border-white/[0.06] ${isDark ? "bg-white/[0.02]" : "bg-gray-50"} text-white/25 hover:bg-white/[0.05] hover:text-white/45`
+                    }`}
+                  >
+                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color, opacity: isSelected ? 1 : 0.3 }} />
+                    {s.name} {s.surname}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Per-staff monthly summary */}
+          {calStaffBreakdown.length > 0 && (
+            <div className="flex flex-wrap gap-2.5">
+              {calStaffBreakdown.map((s) => {
+                const color = STAFF_COLORS[s.id % STAFF_COLORS.length];
+                return (
+                  <div key={s.id} className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-gray-200 bg-gray-50"} px-4 py-2.5`}>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow" style={{ backgroundColor: color }}>
+                      {s.name[0]}{s.surname[0]}
+                    </div>
+                    <div>
+                      <p className={`text-xs font-semibold ${isDark ? "text-white/80" : "text-gray-800"}`}>{s.name} {s.surname}</p>
+                      <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                        <span className="font-semibold" style={{ color }}>{s.count}</span> {t.appts}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Calendar grid */}
+          {calLoading ? (
+            <div className={`flex items-center justify-center gap-3 rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-white"} p-16 ${isDark ? "text-white/40" : "text-gray-400"}`}>
               <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
               {t.loading}
             </div>
-          ) : staffWithAppointments.length === 0 ? (
-            <div className={`p-12 text-center ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noStaff}</div>
           ) : (
-            <div className="overflow-x-auto">
-              <div className="min-w-[800px]">
-                {/* Staff header */}
-                <div className={`sticky top-0 z-10 flex border-b ${isDark ? "border-white/[0.06] bg-[#0d0d1a]/90" : "border-gray-200 bg-gray-50/90"} backdrop-blur-sm`}>
-                  <div className={`w-16 shrink-0 border-r ${isDark ? "border-white/[0.06]" : "border-gray-200"} px-2 py-3 text-[10px] font-medium ${isDark ? "text-white/30" : "text-gray-400"}`} />
-                  {staffWithAppointments.map((s) => (
-                    <div
-                      key={s.id}
-                      className={`flex-1 min-w-[160px] border-r ${isDark ? "border-white/[0.04]" : "border-gray-100"} px-3 py-3`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <div
-                          className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
-                          style={{ backgroundColor: s.color }}
-                        >
-                          {s.name[0]}{s.surname[0]}
-                        </div>
-                        <div>
-                          <p className={`text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{s.name} {s.surname}</p>
-                          <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{s.appointments.length} {language === "tr" ? "randevu" : "appts"}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Time grid */}
-                <div className="relative flex pt-2">
-                  {/* Hours column */}
-                  <div className={`w-16 shrink-0 border-r ${isDark ? "border-white/[0.06]" : "border-gray-200"}`}>
-                    {hours.map((h) => (
-                      <div key={h} className="relative" style={{ height: SLOT_HEIGHT * 2 }}>
-                        <span className={`absolute -top-2 right-2 text-[10px] font-medium ${isDark ? "text-white/25" : "text-gray-400"}`}>
-                          {String(h).padStart(2, "0")}:00
-                        </span>
-                      </div>
-                    ))}
+            <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02] shadow-[0_8px_40px_rgba(0,0,0,0.3)]" : "border-gray-200 bg-white shadow-sm"}`}>
+              {/* Day headers */}
+              <div className={`grid grid-cols-7 divide-x ${isDark ? "divide-white/[0.04] border-b border-white/[0.06] bg-white/[0.03]" : "divide-gray-100 border-b border-gray-200 bg-gray-50"}`}>
+                {CAL_WEEK_ORDER.map((day) => (
+                  <div key={day} className={`py-2.5 text-center text-[11px] font-bold tracking-wider ${day === 0 || day === 6 ? "text-amber-400/60" : isDark ? "text-white/30" : "text-gray-400"}`}>
+                    {CAL_DAY_LABELS[language][day]}
                   </div>
-
-                  {/* Staff columns */}
-                  {staffWithAppointments.map((s) => (
-                    <div key={s.id} className={`relative flex-1 min-w-[160px] border-r ${isDark ? "border-white/[0.04]" : "border-gray-100"}`}>
-                      {/* Hour grid lines */}
-                      {hours.map((h) => (
-                        <div key={h} style={{ height: SLOT_HEIGHT * 2 }} className={`border-b ${isDark ? "border-white/[0.03]" : "border-gray-100"}`}>
-                          <div className={`h-1/2 border-b ${isDark ? "border-white/[0.015]" : "border-gray-50"}`} />
-                        </div>
-                      ))}
-
-                      {/* Appointment blocks */}
-                      {s.appointments.map((apt) => {
-                        const top = getTimePosition(apt.startTime);
-                        const height = getBlockHeight(apt.startTime, apt.endTime);
-                        const color = apt.treatmentColor || s.color;
-
-                        return (
-                          <div
-                            key={apt.id}
-                            onClick={() => openDetail(apt.id)}
-                            className="absolute left-1 right-1 cursor-pointer rounded-lg border px-2 py-1.5 transition-all duration-150 hover:scale-[1.02] hover:shadow-lg hover:z-10"
-                            style={{
-                              top: `${top}px`,
-                              height: `${height}px`,
-                              backgroundColor: `${color}18`,
-                              borderColor: `${color}40`,
-                            }}
-                          >
-                            <p className="text-[10px] font-bold truncate" style={{ color }}>
-                              {apt.customerFullName}
-                            </p>
-                            <p className={`text-[9px] ${isDark ? "text-white/40" : "text-gray-400"} truncate`}>
-                              {apt.treatmentName}
-                            </p>
-                            <p className={`text-[9px] ${isDark ? "text-white/30" : "text-gray-300"}`}>
-                              {formatTime(apt.startTime, language)} - {formatTime(apt.endTime, language)}
-                            </p>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
+                ))}
               </div>
+
+              {/* Week rows */}
+              {calGrid.map((week, wIdx) => (
+                <div key={wIdx} className={`grid grid-cols-7 divide-x ${isDark ? "divide-white/[0.04] border-b border-white/[0.04]" : "divide-gray-100 border-b border-gray-100"} last:border-b-0`}>
+                  {week.map((day, dIdx) => {
+                    const dayOfWeek = CAL_WEEK_ORDER[dIdx];
+                    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+                    const isCalToday =
+                      day !== null &&
+                      calYear === todayDate.getFullYear() &&
+                      calMonth === todayDate.getMonth() &&
+                      day === todayDate.getDate();
+                    const dayKey = day
+                      ? `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`
+                      : null;
+                    const dayApts = dayKey ? (calAptsByDay.get(dayKey) ?? []) : [];
+                    const visibleApts = dayApts.slice(0, 3);
+                    const moreCount = dayApts.length - visibleApts.length;
+
+                    return (
+                      <div
+                        key={dIdx}
+                        onClick={() => {
+                          if (day && dayKey) { setDateFilter(dayKey); setViewMode("list"); }
+                        }}
+                        className={`min-h-[108px] p-2 transition ${day ? "cursor-pointer" : "opacity-25 pointer-events-none"} ${isWeekend ? isDark ? "bg-white/[0.012]" : "bg-amber-50/30" : ""} ${day ? isDark ? "hover:bg-white/[0.04]" : "hover:bg-blue-50/40" : ""}`}
+                      >
+                        {/* Day number */}
+                        <div className="mb-1.5">
+                          <span className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold leading-none ${
+                            isCalToday
+                              ? "bg-violet-500 text-white shadow-[0_0_0_3px_rgba(139,92,246,0.25)]"
+                              : isWeekend
+                              ? "text-amber-400/60"
+                              : isDark ? "text-white/35" : "text-gray-400"
+                          }`}>
+                            {day ?? ""}
+                          </span>
+                        </div>
+
+                        {/* Appointment badges */}
+                        <div className="space-y-0.5">
+                          {visibleApts.map((apt) => {
+                            const s = STATUS_MAP[apt.status] || STATUS_MAP["Scheduled"];
+                            const aptColor = apt.treatmentColor || getStaffColor(apt.staffId);
+                            return (
+                              <div
+                                key={apt.id}
+                                onClick={(e) => { e.stopPropagation(); openDetail(apt.id); }}
+                                title={`${apt.customerFullName} · ${apt.treatmentName}`}
+                                className={`flex w-full cursor-pointer items-center gap-1 truncate rounded px-1.5 py-0.5 text-[9px] font-medium border transition hover:opacity-80 ${s.bg}`}
+                              >
+                                <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: aptColor }} />
+                                <span className="truncate">{apt.customerFullName.split(" ")[0]}</span>
+                                <span className={`ml-auto shrink-0 ${isDark ? "text-white/30" : "text-gray-400"}`}>
+                                  {new Date(apt.startTime).toLocaleTimeString(language === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" })}
+                                </span>
+                              </div>
+                            );
+                          })}
+                          {moreCount > 0 && (
+                            <p className={`px-1.5 text-[9px] font-medium ${isDark ? "text-white/30" : "text-gray-400"}`}>
+                              +{moreCount} {t.more}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ))}
             </div>
           )}
+
+          {/* Hint */}
+          <p className={`text-center text-[11px] ${isDark ? "text-white/20" : "text-gray-300"}`}>
+            <svg className="mr-1 inline-block" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            {t.clickDayHint}
+          </p>
         </div>
       )}
 

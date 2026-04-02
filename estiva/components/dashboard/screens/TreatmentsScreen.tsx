@@ -9,6 +9,7 @@ import type { TreatmentListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
+import { InfoTooltip } from "@/components/ui/Tooltip";
 import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
@@ -63,6 +64,8 @@ const copy = {
     edit: "Edit",
     delete: "Delete",
     confirmDelete: "Are you sure you want to delete this treatment?",
+    confirmDeleteSub: "This action cannot be undone.",
+    confirmDeleteBtn: "Delete",
     // List
     treatment: "Treatment",
     durationCol: "Duration",
@@ -103,6 +106,8 @@ const copy = {
     edit: "Düzenle",
     delete: "Sil",
     confirmDelete: "Bu hizmeti silmek istediğinize emin misiniz?",
+    confirmDeleteSub: "Bu işlem geri alınamaz.",
+    confirmDeleteBtn: "Sil",
     treatment: "Hizmet",
     durationCol: "Süre",
     priceCol: "Fiyat",
@@ -130,28 +135,11 @@ const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0,
    ═══════════════════════════════════════════ */
 
 function StatCard({ label, value, sub, color, isDark, tooltip }: { label: string; value: string; sub?: string; color: string; isDark: boolean; tooltip?: string }) {
-  const [showTip, setShowTip] = useState(false);
   return (
     <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
       <div className="flex items-center gap-1.5">
         <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-        {tooltip && (
-          <div className="relative">
-            <button
-              onMouseEnter={() => setShowTip(true)}
-              onMouseLeave={() => setShowTip(false)}
-              className={`flex h-3.5 w-3.5 items-center justify-center rounded-full ${isDark ? "bg-white/10 text-white/40 hover:bg-white/20 hover:text-white/70" : "bg-gray-200 text-gray-400 hover:bg-gray-300 hover:text-gray-600"} transition`}
-            >
-              <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-            </button>
-            {showTip && (
-              <div className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 rounded-lg border px-3 py-2 text-[11px] leading-relaxed shadow-xl z-50 ${isDark ? "border-white/10 bg-[#1a1a2e] text-white/80" : "border-gray-200 bg-white text-gray-600"}`}>
-                {tooltip}
-                <div className={`absolute top-full left-1/2 -translate-x-1/2 -mt-px w-0 h-0 border-l-[5px] border-l-transparent border-r-[5px] border-r-transparent border-t-[5px] ${isDark ? "border-t-[#1a1a2e]" : "border-t-white"}`} />
-              </div>
-            )}
-          </div>
-        )}
+        {tooltip && <InfoTooltip content={tooltip} />}
       </div>
       <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
       {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
@@ -207,6 +195,11 @@ export default function TreatmentsScreen() {
   /* ─── Detail Modal ─── */
   const [showDetail, setShowDetail] = useState(false);
   const [selectedTreatment, setSelectedTreatment] = useState<TreatmentListItem | null>(null);
+
+  /* ─── Delete Confirm ─── */
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   /* ═══ DATA FETCHING ═══ */
 
@@ -325,15 +318,24 @@ export default function TreatmentsScreen() {
     }
   };
 
-  const handleDelete = async (id: number) => {
-    if (!confirm(t.confirmDelete)) return;
+  const handleDelete = (id: number) => {
+    setDeleteTargetId(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTargetId) return;
+    setDeleting(true);
     try {
-      await treatmentService.delete(id);
+      await treatmentService.delete(deleteTargetId);
       toast.success(language === "tr" ? "Hizmet silindi" : "Treatment deleted");
+      setShowDeleteConfirm(false);
       setShowDetail(false);
       fetchTreatments();
     } catch {
       toast.error(language === "tr" ? "Silme başarısız" : "Delete failed");
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -424,8 +426,8 @@ export default function TreatmentsScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
-              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("name")}>{t.treatment}<SortIcon col="name" /></span>
+            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_68px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+              <span className="cursor-pointer select-none hover:opacity-80 pl-[18px]" onClick={() => handleSort("name")}>{t.treatment}<SortIcon col="name" /></span>
               <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("durationMinutes")}>{t.durationCol}<SortIcon col="durationMinutes" /></span>
               <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("price")}>{t.priceCol}<SortIcon col="price" /></span>
               <span />
@@ -439,7 +441,7 @@ export default function TreatmentsScreen() {
                   <div
                     key={item.id}
                     onClick={() => openDetail(item)}
-                    className={`group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
+                    className={`group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_68px] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
                     {/* Treatment name + color + description */}
                     <div className="flex items-center gap-3">
@@ -458,10 +460,7 @@ export default function TreatmentsScreen() {
                     </div>
 
                     {/* Duration */}
-                    <div className="hidden md:flex items-center gap-1.5">
-                      <svg className={isDark ? "text-white/20" : "text-gray-300"} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></svg>
-                      <span className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{item.durationMinutes} {t.min}</span>
-                    </div>
+                    <span className={`hidden md:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{item.durationMinutes} {t.min}</span>
 
                     {/* Price */}
                     <p className={`hidden md:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(item.price ?? 0)}</p>
@@ -500,6 +499,36 @@ export default function TreatmentsScreen() {
           </>
         )}
       </div>
+
+      {/* ═══════════════════════════════════════════
+         DELETE CONFIRM MODAL
+         ═══════════════════════════════════════════ */}
+      <Modal open={showDeleteConfirm} onClose={() => setShowDeleteConfirm(false)} title={language === "tr" ? "Hizmeti Sil" : "Delete Treatment"} maxWidth="max-w-sm">
+        <div className="space-y-5">
+          <div className={`flex items-start gap-3 rounded-xl border ${isDark ? "border-red-500/20 bg-red-500/10" : "border-red-200 bg-red-50"} px-4 py-3`}>
+            <svg className="mt-0.5 shrink-0 text-red-400" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+            <div>
+              <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.confirmDelete}</p>
+              <p className={`mt-0.5 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.confirmDeleteSub}</p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={confirmDelete}
+              disabled={deleting}
+              className="flex-1 rounded-xl bg-red-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-red-600 disabled:opacity-50"
+            >
+              {deleting ? (language === "tr" ? "Siliniyor..." : "Deleting...") : t.confirmDeleteBtn}
+            </button>
+            <button
+              onClick={() => setShowDeleteConfirm(false)}
+              className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-2.5 text-sm font-medium ${isDark ? "text-white/60 hover:bg-white/5 hover:text-white" : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"} transition`}
+            >
+              {t.cancel}
+            </button>
+          </div>
+        </div>
+      </Modal>
 
       {/* ═══════════════════════════════════════════
          CREATE / EDIT MODAL

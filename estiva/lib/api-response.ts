@@ -1,45 +1,39 @@
-import { NextResponse } from "next/server";
+/**
+ * @deprecated Import from "@/core/server" instead.
+ *
+ * This file is kept for backward compatibility.
+ * All logic now lives in library/backend/Response.ts.
+ */
 
-export interface ApiResponse<T> {
-  success: boolean;
-  data: T | null;
-  error: { errorCode: string; message: string } | null;
-  message: string | null;
-}
+import { Response, ApiEnvelope } from "@/core/server/Response";
 
-export function success<T>(data: T, message?: string): NextResponse<ApiResponse<T>> {
-  return NextResponse.json({
-    success: true,
-    data,
-    error: null,
-    message: message ?? null,
-  });
-}
+// Re-export the envelope type under the old name
+export type ApiResponse<T> = ApiEnvelope<T>;
 
-export function fail(message: string, errorCode: string = "ERROR", status: number = 400): NextResponse<ApiResponse<null>> {
-  return NextResponse.json(
-    {
-      success: false,
-      data: null,
-      error: { errorCode, message },
-      message,
-    },
-    { status }
-  );
-}
+// Re-export named helpers that existing routes use
+export const success = <T>(data: T, message?: string) =>
+  Response.ok(data, message);
 
-export function unauthorized(message: string = "Yetkisiz erişim"): NextResponse<ApiResponse<null>> {
-  return fail(message, "UNAUTHORIZED", 401);
-}
+export const fail = (
+  message: string,
+  errorCode = "ERROR",
+  status = 400,
+) => {
+  if (status === 401) return Response.unauthorized(message);
+  if (status === 403) return Response.forbidden(message);
+  if (status === 404) return Response.notFound(message);
+  if (status === 500) return Response.serverError(message);
+  return Response.badRequest(message, errorCode);
+};
 
-export function forbidden(message: string = "Bu işlem için yetkiniz yok"): NextResponse<ApiResponse<null>> {
-  return fail(message, "FORBIDDEN", 403);
-}
+export const unauthorized = (message?: string) =>
+  Response.unauthorized(message);
 
-export function notFound(message: string = "Kayıt bulunamadı"): NextResponse<ApiResponse<null>> {
-  return fail(message, "NOT_FOUND", 404);
-}
+export const forbidden = (message?: string) =>
+  Response.forbidden(message);
 
-export function serverError(message: string = "Sunucu hatası oluştu"): NextResponse<ApiResponse<null>> {
-  return fail(message, "SERVER_ERROR", 500);
-}
+export const notFound = (message?: string) =>
+  Response.notFound(message);
+
+export const serverError = (message?: string) =>
+  Response.serverError(message);

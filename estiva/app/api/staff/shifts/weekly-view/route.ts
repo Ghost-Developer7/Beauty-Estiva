@@ -1,15 +1,20 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { success, serverError } from "@/lib/api-response";
-import { requireSubscription } from "@/lib/api-middleware";
+import { Auth, Response, RouteHandler, Guard } from "@/core/server";
 
-export async function GET(req: NextRequest) {
-  try {
-    const { user, error } = await requireSubscription(req);
+/**
+ * GET /api/staff/shifts/weekly-view
+ * Returns every active staff member with their full 7-day shift schedule.
+ * Restricted to Owner / Admin roles.
+ */
+export const GET = RouteHandler.wrap(
+  "staff/shifts/weekly-view GET",
+  async (req: NextRequest) => {
+    const { user, error } = await Auth.requireRole(req, ["Owner", "Admin"]);
     if (error) return error;
 
     const staffMembers = await prisma.users.findMany({
-      where: { TenantId: user!.tenantId, IsActive: true },
+      where: Guard.activeTenant(user.tenantId),
       select: {
         Id: true,
         Name: true,
@@ -21,23 +26,34 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    const weeklyView = staffMembers.map((staff) => ({
-      staffId: staff.Id,
-      staffName: `${staff.Name} ${staff.Surname}`,
-      shifts: staff.StaffShifts.map((s) => ({
-        id: s.Id,
-        dayOfWeek: s.DayOfWeek,
-        startTime: s.StartTime,
-        endTime: s.EndTime,
-        breakStartTime: s.BreakStartTime,
-        breakEndTime: s.BreakEndTime,
-        isWorkingDay: s.IsWorkingDay,
-      })),
+    const weeklyView = staffMembers.map((member) => ({
+      staffId: member.Id,
+      staffFullName: `${member.Name} ${member.Surname}`,
+      shifts: member.StaffShifts.map(mapShift),
     }));
 
-    return success(weeklyView);
-  } catch (error) {
-    console.error("Weekly view GET error:", error);
-    return serverError();
-  }
+    return Response.ok(weeklyView);
+  },
+);
+
+// ─── Mappers ──────────────────────────────────────────────────────────────────
+
+function mapShift(s: {
+  Id: number;
+  DayOfWeek: number;
+  StartTime: Date;
+  EndTime: Date;
+  BreakStartTime: Date | null;
+  BreakEndTime: Date | null;
+  IsWorkingDay: boolean;
+}) {
+  return {
+    id: s.Id,
+    dayOfWeek: s.DayOfWeek,
+    startTime: s.StartTime,
+    endTime: s.EndTime,
+    breakStartTime: s.BreakStartTime,
+    breakEndTime: s.BreakEndTime,
+    isWorkingDay: s.IsWorkingDay,
+  };
 }

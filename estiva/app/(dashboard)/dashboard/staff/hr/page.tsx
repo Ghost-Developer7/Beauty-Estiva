@@ -265,9 +265,9 @@ export default function StaffHRPage() {
             <div className="divide-y divide-white/[0.04]">
               {filtered.map((s) => {
                 const avatarColor = AVATAR_COLORS[s.staffId % AVATAR_COLORS.length];
-                const initials = s.staffFullName
+                const initials = (s.staffFullName || "?")
                   .split(" ")
-                  .map((n) => n[0])
+                  .map((n: string) => n[0])
                   .join("")
                   .toUpperCase()
                   .slice(0, 2);

@@ -35,7 +35,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const isDark = theme === "dark";
   const labelColor = isDark ? "text-white/80" : "text-[#47376d]";
   const baseInput = isDark
-    ? "border-white/10 bg-white/5 text-white placeholder:text-white/50 focus:border-white/40 focus:bg-white/10 focus:ring-white/30"
+    ? "border-white/15 bg-white/10 text-white/90 placeholder:text-white/30 focus:border-white/30 focus:bg-white/15 focus:ring-white/20"
     : "border-[#d9cef4] bg-white text-[#1d1233] placeholder:text-[#73619d] focus:border-[#a18ddc] focus:bg-white focus:ring-[#b79df1]/60";
   const errorClass = error ? "border-red-500 focus:border-red-500 focus:ring-red-500/30" : "";
 

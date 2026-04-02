@@ -1,39 +1,37 @@
 import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { success, fail, serverError, notFound } from "@/lib/api-response";
-import { requireRoles } from "@/lib/api-middleware";
+import { Auth, Response, RouteHandler, Guard } from "@/core/server";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { user, error } = await requireRoles(req, ["Owner", "Admin"]);
+type Ctx = { params: Promise<{ id: string }> };
+
+/**
+ * GET /api/staff/:id/hr-info
+ * Returns full HR record for a single staff member.
+ * Restricted to Owner / Admin roles.
+ */
+export const GET = RouteHandler.wrap(
+  "staff/[id]/hr-info GET",
+  async (req: NextRequest, { params }: Ctx) => {
+    const { user, error } = await Auth.requireRole(req, ["Owner", "Admin"]);
     if (error) return error;
 
     const { id } = await params;
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return fail("Geçersiz personel ID");
+    const staffId = Guard.parseId(id);
+    if (!staffId) return Response.badRequest("Invalid staff ID");
 
     const hrInfo = await prisma.staffHRInfos.findFirst({
-      where: {
-        StaffId: idNum,
-        TenantId: user!.tenantId,
-        IsActive: true,
-      },
+      where: { StaffId: staffId, ...Guard.activeTenant(user.tenantId) },
       include: {
-        Users: {
-          select: { Id: true, Name: true, Surname: true, Email: true },
-        },
+        Users: { select: { Name: true, Surname: true, Email: true } },
       },
     });
 
-    if (!hrInfo) return notFound("HR bilgisi bulunamadı");
+    if (!hrInfo) return Response.notFound("HR record not found");
 
-    return success({
+    return Response.ok({
       id: hrInfo.Id,
       staffId: hrInfo.StaffId,
-      staffName: `${hrInfo.Users.Name} ${hrInfo.Users.Surname}`,
+      staffFullName: `${hrInfo.Users.Name} ${hrInfo.Users.Surname}`,
       staffEmail: hrInfo.Users.Email,
       hireDate: hrInfo.HireDate,
       position: hrInfo.Position,
@@ -44,89 +42,87 @@ export async function GET(
       emergencyContactPhone: hrInfo.EmergencyContactPhone,
       annualLeaveEntitlement: hrInfo.AnnualLeaveEntitlement,
       usedLeaveDays: hrInfo.UsedLeaveDays,
+      remainingLeaveDays: hrInfo.AnnualLeaveEntitlement - hrInfo.UsedLeaveDays,
       notes: hrInfo.Notes,
     });
-  } catch (error) {
-    console.error("HR info GET error:", error);
-    return serverError();
-  }
-}
+  },
+);
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
-  try {
-    const { user, error } = await requireRoles(req, ["Owner", "Admin"]);
+/**
+ * PUT /api/staff/:id/hr-info
+ * Upsert the HR record for a staff member.
+ * Creates a new record if none exists; updates the existing one otherwise.
+ * Restricted to Owner / Admin roles.
+ */
+export const PUT = RouteHandler.wrap(
+  "staff/[id]/hr-info PUT",
+  async (req: NextRequest, { params }: Ctx) => {
+    const { user, error } = await Auth.requireRole(req, ["Owner", "Admin"]);
     if (error) return error;
 
     const { id } = await params;
-    const idNum = parseInt(id);
-    if (isNaN(idNum)) return fail("Geçersiz personel ID");
+    const staffId = Guard.parseId(id);
+    if (!staffId) return Response.badRequest("Invalid staff ID");
 
-    // Verify staff belongs to tenant
     const staff = await prisma.users.findFirst({
-      where: { Id: idNum, TenantId: user!.tenantId, IsActive: true },
+      where: { Id: staffId, ...Guard.activeTenant(user.tenantId) },
     });
-    if (!staff) return notFound("Personel bulunamadı");
+    if (!staff) return Response.notFound("Staff member not found");
 
     const body = await req.json();
-    const now = new Date();
+    const updateFields = buildUpdateFields(body, user.id);
 
     const existing = await prisma.staffHRInfos.findFirst({
-      where: {
-        StaffId: idNum,
-        TenantId: user!.tenantId,
-        IsActive: true,
-      },
+      where: { StaffId: staffId, ...Guard.activeTenant(user.tenantId) },
     });
 
-    const data: any = {
-      UUser: user!.id,
-      UDate: now,
-    };
-
-    if (body.hireDate !== undefined) data.HireDate = body.hireDate ? new Date(body.hireDate) : null;
-    if (body.position !== undefined) data.Position = body.position;
-    if (body.salary !== undefined) data.Salary = body.salary;
-    if (body.salaryCurrency !== undefined) data.SalaryCurrency = body.salaryCurrency;
-    if (body.identityNumber !== undefined) data.IdentityNumber = body.identityNumber;
-    if (body.emergencyContactName !== undefined) data.EmergencyContactName = body.emergencyContactName;
-    if (body.emergencyContactPhone !== undefined) data.EmergencyContactPhone = body.emergencyContactPhone;
-    if (body.annualLeaveEntitlement !== undefined) data.AnnualLeaveEntitlement = body.annualLeaveEntitlement;
-    if (body.notes !== undefined) data.Notes = body.notes;
-
-    let result;
     if (existing) {
-      result = await prisma.staffHRInfos.update({
+      await prisma.staffHRInfos.update({
         where: { Id: existing.Id },
-        data,
+        data: updateFields,
       });
     } else {
-      result = await prisma.staffHRInfos.create({
+      await prisma.staffHRInfos.create({
         data: {
-          TenantId: user!.tenantId,
-          StaffId: idNum,
+          StaffId: staffId,
           HireDate: body.hireDate ? new Date(body.hireDate) : null,
-          Position: body.position || null,
-          Salary: body.salary || null,
-          SalaryCurrency: body.salaryCurrency || "TRY",
-          IdentityNumber: body.identityNumber || null,
-          EmergencyContactName: body.emergencyContactName || null,
-          EmergencyContactPhone: body.emergencyContactPhone || null,
-          AnnualLeaveEntitlement: body.annualLeaveEntitlement || 14,
+          Position: body.position ?? null,
+          Salary: body.salary ?? null,
+          SalaryCurrency: body.salaryCurrency ?? "TRY",
+          IdentityNumber: body.identityNumber ?? null,
+          EmergencyContactName: body.emergencyContactName ?? null,
+          EmergencyContactPhone: body.emergencyContactPhone ?? null,
+          AnnualLeaveEntitlement: body.annualLeaveEntitlement ?? 14,
           UsedLeaveDays: 0,
-          Notes: body.notes || null,
-          CUser: user!.id,
-          CDate: now,
-          IsActive: true,
+          Notes: body.notes ?? null,
+          ...Guard.createAudit(user.id, user.tenantId),
         },
       });
     }
 
-    return success(result, "HR bilgisi güncellendi");
-  } catch (error) {
-    console.error("HR info PUT error:", error);
-    return serverError();
-  }
+    return Response.ok(null, "HR record updated successfully");
+  },
+);
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+/** Build only the fields present in the request body (partial update). */
+function buildUpdateFields(body: Record<string, unknown>, userId: number) {
+  const fields: Record<string, unknown> = Guard.updateAudit(userId);
+
+  if (body.hireDate !== undefined)
+    fields.HireDate = body.hireDate ? new Date(body.hireDate as string) : null;
+  if (body.position !== undefined) fields.Position = body.position;
+  if (body.salary !== undefined) fields.Salary = body.salary;
+  if (body.salaryCurrency !== undefined) fields.SalaryCurrency = body.salaryCurrency;
+  if (body.identityNumber !== undefined) fields.IdentityNumber = body.identityNumber;
+  if (body.emergencyContactName !== undefined)
+    fields.EmergencyContactName = body.emergencyContactName;
+  if (body.emergencyContactPhone !== undefined)
+    fields.EmergencyContactPhone = body.emergencyContactPhone;
+  if (body.annualLeaveEntitlement !== undefined)
+    fields.AnnualLeaveEntitlement = body.annualLeaveEntitlement;
+  if (body.notes !== undefined) fields.Notes = body.notes;
+
+  return fields;
 }
