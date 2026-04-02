@@ -1,7 +1,7 @@
 "use client";
 
-import ProductsScreen from "@/components/dashboard/screens/ProductsScreen";
+import { redirect } from "next/navigation";
 
 export default function ProductsPage() {
-  return <ProductsScreen />;
+  redirect("/dashboard/product-sales");
 }

@@ -32,7 +32,7 @@ type TabMode = "sales" | "products";
 
 const copy = {
   en: {
-    title: "Product Sales", salesTab: "Sales", productsTab: "Products", newSale: "New Sale", newProduct: "New Product", total: "total", search: "Search...", loading: "Loading...",
+    title: "Products", salesTab: "Sales", productsTab: "Products", newSale: "New Sale", newProduct: "New Product", total: "total", search: "Search...", loading: "Loading...",
     noSales: "No product sales yet.", noSalesSub: "Record your first product sale.", noProducts: "No products yet.", noProductsSub: "Add products to start selling.",
     totalRevenue: "Total Revenue", totalSales: "Sales Count", totalProducts: "Products", lowStock: "Low Stock",
     createSaleTitle: "New Product Sale", product: "Product", selectProduct: "Select product...", customer: "Customer (optional)", searchCustomer: "Search customer...",
@@ -44,7 +44,7 @@ const copy = {
     productCol: "Product", customerCol: "Customer", qtyCol: "Qty", amountCol: "Amount", methodCol: "Method", dateCol: "Date", priceCol: "Price", stockCol: "Stock", allStaff: "All Staff",
   },
   tr: {
-    title: "Ürün Satışları", salesTab: "Satışlar", productsTab: "Ürünler", newSale: "Yeni Satış", newProduct: "Yeni Ürün", total: "toplam", search: "Ara...", loading: "Yükleniyor...",
+    title: "Ürünler", salesTab: "Satışlar", productsTab: "Ürünler", newSale: "Yeni Satış", newProduct: "Yeni Ürün", total: "toplam", search: "Ara...", loading: "Yükleniyor...",
     noSales: "Henüz ürün satışı yok.", noSalesSub: "İlk ürün satışınızı kaydedin.", noProducts: "Henüz ürün yok.", noProductsSub: "Satış yapmak için ürün ekleyin.",
     totalRevenue: "Toplam Gelir", totalSales: "Satış Sayısı", totalProducts: "Ürün Sayısı", lowStock: "Düşük Stok",
     createSaleTitle: "Yeni Ürün Satışı", product: "Ürün", selectProduct: "Ürün seçin...", customer: "Müşteri (isteğe bağlı)", searchCustomer: "Müşteri ara...",
@@ -58,8 +58,12 @@ const copy = {
 };
 
 /* ═══ HELPERS ═══ */
-const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fmtInt = (n: number) => n.toLocaleString("tr-TR");
+const fmt = (n: number | string) => {
+  const safe = Number(n);
+  if (!isFinite(safe) || isNaN(safe)) return "0";
+  return safe.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+};
+const fmtInt = (n: number) => Number(n).toLocaleString("tr-TR");
 const formatDate = (d: string, lang: "en" | "tr" = "tr") => new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
 const formatTime = (d: string, lang: "en" | "tr" = "tr") => new Date(d).toLocaleTimeString(lang === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" });
 
@@ -71,6 +75,15 @@ function translateMethodDisplay(display: string, lang: "en" | "tr"): string {
     display.includes(pm.en) || display.includes(pm.tr)
   );
   return m ? (lang === "tr" ? m.tr : m.en) : display;
+}
+
+function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className={`shrink-0 ml-1 ${active ? "opacity-100" : "opacity-30"}`}>
+      <path d="M5 1L8 4H2L5 1Z" fill="currentColor" fillOpacity={active && dir === "asc" ? 1 : 0.4} />
+      <path d="M5 9L2 6H8L5 9Z" fill="currentColor" fillOpacity={active && dir === "desc" ? 1 : 0.4} />
+    </svg>
+  );
 }
 
 function MethodBadge({ display, language }: { display: string; language: "en" | "tr" }) {
@@ -98,8 +111,10 @@ export default function ProductSalesScreen() {
   const [pageSize, setPageSize] = useState(20);
   const [totalCount, setTotalCount] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [tab, setTab] = useState<TabMode>("sales");
+  const [tab, setTab] = useState<TabMode>("products");
   const [search, setSearch] = useState("");
+  const [salesSort, setSalesSort] = useState<{ key: string; dir: "asc" | "desc" }>({ key: "saleDate", dir: "desc" });
+  const [productsSort, setProductsSort] = useState<{ key: string; dir: "asc" | "desc" }>({ key: "name", dir: "asc" });
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [staffFilter, setStaffFilter] = useState<number | "">("");
@@ -163,9 +178,30 @@ export default function ProductSalesScreen() {
   useEffect(() => { fetchProducts(); fetchRef(); }, [fetchProducts, fetchRef]);
   useEffect(() => { const h = (e: MouseEvent) => { if (customerDdRef.current && !customerDdRef.current.contains(e.target as Node)) setShowCustomerDd(false); }; document.addEventListener("mousedown", h); return () => document.removeEventListener("mousedown", h); }, []);
 
-  const filteredSales = sales.filter(s => { if (!search) return true; const q = search.toLowerCase(); return s.productName.toLowerCase().includes(q) || s.customerFullName?.toLowerCase().includes(q) || s.staffFullName.toLowerCase().includes(q); });
+  const filteredSales = sales.filter(s => { if (!search) return true; const q = search.toLowerCase(); return (s.productName || "").toLowerCase().includes(q) || s.customerFullName?.toLowerCase().includes(q) || s.staffFullName.toLowerCase().includes(q); });
   const filteredProducts = products.filter(p => { if (!search) return true; return p.name.toLowerCase().includes(search.toLowerCase()) || p.barcode?.includes(search); });
-  const totalRevenue = filteredSales.reduce((s, x) => s + x.amountInTry, 0);
+  const totalRevenue = filteredSales.reduce((s, x) => s + (Number(x.amountInTry) || 0), 0);
+
+  const toggleSalesSort = (key: string) => setSalesSort(prev => ({ key, dir: prev.key === key && prev.dir === "asc" ? "desc" : "asc" }));
+  const toggleProductsSort = (key: string) => setProductsSort(prev => ({ key, dir: prev.key === key && prev.dir === "asc" ? "desc" : "asc" }));
+
+  const sortedSales = [...filteredSales].sort((a, b) => {
+    const { key, dir } = salesSort;
+    const av = (a as unknown as Record<string, unknown>)[key];
+    const bv = (b as unknown as Record<string, unknown>)[key];
+    const cmp = typeof av === "number" && typeof bv === "number" ? av - bv
+      : String(av ?? "").localeCompare(String(bv ?? ""), "tr");
+    return dir === "asc" ? cmp : -cmp;
+  });
+
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    const { key, dir } = productsSort;
+    const av = (a as unknown as Record<string, unknown>)[key];
+    const bv = (b as unknown as Record<string, unknown>)[key];
+    const cmp = typeof av === "number" && typeof bv === "number" ? av - bv
+      : String(av ?? "").localeCompare(String(bv ?? ""), "tr");
+    return dir === "asc" ? cmp : -cmp;
+  });
   const lowStockCount = products.filter(p => p.stockQuantity <= 5).length;
 
   const openSaleForm = () => { const dc = currencies.find(c => c.isDefault) || currencies[0]; setSaleForm({ productId: 0, customerId: null, quantity: 1, currencyId: dc?.id || 0, exchangeRateToTry: dc?.exchangeRateToTry || 1, paymentMethod: "Cash", notes: "" }); setCustomerSearch(""); setShowSaleForm(true); };
@@ -229,88 +265,84 @@ export default function ProductSalesScreen() {
   return (
     <div className={`space-y-5 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* HEADER */}
-      <div className="flex flex-wrap items-start justify-between gap-4">
-        <div><h1 className="text-2xl font-bold tracking-tight">{t.title}</h1></div>
-        <div className="flex items-center gap-3">
-          {tab === "sales" && (
-            <ExportButtons
-              data={filteredSales.map(s => ({ ...s, paymentMethodDisplay: translateMethodDisplay(s.paymentMethodDisplay, language) })) as unknown as Record<string, unknown>[]}
-              columns={((): ExportColumn[] => {
-                const isTr = language === "tr";
-                return [
-                  { header: isTr ? "Ürün" : "Product", key: "productName" },
-                  { header: isTr ? "Müşteri" : "Customer", key: "customerFullName" },
-                  { header: isTr ? "Personel" : "Staff", key: "staffFullName" },
-                  { header: isTr ? "Adet" : "Qty", key: "quantity", format: "number" },
-                  { header: isTr ? "Birim Fiyat" : "Unit Price", key: "unitPrice", format: "currency" },
-                  { header: isTr ? "Toplam" : "Total", key: "amountInTry", format: "currency" },
-                  { header: isTr ? "Yöntem" : "Method", key: "paymentMethodDisplay" },
-                  { header: isTr ? "Tarih" : "Date", key: "saleDate", format: "datetime" },
-                ];
-              })()}
-              filenamePrefix={language === "tr" ? "Ürün_Satışları" : "Product_Sales"}
-              pdfTitle={language === "tr" ? "Ürün Satış Listesi" : "Product Sales List"}
-            />
-          )}
-          {tab === "products" && <button onClick={openProductCreate} className={`flex items-center gap-2 rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} active:scale-[0.98]`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newProduct}</button>}
-          <button onClick={openSaleForm} className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]`}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>{t.newSale}</button>
-        </div>
-      </div>
-
-      {/* STATS */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        {loading ? (
-          <>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3 space-y-2`}>
-                <div className={`h-3 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
-                <div className={`h-6 w-24 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
-              </div>
-            ))}
-          </>
+      <div className="flex flex-wrap items-center gap-3">
+        <h1 className="text-2xl font-bold tracking-tight mr-auto">{t.title}</h1>
+        {tab === "sales" && (
+          <ExportButtons
+            data={filteredSales.map(s => ({
+              [t.productCol]: s.productName,
+              [t.customerCol]: s.customerFullName ?? "—",
+              [t.qtyCol]: s.quantity,
+              [t.amountCol]: s.amountInTry,
+              [t.methodCol]: s.paymentMethodDisplay,
+              [t.dateCol]: formatDate(s.saleDate, language),
+            }))}
+            columns={[
+              { key: t.productCol, header: t.productCol },
+              { key: t.customerCol, header: t.customerCol },
+              { key: t.qtyCol, header: t.qtyCol },
+              { key: t.amountCol, header: t.amountCol },
+              { key: t.methodCol, header: t.methodCol },
+              { key: t.dateCol, header: t.dateCol },
+            ]}
+            filenamePrefix="product-sales"
+            pdfTitle={t.title}
+          />
+        )}
+        {tab === "products" && (
+          <ExportButtons
+            data={sortedProducts.map(p => ({
+              [t.productCol]: p.name,
+              [t.barcode]: p.barcode ?? "—",
+              [t.priceCol]: p.price,
+              [t.stockCol]: p.stockQuantity,
+            }))}
+            columns={[
+              { key: t.productCol, header: t.productCol },
+              { key: t.barcode, header: t.barcode },
+              { key: t.priceCol, header: t.priceCol },
+              { key: t.stockCol, header: t.stockCol },
+            ]}
+            filenamePrefix="products"
+            pdfTitle={t.productsTab}
+          />
+        )}
+        {tab === "products" ? (
+          <button onClick={openProductCreate} className={`flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-2 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition hover:opacity-90`}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            {t.newProduct}
+          </button>
         ) : (
-          <>
-            <SharedStatCard
-              label={t.totalRevenue}
-              value={`₺${fmt(totalRevenue)}`}
-              valueColor="#22c55e"
-              gradient="bg-emerald-500"
-              iconColor="text-emerald-400"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
-            />
-            <SharedStatCard
-              label={t.totalSales}
-              value={fmtInt(sales.length)}
-              valueColor="#6366f1"
-              gradient="bg-indigo-500"
-              iconColor="text-indigo-400"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>}
-            />
-            <SharedStatCard
-              label={t.totalProducts}
-              value={fmtInt(products.length)}
-              valueColor="#60a5fa"
-              gradient="bg-blue-500"
-              iconColor="text-blue-400"
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>}
-            />
-            <SharedStatCard
-              label={t.lowStock}
-              value={fmtInt(lowStockCount)}
-              sub="≤ 5"
-              valueColor={lowStockCount > 0 ? "#f59e0b" : "#22c55e"}
-              gradient={lowStockCount > 0 ? "bg-amber-500" : "bg-emerald-500"}
-              iconColor={lowStockCount > 0 ? "text-amber-400" : "text-emerald-400"}
-              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>}
-            />
-          </>
+          <button onClick={openSaleForm} className={`flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-2 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition hover:opacity-90`}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+            {t.newSale}
+          </button>
         )}
       </div>
+
+      {/* STAT CARDS */}
+      {loading ? (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          {[...Array(4)].map((_, i) => (
+            <div key={i} className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3 space-y-2`}>
+              <div className={`h-2.5 w-14 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+              <div className={`h-5 w-20 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <SharedStatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} valueColor="#22c55e" gradient="bg-emerald-500" iconColor="text-emerald-400" icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>} />
+          <SharedStatCard label={t.totalSales} value={fmtInt(sales.length)} valueColor="#6366f1" gradient="bg-indigo-500" iconColor="text-indigo-400" icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>} />
+          <SharedStatCard label={t.totalProducts} value={fmtInt(products.length)} valueColor="#60a5fa" gradient="bg-blue-500" iconColor="text-blue-400" icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>} />
+          <SharedStatCard label={t.lowStock} value={fmtInt(lowStockCount)} sub="≤ 5" valueColor={lowStockCount > 0 ? "#f59e0b" : "#22c55e"} gradient={lowStockCount > 0 ? "bg-amber-500" : "bg-emerald-500"} iconColor={lowStockCount > 0 ? "text-amber-400" : "text-emerald-400"} icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>} />
+        </div>
+      )}
 
       {/* TABS + FILTERS */}
       <div className="flex flex-wrap items-center gap-3">
         <div className={`flex rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
-          {(["sales", "products"] as TabMode[]).map(m => (<button key={m} onClick={() => { setTab(m); setSearch(""); }} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === m ? isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900" : isDark ? "text-white/40 hover:text-white/70" : "text-gray-400 hover:text-gray-700"}`}>{m === "sales" ? t.salesTab : t.productsTab}</button>))}
+          {(["products", "sales"] as TabMode[]).map(m => (<button key={m} onClick={() => { setTab(m); setSearch(""); }} className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${tab === m ? isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900" : isDark ? "text-white/40 hover:text-white/70" : "text-gray-400 hover:text-gray-700"}`}>{m === "sales" ? t.salesTab : t.productsTab}</button>))}
         </div>
         {tab === "sales" && (<>
           <LocaleDateInput value={startDate} onChange={e => setStartDate(e.target.value)} className={`rounded-xl border ${isDark ? "border-white/[0.08]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`} isDark={isDark} />
@@ -327,17 +359,22 @@ export default function ProductSalesScreen() {
           {loading ? (<div className={`flex items-center justify-center gap-3 p-12 ${isDark ? "text-white/40" : "text-gray-400"}`}><div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />{t.loading}</div>
           ) : filteredSales.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 01-8 0" /></svg><p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noSales}</p><p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noSalesSub}</p></div>
           ) : (<>
-            <div className={`hidden md:grid grid-cols-[1fr_0.8fr_0.4fr_0.6fr_0.6fr_0.5fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}><span>{t.productCol}</span><span>{t.customerCol}</span><span>{t.qtyCol}</span><span>{t.amountCol}</span><span>{t.methodCol}</span><span>{t.dateCol}</span><span /></div>
+            <div className={`hidden md:grid grid-cols-[1.4fr_1fr_0.85fr_0.65fr_0.2fr_96px_32px] gap-3 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+              {([["productName", t.productCol, ""], ["customerFullName", t.customerCol, ""], ["paymentMethodDisplay", t.methodCol, ""], ["saleDate", t.dateCol, ""], ["quantity", t.qtyCol, "text-right"], ["amountInTry", t.priceCol, "text-right"]] as [string, string, string][]).map(([key, label, align]) => (
+                <button key={key} onClick={() => toggleSalesSort(key)} className={`group/th flex items-center gap-0.5 hover:text-white/60 transition-colors ${align === "text-right" ? "justify-end" : "text-left"}`}>{label}<SortIcon active={salesSort.key === key} dir={salesSort.dir} /></button>
+              ))}
+              <span />
+            </div>
             <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
-              {filteredSales.map(s => (
-                <div key={s.id} onClick={() => { setSelectedSale(s); setShowSaleDetail(true); }} className={`group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.4fr_0.6fr_0.6fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}>
-                  <div className="min-w-0"><p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{s.productName}</p><p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{s.staffFullName}</p></div>
+              {sortedSales.map(s => (
+                <div key={s.id} onClick={() => { setSelectedSale(s); setShowSaleDetail(true); }} className={`group grid grid-cols-1 md:grid-cols-[1.4fr_1fr_0.85fr_0.65fr_0.2fr_96px_32px] gap-3 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}>
+                  <div className="min-w-0"><p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{s.productName || "—"}</p><p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{s.staffFullName}</p></div>
                   <p className={`hidden md:block text-xs ${isDark ? "text-white/50" : "text-gray-500"} truncate`}>{s.customerFullName || "—"}</p>
-                  <p className={`hidden md:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{s.quantity}x</p>
-                  <div><p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>₺{fmt(s.amountInTry)}</p>}</div>
-                  <MethodBadge display={s.paymentMethodDisplay} language={language} />
+                  <div className="hidden md:block overflow-hidden"><MethodBadge display={s.paymentMethodDisplay} language={language} /></div>
                   <p className={`hidden md:block text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{formatDate(s.saleDate, language)}</p>
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}><button onClick={() => handleDeleteSale(s.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button></div>
+                  <p className={`hidden md:block text-xs text-right tabular-nums ${isDark ? "text-white/50" : "text-gray-500"}`}>{s.quantity}x</p>
+                  <div className="w-full text-right tabular-nums"><p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{s.currencySymbol}{fmt(s.totalAmount)}</p>{s.currencyCode !== "TRY" && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>₺{fmt(s.amountInTry)}</p>}</div>
+                  <div className="flex w-8 justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={e => e.stopPropagation()}><button onClick={() => handleDeleteSale(s.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button></div>
                 </div>
               ))}
             </div>
@@ -352,13 +389,20 @@ export default function ProductSalesScreen() {
         <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.02]" : "bg-white"} ${isDark ? "shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "shadow-sm"}`}>
           {products.length === 0 ? (<div className="flex flex-col items-center justify-center gap-2 p-12"><svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg><p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noProducts}</p><p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noProductsSub}</p></div>
           ) : (<>
-            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}><span>{t.productCol}</span><span>{t.priceCol}</span><span>{t.stockCol}</span><span /></div>
+            <div className={`hidden md:grid grid-cols-[1fr_1fr_0.7fr_110px_160px_72px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+              {([["name", t.productCol, false], ["description", language === "tr" ? "İçerik" : "Details", false], ["barcode", t.barcode, false], ["stockQuantity", t.stockCol, false], ["price", t.priceCol, true]] as [string, string, boolean][]).map(([key, label, right]) => (
+                <button key={key} onClick={() => toggleProductsSort(key)} className={`flex items-center gap-0.5 hover:text-white/60 transition-colors ${right ? "justify-end" : "text-left"}`}>{label}<SortIcon active={productsSort.key === key} dir={productsSort.dir} /></button>
+              ))}
+              <span />
+            </div>
             <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
-              {filteredProducts.map(p => (
-                <div key={p.id} className={`group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}>
-                  <div className="min-w-0"><p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{p.name}</p>{p.description && <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{p.description}</p>}{p.barcode && <p className={`text-[10px] ${isDark ? "text-white/20" : "text-gray-300"} font-mono`}>{p.barcode}</p>}</div>
-                  <p className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(p.price)}</p>
+              {sortedProducts.map(p => (
+                <div key={p.id} className={`group grid grid-cols-1 md:grid-cols-[1fr_1fr_0.7fr_110px_160px_72px] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}>
+                  <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{p.name}</p>
+                  <div className="min-w-0">{p.description && <p className={`text-xs ${isDark ? "text-white/50" : "text-gray-600"} truncate`}>{p.description}</p>}</div>
+                  <p className={`text-[11px] font-mono ${isDark ? "text-white/40" : "text-gray-500"} truncate`}>{p.barcode || "—"}</p>
                   <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold w-fit ${p.stockQuantity <= 5 ? "bg-amber-500/15 text-amber-400" : "bg-emerald-500/15 text-emerald-400"}`}>{p.stockQuantity} {t.pcs}</span>
+                  <p className={`w-full text-right text-sm font-bold tabular-nums ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(p.price)}</p>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => openProductEdit(p)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-700"}`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg></button>
                     <button onClick={() => handleDeleteProduct(p.id)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg></button>

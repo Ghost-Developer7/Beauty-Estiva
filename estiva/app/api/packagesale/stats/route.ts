@@ -17,13 +17,13 @@ export async function GET(req: NextRequest) {
     const completed = packages.filter((p) => p.Status === 2);
     const expired = packages.filter((p) => p.Status === 3);
 
+    const totalRevenue = packages.reduce((sum, p) => sum + Number(p.TotalPrice), 0);
+
     return success({
-      activeCount: active.length,
-      completedCount: completed.length,
-      expiredCount: expired.length,
-      activeTotalPrice: active.reduce((sum, p) => sum + Number(p.TotalPrice), 0),
-      completedTotalPrice: completed.reduce((sum, p) => sum + Number(p.TotalPrice), 0),
-      expiredTotalPrice: expired.reduce((sum, p) => sum + Number(p.TotalPrice), 0),
+      totalSales: packages.length,
+      totalRevenue,
+      activePackages: active.length,
+      completedPackages: completed.length,
     });
   } catch (error) {
     console.error("Package sale stats error:", error);

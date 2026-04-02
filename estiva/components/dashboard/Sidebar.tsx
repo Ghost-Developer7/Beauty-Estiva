@@ -93,8 +93,7 @@ const navItems = {
         { label: "HR Records", href: "/dashboard/staff/hr", icon: IconList },
       ]
     },
-    { label: "Products", href: "/dashboard/products", icon: IconBox },
-    { label: "Product Sales", href: "/dashboard/product-sales", icon: IconTag },
+    { label: "Products & Sales", href: "/dashboard/product-sales", icon: IconBox },
     { label: "Package Sales", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Subscription", href: "/dashboard/subscription", icon: IconWallet },
     { label: "Branches", href: "/dashboard/branches", icon: IconBuilding },
@@ -144,8 +143,7 @@ const navItems = {
         { label: "Özlük Bilgileri", href: "/dashboard/staff/hr", icon: IconList },
       ]
     },
-    { label: "Ürünler", href: "/dashboard/products", icon: IconBox },
-    { label: "Ürün satışları", href: "/dashboard/product-sales", icon: IconTag },
+    { label: "Ürünler & Satışlar", href: "/dashboard/product-sales", icon: IconBox },
     { label: "Paket satışları", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Abonelik", href: "/dashboard/subscription", icon: IconWallet },
     { label: "Şubeler", href: "/dashboard/branches", icon: IconBuilding },

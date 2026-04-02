@@ -82,11 +82,11 @@ export async function GET(req: NextRequest) {
     const mapped = items.map((p) => ({
       id: p.Id,
       customerId: p.CustomerId,
-      customerFullName: `${p.Customers.Name} ${p.Customers.Surname}`,
+      customerFullName: p.Customers ? `${p.Customers.Name} ${p.Customers.Surname}`.trim() : "",
       treatmentId: p.TreatmentId,
-      treatmentName: p.Treatments.Name,
+      treatmentName: p.Treatments?.Name ?? "",
       staffId: p.StaffId,
-      staffFullName: `${p.Users.Name} ${p.Users.Surname}`,
+      staffFullName: p.Users ? `${p.Users.Name} ${p.Users.Surname}`.trim() : "",
       totalSessions: p.TotalSessions,
       usedSessions: p.UsedSessions,
       remainingSessions: p.TotalSessions - p.UsedSessions,
@@ -129,16 +129,18 @@ export async function POST(req: NextRequest) {
       totalPrice, paidAmount, paymentMethod, startDate, endDate, notes,
     } = body;
 
-    if (!customerId || !treatmentId || !staffId || !totalSessions || !totalPrice || !startDate || !endDate) {
+    if (!customerId || !treatmentId || !totalSessions || !totalPrice || !startDate || !endDate) {
       return fail("Zorunlu alanlar eksik");
     }
+
+    const resolvedStaffId = staffId || user!.id;
 
     const packageSale = await prisma.packageSales_Packages.create({
       data: {
         TenantId: user!.tenantId,
         CustomerId: customerId,
         TreatmentId: treatmentId,
-        StaffId: staffId,
+        StaffId: resolvedStaffId,
         TotalSessions: totalSessions,
         UsedSessions: 0,
         TotalPrice: totalPrice,

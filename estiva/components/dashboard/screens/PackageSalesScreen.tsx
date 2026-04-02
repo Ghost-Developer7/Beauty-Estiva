@@ -204,8 +204,20 @@ const copy = {
    HELPERS
    ═══════════════════════════════════════════ */
 
-const fmt = (n: number) =>
-  n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className={`shrink-0 ml-1 ${active ? "opacity-100" : "opacity-30"}`}>
+      <path d="M5 1L8 4H2L5 1Z" fill="currentColor" fillOpacity={active && dir === "asc" ? 1 : 0.4} />
+      <path d="M5 9L2 6H8L5 9Z" fill="currentColor" fillOpacity={active && dir === "desc" ? 1 : 0.4} />
+    </svg>
+  );
+}
+
+const fmt = (n: number | null | undefined) => {
+  const safe = Number(n ?? 0);
+  if (!isFinite(safe) || isNaN(safe)) return "0";
+  return safe.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+};
 
 const fmtDate = (d: string, lang: "en" | "tr" = "tr") => {
   try {
@@ -232,6 +244,15 @@ const getDateRange = (period: string): { startDate?: string; endDate?: string } 
   }
   return {};
 };
+
+const STATUS_LABELS: Record<string, { en: string; tr: string }> = {
+  Active:    { en: "Active",    tr: "Aktif" },
+  Completed: { en: "Completed", tr: "Tamamlandı" },
+  Expired:   { en: "Expired",   tr: "Süresi Doldu" },
+  Cancelled: { en: "Cancelled", tr: "İptal" },
+};
+const translateStatus = (display: string, lang: "en" | "tr") =>
+  STATUS_LABELS[display]?.[lang] ?? display;
 
 const statusColor = (status: number) => {
   switch (status) {
@@ -395,6 +416,9 @@ export default function PackageSalesScreen() {
 
   /* ═══ FILTERED ═══ */
 
+  const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" }>({ key: "customerFullName", dir: "asc" });
+  const toggleSort = (key: string) => setSort(prev => ({ key, dir: prev.key === key && prev.dir === "asc" ? "desc" : "asc" }));
+
   const filtered = sales.filter((s) => {
     if (!search) return true;
     const q = search.toLowerCase();
@@ -403,6 +427,15 @@ export default function PackageSalesScreen() {
       s.treatmentName.toLowerCase().includes(q) ||
       s.staffFullName.toLowerCase().includes(q)
     );
+  });
+
+  const sorted = [...filtered].sort((a, b) => {
+    const av = (a as unknown as Record<string, unknown>)[sort.key];
+    const bv = (b as unknown as Record<string, unknown>)[sort.key];
+    const an = Number(av); const bn = Number(bv);
+    const cmp = !isNaN(an) && !isNaN(bn) && av !== "" && bv !== "" ? an - bn
+      : String(av ?? "").localeCompare(String(bv ?? ""), "tr");
+    return sort.dir === "asc" ? cmp : -cmp;
   });
 
   /* ═══ ACTIONS ═══ */
@@ -722,27 +755,33 @@ export default function PackageSalesScreen() {
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div className={`hidden lg:grid grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
-              <span>{t.customer}</span>
-              <span>{t.treatment}</span>
-              <span>{t.sessions}</span>
-              <span>{t.progress}</span>
-              <span>{t.totalPrice}</span>
-              <span>{t.paidAmount}</span>
-              <span>{t.remainingPayment}</span>
-              <span>{t.status}</span>
+            <div className={`hidden lg:grid grid-cols-[1.2fr_0.55fr_1fr_0.7fr_1.1fr_0.7fr_0.7fr_0.7fr_68px] gap-3 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+              {([
+                ["customerFullName", t.customer],
+                ["statusValue", t.status],
+                ["treatmentName", t.treatment],
+                ["totalSessions", t.sessions],
+                ["usedSessions", t.progress],
+                ["totalPrice", t.totalPrice],
+                ["paidAmount", t.paidAmount],
+                ["remainingPayment", t.remainingPayment],
+              ] as [string, string][]).map(([key, label]) => (
+                <button key={key} onClick={() => toggleSort(key)} className="w-full flex items-center gap-0.5 hover:opacity-70 transition-opacity">
+                  <span className="text-left">{label}</span><SortIcon active={sort.key === key} dir={sort.dir} />
+                </button>
+              ))}
               <span />
             </div>
 
             {/* Rows */}
             <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
-              {filtered.map((sale) => {
+              {sorted.map((sale) => {
                 const sc = statusColor(sale.statusValue);
                 return (
                   <div
                     key={sale.id}
                     onClick={() => openDetail(sale)}
-                    className={`group grid grid-cols-1 lg:grid-cols-[1fr_1fr_0.8fr_1fr_0.7fr_0.7fr_0.6fr_0.5fr_auto] gap-2 items-center px-4 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
+                    className={`group grid grid-cols-1 lg:grid-cols-[1.2fr_0.55fr_1fr_0.7fr_1.1fr_0.7fr_0.7fr_0.7fr_68px] gap-3 items-center px-4 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
                     {/* Customer */}
                     <div className="flex items-center gap-2.5">
@@ -753,6 +792,13 @@ export default function PackageSalesScreen() {
                         <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{sale.customerFullName}</p>
                         <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} lg:hidden`}>{sale.treatmentName}</p>
                       </div>
+                    </div>
+
+                    {/* Status */}
+                    <div className="hidden lg:block">
+                      <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
+                        {translateStatus(sale.statusDisplay, language)}
+                      </span>
                     </div>
 
                     {/* Treatment */}
@@ -775,29 +821,22 @@ export default function PackageSalesScreen() {
                     </div>
 
                     {/* Price */}
-                    <p className={`hidden lg:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} ₺</p>
+                    <p className={`hidden lg:block text-sm font-bold tabular-nums ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} ₺</p>
 
                     {/* Paid */}
-                    <p className="hidden lg:block text-sm text-emerald-400">{fmt(sale.paidAmount)} ₺</p>
+                    <p className="hidden lg:block text-sm tabular-nums text-emerald-400">{fmt(sale.paidAmount)} ₺</p>
 
                     {/* Remaining */}
-                    <p className={`hidden lg:block text-sm font-medium ${sale.remainingPayment > 0 ? "text-amber-400" : isDark ? "text-white/40" : "text-gray-400"}`}>
+                    <p className={`hidden lg:block text-sm font-medium tabular-nums ${sale.remainingPayment > 0 ? "text-amber-400" : isDark ? "text-white/40" : "text-gray-400"}`}>
                       {sale.remainingPayment > 0 ? `${fmt(sale.remainingPayment)} ₺` : "-"}
                     </p>
-
-                    {/* Status */}
-                    <div className="hidden lg:block">
-                      <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
-                        {sale.statusDisplay}
-                      </span>
-                    </div>
 
                     {/* Mobile info */}
                     <div className="flex items-center justify-between lg:hidden">
                       <div className="flex items-center gap-3">
                         <span className={`text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{fmt(sale.totalPrice)} ₺</span>
                         <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
-                          {sale.statusDisplay}
+                          {translateStatus(sale.statusDisplay, language)}
                         </span>
                       </div>
                       <span className={`text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{sale.usedSessions}/{sale.totalSessions} {t.session}</span>
@@ -1043,7 +1082,7 @@ export default function PackageSalesScreen() {
                   </div>
                 </div>
                 <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${sc.bg} ${sc.text} ${sc.border}`}>
-                  {sale.statusDisplay}
+                  {translateStatus(sale.statusDisplay, language)}
                 </span>
               </div>
 

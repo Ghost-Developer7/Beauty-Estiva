@@ -149,6 +149,15 @@ function StockBadge({ quantity, isDark, t }: { quantity: number; isDark: boolean
   );
 }
 
+function SortIcon({ active, dir }: { active: boolean; dir: "asc" | "desc" }) {
+  return (
+    <svg width="10" height="10" viewBox="0 0 10 10" fill="none" className={`shrink-0 ml-1 ${active ? "opacity-100" : "opacity-30"}`}>
+      <path d="M5 1L8 4H2L5 1Z" fill="currentColor" fillOpacity={active && dir === "asc" ? 1 : 0.4} />
+      <path d="M5 9L2 6H8L5 9Z" fill="currentColor" fillOpacity={active && dir === "desc" ? 1 : 0.4} />
+    </svg>
+  );
+}
+
 /* ═══════════════════════════════════════════
    MAIN COMPONENT
    ═══════════════════════════════════════════ */
@@ -163,6 +172,7 @@ export default function ProductsScreen() {
   const [products, setProducts] = useState<ProductListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [sort, setSort] = useState<{ key: string; dir: "asc" | "desc" }>({ key: "name", dir: "asc" });
 
   /* ─── Pagination ─── */
   const [page, setPage] = useState(1);
@@ -213,7 +223,17 @@ export default function ProductsScreen() {
       p.barcode?.toLowerCase().includes(q);
   });
 
-  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
+  const toggleSort = (key: string) => setSort(prev => ({ key, dir: prev.key === key && prev.dir === "asc" ? "desc" : "asc" }));
+
+  const sorted = [...filtered].sort((a, b) => {
+    const av = (a as unknown as Record<string, unknown>)[sort.key];
+    const bv = (b as unknown as Record<string, unknown>)[sort.key];
+    const an = Number(av); const bn = Number(bv);
+    const cmp = !isNaN(an) && !isNaN(bn) ? an - bn : String(av ?? "").localeCompare(String(bv ?? ""), "tr");
+    return sort.dir === "asc" ? cmp : -cmp;
+  });
+
+  const paged = sorted.slice((page - 1) * pageSize, page * pageSize);
 
   const avgPrice = products.length > 0
     ? products.reduce((s, p) => s + (Number(p.price) || 0), 0) / products.length
@@ -420,12 +440,11 @@ export default function ProductsScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden md:grid grid-cols-[1fr_180px_120px_160px_72px] gap-4 border-b ${isDark ? "border-white/[0.06] bg-white/[0.03] text-white/30" : "border-gray-200 bg-gray-50 text-gray-400"} px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider`}>
-              <span>{t.product}</span>
-              <span>{t.barcodeCol}</span>
-              <span className="text-right">{t.priceCol}</span>
-              <span className="text-right pr-2">{t.stockCol}</span>
-              <span />
+            <div className={`hidden md:grid grid-cols-[1fr_180px_130px_200px] gap-4 border-b ${isDark ? "border-white/[0.06] bg-white/[0.03] text-white/30" : "border-gray-200 bg-gray-50 text-gray-400"} px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider`}>
+              <button onClick={() => toggleSort("name")} className="group/th flex items-center gap-0.5 hover:opacity-70 transition-opacity text-left"><span>{t.product}</span><SortIcon active={sort.key === "name"} dir={sort.dir} /></button>
+              <button onClick={() => toggleSort("barcode")} className="group/th flex items-center gap-0.5 hover:opacity-70 transition-opacity text-left"><span>{t.barcodeCol}</span><SortIcon active={sort.key === "barcode"} dir={sort.dir} /></button>
+              <button onClick={() => toggleSort("price")} className="group/th ml-auto flex items-center gap-0.5 hover:opacity-70 transition-opacity"><span>{t.priceCol}</span><SortIcon active={sort.key === "price"} dir={sort.dir} /></button>
+              <button onClick={() => toggleSort("stockQuantity")} className="group/th flex items-center gap-0.5 hover:opacity-70 transition-opacity pl-4"><span>{t.stockCol}</span><SortIcon active={sort.key === "stockQuantity"} dir={sort.dir} /></button>
             </div>
 
             {/* Rows */}
@@ -434,7 +453,7 @@ export default function ProductsScreen() {
                 <div
                   key={item.id}
                   onClick={() => openDetail(item)}
-                  className={`group grid grid-cols-1 md:grid-cols-[1fr_180px_120px_160px_72px] gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.03]" : "hover:bg-gray-50"} cursor-pointer`}
+                  className={`group grid grid-cols-1 md:grid-cols-[1fr_180px_130px_200px] gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.03]" : "hover:bg-gray-50"} cursor-pointer`}
                 >
                   {/* Product name + description */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -456,30 +475,28 @@ export default function ProductsScreen() {
 
                   {/* Price */}
                   <p className={`hidden md:block text-sm font-bold text-right tabular-nums ${isDark ? "text-white/90" : "text-gray-900"}`}>
-                    ₺{fmt(Number(item.price))}
+                    ₺{fmt(Math.round(Number(item.price)))}
                   </p>
 
-                  {/* Stock */}
-                  <div className="hidden md:flex justify-end pr-2">
+                  {/* Stock + Actions */}
+                  <div className="hidden md:flex items-center gap-2 pl-4">
                     <StockBadge quantity={item.stockQuantity} isDark={isDark} t={t} />
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => openEdit(item)}
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${isDark ? "text-white/25 hover:bg-white/10 hover:text-white/80" : "text-gray-300 hover:bg-gray-100 hover:text-gray-700"}`}
-                      title={t.edit}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${isDark ? "text-white/25 hover:bg-red-500/20 hover:text-red-400" : "text-gray-300 hover:bg-red-50 hover:text-red-500"}`}
-                      title={t.delete}
-                    >
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
-                    </button>
+                    <div className="ml-auto flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                      <button
+                        onClick={() => openEdit(item)}
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg transition ${isDark ? "text-white/25 hover:bg-white/10 hover:text-white/80" : "text-gray-300 hover:bg-gray-100 hover:text-gray-700"}`}
+                        title={t.edit}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                      </button>
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg transition ${isDark ? "text-white/25 hover:bg-red-500/20 hover:text-red-400" : "text-gray-300 hover:bg-red-50 hover:text-red-500"}`}
+                        title={t.delete}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}

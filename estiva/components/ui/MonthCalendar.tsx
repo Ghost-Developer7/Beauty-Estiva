@@ -110,7 +110,7 @@ export default function MonthCalendar({
     >
       {/* ── Day-of-week header ── */}
       <div className="grid grid-cols-7 divide-x divide-white/[0.04] border-b border-white/[0.06] bg-white/[0.03]">
-        {dayLabels.map((label, colIdx) => {
+        {(dayLabels ?? DEFAULT_DAY_LABELS)!.map((label, colIdx) => {
           const jsDay = COL_TO_JS_DAY[colIdx];
           const isWeekend = jsDay === 0 || jsDay === 6;
           return (

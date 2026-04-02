@@ -51,15 +51,10 @@ export async function GET(req: NextRequest) {
           PaymentMethod: true,
           SaleDate: true,
           Notes: true,
-          Products: {
-            select: { Id: true, Name: true },
-          },
-          Customers: {
-            select: { Id: true, Name: true, Surname: true },
-          },
-          Users: {
-            select: { Id: true, Name: true, Surname: true },
-          },
+          Products: { select: { Id: true, Name: true } },
+          Customers: { select: { Id: true, Name: true, Surname: true } },
+          Users: { select: { Id: true, Name: true, Surname: true } },
+          Currencies: { select: { Id: true, Code: true, Symbol: true, ExchangeRateToTry: true } },
         },
         orderBy: { SaleDate: "desc" },
         skip,
@@ -68,20 +63,28 @@ export async function GET(req: NextRequest) {
       prisma.productSales.count({ where }),
     ]);
 
+    const PM: Record<string | number, string> = {
+      1: "Cash", 2: "Credit Card", 3: "Bank Transfer", 4: "Check", 5: "Other",
+      Cash: "Cash", CreditCard: "Credit Card", BankTransfer: "Bank Transfer", Check: "Check", Other: "Other",
+    };
+
     const items = sales.map((s) => ({
       id: s.Id,
-      product: s.Products ? { id: s.Products.Id, name: s.Products.Name } : null,
-      customer: s.Customers
-        ? { id: s.Customers.Id, name: s.Customers.Name, surname: s.Customers.Surname }
-        : null,
-      staff: s.Users
-        ? { id: s.Users.Id, name: s.Users.Name, surname: s.Users.Surname }
-        : null,
+      productId: s.Products?.Id ?? 0,
+      productName: s.Products?.Name ?? "",
+      customerId: s.Customers?.Id ?? null,
+      customerFullName: s.Customers ? `${s.Customers.Name} ${s.Customers.Surname}`.trim() : null,
+      staffId: s.Users?.Id ?? 0,
+      staffFullName: s.Users ? `${s.Users.Name} ${s.Users.Surname}`.trim() : "",
       quantity: s.Quantity,
-      unitPrice: s.UnitPrice,
-      totalAmount: s.TotalAmount,
-      amountInTry: s.AmountInTry,
-      paymentMethod: s.PaymentMethod,
+      unitPrice: Number(s.UnitPrice),
+      totalAmount: Number(s.TotalAmount),
+      currencyCode: s.Currencies?.Code ?? "TRY",
+      currencySymbol: s.Currencies?.Symbol ?? "₺",
+      exchangeRateToTry: Number(s.Currencies?.ExchangeRateToTry ?? 1),
+      amountInTry: Number(s.AmountInTry),
+      paymentMethodValue: s.PaymentMethod,
+      paymentMethodDisplay: PM[s.PaymentMethod as unknown as string] ?? String(s.PaymentMethod),
       saleDate: s.SaleDate,
       notes: s.Notes,
     }));
