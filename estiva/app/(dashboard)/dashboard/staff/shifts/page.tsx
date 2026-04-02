@@ -1,10 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { staffShiftService } from "@/services/staffShiftService";
 import type { StaffWeeklyShift, StaffShiftUpsert } from "@/types/api";
+import MonthCalendar, { type CalendarEvent } from "@/components/ui/MonthCalendar";
 import toast from "react-hot-toast";
 
 /* ═══════════════════════════════════════════════════════════════
@@ -224,8 +226,6 @@ export default function StaffShiftsPage() {
   const colorOf = (staffId: number) =>
     STAFF_COLORS[weeklyData.findIndex((s) => s.staffId === staffId) % STAFF_COLORS.length];
 
-  const calGrid = getCalendarGrid(calYear, calMonth);
-
   // ── Month navigation ──
   const prevMonth = () => {
     if (calMonth === 0) { setCalYear((y) => y - 1); setCalMonth(11); }
@@ -272,8 +272,6 @@ export default function StaffShiftsPage() {
     });
     setEditShifts(shifts);
     setEditingStaffId(staffWeek.staffId);
-    // Scroll to bottom to show edit panel
-    setTimeout(() => window.scrollBy({ top: 400, behavior: "smooth" }), 50);
   };
 
   const updateShift = (day: number, field: string, value: unknown) =>
@@ -310,36 +308,9 @@ export default function StaffShiftsPage() {
     <div className="space-y-5 text-white">
 
       {/* ─── Page header ─── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
-        </div>
-
-        {/* Month navigator */}
-        <div className="flex items-center gap-1.5 self-start rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">
-          <button
-            onClick={prevMonth}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white/70"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
-          </button>
-          <span className="min-w-[148px] text-center text-sm font-semibold">
-            {MONTH_NAMES[language][calMonth]} {calYear}
-          </span>
-          <button
-            onClick={nextMonth}
-            className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white/70"
-          >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
-          </button>
-          <button
-            onClick={goToday}
-            className="ml-1 rounded-lg border border-white/[0.08] px-2.5 py-1 text-[11px] font-medium text-white/40 transition hover:bg-white/[0.07] hover:text-white/70"
-          >
-            {t.today}
-          </button>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
+        <p className="mt-0.5 text-sm text-white/40">{t.subtitle}</p>
       </div>
 
       {/* ─── Loading / empty ─── */}
@@ -355,28 +326,28 @@ export default function StaffShiftsPage() {
         </div>
       ) : (
         <>
-          {/* ─── Staff filter chips ─── */}
+          {/* ─── Toolbar: filter chips + month summary label ─── */}
           {isOwnerOrAdmin && weeklyData.length > 1 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-2.5">
+              <span className="mr-1 text-[11px] font-semibold uppercase tracking-widest text-white/20">
+                {t.allStaff}
+              </span>
               {/* All button */}
               <button
                 onClick={() => setSelectedIds(null)}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition ${
                   selectedIds === null
                     ? "border-white/20 bg-white/10 text-white"
-                    : "border-white/[0.07] bg-white/[0.03] text-white/40 hover:bg-white/[0.07] hover:text-white/60"
+                    : "border-white/[0.07] text-white/35 hover:bg-white/[0.05] hover:text-white/60"
                 }`}
               >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
-                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-                  <circle cx="9" cy="7" r="4" />
-                  <path d="M23 21v-2a4 4 0 00-3-3.87" />
-                  <path d="M16 3.13a4 4 0 010 7.75" />
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
                 </svg>
-                {t.allStaff}
+                Tümü
               </button>
-
-              {/* Individual staff chips */}
+              <span className="h-4 w-px bg-white/10" />
               {weeklyData.map((sw, idx) => {
                 const color = STAFF_COLORS[idx % STAFF_COLORS.length];
                 const isSelected = selectedIds === null || selectedIds.has(sw.staffId);
@@ -384,13 +355,13 @@ export default function StaffShiftsPage() {
                   <button
                     key={sw.staffId}
                     onClick={() => toggleStaff(sw.staffId)}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition ${
                       isSelected
-                        ? "border-white/15 bg-white/[0.07] text-white/80"
-                        : "border-white/[0.06] bg-white/[0.02] text-white/25 hover:bg-white/[0.05] hover:text-white/45"
+                        ? "border-white/15 bg-white/[0.06] text-white/80"
+                        : "border-white/[0.05] text-white/20 hover:text-white/45"
                     }`}
                   >
-                    <span className={`h-2 w-2 shrink-0 rounded-full ${color.dot} ${isSelected ? "" : "opacity-25"}`} />
+                    <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${color.dot} ${isSelected ? "" : "opacity-20"}`} />
                     {sw.staffFullName}
                   </button>
                 );
@@ -400,283 +371,281 @@ export default function StaffShiftsPage() {
 
           {/* ─── Monthly summary cards ─── */}
           <div>
-            <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-white/25">
+            <p className="mb-3 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-white/25">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
               {t.summaryTitle} — {MONTH_NAMES[language][calMonth]} {calYear}
             </p>
-            <div className="flex flex-wrap gap-2.5">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {filteredData.map((sw) => {
                 const color = colorOf(sw.staffId);
                 const stats = calcMonthStats(sw, calYear, calMonth);
                 const initials = staffInitials(sw.staffFullName);
+                const maxDays = new Date(calYear, calMonth + 1, 0).getDate();
+                const dayPct = maxDays > 0 ? Math.round((stats.workingDays / maxDays) * 100) : 0;
                 return (
                   <div
                     key={sw.staffId}
-                    className="flex items-center gap-3 rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3 transition hover:bg-white/[0.05]"
+                    className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition hover:border-white/[0.12] hover:bg-white/[0.05]"
                   >
-                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${color.avatar} text-[11px] font-bold text-white shadow`}>
-                      {initials}
+                    {/* Top row: avatar + name + edit */}
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${color.avatar} text-[12px] font-bold text-white shadow-lg`}>
+                        {initials}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-white/90">{sw.staffFullName}</p>
+                        <p className={`text-[10px] font-medium ${color.text} opacity-60`}>{MONTH_NAMES[language][calMonth]}</p>
+                      </div>
+                      {isOwnerOrAdmin && (
+                        <button
+                          onClick={() => startEditing(sw)}
+                          className="shrink-0 rounded-lg border border-white/[0.08] p-1.5 text-white/25 transition hover:border-white/15 hover:bg-white/[0.07] hover:text-white/70"
+                          title={t.edit}
+                        >
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+                          </svg>
+                        </button>
+                      )}
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-xs font-semibold leading-tight text-white/80">
-                        {sw.staffFullName}
-                      </p>
-                      <div className="mt-1 flex items-center gap-2">
-                        <span className={`flex items-center gap-1 text-[11px] font-semibold ${color.text}`}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" /></svg>
-                          {stats.workingDays} {t.workingDays}
-                        </span>
-                        <span className="text-white/15">·</span>
-                        <span className={`flex items-center gap-1 text-[11px] font-semibold ${color.text}`}>
-                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>
-                          {stats.totalHours} {t.totalHours}
-                        </span>
+
+                    {/* Stats row */}
+                    <div className="mt-3 flex items-center gap-4">
+                      <div className="flex items-center gap-1.5">
+                        <svg className={color.text} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                        <span className="text-xs font-bold text-white/80">{stats.workingDays}</span>
+                        <span className="text-[10px] text-white/30">{t.workingDays}</span>
+                      </div>
+                      <div className="h-3 w-px bg-white/10" />
+                      <div className="flex items-center gap-1.5">
+                        <svg className={color.text} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                        <span className="text-xs font-bold text-white/80">{stats.totalHours}</span>
+                        <span className="text-[10px] text-white/30">{t.totalHours}</span>
                       </div>
                     </div>
-                    {isOwnerOrAdmin && (
-                      <button
-                        onClick={() => startEditing(sw)}
-                        className="ml-1 shrink-0 rounded-lg border border-white/[0.08] bg-white/[0.03] p-1.5 text-white/30 transition hover:bg-white/[0.08] hover:text-white/70"
-                        title={t.edit}
-                      >
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                          <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
-                          <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
-                        </svg>
-                      </button>
-                    )}
+
+                    {/* Progress bar */}
+                    <div className="mt-3">
+                      <div className="h-1 w-full overflow-hidden rounded-full bg-white/[0.06]">
+                        <div
+                          className={`h-full rounded-full bg-gradient-to-r ${color.avatar} transition-all duration-700`}
+                          style={{ width: `${dayPct}%`, opacity: 0.7 }}
+                        />
+                      </div>
+                      <p className="mt-1 text-right text-[10px] text-white/20">{dayPct}% aktif</p>
+                    </div>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          {/* ─── Monthly Calendar ─── */}
-          <div className="overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] shadow-[0_8px_40px_rgba(0,0,0,0.3)]">
+          {/* ─── Month navigator ─── */}
+          <div className="flex items-center gap-1.5 self-start rounded-xl border border-white/[0.08] bg-white/[0.03] p-1">
+            <button
+              onClick={prevMonth}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white/70"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
+            </button>
+            <span className="min-w-[148px] text-center text-sm font-semibold">
+              {MONTH_NAMES[language][calMonth]} {calYear}
+            </span>
+            <button
+              onClick={nextMonth}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-white/40 transition hover:bg-white/[0.07] hover:text-white/70"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
+            </button>
+            <button
+              onClick={goToday}
+              className="ml-1 rounded-lg border border-white/[0.08] px-2.5 py-1 text-[11px] font-medium text-white/40 transition hover:bg-white/[0.07] hover:text-white/70"
+            >
+              {t.today}
+            </button>
+          </div>
 
-            {/* Day-of-week header */}
-            <div className="grid grid-cols-7 divide-x divide-white/[0.04] border-b border-white/[0.06] bg-white/[0.03]">
-              {WEEK_ORDER.map((day) => (
-                <div
-                  key={day}
-                  className={`py-2.5 text-center text-[11px] font-bold tracking-widest ${
-                    day === 0 || day === 6 ? "text-amber-400/55" : "text-white/30"
-                  }`}
-                >
-                  {DAY_LABEL[language][day]}
+          {/* ─── Monthly Calendar (shared MonthCalendar component) ─── */}
+          {(() => {
+            // Build CalendarEvent[] from weekly shift data
+            const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+            const shiftEvents: CalendarEvent[] = [];
+            for (const sw of filteredData) {
+              const color = colorOf(sw.staffId);
+              for (let d = 1; d <= daysInMonth; d++) {
+                const jsDay = new Date(calYear, calMonth, d).getDay();
+                const shift = sw.shifts.find((s) => s.dayOfWeek === jsDay);
+                if (!shift) continue;
+                const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+                if (!shift.isWorkingDay) {
+                  if (filteredData.length === 1) {
+                    shiftEvents.push({
+                      id: `off-${sw.staffId}-${dateStr}`,
+                      startDate: dateStr,
+                      className: "border border-red-500/15 bg-red-500/10 text-red-400/70",
+                      label: t.dayOff,
+                    });
+                  }
+                  continue;
+                }
+                const start = toHHMM(shift.startTime);
+                const end = toHHMM(shift.endTime);
+                shiftEvents.push({
+                  id: `${sw.staffId}-${dateStr}`,
+                  startDate: dateStr,
+                  className: color.badge,
+                  label: filteredData.length > 1 ? sw.staffFullName.split(" ")[0] : `${start}–${end}`,
+                  sublabel: filteredData.length > 1 ? `${start}–${end}` : undefined,
+                  meta: { staffId: sw.staffId },
+                });
+              }
+            }
+            const dayLabels = language === "tr"
+              ? ["Pzt","Sal","Çar","Per","Cum","Cmt","Paz"] as [string,string,string,string,string,string,string]
+              : ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"] as [string,string,string,string,string,string,string];
+            return (
+              <MonthCalendar
+                year={calYear}
+                month={calMonth}
+                events={shiftEvents}
+                dayLabels={dayLabels}
+                minCellHeight={100}
+              />
+            );
+          })()}
+
+        </>
+      )}
+
+      {/* ─── Edit Modal Overlay ─── */}
+      {editingStaffId !== null && (() => {
+        const staffWeek = weeklyData.find((s) => s.staffId === editingStaffId);
+        if (!staffWeek) return null;
+        const color = colorOf(editingStaffId);
+        return createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+            style={{ backdropFilter: "blur(6px)", backgroundColor: "rgba(0,0,0,0.65)" }}
+            onClick={(e) => { if (e.target === e.currentTarget) setEditingStaffId(null); }}
+          >
+            <div className="w-full max-w-5xl overflow-hidden rounded-2xl border border-violet-500/25 bg-[#0e0b1a] shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
+
+              {/* Modal header */}
+              <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.03] px-5 py-4">
+                <div className="flex items-center gap-3">
+                  <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${color.avatar} text-[12px] font-bold text-white shadow`}>
+                    {staffInitials(staffWeek.staffFullName)}
+                  </div>
+                  <div>
+                    <p className="text-[11px] text-white/35">{t.editScheduleFor}</p>
+                    <p className="text-sm font-semibold leading-tight">{staffWeek.staffFullName}</p>
+                  </div>
                 </div>
-              ))}
-            </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={applyDefaults}
+                    className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/50 transition hover:bg-white/[0.08] hover:text-white/70"
+                  >
+                    {t.resetDefaults}
+                  </button>
+                  <button
+                    onClick={() => setEditingStaffId(null)}
+                    className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/50 transition hover:bg-white/[0.08] hover:text-white/70"
+                  >
+                    {t.cancel}
+                  </button>
+                  <button
+                    onClick={() => handleSave(editingStaffId)}
+                    disabled={saving}
+                    className="rounded-lg bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-violet-500 disabled:opacity-40"
+                  >
+                    {saving ? t.saving : t.save}
+                  </button>
+                </div>
+              </div>
 
-            {/* Calendar rows */}
-            {calGrid.map((week, wIdx) => (
-              <div
-                key={wIdx}
-                className="grid grid-cols-7 divide-x divide-white/[0.04] border-b border-white/[0.04] last:border-b-0"
-              >
-                {week.map((day, dIdx) => {
-                  const calDayOfWeek = WEEK_ORDER[dIdx]; // JS dayOfWeek for this column
-                  const isWeekend = calDayOfWeek === 0 || calDayOfWeek === 6;
-                  const isToday =
-                    day !== null &&
-                    calYear === today.getFullYear() &&
-                    calMonth === today.getMonth() &&
-                    day === today.getDate();
-                  const isPast =
-                    day !== null &&
-                    new Date(calYear, calMonth, day) < new Date(today.getFullYear(), today.getMonth(), today.getDate());
-
+              {/* 7-column day grid */}
+              <div className="grid grid-cols-7 divide-x divide-white/[0.04]">
+                {WEEK_ORDER.map((dayIdx) => {
+                  const isWeekend = dayIdx === 0 || dayIdx === 6;
+                  const shift = editShifts.find((s) => s.dayOfWeek === dayIdx);
+                  if (!shift) return <div key={dayIdx} />;
                   return (
-                    <div
-                      key={dIdx}
-                      className={`min-h-[100px] p-2 ${isWeekend ? "bg-white/[0.012]" : ""} ${isPast && day !== null ? "opacity-60" : ""}`}
-                    >
-                      {/* Day number */}
-                      <div className="mb-1.5">
-                        {day !== null ? (
-                          <span
-                            className={`inline-flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold leading-none ${
-                              isToday
-                                ? "bg-violet-500 text-white shadow-[0_0_0_3px_rgba(139,92,246,0.25)]"
-                                : isWeekend
-                                ? "text-amber-400/50"
-                                : "text-white/35"
-                            }`}
-                          >
-                            {day}
-                          </span>
-                        ) : (
-                          <span className="inline-flex h-6 w-6" />
-                        )}
+                    <div key={dayIdx} className={`p-3 ${isWeekend ? "bg-white/[0.015]" : ""}`}>
+                      {/* Day label */}
+                      <div className="mb-2 text-center">
+                        <span className={`text-[10px] font-bold tracking-wider ${isWeekend ? "text-amber-400/70" : "text-white/35"}`}>
+                          {DAY_LABEL[language][dayIdx]}
+                        </span>
                       </div>
 
-                      {/* Staff shift badges */}
-                      {day !== null && (
-                        <div className="space-y-1">
-                          {filteredData.map((sw) => {
-                            const shift = sw.shifts.find((s) => s.dayOfWeek === calDayOfWeek);
-                            if (!shift) return null;
-                            const color = colorOf(sw.staffId);
+                      {/* Working / Off toggle */}
+                      <button
+                        onClick={() => updateShift(dayIdx, "isWorkingDay", !shift.isWorkingDay)}
+                        className={`mb-3 w-full rounded-lg py-1.5 text-[10px] font-semibold transition ${
+                          shift.isWorkingDay
+                            ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+                            : "bg-red-500/15 text-red-400 hover:bg-red-500/25"
+                        }`}
+                      >
+                        {shift.isWorkingDay ? t.workingDay : t.dayOff}
+                      </button>
 
-                            if (!shift.isWorkingDay) {
-                              // Only show "Off" badge if single staff selected (less noise in multi-staff view)
-                              if (filteredData.length > 1) return null;
-                              return (
-                                <div key={sw.staffId} className="w-full truncate rounded px-1.5 py-0.5 text-[9px] font-medium border border-red-500/15 bg-red-500/10 text-red-400/70">
-                                  {t.dayOff}
-                                </div>
-                              );
-                            }
-
-                            const start = toHHMM(shift.startTime);
-                            const end = toHHMM(shift.endTime);
-                            return (
-                              <div
-                                key={sw.staffId}
-                                title={`${sw.staffFullName} · ${start} – ${end}`}
-                                className={`w-full truncate rounded px-1.5 py-0.5 text-[9px] font-medium leading-snug ${color.badge}`}
-                              >
-                                {filteredData.length > 1 && (
-                                  <span className="mr-0.5 opacity-70">
-                                    {sw.staffFullName.split(" ")[0].slice(0, 5)}
-                                    {" "}
-                                  </span>
-                                )}
-                                {start}–{end}
-                              </div>
-                            );
-                          })}
+                      {shift.isWorkingDay && (
+                        <div className="space-y-2">
+                          <div>
+                            <p className="mb-1 text-[9px] text-white/25">{t.start}</p>
+                            <input
+                              type="time"
+                              value={shift.startTime}
+                              onChange={(e) => updateShift(dayIdx, "startTime", e.target.value)}
+                              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 py-1.5 text-[11px] text-white focus:border-violet-500/50 focus:outline-none"
+                            />
+                          </div>
+                          <div>
+                            <p className="mb-1 text-[9px] text-white/25">{t.end}</p>
+                            <input
+                              type="time"
+                              value={shift.endTime}
+                              onChange={(e) => updateShift(dayIdx, "endTime", e.target.value)}
+                              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 py-1.5 text-[11px] text-white focus:border-violet-500/50 focus:outline-none"
+                            />
+                          </div>
+                          <div className="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-2">
+                            <p className="text-[9px] font-semibold uppercase tracking-wider text-white/25">
+                              {t.breakLabel}
+                            </p>
+                            <div>
+                              <p className="mb-1 text-[9px] text-white/20">{t.breakStart}</p>
+                              <input
+                                type="time"
+                                value={shift.breakStartTime || ""}
+                                onChange={(e) => updateShift(dayIdx, "breakStartTime", e.target.value || null)}
+                                className="w-full rounded-lg border border-white/[0.06] bg-white/[0.04] px-2 py-1 text-[11px] text-white/70 focus:border-violet-500/50 focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <p className="mb-1 text-[9px] text-white/20">{t.breakEnd}</p>
+                              <input
+                                type="time"
+                                value={shift.breakEndTime || ""}
+                                onChange={(e) => updateShift(dayIdx, "breakEndTime", e.target.value || null)}
+                                className="w-full rounded-lg border border-white/[0.06] bg-white/[0.04] px-2 py-1 text-[11px] text-white/70 focus:border-violet-500/50 focus:outline-none"
+                              />
+                            </div>
+                          </div>
                         </div>
                       )}
                     </div>
                   );
                 })}
               </div>
-            ))}
-          </div>
-
-          {/* ─── Edit Panel (inline, shown when editing) ─── */}
-          {editingStaffId !== null && (() => {
-            const staffWeek = weeklyData.find((s) => s.staffId === editingStaffId);
-            if (!staffWeek) return null;
-            const color = colorOf(editingStaffId);
-            return (
-              <div className="overflow-hidden rounded-2xl border border-violet-500/25 bg-white/[0.02] shadow-[0_8px_40px_rgba(139,92,246,0.12)]">
-
-                {/* Panel header */}
-                <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.03] px-5 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${color.avatar} text-[11px] font-bold text-white shadow`}>
-                      {staffInitials(staffWeek.staffFullName)}
-                    </div>
-                    <div>
-                      <p className="text-[11px] text-white/35">{t.editScheduleFor}</p>
-                      <p className="text-sm font-semibold leading-tight">{staffWeek.staffFullName}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={applyDefaults}
-                      className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/50 transition hover:bg-white/[0.08] hover:text-white/70"
-                    >
-                      {t.resetDefaults}
-                    </button>
-                    <button
-                      onClick={() => setEditingStaffId(null)}
-                      className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/50 transition hover:bg-white/[0.08] hover:text-white/70"
-                    >
-                      {t.cancel}
-                    </button>
-                    <button
-                      onClick={() => handleSave(editingStaffId)}
-                      disabled={saving}
-                      className="rounded-lg bg-violet-600 px-4 py-1.5 text-xs font-semibold text-white shadow transition hover:bg-violet-500 disabled:opacity-40"
-                    >
-                      {saving ? t.saving : t.save}
-                    </button>
-                  </div>
-                </div>
-
-                {/* 7-column day grid */}
-                <div className="grid grid-cols-7 divide-x divide-white/[0.04]">
-                  {WEEK_ORDER.map((dayIdx) => {
-                    const isWeekend = dayIdx === 0 || dayIdx === 6;
-                    const shift = editShifts.find((s) => s.dayOfWeek === dayIdx);
-                    if (!shift) return <div key={dayIdx} />;
-                    return (
-                      <div key={dayIdx} className={`p-2.5 ${isWeekend ? "bg-white/[0.015]" : ""}`}>
-                        {/* Day label */}
-                        <div className="mb-2 text-center">
-                          <span className={`text-[10px] font-bold tracking-wider ${isWeekend ? "text-amber-400/70" : "text-white/35"}`}>
-                            {DAY_LABEL[language][dayIdx]}
-                          </span>
-                        </div>
-
-                        {/* Working / Off toggle */}
-                        <button
-                          onClick={() => updateShift(dayIdx, "isWorkingDay", !shift.isWorkingDay)}
-                          className={`mb-2.5 w-full rounded-lg py-1 text-[10px] font-semibold transition ${
-                            shift.isWorkingDay
-                              ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
-                              : "bg-red-500/15 text-red-400 hover:bg-red-500/25"
-                          }`}
-                        >
-                          {shift.isWorkingDay ? t.workingDay : t.dayOff}
-                        </button>
-
-                        {shift.isWorkingDay && (
-                          <div className="space-y-1.5">
-                            <div>
-                              <p className="mb-0.5 text-[9px] text-white/25">{t.start}</p>
-                              <input
-                                type="time"
-                                value={shift.startTime}
-                                onChange={(e) => updateShift(dayIdx, "startTime", e.target.value)}
-                                className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-1.5 py-1.5 text-[11px] text-white focus:border-violet-500/50 focus:outline-none"
-                              />
-                            </div>
-                            <div>
-                              <p className="mb-0.5 text-[9px] text-white/25">{t.end}</p>
-                              <input
-                                type="time"
-                                value={shift.endTime}
-                                onChange={(e) => updateShift(dayIdx, "endTime", e.target.value)}
-                                className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-1.5 py-1.5 text-[11px] text-white focus:border-violet-500/50 focus:outline-none"
-                              />
-                            </div>
-                            <div className="space-y-1.5 rounded-lg border border-white/[0.06] bg-white/[0.03] p-1.5">
-                              <p className="text-[9px] font-semibold uppercase tracking-wider text-white/25">
-                                {t.breakLabel}
-                              </p>
-                              <div>
-                                <p className="mb-0.5 text-[9px] text-white/20">{t.breakStart}</p>
-                                <input
-                                  type="time"
-                                  value={shift.breakStartTime || ""}
-                                  onChange={(e) => updateShift(dayIdx, "breakStartTime", e.target.value || null)}
-                                  className="w-full rounded-lg border border-white/[0.06] bg-white/[0.04] px-1.5 py-1 text-[11px] text-white/70 focus:border-violet-500/50 focus:outline-none"
-                                />
-                              </div>
-                              <div>
-                                <p className="mb-0.5 text-[9px] text-white/20">{t.breakEnd}</p>
-                                <input
-                                  type="time"
-                                  value={shift.breakEndTime || ""}
-                                  onChange={(e) => updateShift(dayIdx, "breakEndTime", e.target.value || null)}
-                                  className="w-full rounded-lg border border-white/[0.06] bg-white/[0.04] px-1.5 py-1 text-[11px] text-white/70 focus:border-violet-500/50 focus:outline-none"
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })()}
-        </>
-      )}
+            </div>
+          </div>,
+          document.body
+        );
+      })()}
     </div>
   );
 }

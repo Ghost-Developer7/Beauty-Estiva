@@ -114,7 +114,11 @@ const emptyForm: FormData = { name: "", description: "", barcode: "", price: 0, 
    HELPERS
    ═══════════════════════════════════════════ */
 
-const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+const fmt = (n: number) => {
+  const safe = Number(n);
+  if (!isFinite(safe) || isNaN(safe)) return "0";
+  return safe.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+};
 
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
@@ -211,9 +215,11 @@ export default function ProductsScreen() {
 
   const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
 
-  const avgPrice = products.length > 0 ? products.reduce((s, p) => s + p.price, 0) / products.length : 0;
+  const avgPrice = products.length > 0
+    ? products.reduce((s, p) => s + (Number(p.price) || 0), 0) / products.length
+    : 0;
   const lowStockCount = products.filter((p) => p.stockQuantity <= 5).length;
-  const totalValue = products.reduce((s, p) => s + p.price * p.stockQuantity, 0);
+  const totalValue = products.reduce((s, p) => s + (Number(p.price) || 0) * (Number(p.stockQuantity) || 0), 0);
 
   /* ═══ ACTIONS ═══ */
 
@@ -309,7 +315,6 @@ export default function ProductsScreen() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${products.length} ${t.total}`}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -415,11 +420,11 @@ export default function ProductsScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden md:grid grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden md:grid grid-cols-[1fr_180px_120px_160px_72px] gap-4 border-b ${isDark ? "border-white/[0.06] bg-white/[0.03] text-white/30" : "border-gray-200 bg-gray-50 text-gray-400"} px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider`}>
               <span>{t.product}</span>
               <span>{t.barcodeCol}</span>
-              <span>{t.priceCol}</span>
-              <span>{t.stockCol}</span>
+              <span className="text-right">{t.priceCol}</span>
+              <span className="text-right pr-2">{t.stockCol}</span>
               <span />
             </div>
 
@@ -429,44 +434,48 @@ export default function ProductsScreen() {
                 <div
                   key={item.id}
                   onClick={() => openDetail(item)}
-                  className={`group grid grid-cols-1 md:grid-cols-[1fr_0.8fr_0.5fr_0.5fr_auto] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
+                  className={`group grid grid-cols-1 md:grid-cols-[1fr_180px_120px_160px_72px] gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.03]" : "hover:bg-gray-50"} cursor-pointer`}
                 >
                   {/* Product name + description */}
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-violet-500/10 text-violet-400">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${isDark ? "bg-violet-500/10 text-violet-400" : "bg-violet-50 text-violet-500"}`}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" /></svg>
                     </div>
                     <div className="min-w-0">
-                      <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{item.name}</p>
+                      <p className={`text-sm font-semibold truncate ${isDark ? "text-white/90" : "text-gray-900"}`}>{item.name}</p>
                       {item.description && (
-                        <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{item.description}</p>
+                        <p className={`text-[11px] truncate ${isDark ? "text-white/30" : "text-gray-400"}`}>{item.description}</p>
                       )}
                     </div>
                   </div>
 
                   {/* Barcode */}
-                  <p className={`hidden md:block text-xs ${isDark ? "text-white/40" : "text-gray-400"} font-mono`}>{item.barcode || "—"}</p>
+                  <p className={`hidden md:block text-xs font-mono truncate ${isDark ? "text-white/35" : "text-gray-400"}`}>
+                    {item.barcode ?? "—"}
+                  </p>
 
                   {/* Price */}
-                  <p className={`hidden md:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(item.price)}</p>
+                  <p className={`hidden md:block text-sm font-bold text-right tabular-nums ${isDark ? "text-white/90" : "text-gray-900"}`}>
+                    ₺{fmt(Number(item.price))}
+                  </p>
 
                   {/* Stock */}
-                  <div className="hidden md:block">
+                  <div className="hidden md:flex justify-end pr-2">
                     <StockBadge quantity={item.stockQuantity} isDark={isDark} t={t} />
                   </div>
 
                   {/* Actions */}
-                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>
                     <button
                       onClick={() => openEdit(item)}
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} ${isDark ? "hover:text-white" : "hover:text-gray-700"}`}
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${isDark ? "text-white/25 hover:bg-white/10 hover:text-white/80" : "text-gray-300 hover:bg-gray-100 hover:text-gray-700"}`}
                       title={t.edit}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
                     </button>
                     <button
                       onClick={() => handleDelete(item.id)}
-                      className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/30" : "text-gray-300"} transition hover:bg-red-500/20 hover:text-red-400`}
+                      className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${isDark ? "text-white/25 hover:bg-red-500/20 hover:text-red-400" : "text-gray-300 hover:bg-red-50 hover:text-red-500"}`}
                       title={t.delete}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>

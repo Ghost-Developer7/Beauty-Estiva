@@ -266,7 +266,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 
   const sidebarContent = (
     <aside
-      className={`estiva-dashboard-sidebar relative flex flex-col text-white shadow-[0_0_40px_rgba(5,4,17,0.8)] transition-all duration-300 h-full ${
+      className={`estiva-dashboard-sidebar relative flex flex-col text-white transition-all duration-300 h-full ${isLight ? "shadow-none" : "shadow-[0_0_40px_rgba(5,4,17,0.8)]"} ${
         expanded ? "w-64" : "w-20"
       }`}
     >

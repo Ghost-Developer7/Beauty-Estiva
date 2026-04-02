@@ -580,7 +580,6 @@ export default function PackageSalesScreen() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{t.title}</h1>
-          <p className={`mt-0.5 text-sm ${isDark ? "text-white/40" : "text-gray-400"}`}>{loading ? <span className={`inline-block h-4 w-16 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${sales.length} ${t.total}`}</p>
         </div>
         <div className="flex items-center gap-3">
           <ExportButtons
@@ -828,8 +827,7 @@ export default function PackageSalesScreen() {
               onPageChange={(p) => setPage(p)}
               onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
             />
-            <div className={`flex items-center justify-between border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
-              <span>{loading ? <span className={`inline-block h-3 w-12 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} /> : `${filtered.length} ${t.total}`}</span>
+            <div className={`flex items-center justify-end border-t ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>
               <span>{t.totalPrice}: {fmt(filtered.reduce((s, x) => s + x.totalPrice, 0))} ₺</span>
             </div>
           </>

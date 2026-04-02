@@ -382,8 +382,7 @@ export default function ExpensesScreen() {
             onPageChange={(p) => setPage(p)}
             onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
           />
-          <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-3 flex justify-between text-[10px] font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>
-            <span>{text.recordCount}: {totalCount}</span>
+          <div className={`border-t ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-3 flex justify-end text-[10px] font-medium ${isDark ? "text-white/60" : "text-gray-600"}`}>
             <span>{text.totalAmount}: {formatCurrency(totalAmount)} ₺</span>
           </div>
         </div>

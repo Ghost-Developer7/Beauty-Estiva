@@ -9,6 +9,7 @@ import { tenantService } from "@/services/tenantService";
 import type { TenantInfo } from "@/services/tenantService";
 import type { DashboardSummary } from "@/types/api";
 import toast from "react-hot-toast";
+import SharedStatCard from "@/components/ui/StatCard";
 import {
   LineChart,
   Line,
@@ -309,24 +310,26 @@ export default function OverviewScreen() {
       label: t.todayAppointments,
       value: data.todayAppointmentsCount.toString(),
       sub: `${data.upcomingAppointments} ${t.upcoming}`,
+      href: "/dashboard/appointments?view=list",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
         </svg>
       ),
-      gradient: "from-pink-500/20 to-purple-500/20",
+      gradient: "bg-pink-500",
       iconColor: "text-pink-400",
     },
     {
       label: t.monthRevenue,
       value: `${formatCurrency(data.thisMonthRevenue)} ₺`,
       sub: `${t.thisWeek}: ${formatCurrency(data.thisWeekRevenue)} ₺`,
+      href: "/dashboard/sales-reports",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
       ),
-      gradient: "from-emerald-500/20 to-cyan-500/20",
+      gradient: "bg-emerald-500",
       iconColor: "text-emerald-400",
       visible: isOwnerOrAdmin,
     },
@@ -334,24 +337,26 @@ export default function OverviewScreen() {
       label: t.totalCustomers,
       value: data.totalCustomers.toString(),
       sub: "",
+      href: "/dashboard/customers",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
         </svg>
       ),
-      gradient: "from-blue-500/20 to-indigo-500/20",
+      gradient: "bg-blue-500",
       iconColor: "text-blue-400",
     },
     {
       label: t.activePackages,
       value: data.activePackages.toString(),
       sub: "",
+      href: "/dashboard/package-sales",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
         </svg>
       ),
-      gradient: "from-amber-500/20 to-orange-500/20",
+      gradient: "bg-amber-500",
       iconColor: "text-amber-400",
     },
   ].filter((c) => c.visible !== false);
@@ -379,25 +384,16 @@ export default function OverviewScreen() {
       {/* ── Row 1: Stat Cards ───────────────────────────────────────────── */}
       <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statCards.map((card) => (
-          <div
+          <SharedStatCard
             key={card.label}
-            className={`group relative overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5 backdrop-blur-sm transition-all ${isDark ? "hover:border-white/20" : "hover:border-gray-300"} ${isDark ? "hover:bg-white/[0.07]" : "hover:bg-gray-100"}`}
-          >
-            {/* gradient glow */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${card.gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
-            <div className="relative">
-              <div className="flex items-center justify-between">
-                <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>
-                  {card.label}
-                </p>
-                <span className={`${card.iconColor}`}>{card.icon}</span>
-              </div>
-              <p className="mt-3 text-2xl font-bold">{card.value}</p>
-              {card.sub && (
-                <p className={`mt-1 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{card.sub}</p>
-              )}
-            </div>
-          </div>
+            label={card.label}
+            value={card.value}
+            sub={card.sub || undefined}
+            icon={card.icon}
+            gradient={card.gradient}
+            iconColor={card.iconColor}
+            href={card.href}
+          />
         ))}
       </section>
 

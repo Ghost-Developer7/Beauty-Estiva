@@ -33,10 +33,10 @@
   --color-raspberry: var(--color-prunus-avium);
 
   /* Base colors */
-  --color-background: #fffdf8;
-  --color-foreground: #1f1f1f;
-  --color-muted: #717a88;
-  --color-border: #f1e5df;
+  --color-background: #f1f5f9;
+  --color-foreground: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
 
   /* Typography */
   --font-sans: Arial, Helvetica, sans-serif;
@@ -84,8 +84,8 @@ body.theme-dark {
 }
 
 body.theme-light {
-  background-color: #f0ecf7;
-  color: #1f1233;
+  background-color: #f1f5f9;
+  color: #0f172a;
 }
 
 /* Dashboard theme bridge (App Router group: (dashboard)) */
@@ -111,8 +111,15 @@ body.theme-dark .estiva-dashboard {
 }
 
 body.theme-light .estiva-dashboard {
-  background-color: #eae6f3;
-  color: #1f1233;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Topbar in light mode */
+body.theme-light .estiva-dashboard header {
+  background: rgba(255,255,255,0.92) !important;
+  border-bottom-color: #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
 body.theme-dark .estiva-dashboard-panel {
@@ -121,8 +128,7 @@ body.theme-dark .estiva-dashboard-panel {
 }
 
 body.theme-light .estiva-dashboard-panel {
-  background: radial-gradient(circle at top, rgba(84, 89, 172, 0.08), transparent 60%),
-    linear-gradient(180deg, #eae6f3, #e2ddef);
+  background: #f1f5f9;
 }
 
 body.theme-dark .estiva-dashboard-sidebar {
@@ -131,304 +137,118 @@ body.theme-dark .estiva-dashboard-sidebar {
 }
 
 body.theme-light .estiva-dashboard-sidebar {
-  background: linear-gradient(195deg, #ede9f5, #e4dff0);
-  border-right: 1px solid #d5cce6;
+  background: #ffffff;
+  border-right: 1px solid #e2e8f0;
+  box-shadow: 1px 0 0 #e2e8f0;
 }
 
-/* Light theme overrides for existing dashboard utility usage */
+/* ─────────────────────────────────────────────────────────────────────────
+   LIGHT THEME — Slate palette (Vercel / Linear / Notion style)
+   Base:    #f1f5f9  (slate-100)
+   Surface: #ffffff  (white)
+   Text:    #0f172a  (slate-900)
+   Muted:   #64748b  (slate-500)
+   Border:  #e2e8f0  (slate-200)
+───────────────────────────────────────────────────────────────────────── */
 
 body.theme-light .estiva-dashboard .text-white {
-  color: rgb(31 18 51 / 1);
+  color: #0f172a;
 }
+body.theme-light .estiva-dashboard .text-white\/90 { color: rgb(15 23 42 / 0.9); }
+body.theme-light .estiva-dashboard .text-white\/80 { color: rgb(15 23 42 / 0.8); }
+body.theme-light .estiva-dashboard .text-white\/70 { color: rgb(15 23 42 / 0.7); }
+body.theme-light .estiva-dashboard .text-white\/60 { color: rgb(15 23 42 / 0.6); }
+body.theme-light .estiva-dashboard .text-white\/50 { color: rgb(15 23 42 / 0.5); }
+body.theme-light .estiva-dashboard .text-white\/40 { color: rgb(15 23 42 / 0.4); }
+body.theme-light .estiva-dashboard .text-white\/30 { color: rgb(15 23 42 / 0.3); }
+body.theme-light .estiva-dashboard .text-white\/25 { color: rgb(15 23 42 / 0.25); }
+body.theme-light .estiva-dashboard .text-white\/20 { color: rgb(15 23 42 / 0.2); }
 
-body.theme-light .estiva-dashboard .text-white\/90 {
-  color: rgb(31 18 51 / 0.9);
-}
+body.theme-light .estiva-dashboard .hover\:text-white:hover { color: #0f172a; }
 
-body.theme-light .estiva-dashboard .text-white\/80 {
-  color: rgb(31 18 51 / 0.8);
-}
-
-body.theme-light .estiva-dashboard .text-white\/70 {
-  color: rgb(31 18 51 / 0.7);
-}
-
-body.theme-light .estiva-dashboard .text-white\/60 {
-  color: rgb(31 18 51 / 0.6);
-}
-
-body.theme-light .estiva-dashboard .text-white\/50 {
-  color: rgb(31 18 51 / 0.5);
-}
-
-body.theme-light .estiva-dashboard .text-white\/40 {
-  color: rgb(31 18 51 / 0.4);
-}
-
-body.theme-light .estiva-dashboard .text-white\/30 {
-  color: rgb(31 18 51 / 0.3);
-}
-
-body.theme-light .estiva-dashboard .text-white\/20 {
-  color: rgb(31 18 51 / 0.2);
-}
-
-body.theme-light .estiva-dashboard .hover\:text-white:hover {
-  color: rgb(31 18 51 / 1);
-}
-
-body.theme-light .estiva-dashboard .placeholder\:text-white\/40::placeholder {
-  color: rgb(31 18 51 / 0.4);
-}
-
-body.theme-light .estiva-dashboard .placeholder\:text-white\/30::placeholder {
-  color: rgb(31 18 51 / 0.35);
-}
-
-body.theme-light .estiva-dashboard .placeholder\:text-white\/20::placeholder {
-  color: rgb(31 18 51 / 0.3);
-}
-
-/* Comprehensive placeholder override for light theme - catches any remaining placeholder classes */
+/* Placeholders */
+body.theme-light .estiva-dashboard .placeholder\:text-white\/40::placeholder { color: rgb(15 23 42 / 0.35); }
+body.theme-light .estiva-dashboard .placeholder\:text-white\/30::placeholder { color: rgb(15 23 42 / 0.3); }
+body.theme-light .estiva-dashboard .placeholder\:text-white\/20::placeholder { color: rgb(15 23 42 / 0.25); }
 body.theme-light .estiva-dashboard input::placeholder,
-body.theme-light .estiva-dashboard textarea::placeholder {
-  color: rgb(31 18 51 / 0.45);
-}
+body.theme-light .estiva-dashboard textarea::placeholder { color: rgb(15 23 42 / 0.35); }
+body.theme-dark .estiva-dashboard .placeholder-white\/30::placeholder { color: rgb(255 255 255 / 0.3); }
+body.theme-light .estiva-dashboard .placeholder-white\/30::placeholder { color: rgb(15 23 42 / 0.35); }
 
-/* A few screens use a non-tailwind placeholder utility name */
-body.theme-dark .estiva-dashboard .placeholder-white\/30::placeholder {
-  color: rgb(255 255 255 / 0.3);
-}
+/* Surfaces */
+body.theme-light .estiva-dashboard .bg-white { background-color: #ffffff; }
+body.theme-light .estiva-dashboard .bg-white\/5  { background-color: rgb(248 250 252 / 0.9); }
+body.theme-light .estiva-dashboard .bg-white\/10 { background-color: rgb(241 245 249 / 0.9); }
+body.theme-light .estiva-dashboard .bg-white\/15 { background-color: rgb(226 232 240 / 0.9); }
+body.theme-light .estiva-dashboard .bg-white\/20 { background-color: rgb(203 213 225 / 0.5); }
+body.theme-light .estiva-dashboard .bg-white\/\[0\.02\] { background-color: rgb(248 250 252 / 0.7); }
+body.theme-light .estiva-dashboard .bg-white\/\[0\.03\] { background-color: rgb(248 250 252 / 0.85); }
+body.theme-light .estiva-dashboard .bg-white\/\[0\.06\] { background-color: rgb(241 245 249 / 0.8); }
 
-body.theme-light .estiva-dashboard .placeholder-white\/30::placeholder {
-  color: rgb(31 18 51 / 0.35);
-}
+/* Gray utilities */
+body.theme-light .estiva-dashboard .bg-gray-50,
+body.theme-light .estiva-dashboard .bg-gray-50\/50 { background-color: #f8fafc; }
+body.theme-light .estiva-dashboard .bg-gray-100    { background-color: #f1f5f9; }
+body.theme-light .estiva-dashboard .hover\:bg-gray-50:hover  { background-color: #f1f5f9; }
+body.theme-light .estiva-dashboard .hover\:bg-gray-100:hover { background-color: #e2e8f0; }
 
-/* Light theme: warning/info alert messages */
-body.theme-light .estiva-dashboard .text-yellow-200\/80 {
-  color: rgb(146 64 14 / 0.9);
-}
-
-body.theme-light .estiva-dashboard .border-yellow-500\/20 {
-  border-color: rgb(234 179 8 / 0.35);
-}
-
-body.theme-light .estiva-dashboard .bg-yellow-500\/10 {
-  background-color: rgb(254 249 195 / 0.7);
-}
-
-/* Light theme: divide colors used in tables */
-body.theme-light .estiva-dashboard .divide-white\/\[0\.04\] > :not([hidden]) ~ :not([hidden]) {
-  border-color: rgb(31 18 51 / 0.06);
-}
-
-/* Light theme: hover states on table rows and list items */
+/* Hover on rows */
 body.theme-light .estiva-dashboard .hover\:bg-white\/5:hover,
-body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.04\]:hover {
-  background-color: rgb(59 34 104 / 0.04);
-}
+body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.04\]:hover { background-color: rgb(15 23 42 / 0.03); }
+body.theme-light .estiva-dashboard .hover\:bg-white\/10:hover         { background-color: rgb(15 23 42 / 0.06); }
+body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.06\]:hover  { background-color: rgb(15 23 42 / 0.04); }
 
-/* Light theme: bg-white/[0.02] and bg-white/[0.03] used for subtle backgrounds */
-body.theme-light .estiva-dashboard .bg-white\/\[0\.02\] {
-  background-color: rgb(237 233 245 / 0.45);
-}
+/* Borders */
+body.theme-light .estiva-dashboard .border-white      { border-color: #94a3b8; }
+body.theme-light .estiva-dashboard .border-white\/5   { border-color: #f1f5f9; }
+body.theme-light .estiva-dashboard .border-white\/10  { border-color: #e2e8f0; }
+body.theme-light .estiva-dashboard .border-white\/15  { border-color: #cbd5e1; }
+body.theme-light .estiva-dashboard .border-white\/20  { border-color: #cbd5e1; }
+body.theme-light .estiva-dashboard .border-white\/40  { border-color: #94a3b8; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.06\]  { border-color: #e2e8f0; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.08\]  { border-color: #e2e8f0; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.15\]  { border-color: #cbd5e1; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.18\]  { border-color: #cbd5e1; }
+body.theme-light .estiva-dashboard .border-gray-200   { border-color: #e2e8f0; }
+body.theme-light .estiva-dashboard .border-gray-300   { border-color: #cbd5e1; }
 
-body.theme-light .estiva-dashboard .bg-white\/\[0\.03\] {
-  background-color: rgb(237 233 245 / 0.55);
-}
+/* Dividers */
+body.theme-light .estiva-dashboard .divide-white\/\[0\.04\] > :not([hidden]) ~ :not([hidden]) { border-color: #f1f5f9; }
+body.theme-light .estiva-dashboard .divide-white\/5 > :not([hidden]) ~ :not([hidden]) { border-color: #f1f5f9; }
 
-/* Light theme: border-white/[0.06] and border-white/[0.08] */
-body.theme-light .estiva-dashboard .border-white\/\[0\.06\] {
-  border-color: rgb(31 18 51 / 0.08);
-}
+/* Ring */
+body.theme-light .estiva-dashboard .ring-white\/10 { --tw-ring-color: rgb(15 23 42 / 0.1); }
+body.theme-light .estiva-dashboard .ring-white\/15 { --tw-ring-color: rgb(15 23 42 / 0.15); }
+body.theme-light .estiva-dashboard .ring-white\/20 { --tw-ring-color: rgb(15 23 42 / 0.2); }
 
-body.theme-light .estiva-dashboard .border-white\/\[0\.08\] {
-  border-color: rgb(31 18 51 / 0.1);
-}
+/* Dark hex backgrounds → light equivalents */
+body.theme-light .estiva-dashboard .bg-\[\#0b0614\]        { background-color: #f8fafc; }
+body.theme-light .estiva-dashboard .bg-\[\#040309\]        { background-color: #f8fafc; }
+body.theme-light .estiva-dashboard .bg-\[\#0d0d1a\]\/90    { background-color: rgb(248 250 252 / 0.95); }
+body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]        { background-color: #ffffff; }
+body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]\/95    { background-color: rgb(255 255 255 / 0.97); }
 
-body.theme-light .estiva-dashboard .border-white {
-  border-color: #b59cf2;
-}
-
-body.theme-light .estiva-dashboard .border-white\/5 {
-  border-color: #ddd8ea;
-}
-
-body.theme-light .estiva-dashboard .border-white\/10 {
-  border-color: #d5cce6;
-}
-
-body.theme-light .estiva-dashboard .border-white\/15 {
-  border-color: #cbc2de;
-}
-
-body.theme-light .estiva-dashboard .border-white\/20 {
-  border-color: #c0b5d6;
-}
-
-body.theme-light .estiva-dashboard .border-white\/40 {
-  border-color: #a898c8;
-}
-
-body.theme-light .estiva-dashboard .bg-white\/5 {
-  background-color: rgb(237 233 245 / 0.6);
-}
-
-body.theme-light .estiva-dashboard .bg-white\/10 {
-  background-color: rgb(237 233 245 / 0.7);
-}
-
-body.theme-light .estiva-dashboard .bg-white\/15 {
-  background-color: rgb(237 233 245 / 0.8);
-}
-
-body.theme-light .estiva-dashboard .bg-white\/20 {
-  background-color: rgb(237 233 245 / 0.9);
-}
-
-body.theme-light .estiva-dashboard .hover\:bg-white\/10:hover {
-  background-color: rgb(59 34 104 / 0.1);
-}
-
-body.theme-light .estiva-dashboard .divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
-  border-color: #efe9ff;
-}
-
-/* Some screens use dark "frame" colors; soften them in light mode */
-body.theme-light .estiva-dashboard .bg-\[\#0b0614\] {
-  background-color: #e8e4f1;
-}
-
-body.theme-light .estiva-dashboard .bg-\[\#040309\] {
-  background-color: #e8e4f1;
-}
-
-body.theme-light .estiva-dashboard .bg-\[\#0d0d1a\]\/90 {
-  background-color: rgb(232 228 241 / 0.92);
-}
-
-body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\] {
-  background-color: #edeaf6;
-}
-
-body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]\/95 {
-  background-color: rgb(237 234 246 / 0.97);
-}
-
-/* Light theme: modal/overlay dark bg overrides */
-body.theme-light .estiva-dashboard .bg-white\/\[0\.06\] {
-  background-color: rgb(237 233 245 / 0.65);
-}
-
-body.theme-light .estiva-dashboard .border-white\/15 {
-  border-color: #dacfff;
-}
-
-body.theme-light .estiva-dashboard .border-white\/\[0\.15\] {
-  border-color: #dacfff;
-}
-
-/* Light theme: hover states for bg-white/15 and bg-white/[0.06] */
-body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.06\]:hover {
-  background-color: rgb(59 34 104 / 0.04);
-}
-
-body.theme-light .estiva-dashboard .bg-white\/15 {
-  background-color: rgb(237 233 245 / 0.8);
-}
-
-/* Light theme: ring colors */
-body.theme-light .estiva-dashboard .ring-white\/10 {
-  --tw-ring-color: rgb(31 18 51 / 0.1);
-}
-
-body.theme-light .estiva-dashboard .ring-white\/15 {
-  --tw-ring-color: rgb(31 18 51 / 0.15);
-}
-
-body.theme-light .estiva-dashboard .ring-white\/20 {
-  --tw-ring-color: rgb(31 18 51 / 0.2);
-}
-
-/* Light theme: orange/yellow info alerts */
-body.theme-light .estiva-dashboard .text-yellow-100 {
-  color: rgb(146 64 14 / 0.9);
-}
-
-body.theme-light .estiva-dashboard .text-orange-100 {
-  color: rgb(154 52 18 / 0.9);
-}
-
-body.theme-light .estiva-dashboard .border-yellow-500\/30 {
-  border-color: rgb(234 179 8 / 0.4);
-}
-
-body.theme-light .estiva-dashboard .border-orange-500\/30 {
-  border-color: rgb(249 115 22 / 0.4);
-}
-
-/* Keep white text on accent backgrounds */
-body.theme-light .estiva-dashboard [class*="bg-[#"].text-white {
-  color: #ffffff;
-}
-
+/* Keep white text on coloured/gradient buttons */
+body.theme-light .estiva-dashboard [class*="bg-[#"].text-white { color: #ffffff; }
 body.theme-light .estiva-dashboard .bg-green-500.text-white,
 body.theme-light .estiva-dashboard .bg-green-600.text-white,
 body.theme-light .estiva-dashboard .bg-blue-600.text-white,
 body.theme-light .estiva-dashboard .bg-red-500.text-white,
-body.theme-light .estiva-dashboard .bg-yellow-500.text-white {
-  color: #ffffff;
-}
-
-/* Light theme: keep white text on gradient buttons */
+body.theme-light .estiva-dashboard .bg-yellow-500.text-white { color: #ffffff; }
 body.theme-light .estiva-dashboard .bg-gradient-to-r.text-white,
-body.theme-light .estiva-dashboard [class*="bg-gradient-to-r"] .text-white {
-  color: #ffffff;
-}
-
-body.theme-light .estiva-dashboard button[class*="bg-gradient-to-r"] {
-  color: #ffffff;
-}
-
+body.theme-light .estiva-dashboard [class*="bg-gradient-to-r"] .text-white { color: #ffffff; }
+body.theme-light .estiva-dashboard button[class*="bg-gradient-to-r"] { color: #ffffff; }
 body.theme-light .estiva-dashboard button.bg-blue-600,
-body.theme-light .estiva-dashboard button.bg-green-600 {
-  color: #ffffff;
-}
+body.theme-light .estiva-dashboard button.bg-green-600 { color: #ffffff; }
 
-/* Light theme: text-white/25 for subtle labels */
-body.theme-light .estiva-dashboard .text-white\/25 {
-  color: rgb(31 18 51 / 0.25);
-}
-
-/* Light theme: soften gray/white utilities used in dashboard components */
-body.theme-light .estiva-dashboard .bg-white {
-  background-color: #edeaf6;
-}
-
-body.theme-light .estiva-dashboard .bg-gray-50,
-body.theme-light .estiva-dashboard .bg-gray-50\/50 {
-  background-color: #e8e4f1;
-}
-
-body.theme-light .estiva-dashboard .bg-gray-100 {
-  background-color: #e2ddef;
-}
-
-body.theme-light .estiva-dashboard .hover\:bg-gray-50:hover {
-  background-color: #e4e0ed;
-}
-
-body.theme-light .estiva-dashboard .hover\:bg-gray-100:hover {
-  background-color: #ddd8ea;
-}
-
-body.theme-light .estiva-dashboard .border-gray-200 {
-  border-color: #d5cce6;
-}
-
-body.theme-light .estiva-dashboard .border-gray-300 {
-  border-color: #c8bed8;
-}
+/* Alerts */
+body.theme-light .estiva-dashboard .text-yellow-200\/80 { color: rgb(146 64 14 / 0.9); }
+body.theme-light .estiva-dashboard .text-yellow-100     { color: rgb(146 64 14 / 0.9); }
+body.theme-light .estiva-dashboard .text-orange-100     { color: rgb(154 52 18 / 0.9); }
+body.theme-light .estiva-dashboard .border-yellow-500\/20 { border-color: rgb(234 179 8 / 0.35); }
+body.theme-light .estiva-dashboard .border-yellow-500\/30 { border-color: rgb(234 179 8 / 0.4); }
+body.theme-light .estiva-dashboard .border-orange-500\/30 { border-color: rgb(249 115 22 / 0.4); }
+body.theme-light .estiva-dashboard .bg-yellow-500\/10    { background-color: rgb(254 249 195 / 0.7); }
 
 /* Layout utility */
 
@@ -595,22 +415,22 @@ body.theme-light .estiva-dashboard .border-gray-300 {
 /* Light theme override for date inputs */
 body.theme-light .estiva-dashboard input[type="date"],
 body.theme-light .estiva-dashboard input[type="datetime-local"] {
-  background-color: rgba(237, 233, 245, 0.85);
-  color: #1f1233;
-  border-color: #d5cce6;
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
   color-scheme: light;
 }
 
 body.theme-light .estiva-dashboard input[type="date"]:hover,
 body.theme-light .estiva-dashboard input[type="datetime-local"]:hover {
-  border-color: #c4b8de;
-  background-color: rgba(237, 233, 245, 0.95);
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
 }
 
 body.theme-light .estiva-dashboard input[type="date"]:focus,
 body.theme-light .estiva-dashboard input[type="datetime-local"]:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.12);
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
 }
 
 body.theme-light .estiva-dashboard input[type="date"]::-webkit-calendar-picker-indicator,
@@ -641,26 +461,26 @@ body.theme-light .estiva-dashboard input[type="datetime-local"]::-webkit-calenda
 
 /* Light theme override for dashboard selects */
 body.theme-light .estiva-dashboard select {
-  background-color: rgba(237, 233, 245, 0.85);
-  color: #1f1233;
-  border-color: #d5cce6;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(31,18,51,0.5)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #e2e8f0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(15,23,42,0.4)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 
 body.theme-light .estiva-dashboard select:hover {
-  border-color: #c4b8de;
-  background-color: rgba(237, 233, 245, 0.95);
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
 }
 
 body.theme-light .estiva-dashboard select option {
-  background-color: #edeaf6;
-  color: #1f1233;
+  background-color: #ffffff;
+  color: #0f172a;
 }
 
 body.theme-light .estiva-dashboard select option:checked {
-  background: linear-gradient(0deg, #efe9ff 0%, #efe9ff 100%);
-  -webkit-text-fill-color: #1f1233;
-  color: #1f1233;
+  background: linear-gradient(0deg, #f1f5f9 0%, #f1f5f9 100%);
+  -webkit-text-fill-color: #0f172a;
+  color: #0f172a;
 }
 
 /* Primary button */

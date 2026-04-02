@@ -74,16 +74,27 @@ export const PUT = RouteHandler.wrap(
       data: Guard.softDelete(user.id),
     });
 
+    const parseTime = (val: string | null | undefined): Date | null => {
+      if (!val) return null;
+      // Already a full ISO datetime
+      const d = new Date(val);
+      if (!isNaN(d.getTime())) return d;
+      // Plain "HH:mm" string
+      const m = val.match(/^(\d{1,2}):(\d{2})/);
+      if (m) return new Date(`1970-01-01T${m[1].padStart(2,"0")}:${m[2]}:00Z`);
+      return null;
+    };
+
     const now = new Date();
     await prisma.staffShifts.createMany({
       data: body.shifts.map((shift: any) => ({
         TenantId: user.tenantId,
         StaffId: staffId,
         DayOfWeek: shift.dayOfWeek,
-        StartTime: new Date(shift.startTime),
-        EndTime: new Date(shift.endTime),
-        BreakStartTime: shift.breakStartTime ? new Date(shift.breakStartTime) : null,
-        BreakEndTime: shift.breakEndTime ? new Date(shift.breakEndTime) : null,
+        StartTime: parseTime(shift.startTime),
+        EndTime: parseTime(shift.endTime),
+        BreakStartTime: parseTime(shift.breakStartTime),
+        BreakEndTime: parseTime(shift.breakEndTime),
         IsWorkingDay: shift.isWorkingDay ?? true,
         CUser: user.id,
         CDate: now,
