@@ -47,6 +47,8 @@ export async function GET(req: NextRequest) {
       notes: u.Notes,
     }));
 
+    const pageParam = searchParams.get("page") || searchParams.get("pageNumber");
+    if (!pageParam) return success(mapped);
     return success(paginatedResponse(mapped, totalCount, page, pageSize));
   } catch (error) {
     console.error("Unavailability GET error:", error);
@@ -62,8 +64,8 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { staffId, startTime, endTime, reason, notes } = body;
 
-    if (!staffId || !startTime || !endTime || !reason) {
-      return fail("staffId, startTime, endTime ve reason alanları zorunludur");
+    if (!staffId || !startTime || !endTime) {
+      return fail("staffId, startTime, endTime alanları zorunludur");
     }
 
     const staff = await prisma.users.findFirst({

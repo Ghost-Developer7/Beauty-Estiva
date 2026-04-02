@@ -12,6 +12,7 @@ import type {
   StaffMember,
 } from "@/types/api";
 import ExportButtons from "@/components/ui/ExportButtons";
+import StatCard from "@/components/ui/StatCard";
 import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
@@ -132,8 +133,8 @@ const copy = {
 
 /* ────────────────────────────── Helpers ────────────────────────────── */
 
-const fmt = (n: number) =>
-  n.toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmt = (n: number | null | undefined) =>
+  (n ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const formatDate = (d: string, lang: "en" | "tr" = "tr") =>
   new Date(d).toLocaleDateString(lang === "tr" ? "tr-TR" : "en-US", { day: "2-digit", month: "short", year: "numeric" });
@@ -515,24 +516,30 @@ export default function CommissionScreen() {
         <div className="space-y-5">
           {/* Summary cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <SummaryCard
+            <StatCard
               label={t.totalEarnedThisMonth}
-              value={fmt(totalEarned)}
-              currency={t.currency}
-              color="text-amber-400"
-              bgGlow="from-amber-500/10" isDark={isDark} />
-            <SummaryCard
+              value={`${fmt(totalEarned)} ${t.currency}`}
+              valueColor="#f59e0b"
+              gradient="bg-amber-500"
+              iconColor="text-amber-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <StatCard
               label={t.totalPaid}
-              value={fmt(totalPaid)}
-              currency={t.currency}
-              color="text-green-400"
-              bgGlow="from-green-500/10" isDark={isDark} />
-            <SummaryCard
+              value={`${fmt(totalPaid)} ${t.currency}`}
+              valueColor="#22c55e"
+              gradient="bg-emerald-500"
+              iconColor="text-emerald-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>}
+            />
+            <StatCard
               label={t.remainingToPay}
-              value={fmt(totalRemaining)}
-              currency={t.currency}
-              color="text-red-400"
-              bgGlow="from-red-500/10" isDark={isDark} />
+              value={`${fmt(totalRemaining)} ${t.currency}`}
+              valueColor="#ef4444"
+              gradient="bg-red-500"
+              iconColor="text-red-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
+            />
           </div>
 
           {/* Staff summary table */}

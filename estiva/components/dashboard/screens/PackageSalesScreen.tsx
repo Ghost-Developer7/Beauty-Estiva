@@ -755,7 +755,7 @@ export default function PackageSalesScreen() {
         ) : (
           <>
             {/* Desktop Table Header */}
-            <div className={`hidden lg:grid grid-cols-[1.2fr_0.55fr_1fr_0.7fr_1.1fr_0.7fr_0.7fr_0.7fr_68px] gap-3 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden lg:grid grid-cols-[1.4fr_0.5fr_1.1fr_0.55fr_1fr_0.6fr_0.6fr_0.6fr_44px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               {([
                 ["customerFullName", t.customer],
                 ["statusValue", t.status],
@@ -781,7 +781,7 @@ export default function PackageSalesScreen() {
                   <div
                     key={sale.id}
                     onClick={() => openDetail(sale)}
-                    className={`group grid grid-cols-1 lg:grid-cols-[1.2fr_0.55fr_1fr_0.7fr_1.1fr_0.7fr_0.7fr_0.7fr_68px] gap-3 items-center px-4 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
+                    className={`group grid grid-cols-1 lg:grid-cols-[1.4fr_0.5fr_1.1fr_0.55fr_1fr_0.6fr_0.6fr_0.6fr_44px] gap-4 items-center px-4 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
                     {/* Customer */}
                     <div className="flex items-center gap-2.5">

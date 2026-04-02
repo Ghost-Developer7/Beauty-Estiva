@@ -58,7 +58,8 @@ const PAYMENT_METHOD_MAP: { tr: string; en: string }[] = [
   { tr: "Diğer", en: "Other" },
 ];
 
-function translatePaymentLabel(label: string, lang: "en" | "tr"): string {
+function translatePaymentLabel(label: string | null | undefined, lang: "en" | "tr"): string {
+  if (!label) return "";
   const m = PAYMENT_METHOD_MAP.find(
     pm => pm.tr.toLowerCase() === label.toLowerCase() || pm.en.toLowerCase() === label.toLowerCase()
   );
@@ -156,11 +157,12 @@ export default function SalesReportsScreen() {
   );
 
   /* ─── Bar chart (simple CSS) ─── */
-  const BarChart = ({ items, color }: { items: RevenueByGroup[]; color: string }) => {
-    const max = Math.max(...items.map(i => i.amountInTry), 1);
+  const BarChart = ({ items, color }: { items: RevenueByGroup[] | undefined | null; color: string }) => {
+    const safeItems = items ?? [];
+    const max = Math.max(...safeItems.map(i => i.amountInTry), 1);
     return (
       <div className="space-y-2.5">
-        {items.map((item, idx) => (
+        {safeItems.map((item, idx) => (
           <div key={idx} className="flex items-center gap-3">
             <span className={`w-32 shrink-0 truncate text-xs ${isDark ? "text-white/60" : "text-gray-600"}`}>{item.label}</span>
             <div className="flex-1 h-6 relative">
@@ -175,13 +177,13 @@ export default function SalesReportsScreen() {
             <span className={`shrink-0 text-[10px] w-8 text-center ${isDark ? "text-white/30" : "text-gray-400"}`}>{item.count}x</span>
           </div>
         ))}
-        {items.length === 0 && <p className={`text-xs text-center py-4 ${isDark ? "text-white/30" : "text-gray-400"}`}>{t.noData}</p>}
+        {safeItems.length === 0 && <p className={`text-xs text-center py-4 ${isDark ? "text-white/30" : "text-gray-400"}`}>{t.noData}</p>}
       </div>
     );
   };
 
   /* ─── GroupTable ─── */
-  const GroupTable = ({ items, labelHeader, color }: { items: RevenueByGroup[]; labelHeader: string; color: string }) => (
+  const GroupTable = ({ items, labelHeader, color }: { items: RevenueByGroup[] | undefined | null; labelHeader: string; color: string }) => (
     <div className={`overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-white"}`}>
       <table className="w-full text-sm">
         <thead>
@@ -192,7 +194,7 @@ export default function SalesReportsScreen() {
           </tr>
         </thead>
         <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-gray-100"}`}>
-          {items.map((item, idx) => (
+          {(items ?? []).map((item, idx) => (
             <tr key={idx} className={`transition ${isDark ? "hover:bg-white/[0.03]" : "hover:bg-gray-50"}`}>
               <td className="px-5 py-3 flex items-center gap-2">
                 <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
@@ -202,16 +204,16 @@ export default function SalesReportsScreen() {
               <td className={`px-5 py-3 text-right font-medium ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(item.amountInTry)}</td>
             </tr>
           ))}
-          {items.length === 0 && (
+          {(items ?? []).length === 0 && (
             <tr><td colSpan={3} className={`py-8 text-center text-sm ${isDark ? "text-white/30" : "text-gray-400"}`}>{t.noData}</td></tr>
           )}
         </tbody>
-        {items.length > 0 && (
+        {(items ?? []).length > 0 && (
           <tfoot>
             <tr className={`border-t ${isDark ? "border-white/10 bg-white/[0.03]" : "border-gray-200 bg-gray-50"}`}>
               <td className={`px-5 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{t.total}</td>
-              <td className={`px-5 py-3 text-center text-xs font-bold ${isDark ? "text-white/60" : "text-gray-600"}`}>{items.reduce((s, i) => s + i.count, 0)}</td>
-              <td className={`px-5 py-3 text-right font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(items.reduce((s, i) => s + i.amountInTry, 0))}</td>
+              <td className={`px-5 py-3 text-center text-xs font-bold ${isDark ? "text-white/60" : "text-gray-600"}`}>{(items ?? []).reduce((s, i) => s + i.count, 0)}</td>
+              <td className={`px-5 py-3 text-right font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt((items ?? []).reduce((s, i) => s + i.amountInTry, 0))}</td>
             </tr>
           </tfoot>
         )}
@@ -220,8 +222,8 @@ export default function SalesReportsScreen() {
   );
 
   /* ─── DailyTable ─── */
-  const DailyTable = ({ items }: { items: DailyAmount[] }) => {
-    const sorted = [...items].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const DailyTable = ({ items }: { items: DailyAmount[] | undefined | null }) => {
+    const sorted = [...(items ?? [])].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
     const total = sorted.reduce((s, i) => s + i.amountInTry, 0);
     const dayNames = language === "tr" ? DAYS_TR : DAYS_EN;
     const locale = language === "tr" ? "tr-TR" : "en-US";
@@ -389,7 +391,7 @@ export default function SalesReportsScreen() {
               {/* Payment Methods */}
               <div className={`rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-white"} p-5`}>
                 <h3 className={`mb-4 text-sm font-semibold ${isDark ? "text-white/60" : "text-gray-500"}`}>{t.tabs[4]}</h3>
-                <BarChart items={dashboard.paymentMethods.map(pm => ({ ...pm, label: translatePaymentLabel(pm.label, language) }))} color="#22c55e" />
+                <BarChart items={(dashboard.paymentMethods ?? []).map(pm => ({ ...pm, label: translatePaymentLabel(pm.label, language) }))} color="#22c55e" />
               </div>
 
               {/* Expense Categories */}
@@ -417,7 +419,7 @@ export default function SalesReportsScreen() {
 
           {/* Tab 4: Payment Methods */}
           {activeTab === 4 && revenue && (
-            <GroupTable items={revenue.byPaymentMethod.map(pm => ({ ...pm, label: translatePaymentLabel(pm.label, language) }))} labelHeader={t.method} color="#22c55e" />
+            <GroupTable items={(revenue.byPaymentMethod ?? []).map(pm => ({ ...pm, label: translatePaymentLabel(pm.label, language) }))} labelHeader={t.method} color="#22c55e" />
           )}
         </>
       )}

@@ -9,6 +9,7 @@ import type { CustomerDebtItem, CustomerListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
+import StatCard from "@/components/ui/StatCard";
 import toast from "react-hot-toast";
 
 const STATUS_COLORS: Record<string, string> = {
@@ -361,12 +362,12 @@ export default function ReceivablesScreen() {
     }
   };
 
-  const formatCurrency = (amount: number) =>
+  const formatCurrency = (amount: number | null | undefined) =>
     new Intl.NumberFormat(language === "tr" ? "tr-TR" : "en-US", {
       style: "currency",
       currency: "TRY",
       minimumFractionDigits: 2,
-    }).format(amount);
+    }).format(amount ?? 0);
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "-";
@@ -391,18 +392,29 @@ export default function ReceivablesScreen() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
-          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.totalAmount}</div>
-          <div className="text-xl font-bold">{formatCurrency(summary.totalAmount)}</div>
-        </div>
-        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
-          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.paidAmount}</div>
-          <div className="text-xl font-bold text-green-400">{formatCurrency(summary.totalPaid)}</div>
-        </div>
-        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
-          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.remainingAmount}</div>
-          <div className="text-xl font-bold text-red-400">{formatCurrency(summary.totalRemaining)}</div>
-        </div>
+        <StatCard
+          label={t.totalAmount}
+          value={formatCurrency(summary.totalAmount)}
+          gradient="bg-blue-500"
+          iconColor="text-blue-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+        />
+        <StatCard
+          label={t.paidAmount}
+          value={formatCurrency(summary.totalPaid)}
+          valueColor="#22c55e"
+          gradient="bg-emerald-500"
+          iconColor="text-emerald-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12"/></svg>}
+        />
+        <StatCard
+          label={t.remainingAmount}
+          value={formatCurrency(summary.totalRemaining)}
+          valueColor="#ef4444"
+          gradient="bg-red-500"
+          iconColor="text-red-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>}
+        />
       </div>
 
       {/* Toolbar */}

@@ -94,7 +94,10 @@ export default function PersonnelReportScreen() {
         staffIdFilter,
         Object.keys(params).length > 0 ? params : undefined,
       );
-      if (res.data.success && res.data.data) setItems(res.data.data);
+      if (res.data.success && res.data.data) {
+        const data = res.data.data;
+        setItems(Array.isArray(data) ? data : (data as any).items ?? []);
+      }
     } catch {
       toast.error(language === "tr" ? "Veriler yüklenemedi" : "Failed to load");
     } finally {

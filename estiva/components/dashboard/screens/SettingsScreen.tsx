@@ -305,59 +305,51 @@ export default function SettingsScreen() {
       ]);
 
       if (settingsRes.status === "fulfilled" && settingsRes.value.data.success && settingsRes.value.data.data) {
-        const s = settingsRes.value.data.data;
+        const s = settingsRes.value.data.data as any;
+        const p = s.profile ?? s;
+        const appt = s.appointmentSettings ?? s;
+
         setProfileForm({
-          companyName: s.companyName || "",
-          phone: s.phone || "",
-          address: s.address || "",
-          taxNumber: s.taxNumber || "",
-          taxOffice: s.taxOffice || "",
-          currency: s.currency || "TRY",
-          timezone: s.timezone || "Europe/Istanbul",
+          companyName: p.companyName || "",
+          phone: p.phone || "",
+          address: p.address || "",
+          taxNumber: p.taxNumber || "",
+          taxOffice: p.taxOffice || "",
+          currency: p.currency || "TRY",
+          timezone: p.timezone || "Europe/Istanbul",
         });
 
         setAppointmentForm({
-          appointmentSlotMinutes: s.appointmentSlotMinutes || 30,
-          autoConfirmAppointments: s.autoConfirmAppointments || false,
-          bufferMinutes: 0,
-          reminderHourBefore: s.reminderHourBefore || 24,
+          appointmentSlotMinutes: appt.appointmentSlotMinutes || 30,
+          autoConfirmAppointments: appt.autoConfirmAppointments || false,
+          bufferMinutes: appt.bufferMinutes || 0,
+          reminderHourBefore: appt.reminderHourBefore || 24,
         });
 
         setNotifForm(prev => ({
           ...prev,
-          reminderHourBefore: s.reminderHourBefore || 24,
+          reminderHourBefore: appt.reminderHourBefore || 24,
         }));
 
-        // Parse working hours JSON
-        if (s.workingHoursJson) {
-          try {
-            const parsed = JSON.parse(s.workingHoursJson);
-            if (Array.isArray(parsed) && parsed.length > 0) {
-              setWorkingHours(parsed);
-            }
-          } catch { /* use defaults */ }
-        }
+        // Working hours (already parsed by API)
+        const wh = s.workingHours ?? (s.workingHoursJson ? (() => { try { return JSON.parse(s.workingHoursJson); } catch { return null; } })() : null);
+        if (Array.isArray(wh) && wh.length > 0) setWorkingHours(wh);
 
-        // Parse holidays JSON
-        if (s.holidaysJson) {
-          try {
-            const parsed = JSON.parse(s.holidaysJson);
-            if (Array.isArray(parsed)) {
-              setHolidays(parsed);
-            }
-          } catch { /* use defaults */ }
-        }
+        // Holidays (already parsed by API)
+        const hol = s.holidays ?? (s.holidaysJson ? (() => { try { return JSON.parse(s.holidaysJson); } catch { return null; } })() : null);
+        if (Array.isArray(hol)) setHolidays(hol);
       }
 
       if (rulesRes.status === "fulfilled" && rulesRes.value.data.success && rulesRes.value.data.data) {
         const r = rulesRes.value.data.data;
-        setRules(r);
+        const rArr = Array.isArray(r) ? r : [];
+        setRules(rArr);
         // Map rules to form
         setNotifForm(prev => ({
           ...prev,
-          smsEnabled: r.find(x => x.channel === 1)?.isActive ?? false,
-          emailEnabled: r.find(x => x.channel === 2)?.isActive ?? false,
-          whatsappEnabled: r.find(x => x.channel === 4)?.isActive ?? false,
+          smsEnabled: rArr.find(x => x.channel === 1)?.isActive ?? false,
+          emailEnabled: rArr.find(x => x.channel === 2)?.isActive ?? false,
+          whatsappEnabled: rArr.find(x => x.channel === 4)?.isActive ?? false,
         }));
       }
 

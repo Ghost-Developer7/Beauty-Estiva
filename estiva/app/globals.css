@@ -601,3 +601,12 @@ input[type="number"] {
   outline: none !important;
   border: none !important;
 }
+
+/* ─── Custom scrollbar (sidebar etc.) — hidden but scrollable ─── */
+.custom-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.custom-scrollbar::-webkit-scrollbar {
+  display: none;
+}

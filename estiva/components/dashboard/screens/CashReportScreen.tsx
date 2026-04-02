@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { financialReportService } from "@/services/financialReportService";
 import type { RevenueSummary, ExpenseSummary } from "@/types/api";
 import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
+import StatCard from "@/components/ui/StatCard";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -47,7 +48,8 @@ const PAYMENT_METHOD_MAP: { tr: string; en: string }[] = [
   { tr: "Diğer", en: "Other" },
 ];
 
-function translatePaymentLabel(label: string, lang: "en" | "tr"): string {
+function translatePaymentLabel(label: string | null | undefined, lang: "en" | "tr"): string {
+  if (!label) return "";
   const m = PAYMENT_METHOD_MAP.find(
     pm => pm.tr.toLowerCase() === label.toLowerCase() || pm.en.toLowerCase() === label.toLowerCase()
   );
@@ -104,7 +106,7 @@ export default function CashReportScreen() {
     fetchData();
   }, [fetchData]);
 
-  const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 2 });
+  const fmt = (n: number | null | undefined) => (n ?? 0).toLocaleString("tr-TR", { minimumFractionDigits: 2 });
   const netProfit = (revenue?.totalAmountInTry || 0) - (expense?.totalAmountInTry || 0);
 
   return (
@@ -126,20 +128,30 @@ export default function CashReportScreen() {
         <div className="space-y-4">
           {/* Summary cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
-              <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.revenue}</p>
-              <p className="mt-2 text-2xl font-semibold text-emerald-400">{fmt(revenue?.totalAmountInTry || 0)} ₺</p>
-            </div>
-            <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
-              <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.expenses}</p>
-              <p className="mt-2 text-2xl font-semibold text-red-400">{fmt(expense?.totalAmountInTry || 0)} ₺</p>
-            </div>
-            <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5`}>
-              <p className={`text-xs tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{text.netProfit}</p>
-              <p className={`mt-2 text-2xl font-semibold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                {fmt(netProfit)} ₺
-              </p>
-            </div>
+            <StatCard
+              label={text.revenue}
+              value={`${fmt(revenue?.totalAmountInTry || 0)} ₺`}
+              valueColor="#22c55e"
+              gradient="bg-emerald-500"
+              iconColor="text-emerald-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <StatCard
+              label={text.expenses}
+              value={`${fmt(expense?.totalAmountInTry || 0)} ₺`}
+              valueColor="#ef4444"
+              gradient="bg-red-500"
+              iconColor="text-red-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>}
+            />
+            <StatCard
+              label={text.netProfit}
+              value={`${fmt(netProfit)} ₺`}
+              valueColor={netProfit >= 0 ? "#22c55e" : "#ef4444"}
+              gradient={netProfit >= 0 ? "bg-emerald-500" : "bg-red-500"}
+              iconColor={netProfit >= 0 ? "text-emerald-400" : "text-red-400"}
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
+            />
           </div>
 
           {/* Revenue by payment method */}

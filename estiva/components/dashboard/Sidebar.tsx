@@ -329,7 +329,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <div className="hidden md:flex relative z-10">
+      <div className="hidden md:flex relative z-10 h-screen sticky top-0 shrink-0">
         {sidebarContent}
         {/* Floating Toggle Button - outside sidebar to avoid overflow clipping */}
         <button

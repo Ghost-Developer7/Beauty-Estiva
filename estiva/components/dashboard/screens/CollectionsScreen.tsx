@@ -7,6 +7,7 @@ import { debtService } from "@/services/debtService";
 import type { CollectionListItem } from "@/types/api";
 import Pagination from "@/components/ui/Pagination";
 import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
+import StatCard from "@/components/ui/StatCard";
 import toast from "react-hot-toast";
 
 const copy = {
@@ -97,12 +98,12 @@ export default function CollectionsScreen() {
 
   useEffect(() => { fetchCollections(); }, [fetchCollections]);
 
-  const formatCurrency = (amount: number) =>
+  const formatCurrency = (amount: number | null | undefined) =>
     new Intl.NumberFormat(language === "tr" ? "tr-TR" : "en-US", {
       style: "currency",
       currency: "TRY",
       minimumFractionDigits: 2,
-    }).format(amount);
+    }).format(amount ?? 0);
 
   const formatDate = (dateStr: string | null) => {
     if (!dateStr) return "-";
@@ -120,12 +121,16 @@ export default function CollectionsScreen() {
       </div>
 
       {/* Summary Card */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-4`}>
-          <div className={`text-xs ${isDark ? "text-white/50" : "text-gray-500"} mb-1`}>{t.totalCollected}</div>
-          <div className="text-xl font-bold text-green-400">{formatCurrency(totalCollected)}</div>
-          <div className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"} mt-1`}>{totalCount} {language === "tr" ? "kayit" : "records"}</div>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard
+          label={t.totalCollected}
+          value={formatCurrency(totalCollected)}
+          sub={`${totalCount} ${language === "tr" ? "kayıt" : "records"}`}
+          valueColor="#22c55e"
+          gradient="bg-emerald-500"
+          iconColor="text-emerald-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>}
+        />
       </div>
 
       {/* Toolbar */}

@@ -13,14 +13,14 @@ export const staffScheduleService = {
     params?: { startDate?: string; endDate?: string },
   ) {
     return api.get<ApiResponse<StaffUnavailabilityListItem[]>>(
-      `/staffschedule/unavailability/${staffId}`,
-      { params },
+      `/staffschedule/unavailability`,
+      { params: { staffId, ...params } },
     );
   },
 
   getUnavailabilityDetail(id: number) {
     return api.get<ApiResponse<StaffUnavailabilityListItem>>(
-      `/staffschedule/unavailability/detail/${id}`,
+      `/staffschedule/unavailability/${id}`,
     );
   },
 
