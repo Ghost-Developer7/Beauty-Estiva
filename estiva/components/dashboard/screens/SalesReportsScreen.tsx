@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
+import SharedStatCard from "@/components/ui/StatCard";
 import { financialReportService } from "@/services/financialReportService";
 import type { FinancialDashboard, RevenueSummary, RevenueByGroup, DailyAmount } from "@/types/api";
 
@@ -308,10 +309,39 @@ export default function SalesReportsScreen() {
           ))
         ) : (
           <>
-            <StatCard label={t.totalRevenue} value={`₺${fmt(totalRev)}`} color="#22c55e" isDark={isDark} />
-            <StatCard label={t.totalExpense} value={`₺${fmt(totalExp)}`} color="#ef4444" isDark={isDark} />
-            <StatCard label={t.netIncome} value={`₺${fmt(netInc)}`} color={netInc >= 0 ? "#3b82f6" : "#ef4444"} isDark={isDark} />
-            <StatCard label={t.paymentRate} value={`%${paymentRate}`} sub={`${paidAppts}/${totalAppts}`} color="#a855f7" isDark={isDark} />
+            <SharedStatCard
+              label={t.totalRevenue}
+              value={`₺${fmt(totalRev)}`}
+              valueColor="#22c55e"
+              gradient="bg-emerald-500"
+              iconColor="text-emerald-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <SharedStatCard
+              label={t.totalExpense}
+              value={`₺${fmt(totalExp)}`}
+              valueColor="#ef4444"
+              gradient="bg-red-500"
+              iconColor="text-red-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg>}
+            />
+            <SharedStatCard
+              label={t.netIncome}
+              value={`₺${fmt(netInc)}`}
+              valueColor={netInc >= 0 ? "#3b82f6" : "#ef4444"}
+              gradient={netInc >= 0 ? "bg-blue-500" : "bg-red-500"}
+              iconColor={netInc >= 0 ? "text-blue-400" : "text-red-400"}
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
+            />
+            <SharedStatCard
+              label={t.paymentRate}
+              value={`%${paymentRate}`}
+              sub={`${paidAppts}/${totalAppts}`}
+              valueColor="#a855f7"
+              gradient="bg-purple-500"
+              iconColor="text-purple-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>}
+            />
           </>
         )}
       </div>
@@ -395,16 +425,3 @@ export default function SalesReportsScreen() {
   );
 }
 
-/* ═══════════════════════════════════════════
-   MINI COMPONENTS
-   ═══════════════════════════════════════════ */
-
-function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
-  return (
-    <div className={`rounded-xl border ${isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-gray-200 bg-gray-50/50"} px-4 py-3`}>
-      <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-      <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
-      {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
-    </div>
-  );
-}

@@ -19,7 +19,7 @@ import type {
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
-import { InfoTooltip } from "@/components/ui/Tooltip";
+import SharedStatCard from "@/components/ui/StatCard";
 import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
@@ -263,24 +263,6 @@ const getStaffColor = (staffId: number) => STAFF_COLORS[staffId % STAFF_COLORS.l
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
 
-function StatCard({ label, value, sub, icon, iconColor, gradient, isDark, tooltip }: { label: string; value: number; sub?: string; icon: React.ReactNode; iconColor: string; gradient: string; isDark: boolean; tooltip?: string }) {
-  return (
-    <div className={`group relative overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5 backdrop-blur-sm transition-all ${isDark ? "hover:border-white/20 hover:bg-white/[0.07]" : "hover:border-gray-300 hover:bg-gray-100"}`}>
-      <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 transition-opacity group-hover:opacity-100`} />
-      <div className="relative">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{label}</p>
-            {tooltip && <InfoTooltip content={tooltip} />}
-          </div>
-          <span className={iconColor}>{icon}</span>
-        </div>
-        <p className="mt-3 text-2xl font-bold">{value}</p>
-        {sub && <p className={`mt-1 text-xs ${isDark ? "text-white/40" : "text-gray-400"}`}>{sub}</p>}
-      </div>
-    </div>
-  );
-}
 
 function StatusBadge({ status, language, onClick }: { status: string; language: "en" | "tr"; onClick?: () => void }) {
   const s = STATUS_MAP[status] || STATUS_MAP["Scheduled"];
@@ -734,145 +716,202 @@ export default function AppointmentsScreen() {
       </div>
 
       {/* ─── STATS ─── */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-        {(loading && viewMode !== "calendar") || (calLoading && viewMode === "calendar") ? (
-          <>
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className={`rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} ${isDark ? "bg-white/5" : "bg-gray-50"} p-5 space-y-3`}>
-                <div className={`h-3 w-20 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
-                <div className={`h-7 w-12 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
-              </div>
-            ))}
-          </>
-        ) : (() => {
-          const s = viewMode === "calendar" ? calMonthStats : stats;
-          const sub = viewMode === "calendar" ? MONTH_NAMES[language][calMonth] : undefined;
-          return (
-            <>
-              <StatCard label={t.scheduled} value={s.scheduled} sub={sub} isDark={isDark} tooltip={t.tipScheduled} iconColor="text-blue-400" gradient="from-blue-500/10 to-transparent"
-                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>} />
-              <StatCard label={t.confirmed} value={s.confirmed} sub={sub} isDark={isDark} tooltip={t.tipConfirmed} iconColor="text-emerald-400" gradient="from-emerald-500/10 to-transparent"
-                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>} />
-              <StatCard label={t.completed} value={s.completed} sub={sub} isDark={isDark} tooltip={t.tipCompleted} iconColor="text-green-400" gradient="from-green-500/10 to-transparent"
-                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>} />
-              <StatCard label={t.cancelled} value={s.cancelled} sub={sub} isDark={isDark} tooltip={t.tipCancelled} iconColor="text-red-400" gradient="from-red-500/10 to-transparent"
-                icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>} />
-            </>
-          );
-        })()}
-      </div>
+      {(() => {
+        const isCalendar = viewMode === "calendar";
+        const isLoading = isCalendar ? calLoading : loading;
+        const s = isCalendar ? calMonthStats : stats;
+        const sub = isCalendar ? `${MONTH_NAMES[language][calMonth]} ${calYear}` : undefined;
 
-      {/* ─── DATE / MONTH NAV + FILTERS ─── */}
-      <div className="flex flex-wrap items-center gap-3">
-        {/* Date navigation (list & timeline) */}
-        {viewMode !== "calendar" && (
-          <>
-            <div className={`flex items-center gap-1 rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
-              <button onClick={() => navigateDate(-1)} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
+        const total = s.scheduled + s.confirmed + s.completed + s.cancelled;
+        const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0;
+
+        const cards = [
+          {
+            label: t.scheduled, value: s.scheduled, sub, tooltip: t.tipScheduled,
+            iconColor: "text-blue-400", gradient: "bg-blue-500",
+            barColor: "bg-blue-400", barPct: pct(s.scheduled),
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+          },
+          {
+            label: t.confirmed, value: s.confirmed, sub, tooltip: t.tipConfirmed,
+            iconColor: "text-emerald-400", gradient: "bg-emerald-500",
+            barColor: "bg-emerald-400", barPct: pct(s.confirmed),
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
+          },
+          {
+            label: t.completed, value: s.completed, sub, tooltip: t.tipCompleted,
+            iconColor: "text-green-400", gradient: "bg-green-500",
+            barColor: "bg-green-400", barPct: pct(s.completed),
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>,
+          },
+          {
+            label: t.cancelled, value: s.cancelled, sub, tooltip: t.tipCancelled,
+            iconColor: "text-red-400", gradient: "bg-red-500",
+            barColor: "bg-red-400", barPct: pct(s.cancelled),
+            icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>,
+          },
+        ];
+
+        return (
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {isLoading ? (
+              [...Array(4)].map((_, i) => (
+                <div key={i} className={`rounded-2xl border ${isDark ? "border-white/10 bg-white/5" : "border-gray-200 bg-gray-50"} p-4 space-y-3`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`h-10 w-10 shrink-0 animate-pulse rounded-xl ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                    <div className="flex-1 space-y-2">
+                      <div className={`h-2.5 w-20 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                      <div className={`h-5 w-12 animate-pulse rounded ${isDark ? "bg-white/10" : "bg-gray-200"}`} />
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : cards.map((c, i) => (
+              <SharedStatCard key={i} label={c.label} value={c.value} sub={c.sub} tooltip={c.tooltip}
+                iconColor={c.iconColor} gradient={c.gradient} barColor={c.barColor} barPct={c.barPct} icon={c.icon} />
+            ))}
+          </div>
+        );
+      })()}
+
+      {/* ─── TOOLBAR ─── */}
+      <div className={`flex flex-wrap items-center justify-between gap-3 rounded-2xl border ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-gray-50/50"} px-4 py-3 overflow-visible`}>
+
+        {/* Left: date/month navigation */}
+        <div className="flex items-center gap-2">
+          {viewMode === "calendar" ? (
+            <>
+              <button onClick={calPrevMonth} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50 hover:bg-white/[0.07] hover:text-white" : "text-gray-500 hover:bg-gray-200"} transition`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
               </button>
-              <button
-                onClick={goToday}
-                className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${isToday ? "bg-white/10 text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
-              >
+              <span className={`min-w-[130px] text-center text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+                {MONTH_NAMES[language][calMonth]} {calYear}
+              </span>
+              <button onClick={calNextMonth} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50 hover:bg-white/[0.07] hover:text-white" : "text-gray-500 hover:bg-gray-200"} transition`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
+              </button>
+              <button onClick={calGoToday} className={`rounded-lg border px-3 py-1.5 text-xs font-medium transition ${isDark ? "border-white/10 text-white/50 hover:bg-white/[0.07] hover:text-white" : "border-gray-300 text-gray-500 hover:bg-gray-200"}`}>
+                {t.today}
+              </button>
+            </>
+          ) : (
+            <>
+              <button onClick={() => navigateDate(-1)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50 hover:bg-white/[0.07] hover:text-white" : "text-gray-500 hover:bg-gray-200"} transition`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 18l-6-6 6-6" /></svg>
+              </button>
+              <button onClick={goToday} className={`rounded-lg px-3 py-1.5 text-xs font-bold transition ${isToday ? (isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900") : isDark ? "text-white/60 hover:bg-white/[0.07] hover:text-white" : "text-gray-500 hover:bg-gray-200"}`}>
                 {getDateLabel() || t.today}
               </button>
-              <button onClick={() => navigateDate(1)} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
+              <button onClick={() => navigateDate(1)} className={`flex h-8 w-8 items-center justify-center rounded-lg ${isDark ? "text-white/50 hover:bg-white/[0.07] hover:text-white" : "text-gray-500 hover:bg-gray-200"} transition`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M9 18l6-6-6-6" /></svg>
               </button>
-            </div>
-            <LocaleDateInput
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none focus:border-white/20`}
-              isDark={isDark}
-            />
-          </>
-        )}
-
-        {/* Month navigation (calendar) */}
-        {viewMode === "calendar" && (
-          <div className={`flex items-center gap-1 rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
-            <button onClick={calPrevMonth} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
-            </button>
-            <span className="min-w-[140px] text-center text-xs font-semibold px-1">
-              {MONTH_NAMES[language][calMonth]} {calYear}
-            </span>
-            <button onClick={calNextMonth} className={`rounded-lg px-2.5 py-1.5 ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 18l6-6-6-6" /></svg>
-            </button>
-            <button onClick={calGoToday} className={`rounded-lg border border-white/10 px-2.5 py-1.5 text-[11px] font-medium ${isDark ? "text-white/40" : "text-gray-500"} transition ${isDark ? "hover:bg-white/10" : "hover:bg-gray-100"} hover:text-white`}>
-              {t.today}
-            </button>
-          </div>
-        )}
-
-        <div className={`h-6 w-px ${isDark ? "bg-white/10" : "bg-gray-100"}`} />
-
-        {/* View toggle */}
-        <div className={`flex rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-1`}>
-          {(["calendar", "list"] as ViewMode[]).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => setViewMode(mode)}
-              className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition ${viewMode === mode ? "bg-white/10 text-white" : "text-white/40 hover:text-white/70"}`}
-            >
-              {mode === "calendar" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
-              {mode === "list" && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/></svg>}
-              {mode === "calendar" ? t.calendar : t.list}
-            </button>
-          ))}
+              <LocaleDateInput value={dateFilter} onChange={(e) => setDateFilter(e.target.value)}
+                className={`rounded-lg border ${isDark ? "border-white/10 bg-white/[0.04] text-white" : "border-gray-300 bg-white text-gray-900"} px-2.5 py-1.5 text-xs focus:outline-none`}
+                isDark={isDark} />
+            </>
+          )}
         </div>
 
-        <div className={`h-6 w-px ${isDark ? "bg-white/10" : "bg-gray-100"}`} />
-
-        {/* Filters */}
-        <select
-          value={staffFilter}
-          onChange={(e) => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))}
-          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
-        >
-          <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStaff}</option>
-          {staffList.filter(s => s.isActive).map((s) => (
-            <option key={s.id} value={s.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{s.name} {s.surname}</option>
-          ))}
-        </select>
-
-        <select
-          value={treatmentFilter}
-          onChange={(e) => setTreatmentFilter(e.target.value === "" ? "" : Number(e.target.value))}
-          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
-        >
-          <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allTreatments}</option>
-          {treatments.map((tr) => (
-            <option key={tr.id} value={tr.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{tr.name}</option>
-          ))}
-        </select>
-
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}
-        >
-          <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{t.allStatuses}</option>
-          {Object.entries(STATUS_MAP).map(([key, val]) => (
-            <option key={key} value={key} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{language === "tr" ? val.tr : val.en}</option>
-          ))}
-        </select>
-
-        {viewMode === "list" && (
-          <div className="relative ml-auto">
-            <svg className={`pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-300"}`} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder={t.search}
-              className={`rounded-xl border border-white/10 ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} py-1.5 pl-11 pr-3 text-xs ${isDark ? "text-white" : "text-gray-900"} ${isDark ? "placeholder:text-white/30" : "placeholder:text-gray-400"} focus:outline-none focus:border-white/20 w-48`}
-            />
+        {/* Center: staff avatars — calendar mode only */}
+        {viewMode === "calendar" && staffList.filter((s) => s.isActive).length > 1 && (
+          <div className="flex items-center gap-1.5">
+            {/* All */}
+            <button
+              onClick={() => setCalStaffIds(null)}
+              title={t.allStaffCal}
+              className={`h-8 rounded-full px-3 text-xs font-semibold border transition ${
+                calStaffIds === null
+                  ? isDark ? "bg-white/10 text-white border-white/20" : "bg-gray-200 text-gray-900 border-gray-300"
+                  : isDark ? "text-white/40 border-white/10 hover:text-white/70 hover:bg-white/[0.05]" : "text-gray-400 border-gray-200 hover:text-gray-700"
+              }`}
+            >
+              {t.allStaffCal}
+            </button>
+            {/* Per-staff avatar — expands on hover */}
+            {staffList.filter((s) => s.isActive).map((s) => {
+              const isSelected = calStaffIds === null || calStaffIds.has(s.id);
+              const color = STAFF_COLORS[s.id % STAFF_COLORS.length];
+              const count = calAppointments.filter((a) => a.staffId === s.id).length;
+              return (
+                <div key={s.id} className="relative shrink-0">
+                  <button
+                    onClick={() => toggleCalStaff(s.id)}
+                    style={{ opacity: isSelected ? 1 : 0.32 }}
+                    className="group/pill flex h-8 max-w-8 items-center overflow-hidden rounded-full border border-white/[0.08] transition-all duration-300 ease-in-out hover:max-w-[200px] hover:border-white/[0.18] hover:bg-white/[0.07]"
+                  >
+                    {/* Avatar circle */}
+                    <div
+                      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                      style={{ backgroundColor: color }}
+                    >
+                      {s.name[0]}{s.surname[0]}
+                    </div>
+                    {/* Name — fades in as pill expands */}
+                    <span
+                      className="ml-2 mr-3.5 whitespace-nowrap text-[11px] font-semibold opacity-0 transition-opacity duration-150 delay-150 group-hover/pill:opacity-100"
+                      style={{ color }}
+                    >
+                      {s.name} {s.surname}
+                    </span>
+                  </button>
+                  {/* Count badge — outside button so overflow-hidden doesn't clip it */}
+                  {count > 0 && (
+                    <span className="pointer-events-none absolute -right-1 -top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-violet-500 px-0.5 text-[9px] font-bold text-white leading-none">
+                      {count}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
+
+        {/* Right: filters + view toggle */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Filters — shown in both modes, staff only in list mode */}
+          {viewMode === "list" && (
+            <select value={staffFilter} onChange={(e) => setStaffFilter(e.target.value === "" ? "" : Number(e.target.value))}
+              className={`rounded-lg border ${isDark ? "border-white/10 bg-white/[0.04] text-white/80" : "border-gray-300 bg-white text-gray-700"} px-2.5 py-1.5 text-xs focus:outline-none`}>
+              <option value="">{t.allStaff}</option>
+              {staffList.filter(s => s.isActive).map((s) => <option key={s.id} value={s.id}>{s.name} {s.surname}</option>)}
+            </select>
+          )}
+          <select value={treatmentFilter} onChange={(e) => setTreatmentFilter(e.target.value === "" ? "" : Number(e.target.value))}
+            className={`rounded-lg border ${isDark ? "border-white/10 bg-white/[0.04] text-white/80" : "border-gray-300 bg-white text-gray-700"} px-2.5 py-1.5 text-xs focus:outline-none`}>
+            <option value="">{t.allTreatments}</option>
+            {treatments.map((tr) => <option key={tr.id} value={tr.id}>{tr.name}</option>)}
+          </select>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+            className={`rounded-lg border ${isDark ? "border-white/10 bg-white/[0.04] text-white/80" : "border-gray-300 bg-white text-gray-700"} px-2.5 py-1.5 text-xs focus:outline-none`}>
+            <option value="">{t.allStatuses}</option>
+            {Object.entries(STATUS_MAP).map(([key, val]) => <option key={key} value={key}>{language === "tr" ? val.tr : val.en}</option>)}
+          </select>
+
+          {/* Search (list only) */}
+          {viewMode === "list" && (
+            <div className="relative">
+              <svg className={`pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 ${isDark ? "text-white/30" : "text-gray-400"}`} width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t.search}
+                className={`rounded-lg border ${isDark ? "border-white/10 bg-white/[0.04] text-white placeholder:text-white/25" : "border-gray-300 bg-white text-gray-900 placeholder:text-gray-400"} py-1.5 pl-8 pr-3 text-xs w-44 focus:outline-none`} />
+            </div>
+          )}
+
+          {/* Divider */}
+          <div className={`h-5 w-px ${isDark ? "bg-white/10" : "bg-gray-300"}`} />
+
+          {/* View toggle */}
+          <div className={`flex rounded-lg border ${isDark ? "border-white/10 bg-white/[0.04]" : "border-gray-300 bg-white"} p-0.5`}>
+            {(["calendar", "list"] as ViewMode[]).map((mode) => (
+              <button key={mode} onClick={() => setViewMode(mode)}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${viewMode === mode ? (isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900") : (isDark ? "text-white/40 hover:text-white/70" : "text-gray-400 hover:text-gray-700")}`}>
+                {mode === "calendar"
+                  ? <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  : <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1" fill="currentColor"/><circle cx="3" cy="12" r="1" fill="currentColor"/><circle cx="3" cy="18" r="1" fill="currentColor"/></svg>}
+                {mode === "calendar" ? t.calendar : t.list}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {/* ─── DATE DISPLAY ─── */}
@@ -995,64 +1034,7 @@ export default function AppointmentsScreen() {
       {/* ═══ TIMELINE VIEW ═══ */}
       {/* ═══ CALENDAR VIEW ═══ */}
       {viewMode === "calendar" && (
-        <div className="space-y-4">
-
-          {/* Staff filter chips */}
-          {staffList.filter((s) => s.isActive).length > 1 && (
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setCalStaffIds(null)}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                  calStaffIds === null
-                    ? "border-white/20 bg-white/10 text-white"
-                    : `border-white/[0.07] ${isDark ? "bg-white/[0.03]" : "bg-gray-50"} text-white/40 hover:bg-white/[0.07] hover:text-white/60`
-                }`}
-              >
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="shrink-0"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
-                {t.allStaffCal}
-              </button>
-              {staffList.filter((s) => s.isActive).map((s) => {
-                const isSelected = calStaffIds === null || calStaffIds.has(s.id);
-                const color = STAFF_COLORS[s.id % STAFF_COLORS.length];
-                return (
-                  <button
-                    key={s.id}
-                    onClick={() => toggleCalStaff(s.id)}
-                    className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                      isSelected
-                        ? "border-white/15 bg-white/[0.07] text-white/80"
-                        : `border-white/[0.06] ${isDark ? "bg-white/[0.02]" : "bg-gray-50"} text-white/25 hover:bg-white/[0.05] hover:text-white/45`
-                    }`}
-                  >
-                    <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color, opacity: isSelected ? 1 : 0.3 }} />
-                    {s.name} {s.surname}
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Per-staff monthly summary */}
-          {calStaffBreakdown.length > 0 && (
-            <div className="flex flex-wrap gap-2.5">
-              {calStaffBreakdown.map((s) => {
-                const color = STAFF_COLORS[s.id % STAFF_COLORS.length];
-                return (
-                  <div key={s.id} className={`flex items-center gap-3 rounded-xl border ${isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-gray-200 bg-gray-50"} px-4 py-2.5`}>
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow" style={{ backgroundColor: color }}>
-                      {s.name[0]}{s.surname[0]}
-                    </div>
-                    <div>
-                      <p className={`text-xs font-semibold ${isDark ? "text-white/80" : "text-gray-800"}`}>{s.name} {s.surname}</p>
-                      <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>
-                        <span className="font-semibold" style={{ color }}>{s.count}</span> {t.appts}
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
+        <div className="space-y-3">
 
           {/* Calendar grid */}
           {calLoading ? (
@@ -1095,7 +1077,7 @@ export default function AppointmentsScreen() {
                         onClick={() => {
                           if (day && dayKey) { setDateFilter(dayKey); setViewMode("list"); }
                         }}
-                        className={`min-h-[108px] p-2 transition ${day ? "cursor-pointer" : "opacity-25 pointer-events-none"} ${isWeekend ? isDark ? "bg-white/[0.012]" : "bg-amber-50/30" : ""} ${day ? isDark ? "hover:bg-white/[0.04]" : "hover:bg-blue-50/40" : ""}`}
+                        className={`min-h-[130px] p-2 transition ${day ? "cursor-pointer" : "opacity-25 pointer-events-none"} ${isWeekend ? isDark ? "bg-white/[0.012]" : "bg-amber-50/30" : ""} ${day ? isDark ? "hover:bg-white/[0.04]" : "hover:bg-blue-50/40" : ""}`}
                       >
                         {/* Day number */}
                         <div className="mb-1.5">
@@ -1111,27 +1093,35 @@ export default function AppointmentsScreen() {
                         </div>
 
                         {/* Appointment badges */}
-                        <div className="space-y-0.5">
+                        <div className="space-y-1">
                           {visibleApts.map((apt) => {
                             const s = STATUS_MAP[apt.status] || STATUS_MAP["Scheduled"];
                             const aptColor = apt.treatmentColor || getStaffColor(apt.staffId);
+                            const time = new Date(apt.startTime).toLocaleTimeString(language === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" });
                             return (
                               <div
                                 key={apt.id}
                                 onClick={(e) => { e.stopPropagation(); openDetail(apt.id); }}
-                                title={`${apt.customerFullName} · ${apt.treatmentName}`}
-                                className={`flex w-full cursor-pointer items-center gap-1 truncate rounded px-1.5 py-0.5 text-[9px] font-medium border transition hover:opacity-80 ${s.bg}`}
+                                className={`w-full cursor-pointer rounded-md border px-1.5 py-1 transition hover:opacity-90 hover:brightness-110 ${s.bg}`}
+                                style={{ borderLeftColor: aptColor, borderLeftWidth: 2 }}
                               >
-                                <span className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: aptColor }} />
-                                <span className="truncate">{apt.customerFullName.split(" ")[0]}</span>
-                                <span className={`ml-auto shrink-0 ${isDark ? "text-white/30" : "text-gray-400"}`}>
-                                  {new Date(apt.startTime).toLocaleTimeString(language === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" })}
-                                </span>
+                                {/* Row 1: time + customer name */}
+                                <div className="flex items-center gap-1">
+                                  <span className={`shrink-0 text-[9px] font-bold tabular-nums ${isDark ? "text-white/50" : "text-gray-500"}`}>{time}</span>
+                                  <span className="truncate text-[10px] font-semibold leading-tight" style={{ color: aptColor }}>
+                                    {apt.customerFullName}
+                                  </span>
+                                </div>
+                                {/* Row 2: treatment · staff */}
+                                <div className={`mt-0.5 truncate text-[9px] leading-tight ${isDark ? "text-white/35" : "text-gray-400"}`}>
+                                  {apt.treatmentName}
+                                  {apt.staffFullName ? <span className="opacity-60"> · {apt.staffFullName.split(" ")[0]}</span> : null}
+                                </div>
                               </div>
                             );
                           })}
                           {moreCount > 0 && (
-                            <p className={`px-1.5 text-[9px] font-medium ${isDark ? "text-white/30" : "text-gray-400"}`}>
+                            <p className={`px-1 text-[9px] font-medium ${isDark ? "text-white/30" : "text-gray-400"}`}>
                               +{moreCount} {t.more}
                             </p>
                           )}

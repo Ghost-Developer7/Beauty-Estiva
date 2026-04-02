@@ -9,6 +9,7 @@ import { currencyService } from "@/services/currencyService";
 import { staffService, type StaffMember } from "@/services/staffService";
 import { LocaleDateInput } from "@/components/ui/LocaleDateInput";
 import type { ProductListItem, ProductSaleListItem, CustomerListItem, CurrencyItem } from "@/types/api";
+import SharedStatCard from "@/components/ui/StatCard";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
@@ -76,10 +77,6 @@ function MethodBadge({ display, language }: { display: string; language: "en" | 
   const color = METHOD_COLORS[display] || "#8b5cf6";
   const label = translateMethodDisplay(display, language);
   return (<span className="inline-flex items-center gap-1.5 rounded-lg px-2 py-0.5 text-[11px] font-medium border" style={{ backgroundColor: `${color}12`, color, borderColor: `${color}30` }}><span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: color }} />{label}</span>);
-}
-
-function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
-  return (<div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}><p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p><p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>{sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}</div>);
 }
 
 /* ═══ MAIN ═══ */
@@ -273,10 +270,39 @@ export default function ProductSalesScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} />
-            <StatCard label={t.totalSales} value={fmtInt(sales.length)} color="#6366f1" isDark={isDark} />
-            <StatCard label={t.totalProducts} value={fmtInt(products.length)} color="#60a5fa" isDark={isDark} />
-            <StatCard label={t.lowStock} value={fmtInt(lowStockCount)} sub="≤ 5" color={lowStockCount > 0 ? "#f59e0b" : "#22c55e"} isDark={isDark} />
+            <SharedStatCard
+              label={t.totalRevenue}
+              value={`₺${fmt(totalRevenue)}`}
+              valueColor="#22c55e"
+              gradient="bg-emerald-500"
+              iconColor="text-emerald-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <SharedStatCard
+              label={t.totalSales}
+              value={fmtInt(sales.length)}
+              valueColor="#6366f1"
+              gradient="bg-indigo-500"
+              iconColor="text-indigo-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>}
+            />
+            <SharedStatCard
+              label={t.totalProducts}
+              value={fmtInt(products.length)}
+              valueColor="#60a5fa"
+              gradient="bg-blue-500"
+              iconColor="text-blue-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>}
+            />
+            <SharedStatCard
+              label={t.lowStock}
+              value={fmtInt(lowStockCount)}
+              sub="≤ 5"
+              valueColor={lowStockCount > 0 ? "#f59e0b" : "#22c55e"}
+              gradient={lowStockCount > 0 ? "bg-amber-500" : "bg-emerald-500"}
+              iconColor={lowStockCount > 0 ? "text-amber-400" : "text-emerald-400"}
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>}
+            />
           </>
         )}
       </div>

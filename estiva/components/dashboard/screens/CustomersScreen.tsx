@@ -14,7 +14,7 @@ import type {
 } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import ExportButtons from "@/components/ui/ExportButtons";
-import { InfoTooltip } from "@/components/ui/Tooltip";
+import SharedStatCard from "@/components/ui/StatCard";
 import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
@@ -251,18 +251,6 @@ const getTagColor = (tag: string) => TAG_COLORS[Math.abs(tag.split("").reduce((a
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
-
-function StatCard({ label, value, color, isDark, tooltip }: { label: string; value: string | number; color: string; isDark: boolean; tooltip?: string }) {
-  return (
-    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
-      <div className="flex items-center gap-1.5">
-        <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-        {tooltip && <InfoTooltip content={tooltip} />}
-      </div>
-      <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
-    </div>
-  );
-}
 
 function SegmentBadge({ segment, language }: { segment: string; language: string }) {
   const s = SEGMENT_STYLES[segment] || SEGMENT_STYLES.New;
@@ -595,10 +583,42 @@ export default function CustomersScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.totalCustomers} value={customers.length} color="#f472b6" isDark={isDark} tooltip={t.tipTotalCustomers} />
-            <StatCard label={t.vipCustomers} value={vipCount} color="#fbbf24" isDark={isDark} tooltip={t.tipVip} />
-            <StatCard label={t.totalRevenue} value={`₺${formatCurrency(totalRevenue)}`} color="#a78bfa" isDark={isDark} tooltip={t.tipRevenue} />
-            <StatCard label={t.avgSpend} value={`₺${formatCurrency(avgSpend)}`} color="#60a5fa" isDark={isDark} tooltip={t.tipAvgSpend} />
+            <SharedStatCard
+              label={t.totalCustomers}
+              value={String(customers.length)}
+              valueColor="#f472b6"
+              tooltip={t.tipTotalCustomers}
+              gradient="bg-pink-500"
+              iconColor="text-pink-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>}
+            />
+            <SharedStatCard
+              label={t.vipCustomers}
+              value={String(vipCount)}
+              valueColor="#fbbf24"
+              tooltip={t.tipVip}
+              gradient="bg-amber-500"
+              iconColor="text-amber-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
+            />
+            <SharedStatCard
+              label={t.totalRevenue}
+              value={`₺${formatCurrency(totalRevenue)}`}
+              valueColor="#a78bfa"
+              tooltip={t.tipRevenue}
+              gradient="bg-violet-500"
+              iconColor="text-violet-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <SharedStatCard
+              label={t.avgSpend}
+              value={`₺${formatCurrency(avgSpend)}`}
+              valueColor="#60a5fa"
+              tooltip={t.tipAvgSpend}
+              gradient="bg-blue-500"
+              iconColor="text-blue-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
+            />
           </>
         )}
       </div>

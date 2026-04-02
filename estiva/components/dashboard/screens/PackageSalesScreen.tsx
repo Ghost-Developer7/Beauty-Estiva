@@ -15,6 +15,7 @@ import type {
   TreatmentListItem,
   StaffMember,
 } from "@/types/api";
+import SharedStatCard from "@/components/ui/StatCard";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
@@ -245,27 +246,6 @@ const statusColor = (status: number) => {
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
-
-function StatCard({ label, value, sub, icon, gradient, isDark }: { label: string; value: string; sub?: string; icon: React.ReactNode; gradient: string; isDark: boolean }) {
-  return (
-    <div className={`group relative overflow-hidden rounded-2xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} p-4 transition-all duration-300 ${isDark ? "hover:border-white/[0.15]" : "hover:border-gray-300"} ${isDark ? "hover:bg-white/[0.06]" : "hover:bg-gray-50"} hover:scale-[1.02] hover:shadow-lg hover:shadow-purple-500/5`}>
-      {/* Animated background glow */}
-      <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-20 blur-2xl transition-all duration-500 group-hover:opacity-40 group-hover:h-32 group-hover:w-32 ${gradient}`} />
-      {/* Shimmer overlay */}
-      <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/[0.04] to-transparent" />
-      <div className="relative flex items-center gap-3">
-        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${gradient} bg-opacity-20 transition-transform duration-300 group-hover:scale-110`}>
-          {icon}
-        </div>
-        <div className="min-w-0">
-          <p className={`text-[11px] font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-          <p className={`mt-0.5 text-xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{value}</p>
-          {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
-        </div>
-      </div>
-    </div>
-  );
-}
 
 function ProgressBar({ used, total, isDark }: { used: number; total: number; isDark: boolean }) {
   const pct = total > 0 ? Math.min((used / total) * 100, 100) : 0;
@@ -648,33 +628,33 @@ export default function PackageSalesScreen() {
           </>
         ) : (
           <>
-            <StatCard
+            <SharedStatCard
               label={t.totalSales}
               value={String(stats.totalSales)}
               icon={<svg className="text-purple-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4"/><path d="M4 6v12c0 1.1.9 2 2 2h14v-4"/><path d="M18 12a2 2 0 000 4h4v-4h-4z"/></svg>}
+              iconColor="text-purple-400"
               gradient="bg-purple-500"
-              isDark={isDark}
             />
-            <StatCard
+            <SharedStatCard
               label={t.totalRevenue}
               value={`${fmt(stats.totalRevenue)} ₺`}
               icon={<svg className="text-emerald-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+              iconColor="text-emerald-400"
               gradient="bg-emerald-500"
-              isDark={isDark}
             />
-            <StatCard
+            <SharedStatCard
               label={t.activePackages}
               value={String(stats.activePackages)}
               icon={<svg className="text-blue-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
+              iconColor="text-blue-400"
               gradient="bg-blue-500"
-              isDark={isDark}
             />
-            <StatCard
+            <SharedStatCard
               label={t.completedPackages}
               value={String(stats.completedPackages)}
               icon={<svg className="text-pink-400" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
+              iconColor="text-pink-400"
               gradient="bg-pink-500"
-              isDark={isDark}
             />
           </>
         )}

@@ -9,7 +9,7 @@ import type { TreatmentListItem } from "@/types/api";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
-import { InfoTooltip } from "@/components/ui/Tooltip";
+import SharedStatCard from "@/components/ui/StatCard";
 import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
@@ -133,19 +133,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0,
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
-
-function StatCard({ label, value, sub, color, isDark, tooltip }: { label: string; value: string; sub?: string; color: string; isDark: boolean; tooltip?: string }) {
-  return (
-    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
-      <div className="flex items-center gap-1.5">
-        <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-        {tooltip && <InfoTooltip content={tooltip} />}
-      </div>
-      <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
-      {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════
    MAIN COMPONENT
@@ -390,10 +377,42 @@ export default function TreatmentsScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.totalTreatments} value={String(treatments.length)} color="#a78bfa" isDark={isDark} tooltip={t.tipTotal} />
-            <StatCard label={t.avgPrice} value={`₺${fmt(avgPrice)}`} color="#22c55e" isDark={isDark} tooltip={t.tipAvgPrice} />
-            <StatCard label={t.avgDuration} value={`${Math.round(avgDuration)} ${t.min}`} color="#60a5fa" isDark={isDark} tooltip={t.tipAvgDuration} />
-            <StatCard label={t.priceRange} value={treatments.length > 0 ? `₺${fmt(minPrice)} — ₺${fmt(maxPrice)}` : "—"} color="#fbbf24" isDark={isDark} tooltip={t.tipPriceRange} />
+            <SharedStatCard
+              label={t.totalTreatments}
+              value={String(treatments.length)}
+              valueColor="#a78bfa"
+              tooltip={t.tipTotal}
+              gradient="bg-violet-500"
+              iconColor="text-violet-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2a9 9 0 100 18A9 9 0 0012 2z"/><path d="M9 12h6M12 9v6"/></svg>}
+            />
+            <SharedStatCard
+              label={t.avgPrice}
+              value={`₺${fmt(avgPrice)}`}
+              valueColor="#22c55e"
+              tooltip={t.tipAvgPrice}
+              gradient="bg-emerald-500"
+              iconColor="text-emerald-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <SharedStatCard
+              label={t.avgDuration}
+              value={`${Math.round(avgDuration)} ${t.min}`}
+              valueColor="#60a5fa"
+              tooltip={t.tipAvgDuration}
+              gradient="bg-blue-500"
+              iconColor="text-blue-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>}
+            />
+            <SharedStatCard
+              label={t.priceRange}
+              value={treatments.length > 0 ? `₺${fmt(minPrice)} — ₺${fmt(maxPrice)}` : "—"}
+              valueColor="#fbbf24"
+              tooltip={t.tipPriceRange}
+              gradient="bg-amber-500"
+              iconColor="text-amber-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>}
+            />
           </>
         )}
       </div>

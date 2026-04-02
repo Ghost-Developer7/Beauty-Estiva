@@ -20,7 +20,7 @@ import type {
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
-import { InfoTooltip } from "@/components/ui/Tooltip";
+import SharedStatCard from "@/components/ui/StatCard";
 import type { ExportColumn } from "@/lib/exportUtils";
 import toast from "react-hot-toast";
 
@@ -215,19 +215,6 @@ function translateMethodDisplay(display: string, lang: "en" | "tr"): string {
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
-
-function StatCard({ label, value, sub, color, isDark, tooltip }: { label: string; value: string; sub?: string; color: string; isDark: boolean; tooltip?: string }) {
-  return (
-    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
-      <div className="flex items-center gap-1.5">
-        <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-        {tooltip && <InfoTooltip content={tooltip} />}
-      </div>
-      <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
-      {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
-    </div>
-  );
-}
 
 function MethodBadge({ display, language }: { display: string; language: "en" | "tr" }) {
   const color = getMethodColor(display);
@@ -652,14 +639,43 @@ export default function OrdersScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.totalRevenue} value={`₺${fmt(totalRevenue)}`} color="#22c55e" isDark={isDark} tooltip={t.tipRevenue} />
-            <StatCard label={t.avgPayment} value={`₺${fmt(avgPayment)}`} color="#6366f1" isDark={isDark} tooltip={t.tipAvg} />
-            <StatCard label={t.totalPayments} value={String(filtered.length)} color="#3b82f6" isDark={isDark} tooltip={t.tipCount} />
-            <StatCard
+            <SharedStatCard
+              label={t.totalRevenue}
+              value={`₺${fmt(totalRevenue)}`}
+              valueColor="#22c55e"
+              tooltip={t.tipRevenue}
+              gradient="bg-emerald-500"
+              iconColor="text-emerald-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <SharedStatCard
+              label={t.avgPayment}
+              value={`₺${fmt(avgPayment)}`}
+              valueColor="#6366f1"
+              tooltip={t.tipAvg}
+              gradient="bg-indigo-500"
+              iconColor="text-indigo-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>}
+            />
+            <SharedStatCard
+              label={t.totalPayments}
+              value={String(filtered.length)}
+              valueColor="#3b82f6"
+              tooltip={t.tipCount}
+              gradient="bg-blue-500"
+              iconColor="text-blue-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>}
+            />
+            <SharedStatCard
               label={t.topMethod}
               value={topMethod ? translateMethodDisplay(topMethod[0], language) : "—"}
-              sub={topMethod ? `${topMethod[1]}x` : ""}
-              color="#f59e0b" isDark={isDark} tooltip={t.tipMethod} />
+              sub={topMethod ? `${topMethod[1]}x` : undefined}
+              valueColor="#f59e0b"
+              tooltip={t.tipMethod}
+              gradient="bg-amber-500"
+              iconColor="text-amber-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>}
+            />
           </>
         )}
       </div>

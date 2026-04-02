@@ -6,6 +6,7 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { productService } from "@/services/productService";
 import { productSchema, getValidationMessage } from "@/lib/validations";
 import type { ProductListItem } from "@/types/api";
+import SharedStatCard from "@/components/ui/StatCard";
 import Modal from "@/components/ui/Modal";
 import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
@@ -118,16 +119,6 @@ const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0,
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
-
-function StatCard({ label, value, sub, color, isDark }: { label: string; value: string; sub?: string; color: string; isDark: boolean }) {
-  return (
-    <div className={`rounded-xl border ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-4 py-3`}>
-      <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{label}</p>
-      <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
-      {sub && <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-300"}`}>{sub}</p>}
-    </div>
-  );
-}
 
 function StockBadge({ quantity, isDark, t }: { quantity: number; isDark: boolean; t: typeof copy.en }) {
   if (quantity <= 0) {
@@ -359,10 +350,39 @@ export default function ProductsScreen() {
           </>
         ) : (
           <>
-            <StatCard label={t.totalProducts} value={String(products.length)} color="#a78bfa" isDark={isDark} />
-            <StatCard label={t.avgPrice} value={`₺${fmt(avgPrice)}`} color="#22c55e" isDark={isDark} />
-            <StatCard label={t.lowStock} value={String(lowStockCount)} sub={`≤ 5 ${t.items}`} color="#f59e0b" isDark={isDark} />
-            <StatCard label={t.totalValue} value={`₺${fmt(totalValue)}`} color="#60a5fa" isDark={isDark} />
+            <SharedStatCard
+              label={t.totalProducts}
+              value={String(products.length)}
+              valueColor="#a78bfa"
+              gradient="bg-violet-500"
+              iconColor="text-violet-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>}
+            />
+            <SharedStatCard
+              label={t.avgPrice}
+              value={`₺${fmt(avgPrice)}`}
+              valueColor="#22c55e"
+              gradient="bg-emerald-500"
+              iconColor="text-emerald-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>}
+            />
+            <SharedStatCard
+              label={t.lowStock}
+              value={String(lowStockCount)}
+              sub={`≤ 5 ${t.items}`}
+              valueColor="#f59e0b"
+              gradient="bg-amber-500"
+              iconColor="text-amber-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>}
+            />
+            <SharedStatCard
+              label={t.totalValue}
+              value={`₺${fmt(totalValue)}`}
+              valueColor="#60a5fa"
+              gradient="bg-blue-500"
+              iconColor="text-blue-400"
+              icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>}
+            />
           </>
         )}
       </div>
