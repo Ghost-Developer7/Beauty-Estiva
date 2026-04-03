@@ -37,6 +37,7 @@ export async function GET(req: NextRequest) {
               PersonName: true,
               Type: true,
               Description: true,
+              Source: true,
               CustomerId: true,
               Customers: { select: { Name: true, Surname: true } },
             },
@@ -70,7 +71,7 @@ export async function GET(req: NextRequest) {
           paymentMethod: p.PaymentMethod ?? "",
           notes: p.Notes ?? null,
           paymentDate: p.PaymentDate?.toISOString() ?? "",
-          source: p.Source ?? null,
+          source: p.CustomerDebts?.Source ?? null,
           cDate: p.CDate?.toISOString() ?? null,
         };
       });
