@@ -41,6 +41,7 @@ export async function GET(req: NextRequest) {
             Treatments: { select: { Name: true } },
           },
         },
+        Currencies: { select: { Code: true } },
       },
     });
 
@@ -59,7 +60,7 @@ export async function GET(req: NextRequest) {
       const tid = p.Appointments.TreatmentId;
       const amt = Number(p.AmountInTry);
       const m = p.PaymentMethod;
-      const cur = p.Currency ?? "TRY";
+      const cur = p.Currencies?.Code ?? "TRY";
 
       if (!byStaff[sid]) {
         byStaff[sid] = {
