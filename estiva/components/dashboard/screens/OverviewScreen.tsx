@@ -72,6 +72,16 @@ const copy = {
     noShow: "No Show",
     topStaff: "TOP STAFF BY REVENUE",
     monthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    employeeOfMonth: "EMPLOYEE OF THE MONTH",
+    employeeOfMonthSub: "Top performer this month",
+    todayProgress: "TODAY'S PROGRESS",
+    todayProgressSub: "completed",
+    completionRate: "COMPLETION RATE",
+    completionRateSub: "this month",
+    appointments: "appointments",
+    cancellationAlert: "CANCELLATIONS TODAY",
+    noShowAlert: "no-shows",
+    alertSub: "attention needed",
   },
   tr: {
     welcome: "Tekrar hoş geldiniz",
@@ -107,6 +117,16 @@ const copy = {
     noShow: "Gelmedi",
     topStaff: "GELİRE GÖRE EN İYİ PERSONEL",
     monthNames: ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"],
+    employeeOfMonth: "AYIN YILDIZI",
+    employeeOfMonthSub: "Bu ayın en iyi personeli",
+    todayProgress: "BUGÜNKÜ İLERLEME",
+    todayProgressSub: "tamamlandı",
+    completionRate: "TAMAMLANMA ORANI",
+    completionRateSub: "bu ay",
+    appointments: "randevu",
+    cancellationAlert: "BUGÜN İPTAL / GELMEDİ",
+    noShowAlert: "gelmedi",
+    alertSub: "dikkat gerekiyor",
   },
 };
 
@@ -363,6 +383,23 @@ export default function OverviewScreen() {
 
   const netProfit = data.thisMonthRevenue - data.thisMonthExpense;
 
+  // ── Highlights ──────────────────────────────────────────────────────────
+  const starEmployee = data.topStaff[0] ?? null;
+  const todayCompleted = data.todaySchedule.filter((a) => a.status === "Completed").length;
+  const todayTotal = data.todayAppointmentsCount || data.todaySchedule.length || 1;
+  const todayPct = Math.round((todayCompleted / todayTotal) * 100);
+  const RING_R = 42;
+  const ringCircum = 2 * Math.PI * RING_R;
+  const ringDash = (todayPct / 100) * ringCircum;
+
+  const sd = data.statusDistribution;
+  const totalStatusAppts = sd.scheduled + sd.confirmed + sd.completed + sd.cancelled + sd.noShow;
+  const completionRate = totalStatusAppts > 0 ? Math.round((sd.completed / totalStatusAppts) * 100) : 0;
+
+  const todayCancelled = data.todaySchedule.filter((a) => a.status === "Cancelled").length;
+  const todayNoShow = data.todaySchedule.filter((a) => a.status === "NoShow").length;
+  const hasAlert = todayCancelled + todayNoShow >= 2;
+
   return (
     <div className={`space-y-6 ${isDark ? "text-white" : "text-gray-900"}`}>
       {/* ── Row 0: Welcome ──────────────────────────────────────────────── */}
@@ -398,26 +435,164 @@ export default function OverviewScreen() {
       </section>
 
       {/* ── Net Profit banner (owner/admin only) ────────────────────────── */}
-      {isOwnerOrAdmin && (
-        <div className={`flex flex-wrap items-center gap-6 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-cyan-500/10 px-6 py-4 backdrop-blur-sm`}>
-          <div className="flex-1">
-            <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.netProfit} ({t.thisMonth})</p>
-            <p className={`mt-1 text-2xl font-bold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-              {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)} ₺
-            </p>
+      {isOwnerOrAdmin && (() => {
+        const sparkData = data.monthlyTrend.slice(-6);
+        const maxVal = Math.max(...sparkData.map(m => m.revenue), 1);
+        const BAR_W = 8, BAR_GAP = 4, SVG_H = 36;
+        const totalW = sparkData.length * (BAR_W + BAR_GAP) - BAR_GAP;
+        return (
+          <div className={`flex flex-wrap items-center gap-6 rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-gradient-to-r from-purple-500/10 via-pink-500/10 to-cyan-500/10 px-6 py-4 backdrop-blur-sm`}>
+            <div className="flex-1 min-w-0">
+              <p className={`text-xs font-medium tracking-wider ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.netProfit} ({t.thisMonth})</p>
+              <p className={`mt-1 text-2xl font-bold ${netProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                {netProfit >= 0 ? "+" : ""}{formatCurrency(netProfit)} ₺
+              </p>
+            </div>
+            {/* mini sparkline */}
+            {sparkData.length > 0 && (
+              <div className="hidden sm:flex flex-col items-center gap-1">
+                <svg width={totalW} height={SVG_H} viewBox={`0 0 ${totalW} ${SVG_H}`}>
+                  {sparkData.map((m, i) => {
+                    const barH = Math.max((m.revenue / maxVal) * SVG_H, 3);
+                    const x = i * (BAR_W + BAR_GAP);
+                    const isLast = i === sparkData.length - 1;
+                    return (
+                      <rect
+                        key={i}
+                        x={x} y={SVG_H - barH} width={BAR_W} height={barH}
+                        rx="2"
+                        fill={isLast ? "#ec4899" : isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.12)"}
+                        style={isLast ? { filter: "drop-shadow(0 0 4px #ec4899aa)" } : {}}
+                      />
+                    );
+                  })}
+                </svg>
+                <span className={`text-[9px] tracking-wider ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.revenueExpenseTrend.split(" ")[0]}</span>
+              </div>
+            )}
+            <div className="flex gap-8 text-sm">
+              <div>
+                <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.revenue}</p>
+                <p className="font-semibold text-emerald-400">{formatCurrency(data.thisMonthRevenue)} ₺</p>
+              </div>
+              <div>
+                <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.expense}</p>
+                <p className="font-semibold text-red-400">{formatCurrency(data.thisMonthExpense)} ₺</p>
+              </div>
+            </div>
           </div>
-          <div className="flex gap-8 text-sm">
-            <div>
-              <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.revenue}</p>
-              <p className="font-semibold text-emerald-400">{formatCurrency(data.thisMonthRevenue)} ₺</p>
+        );
+      })()}
+
+      {/* ── Highlights Row ──────────────────────────────────────────────── */}
+      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Ayın Yıldızı */}
+        {isOwnerOrAdmin && starEmployee && (
+          <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-br from-amber-500/15 via-yellow-500/10 to-orange-500/15 p-5 backdrop-blur-sm">
+            {/* shimmer */}
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-[10px] font-bold tracking-widest text-amber-400/80 mb-1">{t.employeeOfMonth}</p>
+                <p className={`text-lg font-bold truncate ${isDark ? "text-white" : "text-gray-900"}`}>{starEmployee.label}</p>
+                <p className="mt-0.5 text-xs text-amber-400 font-semibold">{formatCurrency(starEmployee.amountInTry)} ₺</p>
+                <p className={`mt-1 text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                  {starEmployee.count} {t.appointments} · {t.employeeOfMonthSub}
+                </p>
+              </div>
+              <div className="relative shrink-0 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-white drop-shadow">
+                  <path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7 2h8.6a1 1 0 010 2H7.7a1 1 0 010-2z"/>
+                </svg>
+                <span className="absolute -top-1.5 -right-1.5 text-base">👑</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Bugünkü İlerleme (donut ring) */}
+        <div className={`relative overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-gradient-to-br from-cyan-500/10 via-teal-500/8 to-blue-500/10 p-5 backdrop-blur-sm`}>
+          <p className="text-[10px] font-bold tracking-widest text-cyan-400/80 mb-3">{t.todayProgress}</p>
+          <div className="flex items-center gap-5">
+            <div className="relative shrink-0">
+              <svg width="100" height="100" viewBox="0 0 100 100" className="-rotate-90">
+                <circle cx="50" cy="50" r={RING_R} fill="none" stroke={isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.06)"} strokeWidth="10" />
+                <circle
+                  cx="50" cy="50" r={RING_R}
+                  fill="none"
+                  stroke="#06b6d4"
+                  strokeWidth="10"
+                  strokeLinecap="round"
+                  strokeDasharray={`${ringDash} ${ringCircum}`}
+                  style={{ transition: "stroke-dasharray 1s ease" }}
+                />
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center">
+                <span className="text-xl font-bold text-cyan-400">{todayPct}%</span>
+              </div>
             </div>
             <div>
-              <p className={`${isDark ? "text-white/40" : "text-gray-400"}`}>{t.expense}</p>
-              <p className="font-semibold text-red-400">{formatCurrency(data.thisMonthExpense)} ₺</p>
+              <p className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{todayCompleted}<span className={`text-base font-normal ml-1 ${isDark ? "text-white/40" : "text-gray-400"}`}>/ {todayTotal}</span></p>
+              <p className={`text-xs mt-1 ${isDark ? "text-white/50" : "text-gray-500"}`}>{t.appointments} {t.todayProgressSub}</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {sd.completed > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-medium text-emerald-400">{sd.completed} {t.completed}</span>}
+                {sd.cancelled > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-red-500/15 px-2 py-0.5 text-[10px] font-medium text-red-400">{sd.cancelled} {t.cancelled}</span>}
+                {sd.noShow > 0 && <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-400">{sd.noShow} {t.noShow}</span>}
+              </div>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Tamamlanma oranı — gauge arc */}
+        {(() => {
+          const gaugeColor = completionRate >= 70 ? "#a855f7" : completionRate >= 40 ? "#f59e0b" : "#ef4444";
+          const arcLen = Math.PI * 50; // semicircle circumference ≈ 157
+          const arcFill = (completionRate / 100) * arcLen;
+          return (
+            <div className={`relative overflow-hidden rounded-2xl border ${isDark ? "border-white/10" : "border-gray-200"} bg-gradient-to-br from-purple-500/10 via-violet-500/8 to-pink-500/10 p-5 backdrop-blur-sm`}>
+              {hasAlert && (
+                <span className="absolute top-3 right-3 flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                </span>
+              )}
+              <p className="text-[10px] font-bold tracking-widest text-purple-400/80 mb-2">{t.completionRate}</p>
+              {/* Gauge arc */}
+              <div className="flex flex-col items-center">
+                <div className="relative w-[120px]">
+                  <svg width="120" height="68" viewBox="0 0 120 68">
+                    {/* track */}
+                    <path d="M 10 65 A 50 50 0 0 1 110 65" fill="none" stroke={isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.07)"} strokeWidth="10" strokeLinecap="round" />
+                    {/* fill */}
+                    <path
+                      d="M 10 65 A 50 50 0 0 1 110 65"
+                      fill="none"
+                      stroke={gaugeColor}
+                      strokeWidth="10"
+                      strokeLinecap="round"
+                      strokeDasharray={`${arcFill} ${arcLen}`}
+                      style={{ filter: `drop-shadow(0 0 6px ${gaugeColor}80)`, transition: "stroke-dasharray 1s ease" }}
+                    />
+                    {/* needle dot */}
+                    <circle cx="60" cy="65" r="5" fill={gaugeColor} style={{ filter: `drop-shadow(0 0 4px ${gaugeColor})` }} />
+                  </svg>
+                  {/* center label */}
+                  <div className="absolute inset-x-0 bottom-0 flex flex-col items-center pb-1">
+                    <span className="text-2xl font-bold leading-none" style={{ color: gaugeColor }}>%{completionRate}</span>
+                  </div>
+                </div>
+                <p className={`mt-1 text-[11px] ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.completionRateSub}</p>
+              </div>
+              {/* status pills */}
+              {hasAlert && (
+                <div className={`mt-3 rounded-xl ${isDark ? "bg-red-500/10" : "bg-red-50"} border border-red-500/20 px-3 py-2 text-[11px] text-red-400`}>
+                  ⚠ {todayCancelled} {t.cancelled} · {todayNoShow} {t.noShowAlert}
+                </div>
+              )}
+            </div>
+          );
+        })()}
+      </section>
 
       {/* ── Row 2: Revenue Trend + Pie ──────────────────────────────────── */}
       <section className="grid gap-4 lg:grid-cols-3">
@@ -622,26 +797,30 @@ export default function OverviewScreen() {
             {data.topStaff.map((staff, index) => {
               const maxAmount = data.topStaff[0]?.amountInTry || 1;
               const pct = (staff.amountInTry / maxAmount) * 100;
+              const isFirst = index === 0;
               return (
-                <div key={staff.label} className="group">
-                  <div className="mb-1 flex items-center justify-between text-sm">
+                <div key={staff.label} className={`group rounded-xl p-3 transition ${isFirst ? isDark ? "bg-amber-500/8 border border-amber-500/20" : "bg-amber-50 border border-amber-200" : ""}`}>
+                  <div className="mb-1.5 flex items-center justify-between text-sm">
                     <span className={`flex items-center gap-2 ${isDark ? "text-white/80" : "text-gray-800"}`}>
                       <span
-                        className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+                        className={`flex h-7 w-7 items-center justify-center rounded-full text-[10px] font-bold text-white shadow ${isFirst ? "ring-2 ring-amber-400/60" : ""}`}
                         style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }}
                       >
-                        {index + 1}
+                        {isFirst ? "👑" : index + 1}
                       </span>
-                      {staff.label}
+                      <span className={isFirst ? "font-semibold" : ""}>{staff.label}</span>
                     </span>
-                    <span className={`font-semibold ${isDark ? "text-white/60" : "text-gray-600"}`}>{formatCurrency(staff.amountInTry)} ₺</span>
+                    <div className="text-right">
+                      <span className={`font-semibold ${isFirst ? "text-amber-400" : isDark ? "text-white/60" : "text-gray-600"}`}>{formatCurrency(staff.amountInTry)} ₺</span>
+                      <p className={`text-[10px] ${isDark ? "text-white/30" : "text-gray-400"}`}>{staff.count} {t.appointments}</p>
+                    </div>
                   </div>
-                  <div className={`h-1.5 overflow-hidden rounded-full ${isDark ? "bg-white/5" : "bg-gray-50"}`}>
+                  <div className={`h-1.5 overflow-hidden rounded-full ${isDark ? "bg-white/5" : "bg-gray-100"}`}>
                     <div
                       className="h-full rounded-full transition-all duration-500"
                       style={{
                         width: `${pct}%`,
-                        backgroundColor: CHART_COLORS[index % CHART_COLORS.length],
+                        backgroundColor: isFirst ? "#f59e0b" : CHART_COLORS[index % CHART_COLORS.length],
                       }}
                     />
                   </div>
