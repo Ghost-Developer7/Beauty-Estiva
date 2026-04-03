@@ -10,7 +10,7 @@ import toast from "react-hot-toast";
 
 const API_BASE = (() => {
   if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5232/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
   return apiUrl.replace(/\/api\/?$/, "");
 })();
 
@@ -387,7 +387,7 @@ export default function StaffPage() {
                   {/* Staff member */}
                   <div className="flex items-center gap-3">
                     {s.profilePicturePath ? (
-                      <img src={`${API_BASE}${s.profilePicturePath}`} alt={`${s.name} ${s.surname}`} className="h-10 w-10 shrink-0 rounded-full object-cover shadow-sm" />
+                      <img src={s.profilePicturePath.startsWith("http") ? s.profilePicturePath : `${API_BASE}${s.profilePicturePath}`} alt={`${s.name} ${s.surname}`} className="h-10 w-10 shrink-0 rounded-full object-cover shadow-sm" />
                     ) : (
                       <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(s.id)} text-xs font-bold text-white shadow-sm`}>
                         {getInitials(s.name, s.surname)}
@@ -528,7 +528,7 @@ export default function StaffPage() {
                   {/* Profile header */}
                   <div className="flex items-center gap-4">
                     {s.profilePicturePath ? (
-                      <img src={`${API_BASE}${s.profilePicturePath}`} alt={`${s.name} ${s.surname}`} className="h-14 w-14 shrink-0 rounded-full object-cover shadow-lg" />
+                      <img src={s.profilePicturePath.startsWith("http") ? s.profilePicturePath : `${API_BASE}${s.profilePicturePath}`} alt={`${s.name} ${s.surname}`} className="h-14 w-14 shrink-0 rounded-full object-cover shadow-lg" />
                     ) : (
                       <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${getAvatarColor(s.id)} text-lg font-bold text-white shadow-lg`}>
                         {getInitials(s.name, s.surname)}

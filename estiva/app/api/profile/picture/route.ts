@@ -2,8 +2,7 @@ import { NextRequest } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { success, fail, serverError } from "@/lib/api-response";
 import { requireAuth } from "@/lib/api-middleware";
-import { writeFile, mkdir, unlink } from "fs/promises";
-import path from "path";
+import { uploadImage, deleteImage } from "@/lib/cloudinary";
 
 export async function POST(req: NextRequest) {
   try {
@@ -17,55 +16,31 @@ export async function POST(req: NextRequest) {
       return fail("Dosya gereklidir");
     }
 
-    // Validate file type
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!allowedTypes.includes(file.type)) {
       return fail("Sadece JPEG, PNG, GIF ve WebP formatları desteklenir");
     }
 
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       return fail("Dosya boyutu 5MB'den büyük olamaz");
     }
 
-    const ext = file.name.split(".").pop() || "jpg";
-    const timestamp = Date.now();
-    const fileName = `${user!.id}_${timestamp}.${ext}`;
-
-    const uploadDir = path.join(process.cwd(), "public", "profilePictures");
-    await mkdir(uploadDir, { recursive: true });
-
-    const filePath = path.join(uploadDir, fileName);
     const bytes = await file.arrayBuffer();
-    await writeFile(filePath, Buffer.from(bytes));
+    const buffer = Buffer.from(bytes);
 
-    // Delete old profile picture if exists
-    const currentUser = await prisma.users.findUnique({
-      where: { Id: user!.id },
-      select: { ProfilePicturePath: true },
-    });
-
-    if (currentUser?.ProfilePicturePath) {
-      try {
-        const oldFilePath = path.join(process.cwd(), "public", currentUser.ProfilePicturePath);
-        await unlink(oldFilePath);
-      } catch {
-        // Ignore if old file doesn't exist
-      }
-    }
-
-    const picturePath = `/profilePictures/${fileName}`;
+    const publicId = `user_${user!.id}`;
+    const secureUrl = await uploadImage(buffer, "estiva/profiles", publicId);
 
     await prisma.users.update({
       where: { Id: user!.id },
       data: {
-        ProfilePicturePath: picturePath,
+        ProfilePicturePath: secureUrl,
         UUser: user!.id,
         UDate: new Date(),
       },
     });
 
-    return success({ profilePicturePath: picturePath }, "Profil fotoğrafı güncellendi");
+    return success({ profilePicturePath: secureUrl }, "Profil fotoğrafı güncellendi");
   } catch (error) {
     console.error("Profile picture upload error:", error);
     return serverError();
@@ -84,10 +59,9 @@ export async function DELETE(req: NextRequest) {
 
     if (currentUser?.ProfilePicturePath) {
       try {
-        const filePath = path.join(process.cwd(), "public", currentUser.ProfilePicturePath);
-        await unlink(filePath);
+        await deleteImage(`estiva/profiles/user_${user!.id}`);
       } catch {
-        // Ignore if file doesn't exist
+        // Ignore if image doesn't exist on Cloudinary
       }
     }
 

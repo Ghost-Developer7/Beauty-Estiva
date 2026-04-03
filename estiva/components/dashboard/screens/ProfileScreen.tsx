@@ -90,7 +90,7 @@ const copy = {
 
 const API_BASE = (() => {
   if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5232/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
   return apiUrl.replace(/\/api\/?$/, "");
 })();
 
@@ -294,7 +294,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
   const getAvatarUrl = () => {
     const path = profile?.profilePicturePath;
     if (!path) return null;
-    return `${API_BASE}${path}`;
+    return path.startsWith("http") ? path : `${API_BASE}${path}`;
   };
 
   if (!open) return null;

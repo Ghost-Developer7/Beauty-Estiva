@@ -503,7 +503,7 @@ export default function LandingPage() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5232/api";
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
         const res = await fetch(`${baseUrl}/subscription/plans`);
         const json = await res.json();
         const data: SubscriptionPlan[] = json.data ?? json;

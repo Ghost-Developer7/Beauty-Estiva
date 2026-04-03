@@ -15,7 +15,7 @@ import type { TenantInfo } from "@/services/tenantService";
 
 const API_BASE = (() => {
   if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5232/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "/api";
   return apiUrl.replace(/\/api\/?$/, "");
 })();
 
@@ -63,7 +63,9 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
       : "Staff";
 
   const avatarUrl = user?.profilePicturePath
-    ? `${API_BASE}${user.profilePicturePath}`
+    ? String(user.profilePicturePath).startsWith("http")
+      ? user.profilePicturePath
+      : `${API_BASE}${user.profilePicturePath}`
     : null;
 
   // Close menu on click outside
