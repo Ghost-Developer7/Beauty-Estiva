@@ -5,7 +5,8 @@
  * Çalıştır: npx tsx prisma/seed.ts
  */
 
-import { PrismaClient, Decimal } from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
+import { Decimal } from "@prisma/client/runtime/library";
 
 const p = new PrismaClient();
 
