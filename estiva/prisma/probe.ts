@@ -2,37 +2,51 @@ import { PrismaClient } from "@prisma/client";
 const p = new PrismaClient();
 
 async function main() {
-  const tenant = await p.tenants.findFirst({ where: { IsActive: true } });
-  console.log("TENANT", tenant?.Id, tenant?.CompanyName);
-
-  const staff = await p.users.findMany({
-    where: { TenantId: tenant!.Id, IsActive: true },
-    select: { Id: true, Name: true, Surname: true },
-    take: 10,
+  // Find user by email
+  const user = await p.users.findFirst({
+    where: { Email: "karamhmt.0793@gmail.com" },
+    select: { Id: true, TenantId: true, Name: true, Surname: true, Email: true },
   });
-  console.log("STAFF", JSON.stringify(staff));
+  console.log("USER:", JSON.stringify(user));
 
-  const treats = await p.treatments.findMany({
-    where: { TenantId: tenant!.Id, IsActive: true },
-    select: { Id: true, Name: true, DurationMinutes: true, Price: true },
-    take: 15,
-  });
-  console.log("TREATMENTS", JSON.stringify(treats));
+  if (user?.TenantId) {
+    const tenant = await p.tenants.findUnique({
+      where: { Id: user.TenantId },
+    });
+    console.log("TENANT:", JSON.stringify(tenant));
 
-  const currency = await p.currencies.findFirst({ where: { IsDefault: true } });
-  console.log("CURRENCY", currency?.Id, currency?.Code);
+    const staff = await p.users.findMany({
+      where: { TenantId: user.TenantId, IsActive: true },
+      select: { Id: true, Name: true, Surname: true },
+    });
+    console.log("STAFF:", JSON.stringify(staff));
 
-  const custCount = await p.customers.count({ where: { TenantId: tenant!.Id } });
-  console.log("CUSTOMER_COUNT", custCount);
+    const currencies = await p.currencies.findMany({
+      select: { Id: true, Code: true, Name: true, IsDefault: true },
+    });
+    console.log("CURRENCIES:", JSON.stringify(currencies));
 
-  const apptCount = await p.appointments.count({ where: { TenantId: tenant!.Id, StartTime: { gte: new Date("2025-01-01") } } });
-  console.log("APPT_COUNT_2025", apptCount);
+    const treatments = await p.treatments.findMany({
+      where: { TenantId: user.TenantId },
+      select: { Id: true, Name: true, DurationMinutes: true, Price: true },
+    });
+    console.log("TREATMENTS:", JSON.stringify(treatments));
 
-  const expCats = await p.expenseCategories.findMany({
-    where: { TenantId: tenant!.Id },
-    select: { Id: true, Name: true },
-  });
-  console.log("EXP_CATS", JSON.stringify(expCats));
+    const custCount = await p.customers.count({ where: { TenantId: user.TenantId } });
+    console.log("CUSTOMER_COUNT:", custCount);
+
+    const expCats = await p.expenseCategories.findMany({
+      where: { TenantId: user.TenantId },
+      select: { Id: true, Name: true },
+    });
+    console.log("EXPENSE_CATS:", JSON.stringify(expCats));
+
+    const products = await p.products.findMany({
+      where: { TenantId: user.TenantId },
+      select: { Id: true, Name: true },
+    });
+    console.log("PRODUCTS:", JSON.stringify(products));
+  }
 }
 
 main().catch(console.error).finally(() => p.$disconnect());
