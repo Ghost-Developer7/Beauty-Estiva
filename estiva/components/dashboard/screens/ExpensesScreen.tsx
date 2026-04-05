@@ -307,7 +307,7 @@ export default function ExpensesScreen() {
             + {text.newCategory}
           </button>
           <button onClick={openCreateExpense}
-            className={`flex items-center gap-2 rounded-xl bg-[#00a651] px-4 py-1.5 text-xs font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/20 hover:bg-[#008f45]`}>
+            className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]`}>
             + {text.new}
           </button>
         </div>

@@ -496,7 +496,7 @@ export default function BranchesScreen() {
           <button
             onClick={openCreate}
             disabled={limit !== null && !limit.canAdd}
-            className={`flex items-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg transition hover:bg-violet-500 disabled:opacity-40 disabled:cursor-not-allowed`}
+            className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed`}
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             {t.newBranch}

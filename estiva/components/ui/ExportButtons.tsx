@@ -42,8 +42,8 @@ export default function ExportButtons({ data, columns, filenamePrefix, pdfTitle 
       {/* Excel Button */}
       <button
         onClick={handleExcel}
-        disabled={exporting !== null || data.length === 0}
-        className="flex items-center gap-1.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-400 transition hover:bg-emerald-500/20 hover:border-emerald-500/50 disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled={exporting !== null}
+        className="flex items-center gap-1.5 rounded-lg border border-emerald-500/50 bg-emerald-500/20 px-3 py-1.5 text-[11px] font-semibold text-emerald-300 transition hover:bg-emerald-500/30 hover:border-emerald-400/60 disabled:opacity-50 disabled:cursor-not-allowed"
         title="Excel"
       >
         {exporting === "excel" ? (
@@ -63,8 +63,8 @@ export default function ExportButtons({ data, columns, filenamePrefix, pdfTitle 
       {/* PDF Button */}
       <button
         onClick={handlePDF}
-        disabled={exporting !== null || data.length === 0}
-        className="flex items-center gap-1.5 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-[11px] font-semibold text-red-400 transition hover:bg-red-500/20 hover:border-red-500/50 disabled:opacity-30 disabled:cursor-not-allowed"
+        disabled={exporting !== null}
+        className="flex items-center gap-1.5 rounded-lg border border-red-500/50 bg-red-500/20 px-3 py-1.5 text-[11px] font-semibold text-red-300 transition hover:bg-red-500/30 hover:border-red-400/60 disabled:opacity-50 disabled:cursor-not-allowed"
         title="PDF"
       >
         {exporting === "pdf" ? (

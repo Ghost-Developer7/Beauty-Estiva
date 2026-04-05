@@ -384,9 +384,10 @@ export default function ReceivablesScreen() {
         <h1 className="text-2xl font-semibold">{t.title}</h1>
         <button
           onClick={openCreate}
-          className={`flex items-center gap-1 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium ${isDark ? "text-white" : "text-gray-900"} shadow-lg hover:bg-green-500`}
+          className={`group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]`}
         >
-          <span className="text-lg leading-none">+</span> {t.newButton}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+          {t.newButton}
         </button>
       </div>
 

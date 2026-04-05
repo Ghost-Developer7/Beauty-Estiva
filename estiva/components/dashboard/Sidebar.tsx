@@ -144,7 +144,7 @@ const navItems = {
       ]
     },
     { label: "Ürünler & Satışlar", href: "/dashboard/product-sales", icon: IconBox },
-    { label: "Paket satışları", href: "/dashboard/package-sales", icon: IconGrid },
+    { label: "Paket Satışları", href: "/dashboard/package-sales", icon: IconGrid },
     { label: "Abonelik", href: "/dashboard/subscription", icon: IconWallet },
     { label: "Şubeler", href: "/dashboard/branches", icon: IconBuilding },
     {
@@ -153,9 +153,9 @@ const navItems = {
       icon: IconReports,
       expandable: true,
       children: [
-        { label: "Kasa raporu", href: "/dashboard/reports/cash", icon: IconWallet },
-        { label: "Personel raporu", href: "/dashboard/reports/personnel", icon: IconUsers },
-        { label: "Satış raporları", href: "/dashboard/reports/sales", icon: IconBanknote },
+        { label: "Kasa Raporu", href: "/dashboard/reports/cash", icon: IconWallet },
+        { label: "Personel Raporu", href: "/dashboard/reports/personnel", icon: IconUsers },
+        { label: "Satış Raporları", href: "/dashboard/reports/sales", icon: IconBanknote },
       ]
     },
     {
@@ -228,7 +228,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     }
   }, [expanded]);
 
-  // Sidebar nav scroll pozisyonunu koru
+  // Preserve sidebar nav scroll position
   const navRef = useRef<HTMLElement>(null);
   const scrollPosRef = useRef(0);
 
@@ -236,7 +236,7 @@ export default function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     if (navRef.current) scrollPosRef.current = navRef.current.scrollTop;
   }, []);
 
-  // Route değişince scroll pozisyonunu geri yükle
+  // Restore scroll position on route change
   useEffect(() => {
     const el = navRef.current;
     if (el && scrollPosRef.current > 0) {

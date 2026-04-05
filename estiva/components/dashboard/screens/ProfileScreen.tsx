@@ -248,7 +248,8 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
       setUploadingPicture(true);
       const res = await profileService.uploadProfilePicture(file);
       if (res.data.success && res.data.data) {
-        const newPath = res.data.data;
+        const raw = res.data.data;
+        const newPath = typeof raw === "string" ? raw : (raw as any).profilePicturePath ?? raw;
         setProfile((prev) =>
           prev ? { ...prev, profilePicturePath: newPath } : prev
         );
@@ -293,7 +294,7 @@ export default function ProfileScreen({ open, onClose }: ProfileScreenProps) {
 
   const getAvatarUrl = () => {
     const path = profile?.profilePicturePath;
-    if (!path) return null;
+    if (!path || typeof path !== "string") return null;
     return path.startsWith("http") ? path : `${API_BASE}${path}`;
   };
 

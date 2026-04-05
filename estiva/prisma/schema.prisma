@@ -576,6 +576,29 @@ model StaffShifts {
   @@index([TenantId, StaffId, DayOfWeek], map: "IX_StaffShifts_TenantId_StaffId_DayOfWeek")
 }
 
+model StaffShiftOverrides {
+  Id             Int       @id(map: "PK_StaffShiftOverrides") @default(autoincrement())
+  TenantId       Int
+  StaffId        Int
+  Date           DateTime  @db.Date
+  StartTime      DateTime? @db.Time
+  EndTime        DateTime? @db.Time
+  BreakStartTime DateTime? @db.Time
+  BreakEndTime   DateTime? @db.Time
+  IsWorkingDay   Boolean
+  CUser          Int?
+  UUser          Int?
+  CDate          DateTime?
+  UDate          DateTime?
+  IsActive       Boolean?
+  Tenants        Tenants   @relation(fields: [TenantId], references: [Id], onUpdate: NoAction, map: "FK_StaffShiftOverrides_Tenants_TenantId")
+  Users          Users     @relation(fields: [StaffId], references: [Id], onUpdate: NoAction, map: "FK_StaffShiftOverrides_Users_StaffId")
+
+  @@unique([TenantId, StaffId, Date], map: "UQ_StaffShiftOverrides_TenantId_StaffId_Date")
+  @@index([StaffId], map: "IX_StaffShiftOverrides_StaffId")
+  @@index([TenantId, StaffId], map: "IX_StaffShiftOverrides_TenantId_StaffId")
+}
+
 model StaffTreatmentCommissions {
   Id             Int        @id(map: "PK_StaffTreatmentCommissions") @default(autoincrement())
   TenantId       Int
@@ -799,6 +822,7 @@ model Tenants {
   StaffHRInfos                StaffHRInfos[]
   StaffLeaves                 StaffLeaves[]
   StaffShifts                 StaffShifts[]
+  StaffShiftOverrides         StaffShiftOverrides[]
   StaffTreatmentCommissions   StaffTreatmentCommissions[]
   StaffUnavailabilities       StaffUnavailabilities[]
   TenantEmailIntegrations     TenantEmailIntegrations?
@@ -999,6 +1023,7 @@ model Users {
   StaffLeaves_StaffLeaves_ApprovedByIdToUsers                      StaffLeaves[]                 @relation("StaffLeaves_ApprovedByIdToUsers")
   StaffLeaves_StaffLeaves_StaffIdToUsers                           StaffLeaves[]                 @relation("StaffLeaves_StaffIdToUsers")
   StaffShifts                                                      StaffShifts[]
+  StaffShiftOverrides                                              StaffShiftOverrides[]
   StaffTreatmentCommissions                                        StaffTreatmentCommissions[]
   StaffUnavailabilities                                            StaffUnavailabilities[]
   UserClaims                                                       UserClaims[]

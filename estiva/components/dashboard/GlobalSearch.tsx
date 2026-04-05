@@ -46,7 +46,7 @@ const copy = {
     noResults: "No results found",
     typeToSearch: "Type at least 2 characters to search...",
     searching: "Searching...",
-    shortcut: "",
+    shortcut: "Ctrl+K",
   },
   tr: {
     placeholder: "Müşteri, personel, randevu ara...",
@@ -58,7 +58,7 @@ const copy = {
     noResults: "Sonuç bulunamadı",
     typeToSearch: "Aramak için en az 2 karakter yazın...",
     searching: "Aranıyor...",
-    shortcut: "",
+    shortcut: "Ctrl+K",
   },
 };
 
@@ -350,13 +350,6 @@ export default function GlobalSearch() {
               <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
-        )}
-        {!query && (
-          <kbd className={`ml-2 hidden sm:inline-flex shrink-0 items-center rounded-md border px-1.5 py-0.5 text-[10px] font-medium ${
-            isDark ? "border-white/10 text-white/30" : "border-gray-200 text-gray-400"
-          }`}>
-            {t.shortcut}
-          </kbd>
         )}
       </div>
 

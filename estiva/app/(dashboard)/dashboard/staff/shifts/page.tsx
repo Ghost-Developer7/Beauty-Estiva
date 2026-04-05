@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { staffShiftService } from "@/services/staffShiftService";
-import type { StaffWeeklyShift, StaffShiftUpsert } from "@/types/api";
+import type { StaffWeeklyShift, StaffShiftUpsert, StaffShiftOverride } from "@/types/api";
 import MonthCalendar, { type CalendarEvent } from "@/components/ui/MonthCalendar";
 import toast from "react-hot-toast";
 
@@ -70,6 +71,13 @@ const copy = {
     editScheduleFor: "Editing schedule for",
     summaryTitle: "Monthly Summary",
     today: "Today",
+    dayOverride: "Day Override",
+    dayOverrideDesc: "Override shift for this specific date",
+    revertDefault: "Revert to Default",
+    selectStaff: "Select Staff",
+    overrideSaved: "Day override saved",
+    overrideReverted: "Reverted to default shift",
+    overrideExists: "(custom)",
   },
   tr: {
     title: "Vardiya Yönetimi",
@@ -96,6 +104,13 @@ const copy = {
     editScheduleFor: "Program düzenleniyor:",
     summaryTitle: "Aylık Özet",
     today: "Bugün",
+    dayOverride: "Günlük Düzenleme",
+    dayOverrideDesc: "Bu güne özel vardiya düzenle",
+    revertDefault: "Varsayılana Dön",
+    selectStaff: "Personel Seçin",
+    overrideSaved: "Günlük vardiya kaydedildi",
+    overrideReverted: "Varsayılan vardiyaya dönüldü",
+    overrideExists: "(özel)",
   },
 };
 
@@ -136,11 +151,25 @@ function getCalendarGrid(year: number, month: number): (number | null)[][] {
   return rows;
 }
 
-function calcMonthStats(staffWeek: StaffWeeklyShift, year: number, month: number) {
+function calcMonthStats(staffWeek: StaffWeeklyShift, year: number, month: number, staffOverrides?: StaffShiftOverride[]) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   let workingDays = 0;
   let totalMinutes = 0;
   for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    const override = staffOverrides?.find((o) => o.date === dateStr);
+    if (override) {
+      if (override.isWorkingDay) {
+        workingDays++;
+        const start = hhmmToMinutes(override.startTime);
+        const end = hhmmToMinutes(override.endTime);
+        const bStart = hhmmToMinutes(override.breakStartTime);
+        const bEnd = hhmmToMinutes(override.breakEndTime);
+        const breakMins = bStart && bEnd && bEnd > bStart ? bEnd - bStart : 0;
+        totalMinutes += Math.max(0, end - start - breakMins);
+      }
+      continue;
+    }
     const jsDay = new Date(year, month, d).getDay();
     const shift = staffWeek.shifts.find((s) => s.dayOfWeek === jsDay);
     if (shift?.isWorkingDay) {
@@ -174,6 +203,8 @@ function staffInitials(fullName: string): string {
 
 export default function StaffShiftsPage() {
   const { language } = useLanguage();
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
   const { user } = useAuth();
   const t = copy[language];
   const today = new Date();
@@ -187,41 +218,89 @@ export default function StaffShiftsPage() {
   const [calYear, setCalYear] = useState(today.getFullYear());
   const [calMonth, setCalMonth] = useState(today.getMonth());
   const [selectedIds, setSelectedIds] = useState<Set<number> | null>(null); // null = all
+  const [cardOrder, setCardOrder] = useState<number[]>([]); // staffIds in priority order (last clicked first)
   const [editingStaffId, setEditingStaffId] = useState<number | null>(null);
   const [editShifts, setEditShifts] = useState<StaffShiftUpsert[]>([]);
   const [saving, setSaving] = useState(false);
+  // Day override state
+  const [overrides, setOverrides] = useState<Map<number, StaffShiftOverride[]>>(new Map());
+  const [dayModalDate, setDayModalDate] = useState<string | null>(null);
+  const [dayModalStaffId, setDayModalStaffId] = useState<number | null>(null);
+  const [dayForm, setDayForm] = useState({ startTime: "09:00", endTime: "18:00", breakStartTime: "12:00", breakEndTime: "13:00", isWorkingDay: true });
+  const [daySaving, setDaySaving] = useState(false);
+
+  // ── Fetch overrides for current month ──
+  const fetchOverrides = useCallback(async (staffList: StaffWeeklyShift[]) => {
+    const map = new Map<number, StaffShiftOverride[]>();
+    const year = calYear;
+    const month = calMonth + 1;
+    const results = await Promise.allSettled(
+      staffList.map((sw) => staffShiftService.getOverrides(sw.staffId, year, month))
+    );
+    results.forEach((res, i) => {
+      if (res.status === "fulfilled" && res.value.data.success && res.value.data.data) {
+        map.set(staffList[i].staffId, res.value.data.data);
+      }
+    });
+    setOverrides(map);
+  }, [calYear, calMonth]);
 
   // ── Data fetching ──
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      let staffList: StaffWeeklyShift[] = [];
       if (isOwnerOrAdmin) {
         const res = await staffShiftService.getWeeklyView();
-        if (res.data.success && res.data.data) setWeeklyData(res.data.data);
+        if (res.data.success && res.data.data) {
+          staffList = res.data.data;
+          setWeeklyData(staffList);
+        }
       } else if (user?.id) {
         const res = await staffShiftService.getStaffShifts(parseInt(user.id));
         if (res.data.success && res.data.data) {
-          setWeeklyData([{
+          staffList = [{
             staffId: parseInt(user.id),
             staffFullName: `${user.name} ${user.surname}`,
             shifts: res.data.data,
-          }]);
+          }];
+          setWeeklyData(staffList);
         }
       }
+      if (staffList.length > 0) fetchOverrides(staffList);
     } catch {
       toast.error(language === "tr" ? "Veriler yüklenemedi" : "Failed to load data");
     } finally {
       setLoading(false);
     }
-  }, [isOwnerOrAdmin, user, language]);
+  }, [isOwnerOrAdmin, user, language, fetchOverrides]);
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  // Refetch overrides when month changes
+  useEffect(() => {
+    if (weeklyData.length > 0) fetchOverrides(weeklyData);
+  }, [calYear, calMonth, fetchOverrides, weeklyData]);
+
   // ── Derived ──
-  const filteredData =
-    selectedIds === null
+  const filteredData = (() => {
+    const base = selectedIds === null
       ? weeklyData
       : weeklyData.filter((s) => selectedIds.has(s.staffId));
+    if (cardOrder.length === 0) return base;
+    return [...base].sort((a, b) => {
+      const ai = cardOrder.indexOf(a.staffId);
+      const bi = cardOrder.indexOf(b.staffId);
+      if (ai === -1 && bi === -1) return 0;
+      if (ai === -1) return 1;
+      if (bi === -1) return 1;
+      return ai - bi;
+    });
+  })();
+
+  const bringCardToFront = (staffId: number) => {
+    setCardOrder((prev) => [staffId, ...prev.filter((id) => id !== staffId)]);
+  };
 
   const colorOf = (staffId: number) =>
     STAFF_COLORS[weeklyData.findIndex((s) => s.staffId === staffId) % STAFF_COLORS.length];
@@ -375,17 +454,18 @@ export default function StaffShiftsPage() {
               <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
               {t.summaryTitle} — {MONTH_NAMES[language][calMonth]} {calYear}
             </p>
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
               {filteredData.map((sw) => {
                 const color = colorOf(sw.staffId);
-                const stats = calcMonthStats(sw, calYear, calMonth);
+                const stats = calcMonthStats(sw, calYear, calMonth, overrides.get(sw.staffId));
                 const initials = staffInitials(sw.staffFullName);
                 const maxDays = new Date(calYear, calMonth + 1, 0).getDate();
                 const dayPct = maxDays > 0 ? Math.round((stats.workingDays / maxDays) * 100) : 0;
                 return (
                   <div
                     key={sw.staffId}
-                    className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition hover:border-white/[0.12] hover:bg-white/[0.05]"
+                    onClick={() => bringCardToFront(sw.staffId)}
+                    className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition hover:border-white/[0.12] hover:bg-white/[0.05] min-w-[300px] shrink-0 cursor-pointer"
                   >
                     {/* Top row: avatar + name + edit */}
                     <div className="flex items-center gap-3">
@@ -468,34 +548,49 @@ export default function StaffShiftsPage() {
 
           {/* ─── Monthly Calendar (shared MonthCalendar component) ─── */}
           {(() => {
-            // Build CalendarEvent[] from weekly shift data
+            // Build CalendarEvent[] from weekly shift data + overrides
             const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
             const shiftEvents: CalendarEvent[] = [];
             for (const sw of filteredData) {
               const color = colorOf(sw.staffId);
+              const staffOvr = overrides.get(sw.staffId) || [];
               for (let d = 1; d <= daysInMonth; d++) {
+                const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+                const override = staffOvr.find((o) => o.date === dateStr);
                 const jsDay = new Date(calYear, calMonth, d).getDay();
                 const shift = sw.shifts.find((s) => s.dayOfWeek === jsDay);
-                if (!shift) continue;
-                const dateStr = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-                if (!shift.isWorkingDay) {
+
+                const isWorking = override ? override.isWorkingDay : shift?.isWorkingDay;
+                const startTime = override ? override.startTime : shift?.startTime;
+                const endTime = override ? override.endTime : shift?.endTime;
+                const isOverridden = !!override;
+
+                if (!isWorking) {
                   if (filteredData.length === 1) {
                     shiftEvents.push({
                       id: `off-${sw.staffId}-${dateStr}`,
                       startDate: dateStr,
-                      className: "border border-red-500/15 bg-red-500/10 text-red-400/70",
-                      label: t.dayOff,
+                      className: isOverridden
+                        ? "border border-amber-500/30 bg-amber-500/10 text-amber-400/70"
+                        : "border border-red-500/15 bg-red-500/10 text-red-400/70",
+                      label: isOverridden ? `${t.dayOff} ✎` : t.dayOff,
                     });
                   }
                   continue;
                 }
-                const start = toHHMM(shift.startTime);
-                const end = toHHMM(shift.endTime);
+                if (!shift && !override) continue;
+                const start = toHHMM(startTime);
+                const end = toHHMM(endTime);
+                const badgeClass = isOverridden
+                  ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                  : color.badge;
                 shiftEvents.push({
                   id: `${sw.staffId}-${dateStr}`,
                   startDate: dateStr,
-                  className: color.badge,
-                  label: filteredData.length > 1 ? sw.staffFullName.split(" ")[0] : `${start}–${end}`,
+                  className: badgeClass,
+                  label: filteredData.length > 1
+                    ? `${sw.staffFullName.split(" ")[0]}${isOverridden ? " ✎" : ""}`
+                    : `${start}–${end}${isOverridden ? " ✎" : ""}`,
                   sublabel: filteredData.length > 1 ? `${start}–${end}` : undefined,
                   meta: { staffId: sw.staffId },
                 });
@@ -511,11 +606,182 @@ export default function StaffShiftsPage() {
                 events={shiftEvents}
                 dayLabels={dayLabels}
                 minCellHeight={100}
+                onDayClick={isOwnerOrAdmin ? (dateStr) => {
+                  setDayModalDate(dateStr);
+                  // If only one staff filtered, pre-select them
+                  if (filteredData.length === 1) {
+                    setDayModalStaffId(filteredData[0].staffId);
+                    const jsDay = new Date(dateStr).getDay();
+                    const staffOvr = overrides.get(filteredData[0].staffId) || [];
+                    const override = staffOvr.find((o) => o.date === dateStr);
+                    const shift = filteredData[0].shifts.find((s) => s.dayOfWeek === jsDay);
+                    setDayForm({
+                      startTime: toHHMM(override?.startTime ?? shift?.startTime) || "09:00",
+                      endTime: toHHMM(override?.endTime ?? shift?.endTime) || "18:00",
+                      breakStartTime: toHHMM(override?.breakStartTime ?? shift?.breakStartTime) || "12:00",
+                      breakEndTime: toHHMM(override?.breakEndTime ?? shift?.breakEndTime) || "13:00",
+                      isWorkingDay: override ? override.isWorkingDay : (shift?.isWorkingDay ?? true),
+                    });
+                  } else {
+                    setDayModalStaffId(null);
+                  }
+                } : undefined}
               />
             );
           })()}
 
         </>
+      )}
+
+      {/* ─── Day Override Modal ─── */}
+      {dayModalDate && isOwnerOrAdmin && createPortal(
+        <div
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+          style={{ backdropFilter: "blur(6px)", backgroundColor: "rgba(0,0,0,0.65)" }}
+          onClick={(e) => { if (e.target === e.currentTarget) setDayModalDate(null); }}
+        >
+          <div className={`w-full max-w-md overflow-hidden rounded-2xl border shadow-[0_24px_80px_rgba(0,0,0,0.3)] ${
+            isDark ? "border-amber-500/25 bg-[#0e0b1a]" : "border-purple-200 bg-white"
+          }`}>
+            {/* Header */}
+            <div className={`flex items-center justify-between border-b px-5 py-4 ${
+              isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-purple-100 bg-purple-50/50"
+            }`}>
+              <div>
+                <p className={`text-sm font-semibold ${isDark ? "" : "text-gray-900"}`}>{t.dayOverride}</p>
+                <p className={`text-[11px] ${isDark ? "text-white/40" : "text-gray-500"}`}>
+                  {new Date(dayModalDate + "T12:00:00").toLocaleDateString(language === "tr" ? "tr-TR" : "en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                </p>
+              </div>
+              <button onClick={() => setDayModalDate(null)} className={isDark ? "text-white/30 hover:text-white/60" : "text-gray-400 hover:text-gray-600"}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+            </div>
+
+            <div className="space-y-4 p-5">
+              {/* Staff selector (if multiple staff) */}
+              {filteredData.length > 1 && (
+                <div>
+                  <p className={`mb-1.5 text-[10px] ${isDark ? "text-white/30" : "text-gray-500"}`}>{t.selectStaff}</p>
+                  <select
+                    value={dayModalStaffId ?? ""}
+                    onChange={(e) => {
+                      const sid = parseInt(e.target.value);
+                      setDayModalStaffId(sid);
+                      const sw = weeklyData.find((s) => s.staffId === sid);
+                      if (sw) {
+                        const jsDay = new Date(dayModalDate + "T12:00:00").getDay();
+                        const staffOvr = overrides.get(sid) || [];
+                        const override = staffOvr.find((o) => o.date === dayModalDate);
+                        const shift = sw.shifts.find((s) => s.dayOfWeek === jsDay);
+                        setDayForm({
+                          startTime: toHHMM(override?.startTime ?? shift?.startTime) || "09:00",
+                          endTime: toHHMM(override?.endTime ?? shift?.endTime) || "18:00",
+                          breakStartTime: toHHMM(override?.breakStartTime ?? shift?.breakStartTime) || "12:00",
+                          breakEndTime: toHHMM(override?.breakEndTime ?? shift?.breakEndTime) || "13:00",
+                          isWorkingDay: override ? override.isWorkingDay : (shift?.isWorkingDay ?? true),
+                        });
+                      }
+                    }}
+                    className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-amber-500/50 focus:outline-none ${isDark ? "border-white/[0.08] bg-white/[0.05] text-white" : "border-purple-200 bg-white text-gray-900"}`}
+                  >
+                    <option value="">{t.selectStaff}...</option>
+                    {filteredData.map((sw) => (
+                      <option key={sw.staffId} value={sw.staffId}>{sw.staffFullName}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {dayModalStaffId && (
+                <>
+                  {/* Working / Off toggle */}
+                  <button
+                    onClick={() => setDayForm((p) => ({ ...p, isWorkingDay: !p.isWorkingDay }))}
+                    className={`w-full rounded-xl py-2.5 text-sm font-semibold transition ${
+                      dayForm.isWorkingDay
+                        ? "bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500/30"
+                        : "bg-red-500/15 text-red-400 hover:bg-red-500/25"
+                    }`}
+                  >
+                    {dayForm.isWorkingDay ? t.workingDay : t.dayOff}
+                  </button>
+
+                  {dayForm.isWorkingDay && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <p className="mb-1 text-[10px] text-white/30">{t.start}</p>
+                        <input type="time" value={dayForm.startTime} onChange={(e) => setDayForm((p) => ({ ...p, startTime: e.target.value }))}
+                          className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-amber-500/50 focus:outline-none ${isDark ? "border-white/[0.08] bg-white/[0.05] text-white" : "border-purple-200 bg-white text-gray-900"}`} />
+                      </div>
+                      <div>
+                        <p className="mb-1 text-[10px] text-white/30">{t.end}</p>
+                        <input type="time" value={dayForm.endTime} onChange={(e) => setDayForm((p) => ({ ...p, endTime: e.target.value }))}
+                          className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-amber-500/50 focus:outline-none ${isDark ? "border-white/[0.08] bg-white/[0.05] text-white" : "border-purple-200 bg-white text-gray-900"}`} />
+                      </div>
+                      <div>
+                        <p className="mb-1 text-[10px] text-white/30">{t.breakStart}</p>
+                        <input type="time" value={dayForm.breakStartTime} onChange={(e) => setDayForm((p) => ({ ...p, breakStartTime: e.target.value }))}
+                          className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-amber-500/50 focus:outline-none ${isDark ? "border-white/[0.08] bg-white/[0.05] text-white" : "border-purple-200 bg-white text-gray-900"}`} />
+                      </div>
+                      <div>
+                        <p className="mb-1 text-[10px] text-white/30">{t.breakEnd}</p>
+                        <input type="time" value={dayForm.breakEndTime} onChange={(e) => setDayForm((p) => ({ ...p, breakEndTime: e.target.value }))}
+                          className={`w-full rounded-xl border px-3 py-2 text-sm focus:border-amber-500/50 focus:outline-none ${isDark ? "border-white/[0.08] bg-white/[0.05] text-white" : "border-purple-200 bg-white text-gray-900"}`} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Action buttons */}
+                  <div className="flex gap-2 pt-2">
+                    {(overrides.get(dayModalStaffId) || []).some((o) => o.date === dayModalDate) && (
+                      <button
+                        onClick={async () => {
+                          setDaySaving(true);
+                          try {
+                            await staffShiftService.deleteOverride(dayModalStaffId!, dayModalDate!);
+                            toast.success(t.overrideReverted);
+                            setDayModalDate(null);
+                            fetchOverrides(weeklyData);
+                          } catch { toast.error("Error"); }
+                          finally { setDaySaving(false); }
+                        }}
+                        disabled={daySaving}
+                        className="flex-1 rounded-xl border border-white/10 bg-white/[0.04] py-2.5 text-xs font-semibold text-white/60 transition hover:bg-white/[0.08] disabled:opacity-40"
+                      >
+                        {t.revertDefault}
+                      </button>
+                    )}
+                    <button
+                      onClick={async () => {
+                        setDaySaving(true);
+                        try {
+                          await staffShiftService.upsertOverride(dayModalStaffId!, {
+                            date: dayModalDate!,
+                            startTime: dayForm.startTime,
+                            endTime: dayForm.endTime,
+                            breakStartTime: dayForm.breakStartTime || null,
+                            breakEndTime: dayForm.breakEndTime || null,
+                            isWorkingDay: dayForm.isWorkingDay,
+                          });
+                          toast.success(t.overrideSaved);
+                          setDayModalDate(null);
+                          fetchOverrides(weeklyData);
+                        } catch { toast.error("Error"); }
+                        finally { setDaySaving(false); }
+                      }}
+                      disabled={daySaving}
+                      className="flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] py-2.5 text-sm font-semibold text-white shadow-lg transition hover:shadow-green-900/50 disabled:opacity-40"
+                    >
+                      {daySaving ? t.saving : t.save}
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
 
       {/* ─── Edit Modal Overlay ─── */}
@@ -529,29 +795,35 @@ export default function StaffShiftsPage() {
             style={{ backdropFilter: "blur(6px)", backgroundColor: "rgba(0,0,0,0.65)" }}
             onClick={(e) => { if (e.target === e.currentTarget) setEditingStaffId(null); }}
           >
-            <div className="w-full max-w-5xl overflow-hidden rounded-2xl border border-violet-500/25 bg-[#0e0b1a] shadow-[0_24px_80px_rgba(0,0,0,0.6)]">
+            <div className={`w-full max-w-5xl overflow-hidden rounded-2xl border shadow-[0_24px_80px_rgba(0,0,0,0.3)] ${
+              isDark
+                ? "border-violet-500/25 bg-[#0e0b1a]"
+                : "border-purple-200 bg-white"
+            }`}>
 
               {/* Modal header */}
-              <div className="flex items-center justify-between border-b border-white/[0.06] bg-white/[0.03] px-5 py-4">
+              <div className={`flex items-center justify-between border-b px-5 py-4 ${
+                isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-purple-100 bg-purple-50/50"
+              }`}>
                 <div className="flex items-center gap-3">
                   <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br ${color.avatar} text-[12px] font-bold text-white shadow`}>
                     {staffInitials(staffWeek.staffFullName)}
                   </div>
                   <div>
-                    <p className="text-[11px] text-white/35">{t.editScheduleFor}</p>
-                    <p className="text-sm font-semibold leading-tight">{staffWeek.staffFullName}</p>
+                    <p className={`text-[11px] ${isDark ? "text-white/35" : "text-gray-500"}`}>{t.editScheduleFor}</p>
+                    <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-gray-900"}`}>{staffWeek.staffFullName}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={applyDefaults}
-                    className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/50 transition hover:bg-white/[0.08] hover:text-white/70"
+                    className={`rounded-lg border px-3 py-1.5 text-xs transition ${isDark ? "border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70" : "border-purple-200 bg-purple-50 text-gray-600 hover:bg-purple-100"}`}
                   >
                     {t.resetDefaults}
                   </button>
                   <button
                     onClick={() => setEditingStaffId(null)}
-                    className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/50 transition hover:bg-white/[0.08] hover:text-white/70"
+                    className={`rounded-lg border px-3 py-1.5 text-xs transition ${isDark ? "border-white/10 bg-white/[0.04] text-white/50 hover:bg-white/[0.08] hover:text-white/70" : "border-purple-200 bg-purple-50 text-gray-600 hover:bg-purple-100"}`}
                   >
                     {t.cancel}
                   </button>
@@ -566,16 +838,16 @@ export default function StaffShiftsPage() {
               </div>
 
               {/* 7-column day grid */}
-              <div className="grid grid-cols-7 divide-x divide-white/[0.04]">
+              <div className={`grid grid-cols-7 divide-x ${isDark ? "divide-white/[0.04]" : "divide-purple-100"}`}>
                 {WEEK_ORDER.map((dayIdx) => {
                   const isWeekend = dayIdx === 0 || dayIdx === 6;
                   const shift = editShifts.find((s) => s.dayOfWeek === dayIdx);
                   if (!shift) return <div key={dayIdx} />;
                   return (
-                    <div key={dayIdx} className={`p-3 ${isWeekend ? "bg-white/[0.015]" : ""}`}>
+                    <div key={dayIdx} className={`p-3 ${isWeekend ? (isDark ? "bg-white/[0.015]" : "bg-purple-50/50") : ""}`}>
                       {/* Day label */}
                       <div className="mb-2 text-center">
-                        <span className={`text-[10px] font-bold tracking-wider ${isWeekend ? "text-amber-400/70" : "text-white/35"}`}>
+                        <span className={`text-[10px] font-bold tracking-wider ${isWeekend ? "text-amber-400/70" : (isDark ? "text-white/35" : "text-gray-400")}`}>
                           {DAY_LABEL[language][dayIdx]}
                         </span>
                       </div>
@@ -595,43 +867,43 @@ export default function StaffShiftsPage() {
                       {shift.isWorkingDay && (
                         <div className="space-y-2">
                           <div>
-                            <p className="mb-1 text-[9px] text-white/25">{t.start}</p>
+                            <p className={`mb-1 text-[9px] ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.start}</p>
                             <input
                               type="time"
                               value={shift.startTime}
                               onChange={(e) => updateShift(dayIdx, "startTime", e.target.value)}
-                              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 py-1.5 text-[11px] text-white focus:border-violet-500/50 focus:outline-none"
+                              className={`w-full rounded-lg border px-2 py-1.5 text-[11px] focus:border-violet-500/50 focus:outline-none ${isDark ? "border-white/[0.08] bg-white/[0.05] text-white" : "border-purple-200 bg-white text-gray-900"}`}
                             />
                           </div>
                           <div>
-                            <p className="mb-1 text-[9px] text-white/25">{t.end}</p>
+                            <p className={`mb-1 text-[9px] ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.end}</p>
                             <input
                               type="time"
                               value={shift.endTime}
                               onChange={(e) => updateShift(dayIdx, "endTime", e.target.value)}
-                              className="w-full rounded-lg border border-white/[0.08] bg-white/[0.05] px-2 py-1.5 text-[11px] text-white focus:border-violet-500/50 focus:outline-none"
+                              className={`w-full rounded-lg border px-2 py-1.5 text-[11px] focus:border-violet-500/50 focus:outline-none ${isDark ? "border-white/[0.08] bg-white/[0.05] text-white" : "border-purple-200 bg-white text-gray-900"}`}
                             />
                           </div>
-                          <div className="space-y-2 rounded-lg border border-white/[0.06] bg-white/[0.03] p-2">
-                            <p className="text-[9px] font-semibold uppercase tracking-wider text-white/25">
+                          <div className={`space-y-2 rounded-lg border p-2 ${isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-purple-100 bg-purple-50/30"}`}>
+                            <p className={`text-[9px] font-semibold uppercase tracking-wider ${isDark ? "text-white/25" : "text-gray-400"}`}>
                               {t.breakLabel}
                             </p>
                             <div>
-                              <p className="mb-1 text-[9px] text-white/20">{t.breakStart}</p>
+                              <p className={`mb-1 text-[9px] ${isDark ? "text-white/20" : "text-gray-400"}`}>{t.breakStart}</p>
                               <input
                                 type="time"
                                 value={shift.breakStartTime || ""}
                                 onChange={(e) => updateShift(dayIdx, "breakStartTime", e.target.value || null)}
-                                className="w-full rounded-lg border border-white/[0.06] bg-white/[0.04] px-2 py-1 text-[11px] text-white/70 focus:border-violet-500/50 focus:outline-none"
+                                className={`w-full rounded-lg border px-2 py-1 text-[11px] focus:border-violet-500/50 focus:outline-none ${isDark ? "border-white/[0.06] bg-white/[0.04] text-white/70" : "border-purple-200 bg-white text-gray-700"}`}
                               />
                             </div>
                             <div>
-                              <p className="mb-1 text-[9px] text-white/20">{t.breakEnd}</p>
+                              <p className={`mb-1 text-[9px] ${isDark ? "text-white/20" : "text-gray-400"}`}>{t.breakEnd}</p>
                               <input
                                 type="time"
                                 value={shift.breakEndTime || ""}
                                 onChange={(e) => updateShift(dayIdx, "breakEndTime", e.target.value || null)}
-                                className="w-full rounded-lg border border-white/[0.06] bg-white/[0.04] px-2 py-1 text-[11px] text-white/70 focus:border-violet-500/50 focus:outline-none"
+                                className={`w-full rounded-lg border px-2 py-1 text-[11px] focus:border-violet-500/50 focus:outline-none ${isDark ? "border-white/[0.06] bg-white/[0.04] text-white/70" : "border-purple-200 bg-white text-gray-700"}`}
                               />
                             </div>
                           </div>

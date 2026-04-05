@@ -84,7 +84,7 @@ body.theme-dark {
 }
 
 body.theme-light {
-  background-color: #f1f5f9;
+  background-color: #f6f4f9;
   color: #0f172a;
 }
 
@@ -111,15 +111,16 @@ body.theme-dark .estiva-dashboard {
 }
 
 body.theme-light .estiva-dashboard {
-  background: #f1f5f9;
+  background: linear-gradient(135deg, #f6f4f9 0%, #f0eef5 50%, #f5f2f8 100%);
   color: #0f172a;
 }
 
 /* Topbar in light mode */
 body.theme-light .estiva-dashboard header {
-  background: rgba(255,255,255,0.92) !important;
-  border-bottom-color: #e2e8f0 !important;
+  background: rgba(250, 248, 253, 0.92) !important;
+  border-bottom-color: #e8e0f0 !important;
   color: #0f172a !important;
+  backdrop-filter: blur(12px);
 }
 
 body.theme-dark .estiva-dashboard-panel {
@@ -128,7 +129,7 @@ body.theme-dark .estiva-dashboard-panel {
 }
 
 body.theme-light .estiva-dashboard-panel {
-  background: #f1f5f9;
+  background: linear-gradient(180deg, #f6f4f9, #f0eef5);
 }
 
 body.theme-dark .estiva-dashboard-sidebar {
@@ -137,9 +138,9 @@ body.theme-dark .estiva-dashboard-sidebar {
 }
 
 body.theme-light .estiva-dashboard-sidebar {
-  background: #ffffff;
-  border-right: 1px solid #e2e8f0;
-  box-shadow: 1px 0 0 #e2e8f0;
+  background: linear-gradient(180deg, #faf8fd, #f5f2f8);
+  border-right: 1px solid #e8e0f0;
+  box-shadow: 1px 0 8px rgba(139, 92, 246, 0.04);
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -175,20 +176,20 @@ body.theme-light .estiva-dashboard textarea::placeholder { color: rgb(15 23 42 /
 body.theme-dark .estiva-dashboard .placeholder-white\/30::placeholder { color: rgb(255 255 255 / 0.3); }
 body.theme-light .estiva-dashboard .placeholder-white\/30::placeholder { color: rgb(15 23 42 / 0.35); }
 
-/* Surfaces */
-body.theme-light .estiva-dashboard .bg-white { background-color: #ffffff; }
-body.theme-light .estiva-dashboard .bg-white\/5  { background-color: rgb(248 250 252 / 0.9); }
-body.theme-light .estiva-dashboard .bg-white\/10 { background-color: rgb(241 245 249 / 0.9); }
-body.theme-light .estiva-dashboard .bg-white\/15 { background-color: rgb(226 232 240 / 0.9); }
-body.theme-light .estiva-dashboard .bg-white\/20 { background-color: rgb(203 213 225 / 0.5); }
-body.theme-light .estiva-dashboard .bg-white\/\[0\.02\] { background-color: rgb(248 250 252 / 0.7); }
-body.theme-light .estiva-dashboard .bg-white\/\[0\.03\] { background-color: rgb(248 250 252 / 0.85); }
-body.theme-light .estiva-dashboard .bg-white\/\[0\.06\] { background-color: rgb(241 245 249 / 0.8); }
+/* Surfaces — warm purple-pink tint */
+body.theme-light .estiva-dashboard .bg-white { background-color: #fefefe; }
+body.theme-light .estiva-dashboard .bg-white\/5  { background-color: rgb(250 248 253 / 0.9); }
+body.theme-light .estiva-dashboard .bg-white\/10 { background-color: rgb(245 242 248 / 0.9); }
+body.theme-light .estiva-dashboard .bg-white\/15 { background-color: rgb(232 224 240 / 0.9); }
+body.theme-light .estiva-dashboard .bg-white\/20 { background-color: rgb(216 210 228 / 0.5); }
+body.theme-light .estiva-dashboard .bg-white\/\[0\.02\] { background-color: rgb(250 248 253 / 0.7); }
+body.theme-light .estiva-dashboard .bg-white\/\[0\.03\] { background-color: rgb(250 248 253 / 0.85); }
+body.theme-light .estiva-dashboard .bg-white\/\[0\.06\] { background-color: rgb(245 242 248 / 0.8); }
 
-/* Gray utilities */
+/* Gray utilities — warmer */
 body.theme-light .estiva-dashboard .bg-gray-50,
-body.theme-light .estiva-dashboard .bg-gray-50\/50 { background-color: #f8fafc; }
-body.theme-light .estiva-dashboard .bg-gray-100    { background-color: #f1f5f9; }
+body.theme-light .estiva-dashboard .bg-gray-50\/50 { background-color: #faf8fd; }
+body.theme-light .estiva-dashboard .bg-gray-100    { background-color: #f5f2f8; }
 body.theme-light .estiva-dashboard .hover\:bg-gray-50:hover  { background-color: #f1f5f9; }
 body.theme-light .estiva-dashboard .hover\:bg-gray-100:hover { background-color: #e2e8f0; }
 
@@ -198,19 +199,19 @@ body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.04\]:hover { backgroun
 body.theme-light .estiva-dashboard .hover\:bg-white\/10:hover         { background-color: rgb(15 23 42 / 0.06); }
 body.theme-light .estiva-dashboard .hover\:bg-white\/\[0\.06\]:hover  { background-color: rgb(15 23 42 / 0.04); }
 
-/* Borders */
-body.theme-light .estiva-dashboard .border-white      { border-color: #94a3b8; }
-body.theme-light .estiva-dashboard .border-white\/5   { border-color: #f1f5f9; }
-body.theme-light .estiva-dashboard .border-white\/10  { border-color: #e2e8f0; }
-body.theme-light .estiva-dashboard .border-white\/15  { border-color: #cbd5e1; }
-body.theme-light .estiva-dashboard .border-white\/20  { border-color: #cbd5e1; }
-body.theme-light .estiva-dashboard .border-white\/40  { border-color: #94a3b8; }
-body.theme-light .estiva-dashboard .border-white\/\[0\.06\]  { border-color: #e2e8f0; }
-body.theme-light .estiva-dashboard .border-white\/\[0\.08\]  { border-color: #e2e8f0; }
-body.theme-light .estiva-dashboard .border-white\/\[0\.15\]  { border-color: #cbd5e1; }
-body.theme-light .estiva-dashboard .border-white\/\[0\.18\]  { border-color: #cbd5e1; }
-body.theme-light .estiva-dashboard .border-gray-200   { border-color: #e2e8f0; }
-body.theme-light .estiva-dashboard .border-gray-300   { border-color: #cbd5e1; }
+/* Borders — warm purple tint */
+body.theme-light .estiva-dashboard .border-white      { border-color: #a093b8; }
+body.theme-light .estiva-dashboard .border-white\/5   { border-color: #efe9f5; }
+body.theme-light .estiva-dashboard .border-white\/10  { border-color: #e8e0f0; }
+body.theme-light .estiva-dashboard .border-white\/15  { border-color: #d5cce2; }
+body.theme-light .estiva-dashboard .border-white\/20  { border-color: #d5cce2; }
+body.theme-light .estiva-dashboard .border-white\/40  { border-color: #a093b8; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.06\]  { border-color: #e8e0f0; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.08\]  { border-color: #e8e0f0; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.15\]  { border-color: #d5cce2; }
+body.theme-light .estiva-dashboard .border-white\/\[0\.18\]  { border-color: #d5cce2; }
+body.theme-light .estiva-dashboard .border-gray-200   { border-color: #e8e0f0; }
+body.theme-light .estiva-dashboard .border-gray-300   { border-color: #d5cce2; }
 
 /* Dividers */
 body.theme-light .estiva-dashboard .divide-white\/\[0\.04\] > :not([hidden]) ~ :not([hidden]) { border-color: #f1f5f9; }
@@ -221,12 +222,14 @@ body.theme-light .estiva-dashboard .ring-white\/10 { --tw-ring-color: rgb(15 23 
 body.theme-light .estiva-dashboard .ring-white\/15 { --tw-ring-color: rgb(15 23 42 / 0.15); }
 body.theme-light .estiva-dashboard .ring-white\/20 { --tw-ring-color: rgb(15 23 42 / 0.2); }
 
-/* Dark hex backgrounds → light equivalents */
-body.theme-light .estiva-dashboard .bg-\[\#0b0614\]        { background-color: #f8fafc; }
-body.theme-light .estiva-dashboard .bg-\[\#040309\]        { background-color: #f8fafc; }
-body.theme-light .estiva-dashboard .bg-\[\#0d0d1a\]\/90    { background-color: rgb(248 250 252 / 0.95); }
-body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]        { background-color: #ffffff; }
-body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]\/95    { background-color: rgb(255 255 255 / 0.97); }
+/* Dark hex backgrounds → warm light equivalents */
+body.theme-light .estiva-dashboard .bg-\[\#0b0614\]        { background-color: #faf8fd; }
+body.theme-light .estiva-dashboard .bg-\[\#040309\]        { background-color: #faf8fd; }
+body.theme-light .estiva-dashboard .bg-\[\#0d0d1a\]\/90    { background-color: rgb(250 248 253 / 0.95); }
+body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]        { background-color: #fefefe; }
+body.theme-light .estiva-dashboard .bg-\[\#1a1a2e\]\/95    { background-color: rgb(254 254 254 / 0.97); }
+body.theme-light .estiva-dashboard .bg-\[\#0e0b1a\]        { background-color: #fefefe; }
+body.theme-light .estiva-dashboard .bg-\[\#130628\]        { background-color: #faf8fd; }
 
 /* Keep white text on coloured/gradient buttons */
 body.theme-light .estiva-dashboard [class*="bg-[#"].text-white { color: #ffffff; }
@@ -249,6 +252,56 @@ body.theme-light .estiva-dashboard .border-yellow-500\/20 { border-color: rgb(23
 body.theme-light .estiva-dashboard .border-yellow-500\/30 { border-color: rgb(234 179 8 / 0.4); }
 body.theme-light .estiva-dashboard .border-orange-500\/30 { border-color: rgb(249 115 22 / 0.4); }
 body.theme-light .estiva-dashboard .bg-yellow-500\/10    { background-color: rgb(254 249 195 / 0.7); }
+
+/* ── Export Buttons — stronger in light mode ── */
+body.theme-light .estiva-dashboard button[class*="border-emerald-500"] {
+  border-color: #059669 !important;
+  background-color: rgba(5, 150, 105, 0.12) !important;
+  color: #047857 !important;
+}
+body.theme-light .estiva-dashboard button[class*="border-red-500"] {
+  border-color: #dc2626 !important;
+  background-color: rgba(220, 38, 38, 0.1) !important;
+  color: #b91c1c !important;
+}
+
+/* ── Stat cards — subtle purple glow in light mode ── */
+body.theme-light .estiva-dashboard .group.relative.overflow-hidden.rounded-2xl {
+  box-shadow: 0 1px 3px rgba(139, 92, 246, 0.06), 0 0 0 1px rgba(139, 92, 246, 0.04);
+}
+body.theme-light .estiva-dashboard .group.relative.overflow-hidden.rounded-2xl:hover {
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.1), 0 0 0 1px rgba(139, 92, 246, 0.08);
+}
+
+/* ── Calendar — stronger event badges in light mode ── */
+body.theme-light .estiva-dashboard [class*="bg-violet-500/20"] { background-color: rgba(139, 92, 246, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-emerald-500/20"] { background-color: rgba(16, 185, 129, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-sky-500/20"] { background-color: rgba(14, 165, 233, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-amber-500/20"] { background-color: rgba(245, 158, 11, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-rose-500/20"] { background-color: rgba(244, 63, 94, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-cyan-500/20"] { background-color: rgba(6, 182, 212, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-pink-500/20"] { background-color: rgba(236, 72, 153, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-lime-500/20"] { background-color: rgba(132, 204, 22, 0.15) !important; }
+
+/* ── Calendar event text — darker in light mode ── */
+body.theme-light .estiva-dashboard [class*="text-violet-300"] { color: #7c3aed !important; }
+body.theme-light .estiva-dashboard [class*="text-emerald-300"] { color: #059669 !important; }
+body.theme-light .estiva-dashboard [class*="text-sky-300"] { color: #0284c7 !important; }
+body.theme-light .estiva-dashboard [class*="text-amber-300"] { color: #d97706 !important; }
+body.theme-light .estiva-dashboard [class*="text-rose-300"] { color: #e11d48 !important; }
+body.theme-light .estiva-dashboard [class*="text-cyan-300"] { color: #0891b2 !important; }
+body.theme-light .estiva-dashboard [class*="text-pink-300"] { color: #db2777 !important; }
+body.theme-light .estiva-dashboard [class*="text-lime-300"] { color: #65a30d !important; }
+
+/* ── Leave type badges stronger in light mode ── */
+body.theme-light .estiva-dashboard [class*="bg-blue-500/20"] { background-color: rgba(59, 130, 246, 0.15) !important; }
+body.theme-light .estiva-dashboard [class*="bg-red-500/20"] { background-color: rgba(239, 68, 68, 0.15) !important; }
+
+/* ── Scrollbar styling ── */
+.scrollbar-thin::-webkit-scrollbar { height: 4px; }
+.scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+.scrollbar-thin::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.2); border-radius: 4px; }
+.scrollbar-thin::-webkit-scrollbar-thumb:hover { background: rgba(139, 92, 246, 0.4); }
 
 /* Layout utility */
 

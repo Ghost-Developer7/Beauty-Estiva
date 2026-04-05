@@ -44,7 +44,7 @@ const copy = {
     subtitle: "Manage staff leave requests and balances",
     loading: "Loading...",
     noData: "No leave requests found.",
-    newLeave: "+ New Leave Request",
+    newLeave: "New Leave Request",
     staff: "Staff",
     type: "Type",
     dates: "Dates",
@@ -81,13 +81,14 @@ const copy = {
     viewCalendar: "Calendar",
     today: "Today",
     cancel: "Cancel",
+    overlapError: "This staff member already has a leave for the selected dates.",
   },
   tr: {
     title: "İzin Yönetimi",
     subtitle: "Personel izin talepleri ve bakiyeleri",
     loading: "Yükleniyor...",
     noData: "İzin talebi bulunamadı.",
-    newLeave: "+ Yeni İzin Talebi",
+    newLeave: "Yeni İzin Talebi",
     staff: "Personel",
     type: "Tür",
     dates: "Tarihler",
@@ -124,6 +125,7 @@ const copy = {
     viewCalendar: "Takvim",
     today: "Bugün",
     cancel: "İptal",
+    overlapError: "Bu personelin seçilen tarihlerde zaten izni bulunmaktadır.",
   },
 };
 
@@ -238,6 +240,23 @@ export default function StaffLeavesPage() {
 
   const handleCreate = async () => {
     if (!formStartDate || !formEndDate || !formType) return;
+
+    // Check for overlap with existing leaves
+    const targetStaffId = formStaffId ?? (user?.id ? parseInt(user.id) : null);
+    if (targetStaffId) {
+      const hasOverlap = leaves.some((l) => {
+        if (l.staffId !== targetStaffId) return false;
+        if (l.status === "Rejected") return false;
+        const existStart = toDateStr(l.startDate);
+        const existEnd = toDateStr(l.endDate);
+        return formStartDate <= existEnd && formEndDate >= existStart;
+      });
+      if (hasOverlap) {
+        toast.error(t.overlapError);
+        return;
+      }
+    }
+
     setCreating(true);
     try {
       await staffLeaveService.create({
@@ -285,18 +304,46 @@ export default function StaffLeavesPage() {
   const getStatusColor = (status: string) =>
     STATUS_CONFIG[status]?.color ?? "bg-white/10 text-white/60";
 
-  /* ── Calendar events: map leaves to CalendarEvent[] ── */
-  const calendarEvents: CalendarEvent[] = leaves.map((leave) => {
-    const lt = LEAVE_TYPES.find((l) => l.value === leave.leaveType);
-    return {
-      id: leave.id,
-      startDate: toDateStr(leave.startDate),
-      endDate: toDateStr(leave.endDate),
-      className: lt?.color,
-      label: leave.staffFullName,
-      meta: leave,
-    };
-  });
+  /* ── Calendar events: map leaves to CalendarEvent[], merging overlapping leaves per staff ── */
+  const calendarEvents: CalendarEvent[] = (() => {
+    // Group by staffId and merge overlapping date ranges
+    const byStaff = new Map<number, StaffLeaveListItem[]>();
+    for (const leave of leaves) {
+      if (!byStaff.has(leave.staffId)) byStaff.set(leave.staffId, []);
+      byStaff.get(leave.staffId)!.push(leave);
+    }
+
+    const events: CalendarEvent[] = [];
+    for (const [, staffLeaves] of byStaff) {
+      // Sort by start date
+      const sorted = [...staffLeaves].sort((a, b) => a.startDate.localeCompare(b.startDate));
+      // Merge overlapping ranges
+      const merged: { start: string; end: string; leave: StaffLeaveListItem }[] = [];
+      for (const leave of sorted) {
+        const s = toDateStr(leave.startDate);
+        const e = toDateStr(leave.endDate);
+        const last = merged[merged.length - 1];
+        if (last && s <= last.end) {
+          // Overlapping — extend range
+          if (e > last.end) last.end = e;
+        } else {
+          merged.push({ start: s, end: e, leave });
+        }
+      }
+      for (const m of merged) {
+        const lt = LEAVE_TYPES.find((l) => l.value === m.leave.leaveType);
+        events.push({
+          id: m.leave.id,
+          startDate: m.start,
+          endDate: m.end,
+          className: lt?.color,
+          label: m.leave.staffFullName,
+          meta: m.leave,
+        });
+      }
+    }
+    return events;
+  })();
 
   /* ── Month navigation ── */
   const prevMonth = () => {
@@ -360,8 +407,9 @@ export default function StaffLeavesPage() {
 
           <button
             onClick={() => setShowModal(true)}
-            className="rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-500"
+            className="group flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-green-900/30 transition-all hover:shadow-green-900/50 hover:scale-[1.02] active:scale-[0.98]"
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
             {t.newLeave}
           </button>
         </div>
@@ -373,28 +421,57 @@ export default function StaffLeavesPage() {
           <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-white/25">
             {t.leaveBalances}
           </p>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {balances.map((b) => (
-              <div
-                key={b.staffId}
-                className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4"
-              >
-                <p className="truncate text-sm font-semibold text-white/90">{b.staffFullName}</p>
-                <div className="mt-3 grid grid-cols-4 gap-1 text-center">
-                  {[
-                    { label: t.entitlement, value: b.annualEntitlement, color: "text-white/80" },
-                    { label: t.used,        value: b.usedDays,          color: "text-blue-400"    },
-                    { label: t.pending,     value: b.pendingDays,       color: "text-amber-400"   },
-                    { label: t.remaining,   value: b.remainingDays,     color: b.remainingDays > 0 ? "text-emerald-400" : "text-red-400" },
-                  ].map((col) => (
-                    <div key={col.label}>
-                      <p className="text-[9px] text-white/25">{col.label}</p>
-                      <p className={`text-sm font-bold ${col.color}`}>{col.value}</p>
+          <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin">
+            {balances.map((b) => {
+              const usedPct = b.annualEntitlement > 0 ? Math.round((b.usedDays / b.annualEntitlement) * 100) : 0;
+              const pendingPct = b.annualEntitlement > 0 ? Math.round((b.pendingDays / b.annualEntitlement) * 100) : 0;
+              return (
+                <div
+                  key={b.staffId}
+                  className={`group relative overflow-hidden rounded-2xl border p-5 transition-all duration-300 hover:scale-[1.02] min-w-[280px] flex-1 shrink-0 ${
+                    isDark
+                      ? "border-white/[0.06] bg-white/[0.03] hover:border-white/[0.15] hover:bg-white/[0.06]"
+                      : "border-gray-200 bg-gray-50/50 hover:border-gray-300 hover:bg-gray-50"
+                  }`}
+                >
+                  {/* Ambient glow */}
+                  <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-violet-500 opacity-10 blur-2xl transition-all duration-500 group-hover:h-32 group-hover:w-32 group-hover:opacity-30" />
+
+                  {/* Name + initials */}
+                  <div className="relative flex items-center gap-3 mb-4">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500/40 to-purple-500/40 text-xs font-bold text-white">
+                      {b.staffFullName.split(" ").map((n: string) => n.charAt(0)).join("").toUpperCase().slice(0, 2)}
                     </div>
-                  ))}
+                    <p className={`truncate text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{b.staffFullName}</p>
+                  </div>
+
+                  {/* Progress bar */}
+                  <div className="relative mb-4">
+                    <div className={`h-2 w-full overflow-hidden rounded-full ${isDark ? "bg-white/[0.07]" : "bg-gray-200"}`}>
+                      <div className="flex h-full">
+                        <div className="h-full bg-blue-500 transition-all duration-700" style={{ width: `${Math.min(usedPct, 100)}%` }} />
+                        <div className="h-full bg-amber-500 transition-all duration-700" style={{ width: `${Math.min(pendingPct, 100 - usedPct)}%` }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Stats grid */}
+                  <div className="relative grid grid-cols-4 gap-2 text-center">
+                    {[
+                      { label: t.entitlement, value: b.annualEntitlement, color: isDark ? "text-white/80" : "text-gray-700" },
+                      { label: t.used,        value: b.usedDays,          color: "text-blue-400"    },
+                      { label: t.pending,     value: b.pendingDays,       color: "text-amber-400"   },
+                      { label: t.remaining,   value: b.remainingDays,     color: b.remainingDays > 0 ? "text-emerald-400" : "text-red-400" },
+                    ].map((col) => (
+                      <div key={col.label}>
+                        <p className={`text-[9px] font-medium uppercase tracking-wider ${isDark ? "text-white/30" : "text-gray-400"}`}>{col.label}</p>
+                        <p className={`mt-0.5 text-lg font-bold ${col.color}`}>{col.value}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

@@ -6,8 +6,9 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { dashboardService } from "@/services/dashboardService";
 import { tenantService } from "@/services/tenantService";
+import { staffLeaveService } from "@/services/staffLeaveService";
 import type { TenantInfo } from "@/services/tenantService";
-import type { DashboardSummary } from "@/types/api";
+import type { DashboardSummary, StaffLeaveListItem } from "@/types/api";
 import toast from "react-hot-toast";
 import SharedStatCard from "@/components/ui/StatCard";
 import {
@@ -82,6 +83,9 @@ const copy = {
     cancellationAlert: "CANCELLATIONS TODAY",
     noShowAlert: "no-shows",
     alertSub: "attention needed",
+    onLeaveToday: "ON LEAVE TODAY",
+    noLeave: "No one is on leave today",
+    leaveType: "Leave",
   },
   tr: {
     welcome: "Tekrar hoş geldiniz",
@@ -127,6 +131,9 @@ const copy = {
     cancellationAlert: "BUGÜN İPTAL / GELMEDİ",
     noShowAlert: "gelmedi",
     alertSub: "dikkat gerekiyor",
+    onLeaveToday: "BUGÜN İZİNLİ",
+    noLeave: "Bugün izinli personel yok",
+    leaveType: "İzin",
   },
 };
 
@@ -206,6 +213,7 @@ export default function OverviewScreen() {
 
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
+  const [todayLeaves, setTodayLeaves] = useState<StaffLeaveListItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Role checks
@@ -218,15 +226,31 @@ export default function OverviewScreen() {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const [res, tenantRes] = await Promise.allSettled([
+      const [res, tenantRes, leavesRes] = await Promise.allSettled([
         dashboardService.getSummary(),
         tenantService.getTenantInfo(),
+        staffLeaveService.list({ status: "Approved" }),
       ]);
       if (res.status === "fulfilled" && res.value.data.success && res.value.data.data) {
         setData(res.value.data.data);
       }
       if (tenantRes.status === "fulfilled" && tenantRes.value.data.success && tenantRes.value.data.data) {
         setTenantInfo(tenantRes.value.data.data);
+      }
+      if (leavesRes.status === "fulfilled" && leavesRes.value.data.success && leavesRes.value.data.data) {
+        const todayDate = new Date().toISOString().slice(0, 10);
+        const onLeave = leavesRes.value.data.data.filter((l: StaffLeaveListItem) => {
+          const start = l.startDate.slice(0, 10);
+          const end = l.endDate.slice(0, 10);
+          return todayDate >= start && todayDate <= end;
+        });
+        // Deduplicate by staffId
+        const seen = new Set<number>();
+        setTodayLeaves(onLeave.filter((l: StaffLeaveListItem) => {
+          if (seen.has(l.staffId)) return false;
+          seen.add(l.staffId);
+          return true;
+        }));
       }
     } catch {
       toast.error(language === "tr" ? "Dashboard verileri yüklenemedi" : "Failed to load dashboard");
@@ -343,7 +367,7 @@ export default function OverviewScreen() {
       label: t.monthRevenue,
       value: `${formatCurrency(data.thisMonthRevenue)} ₺`,
       sub: `${t.thisWeek}: ${formatCurrency(data.thisWeekRevenue)} ₺`,
-      href: "/dashboard/sales-reports",
+      href: "/dashboard/reports/sales",
       icon: (
         <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -433,6 +457,50 @@ export default function OverviewScreen() {
           />
         ))}
       </section>
+
+      {/* ── On Leave Today ───────────────────────────────────────────────── */}
+      {todayLeaves.length > 0 && (
+        <section className={`rounded-2xl border p-4 ${
+          isDark
+            ? "border-white/[0.06] bg-white/[0.02]"
+            : "border-gray-200 bg-gray-50/50"
+        }`}>
+          <p className={`mb-3 text-[11px] font-semibold uppercase tracking-widest ${isDark ? "text-white/25" : "text-gray-400"}`}>
+            {t.onLeaveToday}
+          </p>
+          <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-thin">
+            {todayLeaves.map((leave) => {
+              const initials = leave.staffFullName.split(" ").map((n: string) => n.charAt(0)).join("").toUpperCase().slice(0, 2);
+              return (
+                <div
+                  key={leave.id}
+                  className={`group relative flex items-center gap-3 overflow-hidden rounded-xl border px-4 py-3 min-w-[220px] shrink-0 transition-all duration-300 hover:scale-[1.02] ${
+                    isDark
+                      ? "border-amber-500/20 bg-amber-500/5 hover:border-amber-500/30 hover:bg-amber-500/10"
+                      : "border-amber-200 bg-amber-50 hover:border-amber-300"
+                  }`}
+                >
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-amber-500/40 to-orange-500/40 text-xs font-bold text-white">
+                    {initials}
+                  </div>
+                  <div className="min-w-0">
+                    <p className={`truncate text-sm font-semibold ${isDark ? "text-white/90" : "text-gray-900"}`}>
+                      {leave.staffFullName}
+                    </p>
+                    <p className={`text-[10px] ${isDark ? "text-amber-400/60" : "text-amber-600"}`}>
+                      {leave.leaveType === "Annual" ? (language === "tr" ? "Yıllık İzin" : "Annual Leave") :
+                       leave.leaveType === "Sick" ? (language === "tr" ? "Hastalık İzni" : "Sick Leave") :
+                       leave.leaveType === "Maternity" ? (language === "tr" ? "Doğum İzni" : "Maternity Leave") :
+                       leave.leaveType === "Unpaid" ? (language === "tr" ? "Ücretsiz İzin" : "Unpaid Leave") :
+                       (language === "tr" ? "Diğer" : "Other")}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
       {/* ── Net Profit banner (owner/admin only) ────────────────────────── */}
       {isOwnerOrAdmin && (() => {

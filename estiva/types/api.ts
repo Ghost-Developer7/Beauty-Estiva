@@ -894,6 +894,17 @@ export interface StaffShiftBulkUpdate {
   shifts: StaffShiftUpsert[];
 }
 
+export interface StaffShiftOverride {
+  id: number;
+  staffId: number;
+  date: string;
+  startTime: string | null;
+  endTime: string | null;
+  breakStartTime: string | null;
+  breakEndTime: string | null;
+  isWorkingDay: boolean;
+}
+
 // ─── Staff Leave ───
 export type LeaveType = "Annual" | "Sick" | "Maternity" | "Unpaid" | "Other";
 export type LeaveStatus = "Pending" | "Approved" | "Rejected";
