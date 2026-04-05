@@ -157,7 +157,11 @@ export default function ExpensesScreen() {
   const fetchCategories = useCallback(async () => {
     try {
       const res = await expenseService.listCategories();
-      if (res.data.success && res.data.data) setCategories(res.data.data);
+      if (res.data.success && res.data.data) {
+        const raw = res.data.data as unknown;
+        const list = Array.isArray(raw) ? raw : ((raw as { items?: ExpenseCategoryItem[] })?.items ?? []);
+        setCategories(list);
+      }
     } catch { /* silent */ }
   }, []);
 
@@ -318,7 +322,7 @@ export default function ExpensesScreen() {
         <select value={catFilter} onChange={(e) => setCatFilter(e.target.value === "" ? "" : Number(e.target.value))}
           className={`rounded-lg border ${isDark ? "border-white/10" : "border-gray-200"} bg-transparent px-3 py-1.5 text-xs ${isDark ? "text-white" : "text-gray-900"} focus:outline-none`}>
           <option value="" className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{text.selectCategory}</option>
-          {categories.map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.name}</option>)}
+          {(Array.isArray(categories) ? categories : []).map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.name}</option>)}
         </select>
       </div>
 
@@ -429,7 +433,7 @@ export default function ExpensesScreen() {
               <select value={expForm.categoryId} onChange={(e) => setExpForm({ ...expForm, categoryId: Number(e.target.value) })}
                 className={`w-full rounded-xl border ${isDark ? "bg-white/5" : "bg-gray-50"} px-3 py-2 text-sm ${isDark ? "text-white" : "text-gray-900"} focus:outline-none ${fieldErrors.categoryId ? "border-red-500" : (isDark ? "border-white/10 focus:border-white/30" : "border-gray-200 focus:border-gray-400")}`}>
                 <option value={0} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{text.selectCategory}</option>
-                {categories.map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.name}</option>)}
+                {(Array.isArray(categories) ? categories : []).map((c) => <option key={c.id} value={c.id} className={`${isDark ? "bg-[#1a1a2e]" : "bg-white"}`}>{c.name}</option>)}
               </select>
               {fieldErrors.categoryId && <p className="text-xs text-red-500">{fieldErrors.categoryId}</p>}
             </div>

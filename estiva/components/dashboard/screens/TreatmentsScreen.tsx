@@ -68,6 +68,7 @@ const copy = {
     confirmDeleteBtn: "Delete",
     // List
     treatment: "Treatment",
+    descriptionCol: "Description",
     durationCol: "Duration",
     priceCol: "Price",
   },
@@ -109,6 +110,7 @@ const copy = {
     confirmDeleteSub: "Bu işlem geri alınamaz.",
     confirmDeleteBtn: "Sil",
     treatment: "Hizmet",
+    descriptionCol: "Açıklama",
     durationCol: "Süre",
     priceCol: "Fiyat",
   },
@@ -444,10 +446,11 @@ export default function TreatmentsScreen() {
         ) : (
           <>
             {/* Header */}
-            <div className={`hidden md:grid grid-cols-[1fr_0.5fr_0.5fr_68px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
+            <div className={`hidden md:grid grid-cols-[1fr_1.5fr_0.5fr_0.5fr_68px] gap-4 border-b ${isDark ? "border-white/[0.06]" : "border-gray-200"} ${isDark ? "bg-white/[0.03]" : "bg-gray-50/50"} px-5 py-2.5 text-[10px] font-semibold tracking-wider ${isDark ? "text-white/30" : "text-gray-300"}`}>
               <span className="cursor-pointer select-none hover:opacity-80 pl-[18px]" onClick={() => handleSort("name")}>{t.treatment}<SortIcon col="name" /></span>
+              <span>{t.descriptionCol}</span>
               <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("durationMinutes")}>{t.durationCol}<SortIcon col="durationMinutes" /></span>
-              <span className="cursor-pointer select-none hover:opacity-80" onClick={() => handleSort("price")}>{t.priceCol}<SortIcon col="price" /></span>
+              <span className="cursor-pointer select-none hover:opacity-80 text-left justify-self-start" onClick={() => handleSort("price")}>{t.priceCol}<SortIcon col="price" /></span>
               <span />
             </div>
 
@@ -459,29 +462,25 @@ export default function TreatmentsScreen() {
                   <div
                     key={item.id}
                     onClick={() => openDetail(item)}
-                    className={`group grid grid-cols-1 md:grid-cols-[1fr_0.5fr_0.5fr_68px] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
+                    className={`group grid grid-cols-1 md:grid-cols-[1fr_1.5fr_0.5fr_0.5fr_68px] gap-2 md:gap-4 items-center px-5 py-3.5 transition-all duration-150 ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"} cursor-pointer`}
                   >
-                    {/* Treatment name + color + description */}
+                    {/* Treatment name + color */}
                     <div className="flex items-center gap-3">
                       <div
                         className="h-10 w-1.5 shrink-0 rounded-full"
                         style={{ backgroundColor: color }}
                       />
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{item.name}</p>
-                        </div>
-                        {item.description && (
-                          <p className={`text-[11px] ${isDark ? "text-white/30" : "text-gray-300"} truncate`}>{item.description}</p>
-                        )}
-                      </div>
+                      <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"} truncate`}>{item.name}</p>
                     </div>
+
+                    {/* Description */}
+                    <span className={`hidden md:block text-[11px] ${isDark ? "text-white/40" : "text-gray-400"} truncate`}>{item.description || "—"}</span>
 
                     {/* Duration */}
                     <span className={`hidden md:block text-xs ${isDark ? "text-white/50" : "text-gray-500"}`}>{item.durationMinutes} {t.min}</span>
 
                     {/* Price */}
-                    <p className={`hidden md:block text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(item.price ?? 0)}</p>
+                    <p className={`hidden md:block w-full text-sm font-bold ${isDark ? "text-white" : "text-gray-900"}`}>₺{fmt(item.price ?? 0)}</p>
 
                     {/* Actions */}
                     <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity" onClick={(e) => e.stopPropagation()}>

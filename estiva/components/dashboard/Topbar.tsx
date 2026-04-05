@@ -38,7 +38,6 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
   const [showMenu, setShowMenu] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [tenantInfo, setTenantInfo] = useState<TenantInfo | null>(null);
-  const [showMobileSearch, setShowMobileSearch] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const { language } = useLanguage();
   const { user, logout } = useAuth();
@@ -108,19 +107,10 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
             </div>
           )}
 
-          {/* Global Search - hidden on mobile, shown via toggle */}
-          <div className="hidden sm:block flex-1">
+          {/* Global Search */}
+          <div className="flex-1">
             <GlobalSearch />
           </div>
-
-          {/* Mobile search toggle */}
-          <button
-            type="button"
-            onClick={() => setShowMobileSearch(!showMobileSearch)}
-            className="flex sm:hidden h-10 w-10 items-center justify-center rounded-xl text-white/50 hover:bg-white/10 hover:text-white transition shrink-0 ml-auto"
-          >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-          </button>
 
           <div className="flex items-center gap-2 sm:gap-3 text-white/70">
             <NotificationBell />
@@ -215,12 +205,6 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
           </div>
         </div>
 
-        {/* Mobile search bar - expandable */}
-        {showMobileSearch && (
-          <div className="flex sm:hidden">
-            <GlobalSearch />
-          </div>
-        )}
       </header>
 
       {/* Profile Modal */}

@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { staffService, type StaffMember } from "@/services/staffService";
 import Pagination from "@/components/ui/Pagination";
 import toast from "react-hot-toast";
+import SharedStatCard from "@/components/ui/StatCard";
 
 const API_BASE = (() => {
   if (process.env.NEXT_PUBLIC_API_BASE_URL) return process.env.NEXT_PUBLIC_API_BASE_URL;
@@ -147,15 +148,6 @@ function getRoleBg(role: string) {
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
    ═══════════════════════════════════════════ */
-
-function StatCard({ label, value, color }: { label: string; value: number; color: string }) {
-  return (
-    <div className="rounded-xl border border-white/[0.06] bg-white/[0.03] px-4 py-3">
-      <p className="text-[11px] text-white/40">{label}</p>
-      <p className="mt-1 text-xl font-bold" style={{ color }}>{value}</p>
-    </div>
-  );
-}
 
 /* ═══════════════════════════════════════════
    MAIN COMPONENT
@@ -335,10 +327,38 @@ export default function StaffPage() {
 
       {/* ─── STATS ─── */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <StatCard label={t.totalStaff} value={staff.length} color="#a78bfa" />
-        <StatCard label={t.activeStaff} value={activeCount} color="#22c55e" />
-        <StatCard label={t.owners} value={ownerCount} color="#f59e0b" />
-        <StatCard label={t.admins} value={adminCount} color="#8b5cf6" />
+        <SharedStatCard
+          label={t.totalStaff}
+          value={staff.length.toString()}
+          valueColor="#a78bfa"
+          gradient="bg-violet-500"
+          iconColor="text-violet-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>}
+        />
+        <SharedStatCard
+          label={t.activeStaff}
+          value={activeCount.toString()}
+          valueColor="#22c55e"
+          gradient="bg-emerald-500"
+          iconColor="text-emerald-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>}
+        />
+        <SharedStatCard
+          label={t.owners}
+          value={ownerCount.toString()}
+          valueColor="#f59e0b"
+          gradient="bg-amber-500"
+          iconColor="text-amber-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5zm2.7 2h8.6a1 1 0 010 2H7.7a1 1 0 010-2z"/></svg>}
+        />
+        <SharedStatCard
+          label={t.admins}
+          value={adminCount.toString()}
+          valueColor="#8b5cf6"
+          gradient="bg-purple-500"
+          iconColor="text-purple-400"
+          icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>}
+        />
       </div>
 
       {/* ─── SEARCH ─── */}

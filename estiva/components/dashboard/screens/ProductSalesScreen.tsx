@@ -32,7 +32,7 @@ type TabMode = "sales" | "products";
 
 const copy = {
   en: {
-    title: "Products", salesTab: "Sales", productsTab: "Products", newSale: "New Sale", newProduct: "New Product", total: "total", search: "Search...", loading: "Loading...",
+    title: "Products & Sales", salesTab: "Sales", productsTab: "Products", newSale: "New Sale", newProduct: "New Product", total: "total", search: "Search...", loading: "Loading...",
     noSales: "No product sales yet.", noSalesSub: "Record your first product sale.", noProducts: "No products yet.", noProductsSub: "Add products to start selling.",
     totalRevenue: "Total Revenue", totalSales: "Sales Count", totalProducts: "Products", lowStock: "Low Stock",
     createSaleTitle: "New Product Sale", product: "Product", selectProduct: "Select product...", customer: "Customer (optional)", searchCustomer: "Search customer...",
@@ -44,7 +44,7 @@ const copy = {
     productCol: "Product", customerCol: "Customer", qtyCol: "Qty", amountCol: "Amount", methodCol: "Method", dateCol: "Date", priceCol: "Price", stockCol: "Stock", allStaff: "All Staff",
   },
   tr: {
-    title: "Ürünler", salesTab: "Satışlar", productsTab: "Ürünler", newSale: "Yeni Satış", newProduct: "Yeni Ürün", total: "toplam", search: "Ara...", loading: "Yükleniyor...",
+    title: "Ürünler & Satışlar", salesTab: "Satışlar", productsTab: "Ürünler", newSale: "Yeni Satış", newProduct: "Yeni Ürün", total: "toplam", search: "Ara...", loading: "Yükleniyor...",
     noSales: "Henüz ürün satışı yok.", noSalesSub: "İlk ürün satışınızı kaydedin.", noProducts: "Henüz ürün yok.", noProductsSub: "Satış yapmak için ürün ekleyin.",
     totalRevenue: "Toplam Gelir", totalSales: "Satış Sayısı", totalProducts: "Ürün Sayısı", lowStock: "Düşük Stok",
     createSaleTitle: "Yeni Ürün Satışı", product: "Ürün", selectProduct: "Ürün seçin...", customer: "Müşteri (isteğe bağlı)", searchCustomer: "Müşteri ara...",
@@ -53,7 +53,7 @@ const copy = {
     createProductTitle: "Yeni Ürün", editProductTitle: "Ürün Düzenle", productName: "Ürün Adı", productNamePh: "örn. Keratin Şampuan...",
     description: "Açıklama", descPh: "İsteğe bağlı açıklama...", barcode: "Barkod", price: "Fiyat", stockQty: "Stok Adedi", save: "Kaydet", saving: "Kaydediliyor...",
     saleDetailTitle: "Satış Detayı", seller: "Satıcı", saleDate: "Tarih", delete: "Sil", confirmDelete: "Bu kaydı silmek istiyor musunuz?", edit: "Düzenle",
-    productCol: "Ürün", customerCol: "Müşteri", qtyCol: "Adet", amountCol: "Tutar", methodCol: "Yöntem", dateCol: "Tarih", priceCol: "Fiyat", stockCol: "Stok", allStaff: "Tüm Personel",
+    productCol: "Ürün", customerCol: "Müşteri", qtyCol: "Adet", amountCol: "Fiyat", methodCol: "Yöntem", dateCol: "Tarih", priceCol: "Fiyat", stockCol: "Stok", allStaff: "Tüm Personel",
   },
 };
 
