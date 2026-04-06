@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
       );
 
       let lastCheckTime = new Date();
+      const sentIds = new Set<number>();
 
       const interval = setInterval(async () => {
         if (closed) {
@@ -57,6 +58,8 @@ export async function GET(req: NextRequest) {
           if (newNotifications.length > 0) {
             lastCheckTime = new Date();
             for (const n of newNotifications) {
+              if (sentIds.has(n.Id)) continue;
+              sentIds.add(n.Id);
               const event = {
                 type: "ReceiveNotification",
                 data: {

@@ -10,7 +10,6 @@ import {
   ReactNode,
 } from "react";
 import Cookies from "js-cookie";
-import toast from "react-hot-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   notificationInAppService,
@@ -159,16 +158,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
           });
           setUnreadCount((prev) => prev + 1);
           setTotalCount((prev) => prev + 1);
-
-          // Show toast
-          if (notification.type === "error") {
-            toast.error(notification.title, { duration: 4000 });
-          } else {
-            toast(notification.title, {
-              duration: 4000,
-              icon: "\uD83D\uDD14",
-            });
-          }
         }
       } catch {
         /* JSON parse error on SSE message is non-critical */
