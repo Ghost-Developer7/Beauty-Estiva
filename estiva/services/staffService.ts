@@ -33,7 +33,7 @@ export const staffService = {
 
   changeRole(staffId: number, newRole: string, reason?: string) {
     return api.put<ApiResponse<StaffMember>>(`/staff/${staffId}/role`, {
-      newRole,
+      role: newRole,
       reason,
     });
   },

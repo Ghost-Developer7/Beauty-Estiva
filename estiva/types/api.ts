@@ -97,14 +97,13 @@ export interface ChangePasswordRequest {
 export interface TenantOnboardingRequest {
   companyName: string;
   phone: string;
-  address: string;
-  taxNumber: string;
-  taxOffice: string;
-  email: string;
-  password: string;
-  confirmPassword: string;
-  name: string;
-  surname: string;
+  address?: string;
+  taxNumber?: string;
+  taxOffice?: string;
+  ownerEmail: string;
+  ownerPassword: string;
+  ownerName: string;
+  ownerSurname: string;
 }
 
 export interface TenantOnboardingResult {
@@ -261,6 +260,7 @@ export interface AppointmentCreate {
   staffId: number;
   treatmentId: number;
   startTime: string;
+  endTime?: string;
   notes?: string;
   isRecurring?: boolean;
   recurrenceIntervalDays?: number;
@@ -268,11 +268,13 @@ export interface AppointmentCreate {
 }
 
 export interface AppointmentUpdate {
-  staffId: number;
-  treatmentId: number;
-  startTime: string;
+  customerId?: number;
+  staffId?: number;
+  treatmentId?: number;
+  startTime?: string;
+  endTime?: string;
   notes?: string;
-  status: number;
+  status?: number;
 }
 
 export interface AppointmentStatusUpdate {
@@ -308,22 +310,16 @@ export interface AppointmentDetail extends AppointmentListItem {
 
 export interface StaffAvailabilityRequest {
   staffId: number;
-  treatmentId: number;
-  date: string;
-}
-
-export interface TimeSlot {
   startTime: string;
   endTime: string;
-  blockReason: string | null;
 }
 
 export interface StaffAvailabilityResult {
-  staffId: number;
-  staffFullName: string;
-  date: string;
-  availableSlots: TimeSlot[];
-  blockedSlots: TimeSlot[];
+  available: boolean;
+  conflicts: Array<{
+    type: string;
+    detail: string;
+  }>;
 }
 
 // ─── Staff Schedule ───

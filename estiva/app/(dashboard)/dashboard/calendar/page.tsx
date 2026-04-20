@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 export default function CalendarPage() {
   const router = useRouter();
   useEffect(() => {
-    router.replace("/dashboard/appointments?view=timeline");
+    router.replace("/dashboard/appointments?view=calendar");
   }, [router]);
   return null;
 }

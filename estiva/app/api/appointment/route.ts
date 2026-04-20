@@ -1,8 +1,13 @@
 import { NextRequest } from "next/server";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { success, fail, serverError } from "@/lib/api-response";
 import { requireSubscription } from "@/lib/api-middleware";
 import { paginatedResponse, getPaginationParams } from "@/lib/pagination";
+import {
+  getAppointmentAvailabilityConflicts,
+  getAppointmentAvailabilityError,
+} from "@/lib/appointment-availability";
 
 const APPOINTMENT_STATUS_MAP: Record<number, string> = {
   1: "Scheduled",
@@ -12,30 +17,50 @@ const APPOINTMENT_STATUS_MAP: Record<number, string> = {
   5: "NoShow",
 };
 
-function mapAppointmentToListItem(a: any) {
+const appointmentListInclude = {
+  Customers: {
+    select: { Id: true, Name: true, Surname: true, Phone: true },
+  },
+  Users: {
+    select: { Id: true, Name: true, Surname: true },
+  },
+  Treatments: {
+    select: { Id: true, Name: true, DurationMinutes: true, Color: true },
+  },
+} satisfies Prisma.AppointmentsInclude;
+
+type AppointmentListRecord = Prisma.AppointmentsGetPayload<{
+  include: typeof appointmentListInclude;
+}>;
+
+function mapAppointmentToListItem(appointment: AppointmentListRecord) {
   return {
-    id: a.Id,
-    customerId: a.CustomerId,
-    customerFullName: a.Customers ? `${a.Customers.Name} ${a.Customers.Surname}` : "",
-    customerPhone: a.Customers?.Phone || "",
-    staffId: a.StaffId,
-    staffFullName: a.Users ? `${a.Users.Name} ${a.Users.Surname}` : "",
-    treatmentId: a.TreatmentId,
-    treatmentName: a.Treatments?.Name || "",
-    treatmentColor: a.Treatments?.Color || null,
-    durationMinutes: a.Treatments?.DurationMinutes || 0,
-    startTime: a.StartTime,
-    endTime: a.EndTime,
-    status: APPOINTMENT_STATUS_MAP[a.Status] || "Scheduled",
-    notes: a.Notes,
-    isRecurring: a.IsRecurring || false,
-    sessionNumber: a.SessionNumber || 1,
-    totalSessions: a.TotalSessions || null,
-    parentAppointmentId: a.ParentAppointmentId || null,
+    id: appointment.Id,
+    customerId: appointment.CustomerId,
+    customerFullName: appointment.Customers
+      ? `${appointment.Customers.Name} ${appointment.Customers.Surname}`
+      : "",
+    customerPhone: appointment.Customers?.Phone || "",
+    staffId: appointment.StaffId,
+    staffFullName: appointment.Users
+      ? `${appointment.Users.Name} ${appointment.Users.Surname}`
+      : "",
+    treatmentId: appointment.TreatmentId,
+    treatmentName: appointment.Treatments?.Name || "",
+    treatmentColor: appointment.Treatments?.Color || null,
+    durationMinutes: appointment.Treatments?.DurationMinutes || 0,
+    startTime: appointment.StartTime,
+    endTime: appointment.EndTime,
+    status: APPOINTMENT_STATUS_MAP[appointment.Status] || "Scheduled",
+    notes: appointment.Notes,
+    isRecurring: appointment.IsRecurring || false,
+    sessionNumber: appointment.SessionNumber || 1,
+    totalSessions: appointment.TotalSessions || null,
+    parentAppointmentId: appointment.ParentAppointmentId || null,
   };
 }
 
-// GET /api/appointment — List appointments with filters
+// GET /api/appointment - List appointments with filters
 export async function GET(req: NextRequest) {
   const { user, error } = await requireSubscription(req, ["Owner", "Staff", "Admin"]);
   if (error) return error;
@@ -51,53 +76,37 @@ export async function GET(req: NextRequest) {
     const customerId = searchParams.get("customerId");
     const status = searchParams.get("status");
 
-    const where: any = {
+    const where: Record<string, unknown> = {
       TenantId: user!.tenantId,
       IsActive: true,
     };
 
     if (startDate) {
-      // Treat date as Turkey timezone (UTC+3) — start of day
-      const start = new Date(startDate + "T00:00:00+03:00");
-      where.StartTime = { ...where.StartTime, gte: start };
+      const start = new Date(`${startDate}T00:00:00+03:00`);
+      where.StartTime = { ...(where.StartTime as object), gte: start };
     }
     if (endDate) {
-      // End of day in Turkey timezone
-      const end = new Date(endDate + "T23:59:59.999+03:00");
-      where.StartTime = { ...where.StartTime, lte: end };
+      const end = new Date(`${endDate}T23:59:59.999+03:00`);
+      where.StartTime = { ...(where.StartTime as object), lte: end };
     }
     if (staffId) {
-      where.StaffId = parseInt(staffId);
+      where.StaffId = parseInt(staffId, 10);
     }
     if (customerId) {
-      where.CustomerId = parseInt(customerId);
+      where.CustomerId = parseInt(customerId, 10);
     }
     if (status) {
-      where.Status = parseInt(status);
+      where.Status = parseInt(status, 10);
     }
 
-    const includeRelations = {
-      Customers: {
-        select: { Id: true, Name: true, Surname: true, Phone: true },
-      },
-      Users: {
-        select: { Id: true, Name: true, Surname: true },
-      },
-      Treatments: {
-        select: { Id: true, Name: true, DurationMinutes: true, Color: true },
-      },
-    };
-
-    // If no page param, return flat array for list() calls
     if (!pageParam) {
       const appointments = await prisma.appointments.findMany({
         where,
         orderBy: { StartTime: "desc" },
-        include: includeRelations,
+        include: appointmentListInclude,
       });
 
-      const mapped = appointments.map(mapAppointmentToListItem);
-      return success(mapped);
+      return success(appointments.map(mapAppointmentToListItem));
     }
 
     const [appointments, totalCount] = await Promise.all([
@@ -106,20 +115,21 @@ export async function GET(req: NextRequest) {
         skip,
         take: pageSize,
         orderBy: { StartTime: "desc" },
-        include: includeRelations,
+        include: appointmentListInclude,
       }),
       prisma.appointments.count({ where }),
     ]);
 
-    const mapped = appointments.map(mapAppointmentToListItem);
-    return success(paginatedResponse(mapped, totalCount, page, pageSize));
+    return success(
+      paginatedResponse(appointments.map(mapAppointmentToListItem), totalCount, page, pageSize),
+    );
   } catch (err) {
     console.error("Appointment list error:", err);
     return serverError();
   }
 }
 
-// POST /api/appointment — Create appointment
+// POST /api/appointment - Create appointment
 export async function POST(req: NextRequest) {
   const { user, error } = await requireSubscription(req, ["Owner", "Staff", "Admin"]);
   if (error) return error;
@@ -138,42 +148,72 @@ export async function POST(req: NextRequest) {
       totalSessions,
     } = body;
 
-    if (!customerId || !staffId || !treatmentId || !startTime || !endTime) {
-      return fail("customerId, staffId, treatmentId, startTime ve endTime zorunludur.");
+    if (!customerId || !staffId || !treatmentId || !startTime) {
+      return fail("customerId, staffId, treatmentId ve startTime zorunludur.");
     }
 
     const start = new Date(startTime);
-    const end = new Date(endTime);
+    if (Number.isNaN(start.getTime())) {
+      return fail("Geçersiz başlangıç zamanı.");
+    }
 
-    if (end <= start) {
+    const [customer, staff, treatment] = await Promise.all([
+      prisma.customers.findFirst({
+        where: { Id: customerId, TenantId: user!.tenantId, IsActive: true },
+        select: { Id: true },
+      }),
+      prisma.users.findFirst({
+        where: { Id: staffId, TenantId: user!.tenantId, IsActive: true },
+        select: { Id: true },
+      }),
+      prisma.treatments.findFirst({
+        where: { Id: treatmentId, TenantId: user!.tenantId, IsActive: true },
+        select: { Id: true, DurationMinutes: true },
+      }),
+    ]);
+
+    if (!customer) {
+      return fail("Müşteri bulunamadı.", "NOT_FOUND", 404);
+    }
+
+    if (!staff) {
+      return fail("Personel bulunamadı.", "NOT_FOUND", 404);
+    }
+
+    if (!treatment) {
+      return fail("Hizmet bulunamadı.", "NOT_FOUND", 404);
+    }
+
+    const resolvedEnd = endTime
+      ? new Date(endTime)
+      : new Date(start.getTime() + treatment.DurationMinutes * 60 * 1000);
+
+    if (Number.isNaN(resolvedEnd.getTime())) {
+      return fail("Geçersiz bitiş zamanı.");
+    }
+
+    if (resolvedEnd <= start) {
       return fail("Bitiş zamanı başlangıç zamanından sonra olmalıdır.");
     }
 
-    // Check for overlapping appointments for the same staff
-    const overlap = await prisma.appointments.findFirst({
-      where: {
-        TenantId: user!.tenantId,
-        StaffId: staffId,
-        IsActive: true,
-        Status: { not: 4 }, // Not cancelled
-        OR: [
-          { StartTime: { lt: end }, EndTime: { gt: start } },
-        ],
-      },
+    const conflicts = await getAppointmentAvailabilityConflicts({
+      tenantId: user!.tenantId,
+      staffId,
+      start,
+      end: resolvedEnd,
     });
 
-    if (overlap) {
-      return fail("Bu personelin seçilen zaman aralığında başka bir randevusu bulunmaktadır.", "OVERLAP");
+    if (conflicts.length > 0) {
+      const availabilityError = getAppointmentAvailabilityError(conflicts);
+      return fail(availabilityError.message, availabilityError.code);
     }
 
-    // Check tenant auto-confirm setting
     const tenant = await prisma.tenants.findUnique({
       where: { Id: user!.tenantId },
       select: { AutoConfirmAppointments: true },
     });
 
-    const initialStatus = tenant?.AutoConfirmAppointments ? 2 : 1; // 2=Confirmed, 1=Scheduled
-
+    const initialStatus = tenant?.AutoConfirmAppointments ? 2 : 1;
     const now = new Date();
 
     const appointment = await prisma.appointments.create({
@@ -183,7 +223,7 @@ export async function POST(req: NextRequest) {
         StaffId: staffId,
         TreatmentId: treatmentId,
         StartTime: start,
-        EndTime: end,
+        EndTime: resolvedEnd,
         Status: initialStatus,
         Notes: notes || null,
         IsRecurring: isRecurring || false,
@@ -199,13 +239,13 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    // If recurring, create child appointments
     if (isRecurring && recurrenceIntervalDays && totalSessions && totalSessions > 1) {
       const childAppointments = [];
+
       for (let i = 1; i < totalSessions; i++) {
         const childStart = new Date(start);
         childStart.setDate(childStart.getDate() + recurrenceIntervalDays * i);
-        const childEnd = new Date(end);
+        const childEnd = new Date(resolvedEnd);
         childEnd.setDate(childEnd.getDate() + recurrenceIntervalDays * i);
 
         childAppointments.push({

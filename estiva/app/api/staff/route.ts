@@ -68,6 +68,7 @@ export async function GET(req: NextRequest) {
       isActive: s.IsActive,
       isApproved: s.IsApproved,
       defaultCommissionRate: Number(s.DefaultCommissionRate) || 0,
+      profilePicturePath: s.ProfilePicturePath,
       cDate: s.CDate,
     }));
 

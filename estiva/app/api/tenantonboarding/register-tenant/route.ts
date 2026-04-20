@@ -4,17 +4,21 @@ import { success, fail, serverError } from "@/lib/api-response";
 import { hashPasswordV3 } from "@/lib/password-hasher";
 import crypto from "crypto";
 
-// POST /api/tenantonboarding/register-tenant — Register new tenant (public)
+// POST /api/tenantonboarding/register-tenant - Register new tenant (public)
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      companyName, taxNumber, taxOffice, address, phone,
-      ownerEmail, ownerPassword, ownerName, ownerSurname,
-    } = body;
+    const companyName = String(body.companyName || "").trim();
+    const taxNumber = String(body.taxNumber || "").trim();
+    const taxOffice = String(body.taxOffice || "").trim();
+    const address = String(body.address || "").trim();
+    const phone = String(body.phone || "").trim();
+    const ownerEmail = String(body.ownerEmail || "").trim();
+    const ownerPassword = String(body.ownerPassword || "");
+    const ownerName = String(body.ownerName || "").trim();
+    const ownerSurname = String(body.ownerSurname || "").trim();
 
-    if (!companyName || !taxNumber || !taxOffice || !address || !phone ||
-        !ownerEmail || !ownerPassword || !ownerName || !ownerSurname) {
+    if (!companyName || !phone || !ownerEmail || !ownerPassword || !ownerName || !ownerSurname) {
       return fail("Tüm zorunlu alanlar doldurulmalıdır.", "VALIDATION_ERROR");
     }
 
@@ -34,9 +38,9 @@ export async function POST(req: NextRequest) {
         data: {
           TenantUUID: tenantUUID,
           CompanyName: companyName,
-          TaxNumber: taxNumber,
-          TaxOffice: taxOffice,
-          Address: address,
+          TaxNumber: taxNumber || "",
+          TaxOffice: taxOffice || "",
+          Address: address || "",
           Phone: phone,
           ReminderHourBefore: 24,
           AppointmentSlotMinutes: 30,

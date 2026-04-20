@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef, FormEvent } from "react";
-import { useSearchParams } from "next/navigation";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { appointmentService } from "@/services/appointmentService";
+import { paymentService } from "@/services/paymentService";
 import { customerService } from "@/services/customerService";
+import { currencyService } from "@/services/currencyService";
 import { treatmentService } from "@/services/treatmentService";
 import { staffService, type StaffMember } from "@/services/staffService";
 import { notificationService } from "@/services/notificationService";
@@ -14,10 +15,10 @@ import type {
   AppointmentListItem,
   AppointmentDetail,
   CustomerListItem,
+  CurrencyItem,
   TreatmentListItem,
 } from "@/types/api";
 import Modal from "@/components/ui/Modal";
-import Pagination from "@/components/ui/Pagination";
 import ExportButtons from "@/components/ui/ExportButtons";
 import SharedStatCard from "@/components/ui/StatCard";
 import type { ExportColumn } from "@/lib/exportUtils";
@@ -35,15 +36,18 @@ const STATUS_MAP: Record<string, { en: string; tr: string; color: string; bg: st
   NoShow: { en: "No Show", tr: "Gelmedi", color: "text-amber-400", bg: "bg-amber-500/10 text-amber-400 border-amber-500/20", dot: "bg-amber-400", value: 5 },
 };
 
-// Map integer values back to status keys for sending updates to the API
-const STATUS_VALUE_TO_KEY: Record<number, string> = {
-  1: "Scheduled", 2: "Confirmed", 3: "Completed", 4: "Cancelled", 5: "NoShow",
-};
-
 const STAFF_COLORS = [
   "#f472b6", "#a78bfa", "#60a5fa", "#34d399", "#fbbf24",
   "#fb923c", "#f87171", "#c084fc", "#22d3ee", "#a3e635",
 ];
+
+const PAYMENT_METHODS = [
+  { value: "Cash", enumValue: 1, en: "Cash", tr: "Nakit" },
+  { value: "CreditCard", enumValue: 2, en: "Credit Card", tr: "Kredi / Banka Kartı" },
+  { value: "BankTransfer", enumValue: 3, en: "Bank Transfer", tr: "Havale / EFT" },
+  { value: "Check", enumValue: 4, en: "Check", tr: "Çek" },
+  { value: "Other", enumValue: 5, en: "Other", tr: "Diğer" },
+] as const;
 
 type ViewMode = "list" | "calendar";
 
@@ -142,6 +146,26 @@ const copy = {
     clickDayHint: "Click a day to view its appointments",
     more: "more",
     allStaffCal: "All Staff",
+    emptyHour: "No appointment in this hour",
+    dailyFlow: "Daily flow",
+    quickCompleteTitle: "Take Payment",
+    quickCompleteSave: "Take Payment and Complete",
+    amount: "Amount",
+    currency: "Currency",
+    paymentMethod: "Payment Method",
+    quickCompleteHint: "Double-click an appointment to record payment and mark it completed.",
+    quickCompleteSuccess: "Payment recorded and appointment completed",
+    quickCompleteError: "Quick completion failed",
+    doubleClickHint: "Double click",
+    discount: "Discount",
+    discountType: "Discount Type",
+    discountValue: "Discount Value",
+    netAmount: "Net Amount",
+    baseAmount: "Base Amount",
+    discountHidden: "Discount fields hidden",
+    discountShortcut: "Ctrl+Y",
+    discountAmount: "Amount Discount",
+    discountPercent: "Percent Discount",
   },
   tr: {
     title: "Randevular",
@@ -211,6 +235,26 @@ const copy = {
     clickDayHint: "Günü tıklayarak randevuları listeleyin",
     more: "daha",
     allStaffCal: "Tüm Personel",
+    emptyHour: "Bu saatte randevu yok",
+    dailyFlow: "Günlük akış",
+    quickCompleteTitle: "Ödeme Al",
+    quickCompleteSave: "Ödeme Al ve Tamamla",
+    amount: "Tutar",
+    currency: "Para Birimi",
+    paymentMethod: "Ödeme Yöntemi",
+    quickCompleteHint: "Ödeme alıp tamamlandı yapmak için randevuya çift tıklayın.",
+    quickCompleteSuccess: "Ödeme kaydedildi ve randevu tamamlandı",
+    quickCompleteError: "Hızlı tamamlama başarısız",
+    doubleClickHint: "Çift tık",
+    discount: "İndirim",
+    discountType: "İndirim Türü",
+    discountValue: "İndirim Değeri",
+    netAmount: "Net Tutar",
+    baseAmount: "Liste Tutarı",
+    discountHidden: "İndirim alanları gizli",
+    discountShortcut: "Ctrl+Y",
+    discountAmount: "Tutar İndirimi",
+    discountPercent: "Yüzde İndirimi",
   },
 };
 
@@ -227,6 +271,17 @@ interface CreateForm {
   isRecurring: boolean;
   recurrenceIntervalDays: number;
   totalSessions: number;
+}
+
+interface QuickCompleteForm {
+  appointmentId: number;
+  originalAmount: number;
+  amount: number;
+  currencyId: number;
+  paymentMethod: (typeof PAYMENT_METHODS)[number]["value"];
+  discountType: "amount" | "percent";
+  discountValue: number;
+  notes: string;
 }
 
 const emptyForm: CreateForm = {
@@ -258,6 +313,21 @@ const formatTime = (d: string, lang: "en" | "tr" = "tr") =>
   new Date(d).toLocaleTimeString(lang === "tr" ? "tr-TR" : "en-US", { hour: "2-digit", minute: "2-digit" });
 
 const getStaffColor = (staffId: number) => STAFF_COLORS[staffId % STAFF_COLORS.length];
+
+function calculateDiscountedAmount(originalAmount: number, discountType: "amount" | "percent", discountValue: number) {
+  const safeOriginal = Number.isFinite(originalAmount) ? Math.max(originalAmount, 0) : 0;
+  const safeValue = Number.isFinite(discountValue) ? Math.max(discountValue, 0) : 0;
+  const discountAmount =
+    discountType === "percent"
+      ? Math.min(safeOriginal, safeOriginal * (safeValue / 100))
+      : Math.min(safeOriginal, safeValue);
+
+  return {
+    originalAmount: safeOriginal,
+    discountAmount,
+    netAmount: Math.max(safeOriginal - discountAmount, 0),
+  };
+}
 
 /* ═══════════════════════════════════════════
    MINI COMPONENTS
@@ -299,26 +369,17 @@ export default function AppointmentsScreen() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const t = copy[language];
-  const searchParams = useSearchParams();
 
   /* ─── Data ─── */
   const [appointments, setAppointments] = useState<AppointmentListItem[]>([]);
   const [customers, setCustomers] = useState<CustomerListItem[]>([]);
+  const [currencies, setCurrencies] = useState<CurrencyItem[]>([]);
   const [treatments, setTreatments] = useState<TreatmentListItem[]>([]);
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [loading, setLoading] = useState(true);
 
-  /* ─── Pagination ─── */
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-  const [totalCount, setTotalCount] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-
   /* ─── Filters ─── */
-  const [viewMode, setViewMode] = useState<ViewMode>(() => {
-    const param = searchParams.get("view");
-    return param === "list" ? "list" : "calendar";
-  });
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [dateFilter, setDateFilter] = useState(() => new Date().toISOString().split("T")[0]);
   const [staffFilter, setStaffFilter] = useState<number | "">("");
   const [treatmentFilter, setTreatmentFilter] = useState<number | "">("");
@@ -336,11 +397,26 @@ export default function AppointmentsScreen() {
   /* ─── Detail Panel ─── */
   const [selectedAppointment, setSelectedAppointment] = useState<AppointmentDetail | null>(null);
   const [showDetail, setShowDetail] = useState(false);
+  const clickTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   /* ─── Status Modal ─── */
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [statusTarget, setStatusTarget] = useState<{ id: number; current: string } | null>(null);
   const [newStatus, setNewStatus] = useState("Scheduled");
+  const [showQuickComplete, setShowQuickComplete] = useState(false);
+  const [quickCompleteTarget, setQuickCompleteTarget] = useState<AppointmentListItem | null>(null);
+  const [showDiscountFields, setShowDiscountFields] = useState(false);
+  const [quickCompleteForm, setQuickCompleteForm] = useState<QuickCompleteForm>({
+    appointmentId: 0,
+    originalAmount: 0,
+    amount: 0,
+    currencyId: 0,
+    paymentMethod: "Cash",
+    discountType: "amount",
+    discountValue: 0,
+    notes: "",
+  });
+  const [quickCompleting, setQuickCompleting] = useState(false);
 
   /* ─── Calendar ─── */
   const todayDate = new Date();
@@ -361,41 +437,26 @@ export default function AppointmentsScreen() {
         params.endDate = dateFilter;
       }
       if (staffFilter) params.staffId = staffFilter;
-      params.pageNumber = page;
-      params.pageSize = pageSize;
-      const res = await appointmentService.listPaginated(params as { startDate?: string; endDate?: string; staffId?: number; pageNumber?: number; pageSize?: number });
+      const res = await appointmentService.list(params as { startDate?: string; endDate?: string; staffId?: number });
       if (res.data.success && res.data.data) {
-        const pg = res.data.data;
-        setAppointments(pg.items);
-        setTotalCount(pg.totalCount);
-        setTotalPages(pg.totalPages);
+        setAppointments(res.data.data);
       }
     } catch {
-      try {
-        const params: Record<string, string | number> = {};
-        if (dateFilter) { params.startDate = dateFilter; params.endDate = dateFilter; }
-        if (staffFilter) params.staffId = staffFilter;
-        const res = await appointmentService.list(params as { startDate?: string; endDate?: string; staffId?: number });
-        if (res.data.success && res.data.data) {
-          setAppointments(res.data.data);
-          setTotalCount(res.data.data.length);
-          setTotalPages(1);
-        }
-      } catch {
-        toast.error(language === "tr" ? "Randevular yüklenemedi" : "Failed to load appointments");
-      }
+      toast.error(language === "tr" ? "Randevular yüklenemedi" : "Failed to load appointments");
     } finally {
       setLoading(false);
     }
-  }, [dateFilter, staffFilter, page, pageSize, language]);
+  }, [dateFilter, staffFilter, language]);
 
   const fetchReferenceData = useCallback(async () => {
-    const [custRes, treatRes, staffRes] = await Promise.allSettled([
+    const [custRes, currRes, treatRes, staffRes] = await Promise.allSettled([
       customerService.list(),
+      currencyService.list(),
       treatmentService.list(),
       staffService.list(),
     ]);
     if (custRes.status === "fulfilled" && custRes.value.data.success && custRes.value.data.data) setCustomers(custRes.value.data.data);
+    if (currRes.status === "fulfilled" && currRes.value.data.success && currRes.value.data.data) setCurrencies(currRes.value.data.data);
     if (treatRes.status === "fulfilled" && treatRes.value.data.success && treatRes.value.data.data) setTreatments(treatRes.value.data.data);
     if (staffRes.status === "fulfilled" && staffRes.value.data.success && staffRes.value.data.data) setStaffList(staffRes.value.data.data);
   }, []);
@@ -427,26 +488,83 @@ export default function AppointmentsScreen() {
       }
     };
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = window.localStorage.getItem("appointments.showDiscountFields");
+    if (saved === "true") setShowDiscountFields(true);
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key.toLowerCase() === "y") {
+        event.preventDefault();
+        setShowDiscountFields((prev) => {
+          const next = !prev;
+          window.localStorage.setItem("appointments.showDiscountFields", String(next));
+          return next;
+        });
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   /* ═══ FILTERED DATA ═══ */
 
-  const filtered = appointments.filter((a) => {
-    if (statusFilter && a.status !== statusFilter) return false;
-    if (treatmentFilter !== "" && a.treatmentId !== treatmentFilter) return false;
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      if (!a.customerFullName.toLowerCase().includes(q)) return false;
-    }
-    return true;
+  const todayStr = new Date().toISOString().split("T")[0];
+  const isTodayDate = dateFilter === todayStr;
+  const nowDate = new Date();
+  const currentHour = nowDate.getHours();
+  const nowTime = nowDate.getTime();
+
+  const filtered = appointments
+    .filter((a) => {
+      if (statusFilter && a.status !== statusFilter) return false;
+      if (treatmentFilter !== "" && a.treatmentId !== treatmentFilter) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        if (!a.customerFullName.toLowerCase().includes(q)) return false;
+      }
+      if (isTodayDate && new Date(a.endTime).getTime() <= nowTime) return false;
+      return true;
+    })
+    .sort((a, b) => new Date(a.startTime).getTime() - new Date(b.startTime).getTime());
+
+  const groupedByHour = new Map<number, AppointmentListItem[]>();
+  filtered.forEach((appointment) => {
+    const hour = new Date(appointment.startTime).getHours();
+    if (!groupedByHour.has(hour)) groupedByHour.set(hour, []);
+    groupedByHour.get(hour)!.push(appointment);
+  });
+  groupedByHour.forEach((hourAppointments, hour) => {
+    groupedByHour.set(
+      hour,
+      [...hourAppointments].sort((a, b) => {
+        const startDiff = new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+        if (startDiff !== 0) return startDiff;
+        return new Date(a.endTime).getTime() - new Date(b.endTime).getTime();
+      })
+    );
   });
 
+  const selectedStaffMember = staffFilter === "" ? null : staffList.find((staff) => staff.id === staffFilter) ?? null;
+  const remainingStaffName =
+    selectedStaffMember === null
+      ? t.allStaff
+      : `${selectedStaffMember.name} ${selectedStaffMember.surname}`;
+  const timelineStartHour = isTodayDate ? currentHour : 0;
+  const timelineHours = Array.from({ length: 24 - timelineStartHour }, (_, index) => timelineStartHour + index);
+
   const stats = {
-    scheduled: appointments.filter(a => a.status === "Scheduled").length,
-    confirmed: appointments.filter(a => a.status === "Confirmed").length,
-    completed: appointments.filter(a => a.status === "Completed").length,
-    cancelled: appointments.filter(a => a.status === "Cancelled").length,
+    scheduled: filtered.filter(a => a.status === "Scheduled").length,
+    confirmed: filtered.filter(a => a.status === "Confirmed").length,
+    completed: filtered.filter(a => a.status === "Completed").length,
+    cancelled: filtered.filter(a => a.status === "Cancelled").length,
   };
 
   /* ═══ ACTIONS ═══ */
@@ -571,6 +689,103 @@ export default function AppointmentsScreen() {
       if (showDetail) setShowDetail(false);
     } catch {
       toast.error(language === "tr" ? "İptal başarısız" : "Cancel failed");
+    }
+  };
+
+  const openQuickComplete = (appointment: AppointmentListItem) => {
+    const defaultCurrency = currencies.find((currency) => currency.isDefault) || currencies[0];
+    const treatment = treatments.find((item) => item.id === appointment.treatmentId);
+    const originalAmount = treatment?.price ?? 0;
+    setQuickCompleteTarget(appointment);
+    setQuickCompleteForm({
+      appointmentId: appointment.id,
+      originalAmount,
+      amount: originalAmount,
+      currencyId: defaultCurrency?.id || 0,
+      paymentMethod: "Cash",
+      discountType: "amount",
+      discountValue: 0,
+      notes: appointment.notes || "",
+    });
+    setShowQuickComplete(true);
+  };
+
+  const handleAppointmentClick = (appointment: AppointmentListItem) => {
+    if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    clickTimeoutRef.current = setTimeout(() => {
+      openDetail(appointment.id);
+      clickTimeoutRef.current = null;
+    }, 220);
+  };
+
+  const handleAppointmentDoubleClick = (appointment: AppointmentListItem) => {
+    if (clickTimeoutRef.current) {
+      clearTimeout(clickTimeoutRef.current);
+      clickTimeoutRef.current = null;
+    }
+    openQuickComplete(appointment);
+  };
+
+  const updateQuickCompleteForm = (updates: Partial<QuickCompleteForm>) => {
+    setQuickCompleteForm((current) => {
+      const next = { ...current, ...updates };
+      const pricing = calculateDiscountedAmount(next.originalAmount, next.discountType, next.discountValue);
+      return {
+        ...next,
+        originalAmount: pricing.originalAmount,
+        amount: pricing.netAmount,
+      };
+    });
+  };
+
+  const handleQuickComplete = async (e: FormEvent) => {
+    e.preventDefault();
+
+    if (!quickCompleteTarget) return;
+    if (!quickCompleteForm.currencyId) {
+      toast.error(language === "tr" ? "Para birimi seçimi zorunludur" : "Currency is required");
+      return;
+    }
+    if (quickCompleteForm.amount <= 0) {
+      toast.error(language === "tr" ? "Tutar 0'dan büyük olmalıdır" : "Amount must be greater than 0");
+      return;
+    }
+
+    setQuickCompleting(true);
+    try {
+      const pricing = calculateDiscountedAmount(
+        quickCompleteForm.originalAmount,
+        quickCompleteForm.discountType,
+        quickCompleteForm.discountValue
+      );
+      const methodEnum = PAYMENT_METHODS.find((method) => method.value === quickCompleteForm.paymentMethod)?.enumValue ?? 1;
+      const discountNote =
+        showDiscountFields && pricing.discountAmount > 0
+          ? `${quickCompleteForm.notes ? `${quickCompleteForm.notes}\n` : ""}${language === "tr" ? "İndirim" : "Discount"}: ${
+              quickCompleteForm.discountType === "percent"
+                ? `%${quickCompleteForm.discountValue}`
+                : `${pricing.discountAmount.toFixed(2)}`
+            } | ${language === "tr" ? "Liste" : "Base"}: ${pricing.originalAmount.toFixed(2)} | ${language === "tr" ? "Net" : "Net"}: ${pricing.netAmount.toFixed(2)}`
+          : quickCompleteForm.notes;
+      await paymentService.create({
+        appointmentId: quickCompleteForm.appointmentId,
+        amount: pricing.netAmount,
+        currencyId: quickCompleteForm.currencyId,
+        paymentMethod: methodEnum,
+        notes: discountNote || undefined,
+      });
+      await appointmentService.updateStatus(quickCompleteForm.appointmentId, { status: STATUS_MAP.Completed.value });
+      toast.success(t.quickCompleteSuccess);
+      setShowQuickComplete(false);
+      setQuickCompleteTarget(null);
+      fetchAppointments();
+      if (showDetail && selectedAppointment?.id === quickCompleteForm.appointmentId) {
+        setShowDetail(false);
+      }
+    } catch {
+      toast.error(t.quickCompleteError);
+    } finally {
+      setQuickCompleting(false);
     }
   };
 
@@ -900,7 +1115,7 @@ export default function AppointmentsScreen() {
 
           {/* View toggle */}
           <div className={`flex rounded-lg border ${isDark ? "border-white/10 bg-white/[0.04]" : "border-gray-300 bg-white"} p-0.5`}>
-            {(["calendar", "list"] as ViewMode[]).map((mode) => (
+            {(["list", "calendar"] as ViewMode[]).map((mode) => (
               <button key={mode} onClick={() => setViewMode(mode)}
                 className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${viewMode === mode ? (isDark ? "bg-white/10 text-white" : "bg-gray-200 text-gray-900") : (isDark ? "text-white/40 hover:text-white/70" : "text-gray-400 hover:text-gray-700")}`}>
                 {mode === "calendar"
@@ -929,21 +1144,53 @@ export default function AppointmentsScreen() {
               <div className={`h-5 w-5 animate-spin rounded-full border-2 ${isDark ? "border-white/20 border-t-white/60" : "border-gray-200 border-t-gray-500"}`} />
               {t.loading}
             </div>
-          ) : filtered.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-2 p-12">
-              <svg className={isDark ? "text-white/20" : "text-gray-300"} width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="4" width="18" height="18" rx="2" /><line x1="16" y1="2" x2="16" y2="6" /><line x1="8" y1="2" x2="8" y2="6" /><line x1="3" y1="10" x2="21" y2="10" /></svg>
-              <p className={`text-sm font-medium ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.noData}</p>
-              <p className={`text-xs ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.noDataSub}</p>
-            </div>
           ) : (
             <>
-            <div className={`divide-y ${isDark ? "divide-white/[0.04]" : "divide-gray-100"}`}>
-              {filtered.map((apt) => {
-                return (
+            <div className={`flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4 ${isDark ? "border-white/[0.06] bg-white/[0.015]" : "border-gray-100 bg-gray-50/60"}`}>
+              <div>
+                <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{t.dailyFlow}</p>
+                <p className={`text-xs ${isDark ? "text-white/40" : "text-gray-500"}`}>{remainingStaffName}</p>
+                <p className={`mt-1 text-[11px] ${isDark ? "text-white/25" : "text-gray-400"}`}>{t.quickCompleteHint}</p>
+              </div>
+              <span className="rounded-full bg-emerald-500/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-400">
+                {filtered.length} {language === "tr" ? "aktif randevu" : "active appointments"}
+              </span>
+            </div>
+            <div>
+              {(() => {
+                return timelineHours.map((hour) => {
+                  const hourApts = groupedByHour.get(hour) || [];
+                  const isCurrentHour = isTodayDate && hour === currentHour;
+                  return (
+                    <div
+                      key={hour}
+                      className={`grid grid-cols-[88px_1fr] border-t first:border-t-0 ${isDark ? "border-white/[0.05]" : "border-gray-100"}`}
+                    >
+                      <div className={`px-4 py-4 ${isDark ? "bg-white/[0.015]" : "bg-gray-50/70"}`}>
+                        <div className="flex flex-col gap-1">
+                          <span className={`text-xs font-bold tabular-nums ${isCurrentHour ? (isDark ? "text-emerald-300" : "text-emerald-600") : isDark ? "text-white/55" : "text-gray-500"}`}>
+                            {String(hour).padStart(2, "0")}:00
+                          </span>
+                          {isCurrentHour && (
+                            <span className="w-fit rounded-full bg-emerald-500/20 px-1.5 py-0.5 text-[9px] font-bold text-emerald-400">
+                              {language === "tr" ? "ŞİMDİ" : "NOW"}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className={`min-h-[92px] px-4 py-3 ${isCurrentHour ? (isDark ? "bg-emerald-500/[0.04]" : "bg-emerald-50/70") : ""}`}>
+                        {hourApts.length === 0 ? (
+                          <div className={`flex h-full min-h-[68px] items-center rounded-xl border border-dashed px-4 text-xs ${isDark ? "border-white/[0.06] text-white/25" : "border-gray-200 text-gray-400"}`}>
+                            {t.emptyHour}
+                          </div>
+                        ) : (
+                          <div className="space-y-2">
+                            {hourApts.map((apt) => (
                   <div
                     key={apt.id}
-                    onClick={() => openDetail(apt.id)}
-                    className={`group flex items-center gap-4 px-5 py-3.5 transition-all duration-150 cursor-pointer ${isDark ? "hover:bg-white/[0.04]" : "hover:bg-gray-50"}`}
+                    onClick={() => handleAppointmentClick(apt)}
+                    onDoubleClick={() => handleAppointmentDoubleClick(apt)}
+                    className={`group flex items-center gap-4 rounded-2xl border px-4 py-3 transition-all duration-150 cursor-pointer ${isDark ? "border-white/[0.06] bg-white/[0.025] hover:bg-white/[0.05]" : "border-gray-100 bg-white hover:bg-gray-50"}`}
                   >
                     {/* Time column */}
                     <div className="w-20 shrink-0 text-center">
@@ -953,7 +1200,7 @@ export default function AppointmentsScreen() {
 
                     {/* Color bar */}
                     <div
-                      className="h-10 w-1 shrink-0 rounded-full"
+                      className="h-12 w-1 shrink-0 rounded-full"
                       style={{ backgroundColor: apt.treatmentColor || "#a78bfa" }}
                     />
 
@@ -981,9 +1228,7 @@ export default function AppointmentsScreen() {
                       <StatusBadge
                         status={apt.status}
                         language={language}
-                        onClick={(e?: React.MouseEvent) => {
-                          // Prevent opening detail
-                        }}
+                        onClick={() => {}}
                       />
                     </div>
 
@@ -1012,19 +1257,16 @@ export default function AppointmentsScreen() {
                       </button>
                     </div>
                   </div>
-                );
-              })}
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
             </div>
 
-            {/* Pagination */}
-            <Pagination
-              pageNumber={page}
-              pageSize={pageSize}
-              totalCount={totalCount}
-              totalPages={totalPages}
-              onPageChange={(p) => setPage(p)}
-              onPageSizeChange={(s) => { setPageSize(s); setPage(1); }}
-            />
           </>
           )}
         </div>
@@ -1369,6 +1611,167 @@ export default function AppointmentsScreen() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal open={showQuickComplete} onClose={() => { setShowQuickComplete(false); setQuickCompleteTarget(null); }} title={t.quickCompleteTitle} maxWidth="max-w-lg">
+        {quickCompleteTarget && (
+          <form onSubmit={handleQuickComplete} className="space-y-5">
+            <div className={`rounded-xl border p-4 ${isDark ? "border-white/[0.06] bg-white/[0.03]" : "border-gray-200 bg-gray-50"}`}>
+              <p className={`text-sm font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{quickCompleteTarget.customerFullName}</p>
+              <div className={`mt-1 flex flex-wrap items-center gap-2 text-xs ${isDark ? "text-white/40" : "text-gray-500"}`}>
+                <span>{quickCompleteTarget.treatmentName}</span>
+                <span>•</span>
+                <span>{quickCompleteTarget.staffFullName}</span>
+                <span>•</span>
+                <span>{formatTime(quickCompleteTarget.startTime, language)}</span>
+              </div>
+            </div>
+
+            <div className={`flex items-center justify-between rounded-xl border px-4 py-3 ${isDark ? "border-white/[0.06] bg-white/[0.02]" : "border-gray-200 bg-gray-50"}`}>
+              <div>
+                <p className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.discount}</p>
+                <p className={`text-xs ${isDark ? "text-white/30" : "text-gray-500"}`}>
+                  {showDiscountFields
+                    ? (language === "tr" ? "İndirim alanları açık" : "Discount fields visible")
+                    : `${t.discountHidden} • ${t.discountShortcut}`}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const next = !showDiscountFields;
+                  setShowDiscountFields(next);
+                  if (typeof window !== "undefined") window.localStorage.setItem("appointments.showDiscountFields", String(next));
+                }}
+                className={`rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${isDark ? "border-white/10 text-white/70 hover:bg-white/5" : "border-gray-300 text-gray-700 hover:bg-gray-100"}`}
+              >
+                {t.discountShortcut}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>
+                  {showDiscountFields ? t.baseAmount : t.amount}
+                </label>
+                <input
+                  type="number"
+                  min={0}
+                  step={0.01}
+                  value={(showDiscountFields ? quickCompleteForm.originalAmount : quickCompleteForm.amount) || ""}
+                  onChange={(e) => {
+                    const value = Number(e.target.value);
+                    if (showDiscountFields) updateQuickCompleteForm({ originalAmount: value });
+                    else setQuickCompleteForm({ ...quickCompleteForm, amount: value, originalAmount: value });
+                  }}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10 bg-white/5 text-white" : "border-gray-200 bg-gray-50 text-gray-900"} px-3 py-2.5 text-sm focus:outline-none`}
+                />
+              </div>
+              <div className="space-y-2">
+                <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.currency}</label>
+                <select
+                  value={quickCompleteForm.currencyId}
+                  onChange={(e) => setQuickCompleteForm({ ...quickCompleteForm, currencyId: Number(e.target.value) })}
+                  className={`w-full rounded-xl border ${isDark ? "border-white/10 bg-white/5 text-white" : "border-gray-200 bg-gray-50 text-gray-900"} px-3 py-2.5 text-sm focus:outline-none`}
+                >
+                  {currencies.map((currency) => (
+                    <option key={currency.id} value={currency.id} className={isDark ? "bg-[#1a1a2e]" : "bg-white"}>
+                      {currency.symbol} {currency.code}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {showDiscountFields && (
+              <>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.discountType}</label>
+                    <select
+                      value={quickCompleteForm.discountType}
+                      onChange={(e) => updateQuickCompleteForm({ discountType: e.target.value as "amount" | "percent" })}
+                      className={`w-full rounded-xl border ${isDark ? "border-white/10 bg-white/5 text-white" : "border-gray-200 bg-gray-50 text-gray-900"} px-3 py-2.5 text-sm focus:outline-none`}
+                    >
+                      <option value="amount" className={isDark ? "bg-[#1a1a2e]" : "bg-white"}>{t.discountAmount}</option>
+                      <option value="percent" className={isDark ? "bg-[#1a1a2e]" : "bg-white"}>{t.discountPercent}</option>
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.discountValue}</label>
+                    <input
+                      type="number"
+                      min={0}
+                      step={quickCompleteForm.discountType === "percent" ? 1 : 0.01}
+                      value={quickCompleteForm.discountValue || ""}
+                      onChange={(e) => updateQuickCompleteForm({ discountValue: Number(e.target.value) })}
+                      className={`w-full rounded-xl border ${isDark ? "border-white/10 bg-white/5 text-white" : "border-gray-200 bg-gray-50 text-gray-900"} px-3 py-2.5 text-sm focus:outline-none`}
+                    />
+                  </div>
+                </div>
+
+                <div className={`rounded-xl border px-4 py-3 ${isDark ? "border-emerald-500/20 bg-emerald-500/10" : "border-emerald-200 bg-emerald-50"}`}>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className={isDark ? "text-white/60" : "text-gray-600"}>{t.netAmount}</span>
+                    <span className={`font-bold ${isDark ? "text-white" : "text-gray-900"}`}>{quickCompleteForm.amount.toFixed(2)}</span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            <div className="space-y-2">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.paymentMethod}</label>
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                {PAYMENT_METHODS.map((method) => (
+                  <button
+                    key={method.value}
+                    type="button"
+                    onClick={() => setQuickCompleteForm({ ...quickCompleteForm, paymentMethod: method.value })}
+                    className={`rounded-xl border px-4 py-3 text-left text-sm transition ${
+                      quickCompleteForm.paymentMethod === method.value
+                        ? isDark
+                          ? "border-emerald-500/40 bg-emerald-500/10 text-white"
+                          : "border-emerald-300 bg-emerald-50 text-gray-900"
+                        : isDark
+                          ? "border-white/[0.06] bg-white/[0.02] text-white/60 hover:bg-white/5"
+                          : "border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100"
+                    }`}
+                  >
+                    {language === "tr" ? method.tr : method.en}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className={`text-xs font-semibold tracking-wider ${isDark ? "text-white/40" : "text-gray-400"}`}>{t.notes}</label>
+              <textarea
+                value={quickCompleteForm.notes}
+                onChange={(e) => setQuickCompleteForm({ ...quickCompleteForm, notes: e.target.value })}
+                rows={3}
+                className={`w-full rounded-xl border ${isDark ? "border-white/10 bg-white/5 text-white" : "border-gray-200 bg-gray-50 text-gray-900"} px-3 py-2.5 text-sm focus:outline-none`}
+                placeholder={t.notesPlaceholder}
+              />
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                disabled={quickCompleting}
+                className={`flex-1 rounded-xl bg-gradient-to-r from-[#00a651] to-[#00c853] px-4 py-3 text-sm font-bold ${isDark ? "text-white" : "text-gray-900"} shadow-lg shadow-green-900/30 transition hover:shadow-green-900/50 disabled:opacity-50`}
+              >
+                {quickCompleting ? t.loading : t.quickCompleteSave}
+              </button>
+              <button
+                type="button"
+                onClick={() => { setShowQuickComplete(false); setQuickCompleteTarget(null); }}
+                className={`rounded-xl border ${isDark ? "border-white/10" : "border-gray-200"} px-6 py-3 text-sm font-medium ${isDark ? "text-white/60" : "text-gray-600"} transition ${isDark ? "hover:bg-white/5" : "hover:bg-gray-50"}`}
+              >
+                {t.cancel}
+              </button>
+            </div>
+          </form>
+        )}
       </Modal>
 
       {/* ═══════════════════════════════════════════

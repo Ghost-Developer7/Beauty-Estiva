@@ -106,16 +106,15 @@ export default function SignUpForm() {
   const onSubmit = async (data: SignUpFormData) => {
     try {
       const res = await tenantService.register({
-        companyName: data.companyName,
-        phone: data.phone,
-        address: data.address || "",
-        taxNumber: data.taxNumber || "",
-        taxOffice: data.taxOffice || "",
-        email: data.ownerEmail,
-        password: data.ownerPassword,
-        confirmPassword: data.ownerConfirmPassword,
-        name: data.ownerName,
-        surname: data.ownerSurname,
+        companyName: data.companyName.trim(),
+        phone: data.phone.trim(),
+        address: data.address?.trim() || undefined,
+        taxNumber: data.taxNumber?.trim() || undefined,
+        taxOffice: data.taxOffice?.trim() || undefined,
+        ownerEmail: data.ownerEmail.trim(),
+        ownerPassword: data.ownerPassword,
+        ownerName: data.ownerName.trim(),
+        ownerSurname: data.ownerSurname.trim(),
       });
       if (res.data.success) {
         toast.success(text.successMessage);

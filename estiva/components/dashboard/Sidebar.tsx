@@ -77,6 +77,7 @@ const navItems = {
   en: [
     { label: "Overview", href: "/dashboard", icon: IconHome },
     { label: "Appointments", href: "/dashboard/appointments", icon: IconClock },
+    { label: "Calendar", href: "/dashboard/calendar", icon: IconCalendar },
     { label: "Orders", href: "/dashboard/orders", icon: IconList },
     { label: "Customers", href: "/dashboard/customers", icon: IconUsers },
     { label: "Treatments", href: "/dashboard/treatments", icon: IconTag },
@@ -127,6 +128,7 @@ const navItems = {
   tr: [
     { label: "Özet", href: "/dashboard", icon: IconHome },
     { label: "Randevular", href: "/dashboard/appointments", icon: IconClock },
+    { label: "Takvim", href: "/dashboard/calendar", icon: IconCalendar },
     { label: "Adisyonlar", href: "/dashboard/orders", icon: IconList },
     { label: "Müşteriler", href: "/dashboard/customers", icon: IconUsers },
     { label: "Hizmetler", href: "/dashboard/treatments", icon: IconTag },

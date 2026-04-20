@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useTheme } from "@/contexts/ThemeContext";
 
 interface ModalProps {
@@ -35,9 +36,15 @@ export default function Modal({
     };
   }, [open, onClose]);
 
-  if (!open) return null;
+  if (!open || typeof document === "undefined") return null;
 
-  return (
+  const resolvedMaxWidth =
+    maxWidth === "max-w-lg" ? "32rem" :
+    maxWidth === "max-w-xl" ? "36rem" :
+    maxWidth === "max-w-2xl" ? "42rem" :
+    "32rem";
+
+  return createPortal(
     <div
       ref={overlayRef}
       onClick={(e) => { if (e.target === overlayRef.current) onClose(); }}
@@ -53,36 +60,44 @@ export default function Modal({
     >
       <div
         style={{
-          width: "100%",
-          maxWidth: maxWidth === "max-w-lg" ? "32rem" : maxWidth === "max-w-xl" ? "36rem" : maxWidth === "max-w-2xl" ? "42rem" : "32rem",
-          margin: "1rem auto",
-          borderRadius: "1rem",
-          border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e5e7eb",
-          background: isDark ? "#1a1a2e" : "#fff",
-          padding: "1.25rem",
-          boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+          minHeight: "calc(100vh - 2rem)",
+          display: "grid",
+          placeItems: "center",
         }}
       >
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
-          <h2 className={`text-base sm:text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h2>
-          <button
-            onClick={onClose}
-            className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
-              isDark
-                ? "text-white/50 hover:bg-white/10 hover:text-white"
-                : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
-            }`}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18" />
-              <line x1="6" y1="6" x2="18" y2="18" />
-            </svg>
-          </button>
+        <div
+          style={{
+            width: "100%",
+            maxWidth: resolvedMaxWidth,
+            maxHeight: "calc(100vh - 2rem)",
+            overflowY: "auto",
+            borderRadius: "1rem",
+            border: isDark ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e5e7eb",
+            background: isDark ? "#1a1a2e" : "#fff",
+            padding: "1.25rem",
+            boxShadow: "0 25px 50px rgba(0,0,0,0.25)",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1rem" }}>
+            <h2 className={`text-base sm:text-lg font-semibold ${isDark ? "text-white" : "text-gray-900"}`}>{title}</h2>
+            <button
+              onClick={onClose}
+              className={`flex h-8 w-8 items-center justify-center rounded-lg transition ${
+                isDark
+                  ? "text-white/50 hover:bg-white/10 hover:text-white"
+                  : "text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              }`}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+          <div>{children}</div>
         </div>
-        {/* Content — tüm form burada, sayfa scroll ile ulaşılır */}
-        <div>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

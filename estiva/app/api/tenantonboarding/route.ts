@@ -12,34 +12,20 @@ import crypto from "crypto";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      companyName,
-      taxNumber,
-      taxOffice,
-      address,
-      phone,
-      ownerEmail,
-      ownerPassword,
-      ownerName,
-      ownerSurname,
-    } = body;
+    const companyName = String(body.companyName || "").trim();
+    const taxNumber = String(body.taxNumber || "").trim();
+    const taxOffice = String(body.taxOffice || "").trim();
+    const address = String(body.address || "").trim();
+    const phone = String(body.phone || "").trim();
+    const ownerEmail = String(body.ownerEmail || "").trim();
+    const ownerPassword = String(body.ownerPassword || "");
+    const ownerName = String(body.ownerName || "").trim();
+    const ownerSurname = String(body.ownerSurname || "").trim();
 
-    // Validate required fields
-    if (
-      !companyName ||
-      !taxNumber ||
-      !taxOffice ||
-      !address ||
-      !phone ||
-      !ownerEmail ||
-      !ownerPassword ||
-      !ownerName ||
-      !ownerSurname
-    ) {
+    if (!companyName || !phone || !ownerEmail || !ownerPassword || !ownerName || !ownerSurname) {
       return fail("Tüm zorunlu alanlar doldurulmalıdır.", "VALIDATION_ERROR");
     }
 
-    // Check if email already exists
     const existingUser = await prisma.users.findFirst({
       where: {
         NormalizedEmail: ownerEmail.toUpperCase(),
@@ -51,22 +37,17 @@ export async function POST(req: NextRequest) {
       return fail("Bu e-posta adresi zaten kayıtlı.", "EMAIL_EXISTS");
     }
 
-    // Generate random 6-digit TenantUUID
     const tenantUUID = Math.floor(100000 + Math.random() * 900000);
-
-    // Hash password (ASP.NET Identity V3 compatible)
     const passwordHash = hashPasswordV3(ownerPassword);
 
-    // Create tenant and owner user in a transaction
     const result = await prisma.$transaction(async (tx) => {
-      // Create Tenant
       const tenant = await tx.tenants.create({
         data: {
           TenantUUID: tenantUUID,
           CompanyName: companyName,
-          TaxNumber: taxNumber,
-          TaxOffice: taxOffice,
-          Address: address,
+          TaxNumber: taxNumber || "",
+          TaxOffice: taxOffice || "",
+          Address: address || "",
           Phone: phone,
           ReminderHourBefore: 24,
           AppointmentSlotMinutes: 30,
@@ -79,7 +60,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Create Owner user
       const securityStamp = crypto.randomUUID();
       const concurrencyStamp = crypto.randomUUID();
 
@@ -107,7 +87,6 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Create or ensure "Owner" role exists
       let ownerRole = await tx.roles.findFirst({
         where: { NormalizedName: "OWNER" },
       });
@@ -122,7 +101,6 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // Assign Owner role to user
       await tx.userRoles.create({
         data: {
           UserId: user.Id,
